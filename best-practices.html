@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Practices - ML Resources Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .practices-content {
+            margin-top: 80px;
+            padding: 2rem;
+        }
+
+        .practice-section {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .practice-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .practice-item {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .practice-item:last-child {
+            border-bottom: none;
+        }
+
+        .practice-item h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .practice-item ul {
+            list-style-type: none;
+            padding-left: 1rem;
+        }
+
+        .practice-item li {
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .practice-item li:before {
+            content: "✓";
+            color: var(--secondary-color);
+            position: absolute;
+            left: 0;
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .tip {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="theory.html">ML Theory</a>
+            <a href="practice.html">ML Practice</a>
+            <a href="code-examples.html">Code Examples</a>
+            <a href="best-practices.html" class="active">Best Practices</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="practices-content">
+        <div class="container">
+            <h1>Machine Learning Best Practices</h1>
+            
+            <section class="practice-section">
+                <h2>Data Management</h2>
+                <div class="practice-item">
+                    <h3>Data Collection and Preparation</h3>
+                    <ul>
+                        <li>Ensure data quality and consistency</li>
+                        <li>Document data sources and collection methods</li>
+                        <li>Implement proper data versioning</li>
+                        <li>Handle missing values appropriately</li>
+                        <li>Normalize or standardize features when necessary</li>
+                    </ul>
+                    <div class="tip">
+                        <strong>Tip:</strong> Always keep a copy of the raw data before any preprocessing steps.
+                    </div>
+                </div>
+            </section>
+
+            <section class="practice-section">
+                <h2>Model Development</h2>
+                <div class="practice-item">
+                    <h3>Model Selection and Training</h3>
+                    <ul>
+                        <li>Start with simple models before moving to complex ones</li>
+                        <li>Use cross-validation for model evaluation</li>
+                        <li>Implement proper train-test-validation splits</li>
+                        <li>Monitor for overfitting and underfitting</li>
+                        <li>Document model architecture and hyperparameters</li>
+                    </ul>
+                    <div class="warning">
+                        <strong>Warning:</strong> Avoid overfitting by using regularization techniques and monitoring validation metrics.
+                    </div>
+                </div>
+            </section>
+
+            <section class="practice-section">
+                <h2>Code Organization</h2>
+                <div class="practice-item">
+                    <h3>Project Structure and Version Control</h3>
+                    <ul>
+                        <li>Use a consistent project structure</li>
+                        <li>Implement proper version control (Git)</li>
+                        <li>Write clean, documented code</li>
+                        <li>Use virtual environments for dependencies</li>
+                        <li>Create reproducible experiments</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="practice-section">
+                <h2>Model Deployment</h2>
+                <div class="practice-item">
+                    <h3>Production Considerations</h3>
+                    <ul>
+                        <li>Implement proper model versioning</li>
+                        <li>Monitor model performance in production</li>
+                        <li>Set up automated retraining pipelines</li>
+                        <li>Implement proper error handling</li>
+                        <li>Consider model interpretability</li>
+                    </ul>
+                    <div class="tip">
+                        <strong>Tip:</strong> Always have a rollback strategy for model deployments.
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html> 

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Practice - ML Resources Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .practice-content {
+            margin-top: 80px;
+            padding: 2rem;
+        }
+
+        .practice-section {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .practice-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .project-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .beginner { background-color: #2ecc71; color: white; }
+        .intermediate { background-color: #f1c40f; color: black; }
+        .advanced { background-color: #e74c3c; color: white; }
+
+        .prerequisites {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="theory.html">ML Theory</a>
+            <a href="practice.html" class="active">ML Practice</a>
+            <a href="code-examples.html">Code Examples</a>
+            <a href="best-practices.html">Best Practices</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="practice-content">
+        <div class="container">
+            <h1>Machine Learning Practice</h1>
+            
+            <section class="practice-section">
+                <h2>Beginner Projects</h2>
+                <div class="project-card">
+                    <span class="difficulty beginner">Beginner</span>
+                    <h3>Iris Flower Classification</h3>
+                    <p class="prerequisites">Prerequisites: Basic Python, scikit-learn</p>
+                    <p>Build a classifier to predict iris flower species using the famous Iris dataset.</p>
+                    <a href="#" class="btn">Start Project</a>
+                </div>
+
+                <div class="project-card">
+                    <span class="difficulty beginner">Beginner</span>
+                    <h3>House Price Prediction</h3>
+                    <p class="prerequisites">Prerequisites: Basic Python, pandas, scikit-learn</p>
+                    <p>Create a regression model to predict house prices based on various features.</p>
+                    <a href="#" class="btn">Start Project</a>
+                </div>
+            </section>
+
+            <section class="practice-section">
+                <h2>Intermediate Projects</h2>
+                <div class="project-card">
+                    <span class="difficulty intermediate">Intermediate</span>
+                    <h3>Sentiment Analysis</h3>
+                    <p class="prerequisites">Prerequisites: NLP, Text Processing, Classification</p>
+                    <p>Build a sentiment analyzer for movie reviews using NLP techniques.</p>
+                    <a href="#" class="btn">Start Project</a>
+                </div>
+
+                <div class="project-card">
+                    <span class="difficulty intermediate">Intermediate</span>
+                    <h3>Image Classification with CNN</h3>
+                    <p class="prerequisites">Prerequisites: Deep Learning, Computer Vision, TensorFlow/PyTorch</p>
+                    <p>Implement a Convolutional Neural Network for image classification.</p>
+                    <a href="#" class="btn">Start Project</a>
+                </div>
+            </section>
+
+            <section class="practice-section">
+                <h2>Advanced Projects</h2>
+                <div class="project-card">
+                    <span class="difficulty advanced">Advanced</span>
+                    <h3>Object Detection System</h3>
+                    <p class="prerequisites">Prerequisites: Deep Learning, Computer Vision, YOLO/SSD</p>
+                    <p>Develop a real-time object detection system using deep learning.</p>
+                    <a href="#" class="btn">Start Project</a>
+                </div>
+
+                <div class="project-card">
+                    <span class="difficulty advanced">Advanced</span>
+                    <h3>Recommendation System</h3>
+                    <p class="prerequisites">Prerequisites: Collaborative Filtering, Matrix Factorization</p>
+                    <p>Build a movie recommendation system using collaborative filtering.</p>
+                    <a href="#" class="btn">Start Project</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html> 

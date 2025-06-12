@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Examples - ML Resources Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+    <style>
+        .code-content {
+            margin-top: 80px;
+            padding: 2rem;
+        }
+
+        .code-section {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .code-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .code-block {
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        .code-block pre {
+            margin: 0;
+            border-radius: 5px;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .copy-button:hover {
+            background: var(--secondary-color);
+        }
+
+        .code-description {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="theory.html">ML Theory</a>
+            <a href="practice.html">ML Practice</a>
+            <a href="code-examples.html" class="active">Code Examples</a>
+            <a href="best-practices.html">Best Practices</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="code-content">
+        <div class="container">
+            <h1>Code Examples</h1>
+            
+            <section class="code-section">
+                <h2>Data Preprocessing</h2>
+                <div class="code-block">
+                    <p class="code-description">Example of data preprocessing using pandas and scikit-learn:</p>
+                    <pre><code class="language-python">import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+
+# Load data
+df = pd.read_csv('data.csv')
+
+# Handle missing values
+df = df.fillna(df.mean())
+
+# Feature scaling
+scaler = StandardScaler()
+X = scaler.fit_transform(df.drop('target', axis=1))
+y = df['target']
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)</code></pre>
+                    <button class="copy-button">Copy</button>
+                </div>
+            </section>
+
+            <section class="code-section">
+                <h2>Model Training</h2>
+                <div class="code-block">
+                    <p class="code-description">Example of training a Random Forest classifier:</p>
+                    <pre><code class="language-python">from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+
+# Initialize and train model
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Evaluate model
+print(classification_report(y_test, y_pred))</code></pre>
+                    <button class="copy-button">Copy</button>
+                </div>
+            </section>
+
+            <section class="code-section">
+                <h2>Deep Learning</h2>
+                <div class="code-block">
+                    <p class="code-description">Example of a simple neural network using PyTorch:</p>
+                    <pre><code class="language-python">import torch
+import torch.nn as nn
+
+class SimpleNN(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(SimpleNN, self).__init__()
+        self.layer1 = nn.Linear(input_size, hidden_size)
+        self.relu = nn.ReLU()
+        self.layer2 = nn.Linear(hidden_size, output_size)
+    
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.relu(x)
+        x = self.layer2(x)
+        return x
+
+# Initialize model
+model = SimpleNN(input_size=10, hidden_size=64, output_size=2)
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters())</code></pre>
+                    <button class="copy-button">Copy</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Add copy functionality to code blocks
+        document.querySelectorAll('.copy-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const codeBlock = button.previousElementSibling;
+                const code = codeBlock.textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    button.textContent = 'Copied!';
+                    setTimeout(() => {
+                        button.textContent = 'Copy';
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
