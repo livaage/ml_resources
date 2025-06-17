@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative Adversarial Networks - ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="../../index.html">
+                <img src="../../images/gan.svg" alt="GAN Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+                ML Resources Hub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../theory.html">Theory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../practice.html">Practice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../code-examples.html">Code Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../best-practices.html">Best Practices</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-tools"></i> This page is under construction. Content is being continuously updated.
+        </div>
+
+        <h1>Generative Adversarial Networks (GAN)</h1>
+        <p class="lead">Generative Adversarial Networks are a class of deep learning models that consist of two competing neural networks: 
+            a generator that creates synthetic data and a discriminator that tries to distinguish between real and generated data. 
+            This adversarial training process leads to the generation of increasingly realistic data, making GANs powerful tools for 
+            image generation, style transfer, and data augmentation.
+        </p>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Core Concepts</h2>
+                        <p>GANs are built on several key concepts that enable them to generate realistic data through adversarial training.</p>
+                        <ul>
+                            <li>
+                                <strong>Network Architecture</strong>
+                                <p>The structure of a GAN consists of:</p>
+                                <ul>
+                                    <li>Generator network</li>
+                                    <li>Discriminator network</li>
+                                    <li>Latent space</li>
+                                    <li>Adversarial training</li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li>
+                                <strong>Key Operations</strong>
+                                <p>The main operations in GANs include:</p>
+                                <ul>
+                                    <li>Data generation</li>
+                                    <li>Discrimination</li>
+                                    <li>Adversarial loss</li>
+                                    <li>Gradient updates</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h2>Key Components</h2>
+                                <div class="accordion" id="ganDetails">
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#networkComponents">
+                                                Network Components
+                                            </button>
+                                        </h3>
+                                        <div id="networkComponents" class="accordion-collapse collapse" data-bs-parent="#ganDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/generative_models.html" target="_blank">Generator network</a> - Deep Learning Book chapter on generative models</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/generative_models.html" target="_blank">Discriminator network</a> - Deep Learning Book chapter on generative models</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/mlp.html" target="_blank">Activation functions</a> - Deep Learning Book chapter on MLPs</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/regularization.html" target="_blank">Batch normalization</a> - Deep Learning Book chapter on regularization</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/regularization.html" target="_blank">Dropout layers</a> - Deep Learning Book chapter on regularization</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trainingComponents">
+                                                Training Components
+                                            </button>
+                                        </h3>
+                                        <div id="trainingComponents" class="accordion-collapse collapse" data-bs-parent="#ganDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/mlp.html" target="_blank">Adversarial loss</a> - Deep Learning Book chapter on MLPs</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/optimization.html" target="_blank">Optimizers</a> - Deep Learning Book chapter on optimization</li>
+                                                    <li><a href="https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ReduceLROnPlateau.html" target="_blank">Learning rate</a> - PyTorch documentation on learning rate schedulers</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/optimization.html" target="_blank">Batch size</a> - Deep Learning Book chapter on optimization</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/regularization.html" target="_blank">Noise injection</a> - Deep Learning Book chapter on regularization</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#advancedTopics">
+                                                Advanced Topics
+                                            </button>
+                                        </h3>
+                                        <div id="advancedTopics" class="accordion-collapse collapse" data-bs-parent="#ganDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/generative_models.html" target="_blank">Conditional GANs</a> - Deep Learning Book chapter on generative models</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/generative_models.html" target="_blank">CycleGAN</a> - Deep Learning Book chapter on generative models</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/generative_models.html" target="_blank">StyleGAN</a> - Deep Learning Book chapter on generative models</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/generative_models.html" target="_blank">Wasserstein GAN</a> - Deep Learning Book chapter on generative models</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/generative_models.html" target="_blank">Progressive GAN</a> - Deep Learning Book chapter on generative models</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-center mb-4">
+                    <img src="../../images/gan.svg" alt="GAN" class="img-fluid" style="max-width: 200px;">
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>External Resources</h2>
+                        <div class="list-group">
+                            <a href="https://www.deeplearningbook.org/contents/generative_models.html" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-book"></i> Deep Learning Book
+                                <p class="mb-0">Chapter on Generative Models</p>
+                            </a>
+                            <a href="https://www.coursera.org/learn/generative-adversarial-networks-gans" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-video"></i> GANs Specialization
+                                <p class="mb-0">DeepLearning.AI course on GANs</p>
+                            </a>
+                            <a href="https://thispersondoesnotexist.com/" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-image"></i> This Person Does Not Exist
+                                <p class="mb-0">Example of GAN-generated faces</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h2>Related Topics</h2>
+                        <div class="list-group">
+                            <a href="dnn.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Deep Neural Networks</h5>
+                                <p class="mb-0">Foundation of GANs</p>
+                            </a>
+                            <a href="autoencoder.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Autoencoders</h5>
+                                <p class="mb-0">Related generative models</p>
+                            </a>
+                            <a href="../computer-vision.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Computer Vision</h5>
+                                <p class="mb-0">Key application of GANs</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2>Implementation Examples</h2>
+                <ul class="nav nav-tabs mb-3" id="implementationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="keras-tab" data-bs-toggle="tab" data-bs-target="#keras" type="button" role="tab">Keras</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pytorch-tab" data-bs-toggle="tab" data-bs-target="#pytorch" type="button" role="tab">PyTorch</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="implementationTabsContent">
+                    <div class="tab-pane fade show active" id="keras" role="tabpanel">
+                        <div class="code-example">
+                            <h3>GAN with TensorFlow/Keras</h3>
+                            <pre><code class="language-python">import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def create_generator(latent_dim):
+    model = models.Sequential([
+        layers.Dense(256, input_dim=latent_dim),
+        layers.LeakyReLU(alpha=0.2),
+        layers.BatchNormalization(),
+        layers.Dense(512),
+        layers.LeakyReLU(alpha=0.2),
+        layers.BatchNormalization(),
+        layers.Dense(1024),
+        layers.LeakyReLU(alpha=0.2),
+        layers.BatchNormalization(),
+        layers.Dense(784, activation='tanh'),
+        layers.Reshape((28, 28, 1))
+    ])
+    return model
+
+def create_discriminator(input_shape):
+    model = models.Sequential([
+        layers.Flatten(input_shape=input_shape),
+        layers.Dense(512),
+        layers.LeakyReLU(alpha=0.2),
+        layers.Dropout(0.3),
+        layers.Dense(256),
+        layers.LeakyReLU(alpha=0.2),
+        layers.Dropout(0.3),
+        layers.Dense(1, activation='sigmoid')
+    ])
+    return model
+
+# Example usage
+latent_dim = 100
+input_shape = (28, 28, 1)
+
+generator = create_generator(latent_dim)
+discriminator = create_discriminator(input_shape)
+
+# Compile discriminator
+discriminator.compile(
+    optimizer='adam',
+    loss='binary_crossentropy',
+    metrics=['accuracy']
+)</code></pre>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pytorch" role="tabpanel">
+                        <div class="code-example">
+                            <h3>GAN with PyTorch</h3>
+                            <pre><code class="language-python">import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class Generator(nn.Module):
+    def __init__(self, latent_dim):
+        super(Generator, self).__init__()
+        self.model = nn.Sequential(
+            nn.Linear(latent_dim, 256),
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm1d(256),
+            nn.Linear(256, 512),
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm1d(512),
+            nn.Linear(512, 1024),
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm1d(1024),
+            nn.Linear(1024, 784),
+            nn.Tanh()
+        )
+    
+    def forward(self, z):
+        img = self.model(z)
+        img = img.view(img.size(0), 1, 28, 28)
+        return img
+
+class Discriminator(nn.Module):
+    def __init__(self):
+        super(Discriminator, self).__init__()
+        self.model = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(784, 512),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(0.3),
+            nn.Linear(512, 256),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(0.3),
+            nn.Linear(256, 1),
+            nn.Sigmoid()
+        )
+    
+    def forward(self, img):
+        return self.model(img)
+
+# Example usage
+latent_dim = 100
+generator = Generator(latent_dim)
+discriminator = Discriminator()
+
+# Define optimizers
+g_optimizer = torch.optim.Adam(generator.parameters(), lr=0.0002, betas=(0.5, 0.999))
+d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-4">
+        <div class="container">
+            <p>Contact: <a href="mailto:liv.helen.vage@cern.ch">liv.helen.vage@cern.ch</a></p>
+            <p>Last updated: March 2024</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

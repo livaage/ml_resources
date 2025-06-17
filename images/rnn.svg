@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background circle -->
+    <circle cx="100" cy="100" r="90" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+    
+    <!-- RNN Cells -->
+    <g transform="translate(35, 60)">
+        <!-- Cell 1 -->
+        <rect x="0" y="0" width="30" height="30" fill="#0d6efd" opacity="0.8"/>
+        <circle cx="15" cy="15" r="10" fill="#0d6efd"/>
+        
+        <!-- Cell 2 -->
+        <rect x="45" y="0" width="30" height="30" fill="#0d6efd" opacity="0.8"/>
+        <circle cx="60" cy="15" r="10" fill="#0d6efd"/>
+        
+        <!-- Cell 3 -->
+        <rect x="90" y="0" width="30" height="30" fill="#0d6efd" opacity="0.8"/>
+        <circle cx="105" cy="15" r="10" fill="#0d6efd"/>
+    </g>
+    
+    <!-- Input Arrows -->
+    <g stroke="#6c757d" stroke-width="1" fill="none">
+        <path d="M25,75 L35,75" marker-end="url(#arrowhead)"/>
+        <path d="M25,75 L65,75" marker-end="url(#arrowhead)"/>
+        <path d="M25,75 L95,75" marker-end="url(#arrowhead)"/>
+    </g>
+    
+    <!-- Recurrent Connections -->
+    <g stroke="#0d6efd" stroke-width="1" fill="none">
+        <!-- Self-connections -->
+        <path d="M60,45 C60,35 70,35 70,45" marker-end="url(#arrowhead)"/>
+        <path d="M105,45 C105,35 115,35 115,45" marker-end="url(#arrowhead)"/>
+        
+        <!-- Forward connections -->
+        <path d="M80,75 L80,45" marker-end="url(#arrowhead)"/>
+        <path d="M125,75 L125,45" marker-end="url(#arrowhead)"/>
+    </g>
+    
+    <!-- Arrow marker definition -->
+    <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#6c757d"/>
+        </marker>
+    </defs>
+</svg> 

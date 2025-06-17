@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Vector Machines - ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">ML Resources</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../theory.html">Theory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../practice.html">Practice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../code-examples.html">Code Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../best-practices.html">Best Practices</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-tools"></i> This page is under construction. Content is being continuously updated.
+        </div>
+
+        <h1>Support Vector Machines (SVM)</h1>
+        <p class="lead">Support Vector Machines are powerful supervised learning algorithms that find optimal decision boundaries by maximizing the margin between classes. 
+            They are particularly effective in high-dimensional spaces and can handle both linear and non-linear classification problems. 
+            To understand the basic principles of SVMs, please check out <a href="https://mlu-explain.github.io/support-vector-machine/" target="_blank">this interactive visualization</a>.
+        </p>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Core Concepts</h2>
+                        <p>SVMs are versatile algorithms that can be used for both classification and regression tasks. They are particularly valuable because:</p>
+                        
+                        <ul>
+                            <li>
+                                <strong>Maximum Margin Classification</strong>
+                                <p>SVMs find the optimal hyperplane that maximizes the margin between classes. This approach:</p>
+                                <ul>
+                                    <li>Provides better generalization</li>
+                                    <li>Is robust to outliers</li>
+                                    <li>Works well in high-dimensional spaces</li>
+                                    <li>Has strong theoretical guarantees</li>
+                                </ul>
+                                <p>You can see a beautiful visualization and explanation of how SVMs work <a href="https://mlu-explain.github.io/support-vector-machine/" target="_blank">here</a>.</p>
+                            </li>
+                            <br>
+                            <li>
+                                <strong>Kernel Methods</strong>
+                                <p>SVMs can handle non-linear classification through kernel tricks, which:</p>
+                                <ul>
+                                    <li>Map data to higher dimensions</li>
+                                    <li>Enable non-linear decision boundaries</li>
+                                    <li>Maintain computational efficiency</li>
+                                    <li>Support various kernel functions</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <div class="table-responsive mt-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Aspect</th>
+                                        <th>Linear SVM</th>
+                                        <th>Kernel SVM</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Complexity</strong></td>
+                                        <td>Lower</td>
+                                        <td>Higher</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Training Speed</strong></td>
+                                        <td>Faster</td>
+                                        <td>Slower</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Memory Usage</strong></td>
+                                        <td>Lower</td>
+                                        <td>Higher</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Use Cases</strong></td>
+                                        <td>Linear separable data</td>
+                                        <td>Non-linear patterns</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Hyperparameters</strong></td>
+                                        <td>Mainly C</td>
+                                        <td>C and kernel parameters</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h2>Detailed Concepts</h2>
+                                <div class="accordion" id="svmDetails">
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#svmDetailsContent">
+                                                SVM Concepts
+                                            </button>
+                                        </h3>
+                                        <div id="svmDetailsContent" class="accordion-collapse collapse" data-bs-parent="#svmDetails">
+                                            <div class="accordion-body">
+                                                <h4>1. Basic Principles</h4>
+                                                <ul>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/svm.html#classification" target="_blank">Linear SVM classification</a>
+                                                        - Finding the optimal hyperplane
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/svm.html#mathematical-formulation" target="_blank">Mathematical formulation</a>
+                                                        - Understanding the optimization problem
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/svm.html#kernel-functions" target="_blank">Kernel functions</a>
+                                                        - Transforming data to higher dimensions
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/svm.html#svc" target="_blank">Support vectors</a>
+                                                        - Identifying critical training points
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/svm.html#svm-regression" target="_blank">SVM regression</a>
+                                                        - Using SVMs for regression tasks
+                                                    </li>
+                                                </ul>
+
+                                                <h4>2. Advanced Topics</h4>
+                                                <ul>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/svm.html#svc" target="_blank">Multi-class classification</a>
+                                                        - Handling multiple classes
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/svm.html#svm-tips" target="_blank">Parameter selection</a>
+                                                        - Choosing optimal hyperparameters
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/svm.html#complexity" target="_blank">Computational complexity</a>
+                                                        - Understanding performance considerations
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/svm.html#svm-tips" target="_blank">Practical tips</a>
+                                                        - Best practices for implementation
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h2>Implementation Examples</h2>
+                                <div class="accordion" id="implementationAccordion">
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#linearSVMExample">
+                                                Linear SVM Implementation
+                                            </button>
+                                        </h3>
+                                        <div id="linearSVMExample" class="accordion-collapse collapse show" data-bs-parent="#implementationAccordion">
+                                            <div class="accordion-body">
+                                                <pre><code class="language-python">
+# Import necessary libraries
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+import numpy as np
+import pandas as pd
+
+# Prepare your data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, 
+    test_size=0.2, 
+    random_state=42
+)
+
+# Scale the features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Initialize and train the model
+svm = SVC(
+    kernel='linear',
+    C=1.0,              # Regularization parameter
+    random_state=42
+)
+svm.fit(X_train_scaled, y_train)
+
+# Make predictions
+y_pred = svm.predict(X_test_scaled)
+
+# Model Evaluation
+from sklearn.metrics import accuracy_score, classification_report
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy:.2f}")
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+
+# Get support vectors
+support_vectors = svm.support_vectors_
+print(f"\nNumber of support vectors: {len(support_vectors)}")
+                                                </code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#kernelSVMExample">
+                                                Kernel SVM Implementation
+                                            </button>
+                                        </h3>
+                                        <div id="kernelSVMExample" class="accordion-collapse collapse" data-bs-parent="#implementationAccordion">
+                                            <div class="accordion-body">
+                                                <pre><code class="language-python">
+# Import necessary libraries
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import GridSearchCV
+import numpy as np
+import pandas as pd
+
+# Scale the features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Define parameter grid for grid search
+param_grid = {
+    'C': [0.1, 1, 10, 100],
+    'gamma': ['scale', 'auto', 0.1, 0.01],
+    'kernel': ['rbf', 'poly', 'sigmoid']
+}
+
+# Initialize and train the model with grid search
+svm = SVC(random_state=42)
+grid_search = GridSearchCV(
+    svm, 
+    param_grid, 
+    cv=5, 
+    scoring='accuracy',
+    n_jobs=-1
+)
+grid_search.fit(X_train_scaled, y_train)
+
+# Get best parameters
+print("Best parameters:", grid_search.best_params_)
+
+# Make predictions with best model
+best_svm = grid_search.best_estimator_
+y_pred = best_svm.predict(X_test_scaled)
+
+# Model Evaluation
+from sklearn.metrics import accuracy_score, classification_report
+accuracy = accuracy_score(y_test, y_pred)
+print(f"\nAccuracy: {accuracy:.2f}")
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+
+# Get support vectors
+support_vectors = best_svm.support_vectors_
+print(f"\nNumber of support vectors: {len(support_vectors)}")
+                                                </code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3>External Resources</h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="https://scikit-learn.org/stable/modules/svm.html" target="_blank">
+                                    <i class="fas fa-book"></i> Scikit-learn Documentation
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://www.coursera.org/learn/machine-learning" target="_blank">
+                                    <i class="fas fa-graduation-cap"></i> Coursera - Machine Learning
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://www.youtube.com/watch?v=efR1C6CvhmE" target="_blank">
+                                    <i class="fas fa-video"></i> StatQuest - SVM
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://www.kaggle.com/learn/intro-to-machine-learning" target="_blank">
+                                    <i class="fas fa-laptop-code"></i> Kaggle - Intro to ML
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Related Topics</h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="linear-algebra.html">
+                                    <i class="fas fa-link"></i> Linear Algebra
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="gradient-descent.html">
+                                    <i class="fas fa-link"></i> Gradient Descent
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="logistic-regression.html">
+                                    <i class="fas fa-link"></i> Logistic Regression
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-light mt-5">
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Contact</h5>
+                    <p>Email: <a href="mailto:your.email@example.com" class="text-light">your.email@example.com</a></p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>Last updated: March 2024</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

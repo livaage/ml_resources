@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervised & Unsupervised Learning - ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .topic-content {
+            margin-top: 80px;
+            padding: 2rem;
+        }
+
+        .topic-section {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .topic-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .topic-section h3 {
+            color: var(--secondary-color);
+            margin: 1.5rem 0 1rem;
+        }
+
+        .example-box {
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        .example-box h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            font-family: monospace;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html">ML Theory</a>
+            <a href="../practice.html">ML Practice</a>
+            <a href="../code-examples.html">Code Examples</a>
+            <a href="../best-practices.html">Best Practices</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="topic-content">
+        <div class="container">
+            <h1>Supervised & Unsupervised Learning</h1>
+            
+            <section class="topic-section">
+                <h2>Overview</h2>
+                <p>Machine learning can be broadly categorized into two main types: supervised and unsupervised learning. These approaches differ in how they learn from data and what kind of problems they're best suited for.</p>
+            </section>
+
+            <section class="topic-section">
+                <h2>Supervised Learning</h2>
+                <p>Supervised learning is a type of machine learning where the algorithm learns from labeled training data. The goal is to learn a mapping from inputs to outputs.</p>
+
+                <h3>Key Characteristics</h3>
+                <ul>
+                    <li>Uses labeled training data</li>
+                    <li>Learns to predict outputs from inputs</li>
+                    <li>Can be used for classification and regression</li>
+                    <li>Requires human supervision for labeling</li>
+                </ul>
+
+                <h3>Common Applications</h3>
+                <ul>
+                    <li>Image classification</li>
+                    <li>Spam detection</li>
+                    <li>Price prediction</li>
+                    <li>Medical diagnosis</li>
+                </ul>
+
+                <div class="example-box">
+                    <h4>Example: Email Spam Classification</h4>
+                    <p>In spam detection, the algorithm learns from emails that are labeled as "spam" or "not spam" to predict the category of new emails.</p>
+                </div>
+            </section>
+
+            <section class="topic-section">
+                <h2>Unsupervised Learning</h2>
+                <p>Unsupervised learning is a type of machine learning where the algorithm learns patterns from unlabeled data without explicit supervision.</p>
+
+                <h3>Key Characteristics</h3>
+                <ul>
+                    <li>Uses unlabeled data</li>
+                    <li>Discovers hidden patterns and structures</li>
+                    <li>Used for clustering and dimensionality reduction</li>
+                    <li>No human supervision required</li>
+                </ul>
+
+                <h3>Common Applications</h3>
+                <ul>
+                    <li>Customer segmentation</li>
+                    <li>Anomaly detection</li>
+                    <li>Topic modeling</li>
+                    <li>Image compression</li>
+                </ul>
+
+                <div class="example-box">
+                    <h4>Example: Customer Segmentation</h4>
+                    <p>In customer segmentation, the algorithm groups customers based on their behavior patterns without any predefined categories.</p>
+                </div>
+            </section>
+
+            <section class="topic-section">
+                <h2>Comparison</h2>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Feature</th>
+                        <th>Supervised Learning</th>
+                        <th>Unsupervised Learning</th>
+                    </tr>
+                    <tr>
+                        <td>Training Data</td>
+                        <td>Labeled</td>
+                        <td>Unlabeled</td>
+                    </tr>
+                    <tr>
+                        <td>Learning Process</td>
+                        <td>Learning from examples</td>
+                        <td>Finding patterns</td>
+                    </tr>
+                    <tr>
+                        <td>Output</td>
+                        <td>Predictions</td>
+                        <td>Patterns/Structures</td>
+                    </tr>
+                    <tr>
+                        <td>Applications</td>
+                        <td>Classification, Regression</td>
+                        <td>Clustering, Dimensionality Reduction</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="topic-section">
+                <h2>Code Example</h2>
+                <div class="code-example">
+                    <pre><code># Supervised Learning Example (Classification)
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+
+# Load data
+iris = load_iris()
+X_train, X_test, y_train, y_test = train_test_split(
+    iris.data, iris.target, test_size=0.2
+)
+
+# Train model
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+# Unsupervised Learning Example (Clustering)
+from sklearn.cluster import KMeans
+
+# Perform clustering
+kmeans = KMeans(n_clusters=3)
+clusters = kmeans.fit_predict(iris.data)</code></pre>
+                </div>
+            </section>
+
+            <section class="topic-section">
+                <h2>Further Reading</h2>
+                <ul>
+                    <li>
+                        <a href="https://scikit-learn.org/stable/supervised_learning.html" target="_blank" class="external-link">
+                            Scikit-learn Supervised Learning Documentation
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://scikit-learn.org/stable/unsupervised_learning.html" target="_blank" class="external-link">
+                            Scikit-learn Unsupervised Learning Documentation
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.coursera.org/learn/machine-learning" target="_blank" class="external-link">
+                            Machine Learning Course by Andrew Ng
+                        </a>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html> 

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Networks - ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">ML Resources</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../theory.html">Theory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../practice.html">Practice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../code-examples.html">Code Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../best-practices.html">Best Practices</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-tools"></i> This page is under construction. Content is being continuously updated.
+        </div>
+
+        <h1>Neural Networks</h1>
+        <p class="lead">Understanding the fundamental building blocks of deep learning</p>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Core Concepts</h2>
+                        
+                        <h3>1. Basic Principles</h3>
+                        <ul>
+                            <li>Neuron structure and activation functions</li>
+                            <li>Feedforward neural networks</li>
+                            <li>Backpropagation algorithm</li>
+                            <li>Loss functions and optimization</li>
+                            <li>Network architecture design</li>
+                        </ul>
+
+                        <h3>2. Network Types</h3>
+                        <ul>
+                            <li><a href="neural-networks/dnn.html">Deep Neural Networks (DNN)</a></li>
+                            <li><a href="neural-networks/cnn.html">Convolutional Neural Networks (CNN)</a></li>
+                            <li><a href="neural-networks/rnn.html">Recurrent Neural Networks (RNN)</a></li>
+                            <li><a href="neural-networks/transformer.html">Transformer Networks</a></li>
+                            <li><a href="neural-networks/gnn.html">Graph Neural Networks (GNN)</a></li>
+                            <li>Autoencoders and GANs (Coming Soon)</li>
+                        </ul>
+
+                        <h3>3. Advanced Topics</h3>
+                        <ul>
+                            <li>Regularization techniques</li>
+                            <li>Batch normalization</li>
+                            <li>Dropout and early stopping</li>
+                            <li>Transfer learning</li>
+                            <li>Model interpretability</li>
+                        </ul>
+
+                        <h3>4. Practical Considerations</h3>
+                        <ul>
+                            <li>Data preprocessing</li>
+                            <li>Hyperparameter tuning</li>
+                            <li>Training strategies</li>
+                            <li>Hardware requirements</li>
+                            <li>Common pitfalls and solutions</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Implementation Examples</h2>
+                        <div class="accordion" id="implementationAccordion">
+                            <div class="accordion-item">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#pythonExample">
+                                        Python Implementation
+                                    </button>
+                                </h3>
+                                <div id="pythonExample" class="accordion-collapse collapse show" data-bs-parent="#implementationAccordion">
+                                    <div class="accordion-body">
+                                        <pre><code class="language-python">
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+# Create a simple neural network
+model = models.Sequential([
+    layers.Dense(64, activation='relu', input_shape=(input_dim,)),
+    layers.Dropout(0.2),
+    layers.Dense(32, activation='relu'),
+    layers.Dense(output_dim, activation='softmax')
+])
+
+# Compile the model
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# Train the model
+history = model.fit(
+    X_train, y_train,
+    epochs=50,
+    batch_size=32,
+    validation_split=0.2,
+    callbacks=[
+        tf.keras.callbacks.EarlyStopping(
+            monitor='val_loss',
+            patience=5
+        )
+    ]
+)
+                                        </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3>External Resources</h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="https://www.tensorflow.org/guide/keras" target="_blank">
+                                    <i class="fas fa-book"></i> TensorFlow Documentation
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://www.deeplearning.ai/" target="_blank">
+                                    <i class="fas fa-graduation-cap"></i> DeepLearning.AI
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://www.youtube.com/watch?v=aircAruvnKk" target="_blank">
+                                    <i class="fas fa-video"></i> 3Blue1Brown - Neural Networks
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://www.fast.ai/" target="_blank">
+                                    <i class="fas fa-laptop-code"></i> Fast.ai
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Related Topics</h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="gradient-descent.html">
+                                    <i class="fas fa-link"></i> Gradient Descent
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="linear-algebra.html">
+                                    <i class="fas fa-link"></i> Linear Algebra
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="statistics-probability.html">
+                                    <i class="fas fa-link"></i> Statistics & Probability
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-light mt-5">
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Contact</h5>
+                    <p>Email: <a href="mailto:your.email@example.com" class="text-light">your.email@example.com</a></p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>Last updated: March 2024</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

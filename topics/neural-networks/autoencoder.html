@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autoencoders - ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="../../index.html">
+                <img src="../../images/autoencoder.svg" alt="Autoencoder Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+                ML Resources Hub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../theory.html">Theory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../practice.html">Practice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../code-examples.html">Code Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../best-practices.html">Best Practices</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            This page is under construction. Content is being continuously updated.
+        </div>
+
+        <div class="lead mb-4">
+            <img src="../../images/autoencoder.svg" alt="Autoencoder Logo" class="float-end ms-3" style="width: 150px; height: 150px;">
+            Autoencoders are neural networks designed to learn efficient representations of data through unsupervised learning. They work by compressing input data into a lower-dimensional latent space and then reconstructing the original input. This architecture makes them valuable for dimensionality reduction, feature learning, and anomaly detection tasks.
+        </div>
+
+        <h1>Autoencoders</h1>
+        <p class="lead">Autoencoders are neural networks designed for unsupervised learning and dimensionality reduction. 
+            They learn to compress data into a lower-dimensional representation and then reconstruct it back to its original form, 
+            making them useful for feature learning, denoising, and anomaly detection.
+        </p>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Core Concepts</h2>
+                        <p>Autoencoders are built on several key concepts that enable them to effectively learn data representations.</p>
+                        <ul>
+                            <li>
+                                <strong>Network Architecture</strong>
+                                <p>The structure of an Autoencoder consists of:</p>
+                                <ul>
+                                    <li>Encoder network for compression</li>
+                                    <li>Latent space representation</li>
+                                    <li>Decoder network for reconstruction</li>
+                                    <li>Bottleneck layer</li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li>
+                                <strong>Key Operations</strong>
+                                <p>The main operations in Autoencoders include:</p>
+                                <ul>
+                                    <li>Data compression</li>
+                                    <li>Feature extraction</li>
+                                    <li>Data reconstruction</li>
+                                    <li>Loss computation</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h2>Key Components</h2>
+                                <div class="accordion" id="autoencoderDetails">
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#networkComponents">
+                                                Network Components
+                                            </button>
+                                        </h3>
+                                        <div id="networkComponents" class="accordion-collapse collapse" data-bs-parent="#autoencoderDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li>Encoder layers</li>
+                                                    <li>Decoder layers</li>
+                                                    <li>Latent space</li>
+                                                    <li>Activation functions</li>
+                                                    <li>Bottleneck</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trainingComponents">
+                                                Training Components
+                                            </button>
+                                        </h3>
+                                        <div id="trainingComponents" class="accordion-collapse collapse" data-bs-parent="#autoencoderDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li>Reconstruction loss</li>
+                                                    <li>Optimizers</li>
+                                                    <li>Learning rate</li>
+                                                    <li>Batch size</li>
+                                                    <li>Regularization</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#advancedTopics">
+                                                Advanced Topics
+                                            </button>
+                                        </h3>
+                                        <div id="advancedTopics" class="accordion-collapse collapse" data-bs-parent="#autoencoderDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li>Variational autoencoders</li>
+                                                    <li>Denoising autoencoders</li>
+                                                    <li>Sparse autoencoders</li>
+                                                    <li>Contractive autoencoders</li>
+                                                    <li>Adversarial autoencoders</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>External Resources</h2>
+                        <div class="list-group">
+                            <a href="https://www.tensorflow.org/tutorials/generative/autoencoder" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-book"></i> TensorFlow Autoencoder Guide
+                                <p class="mb-0">Official guide to autoencoder implementation</p>
+                            </a>
+                            <a href="https://lilianweng.github.io/posts/2018-08-12-vae/" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-graduation-cap"></i> VAE Tutorial
+                                <p class="mb-0">Comprehensive VAE tutorial</p>
+                            </a>
+                            <a href="https://www.coursera.org/learn/unsupervised-learning" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-video"></i> Unsupervised Learning
+                                <p class="mb-0">Deep learning course on autoencoders</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h2>Related Topics</h2>
+                        <div class="list-group">
+                            <a href="dnn.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Deep Neural Networks</h5>
+                                <p class="mb-0">Foundation of autoencoders</p>
+                            </a>
+                            <a href="../dimensionality-reduction.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Dimensionality Reduction</h5>
+                                <p class="mb-0">Key application of autoencoders</p>
+                            </a>
+                            <a href="gan.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Generative Adversarial Networks</h5>
+                                <p class="mb-0">Related generative models</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2>Implementation Examples</h2>
+                <div class="code-example">
+                    <h3>Autoencoder with TensorFlow/Keras</h3>
+                    <pre><code class="language-python">import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def create_autoencoder(input_shape, encoding_dim):
+    # Encoder
+    encoder_input = layers.Input(shape=input_shape)
+    x = layers.Dense(128, activation='relu')(encoder_input)
+    x = layers.Dense(64, activation='relu')(x)
+    encoded = layers.Dense(encoding_dim, activation='relu')(x)
+    
+    # Decoder
+    x = layers.Dense(64, activation='relu')(encoded)
+    x = layers.Dense(128, activation='relu')(x)
+    decoded = layers.Dense(input_shape[0], activation='sigmoid')(x)
+    
+    # Autoencoder model
+    autoencoder = models.Model(encoder_input, decoded)
+    
+    # Encoder model
+    encoder = models.Model(encoder_input, encoded)
+    
+    # Decoder model
+    decoder_input = layers.Input(shape=(encoding_dim,))
+    x = layers.Dense(64, activation='relu')(decoder_input)
+    x = layers.Dense(128, activation='relu')(x)
+    decoder_output = layers.Dense(input_shape[0], activation='sigmoid')(x)
+    decoder = models.Model(decoder_input, decoder_output)
+    
+    return autoencoder, encoder, decoder
+
+# Example usage
+input_shape = (784,)  # For MNIST-like data
+encoding_dim = 32     # Latent space dimension
+
+autoencoder, encoder, decoder = create_autoencoder(input_shape, encoding_dim)
+autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
+autoencoder.summary()</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-4">
+        <div class="container">
+            <p>Contact: <a href="mailto:liv.helen.vage@cern.ch">liv.helen.vage@cern.ch</a></p>
+            <p>Last updated: March 2024</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background circle -->
+    <circle cx="100" cy="100" r="90" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+    
+    <!-- Graph Nodes -->
+    <g>
+        <!-- Center Node -->
+        <circle cx="100" cy="100" r="15" fill="#0d6efd"/>
+        <circle cx="100" cy="100" r="12" fill="#0d6efd" opacity="0.8"/>
+        <circle cx="100" cy="100" r="9" fill="#0d6efd" opacity="0.6"/>
+        
+        <!-- Surrounding Nodes -->
+        <circle cx="60" cy="70" r="12" fill="#0dcaf0"/>
+        <circle cx="140" cy="70" r="12" fill="#0dcaf0"/>
+        <circle cx="60" cy="130" r="12" fill="#0dcaf0"/>
+        <circle cx="140" cy="130" r="12" fill="#0dcaf0"/>
+        
+        <!-- Feature Vectors -->
+        <g transform="translate(60, 70)">
+            <rect x="-8" y="-8" width="16" height="16" fill="#0dcaf0" opacity="0.4"/>
+            <line x1="-4" y1="0" x2="4" y2="0" stroke="#ffffff" stroke-width="1"/>
+            <line x1="0" y1="-4" x2="0" y2="4" stroke="#ffffff" stroke-width="1"/>
+        </g>
+        
+        <g transform="translate(140, 70)">
+            <rect x="-8" y="-8" width="16" height="16" fill="#0dcaf0" opacity="0.4"/>
+            <line x1="-4" y1="0" x2="4" y2="0" stroke="#ffffff" stroke-width="1"/>
+            <line x1="0" y1="-4" x2="0" y2="4" stroke="#ffffff" stroke-width="1"/>
+        </g>
+    </g>
+    
+    <!-- Graph Edges -->
+    <g stroke="#adb5bd" stroke-width="1">
+        <!-- Center to Surrounding -->
+        <line x1="85" y1="85" x2="60" y2="70"/>
+        <line x1="115" y1="85" x2="140" y2="70"/>
+        <line x1="85" y1="115" x2="60" y2="130"/>
+        <line x1="115" y1="115" x2="140" y2="130"/>
+        
+        <!-- Surrounding Connections -->
+        <line x1="60" y1="70" x2="140" y2="70"/>
+        <line x1="60" y1="130" x2="140" y2="130"/>
+        <line x1="60" y1="70" x2="60" y2="130"/>
+        <line x1="140" y1="70" x2="140" y2="130"/>
+    </g>
+    
+    <!-- Message Passing Arrows -->
+    <g stroke="#0d6efd" stroke-width="1" fill="none">
+        <path d="M70,80 C80,85 80,85 90,80" marker-end="url(#arrowhead)"/>
+        <path d="M130,80 C120,85 120,85 110,80" marker-end="url(#arrowhead)"/>
+    </g>
+    
+    <!-- Arrow marker definition -->
+    <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#0d6efd"/>
+        </marker>
+    </defs>
+</svg> 

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Neural Networks - ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="../../index.html">
+                <img src="../../images/gnn.svg" alt="GNN Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+                ML Resources Hub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../theory.html">Theory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../practice.html">Practice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../code-examples.html">Code Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../best-practices.html">Best Practices</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-tools"></i> This page is under construction. Content is being continuously updated.
+        </div>
+
+        <h1>Graph Neural Networks (GNN)</h1>
+        <p class="lead">
+            <img src="../../images/gnn.svg" alt="GNN Logo" class="float-end ms-3" style="width: 150px; height: 150px;">
+            Graph Neural Networks (GNNs) are a class of deep learning models designed to process data represented as graphs. They excel at learning from structured data with complex relationships, making them powerful tools for social network analysis, molecular structure prediction, and recommendation systems. GNNs can capture both local and global graph structure through message passing between nodes.
+        </p>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Core Concepts</h2>
+                        <p>GNNs are built on several key concepts that enable them to effectively process graph data.</p>
+                        <ul>
+                            <li>
+                                <strong>Network Architecture</strong>
+                                <p>The structure of a GNN consists of:</p>
+                                <ul>
+                                    <li>Node feature transformation</li>
+                                    <li>Message passing layers</li>
+                                    <li>Graph-level pooling</li>
+                                    <li>Readout functions</li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li>
+                                <strong>Key Operations</strong>
+                                <p>The main operations in GNNs include:</p>
+                                <ul>
+                                    <li>Node feature aggregation</li>
+                                    <li>Edge feature processing</li>
+                                    <li>Graph convolution</li>
+                                    <li>Attention mechanisms</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h2>Key Components</h2>
+                                <div class="accordion" id="gnnDetails">
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#networkComponents">
+                                                Network Components
+                                            </button>
+                                        </h3>
+                                        <div id="networkComponents" class="accordion-collapse collapse" data-bs-parent="#gnnDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li>Message passing layers</li>
+                                                    <li>Node feature encoders</li>
+                                                    <li>Edge feature encoders</li>
+                                                    <li>Graph pooling layers</li>
+                                                    <li>Readout functions</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trainingComponents">
+                                                Training Components
+                                            </button>
+                                        </h3>
+                                        <div id="trainingComponents" class="accordion-collapse collapse" data-bs-parent="#gnnDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li>Loss functions</li>
+                                                    <li>Optimizers</li>
+                                                    <li>Learning rate scheduling</li>
+                                                    <li>Batch normalization</li>
+                                                    <li>Dropout</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#advancedTopics">
+                                                Advanced Topics
+                                            </button>
+                                        </h3>
+                                        <div id="advancedTopics" class="accordion-collapse collapse" data-bs-parent="#gnnDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li>Graph attention networks</li>
+                                                    <li>Graph convolutional networks</li>
+                                                    <li>Graph isomorphism networks</li>
+                                                    <li>Dynamic GNNs</li>
+                                                    <li>Heterogeneous GNNs</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>External Resources</h2>
+                        <div class="list-group">
+                            <a href="https://pytorch-geometric.readthedocs.io/" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-book"></i> PyTorch Geometric
+                                <p class="mb-0">Library for GNN implementation</p>
+                            </a>
+                            <a href="https://distill.pub/2021/gnn-intro/" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-graduation-cap"></i> GNN Tutorial
+                                <p class="mb-0">Interactive introduction to GNNs</p>
+                            </a>
+                            <a href="https://www.coursera.org/learn/graph-neural-networks" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-video"></i> GNN Course
+                                <p class="mb-0">Deep learning course on GNNs</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h2>Related Topics</h2>
+                        <div class="list-group">
+                            <a href="dnn.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Deep Neural Networks</h5>
+                                <p class="mb-0">Foundation of GNNs</p>
+                            </a>
+                            <a href="../graph-theory.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Graph Theory</h5>
+                                <p class="mb-0">Mathematical foundation</p>
+                            </a>
+                            <a href="../recommender-systems.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Recommender Systems</h5>
+                                <p class="mb-0">Key application of GNNs</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2>Implementation Examples</h2>
+                <div class="code-example">
+                    <h3>GNN with PyTorch Geometric</h3>
+                    <pre><code class="language-python">import torch
+import torch.nn.functional as F
+from torch_geometric.nn import GCNConv, global_mean_pool
+
+class GNN(torch.nn.Module):
+    def __init__(self, num_node_features, num_classes):
+        super(GNN, self).__init__()
+        self.conv1 = GCNConv(num_node_features, 64)
+        self.conv2 = GCNConv(64, 64)
+        self.conv3 = GCNConv(64, 64)
+        self.classifier = torch.nn.Linear(64, num_classes)
+        
+    def forward(self, x, edge_index, batch):
+        # Node feature transformation
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, p=0.2, training=self.training)
+        
+        x = self.conv2(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, p=0.2, training=self.training)
+        
+        x = self.conv3(x, edge_index)
+        x = F.relu(x)
+        
+        # Graph-level pooling
+        x = global_mean_pool(x, batch)
+        
+        # Classification
+        x = self.classifier(x)
+        return F.log_softmax(x, dim=1)
+
+# Example usage
+num_node_features = 16  # Number of features per node
+num_classes = 2        # Binary classification
+
+model = GNN(num_node_features, num_classes)
+print(model)</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-4">
+        <div class="container">
+            <p>Contact: <a href="mailto:liv.helen.vage@cern.ch">liv.helen.vage@cern.ch</a></p>
+            <p>Last updated: March 2024</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

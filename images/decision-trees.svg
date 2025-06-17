@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Root node -->
+    <circle cx="100" cy="20" r="15" fill="#4CAF50" stroke="#2E7D32" stroke-width="2"/>
+    <text x="100" y="25" text-anchor="middle" fill="white" font-size="12">R</text>
+    
+    <!-- First level -->
+    <line x1="100" y1="35" x2="50" y2="70" stroke="#2E7D32" stroke-width="2"/>
+    <line x1="100" y1="35" x2="150" y2="70" stroke="#2E7D32" stroke-width="2"/>
+    <circle cx="50" cy="70" r="15" fill="#4CAF50" stroke="#2E7D32" stroke-width="2"/>
+    <circle cx="150" cy="70" r="15" fill="#4CAF50" stroke="#2E7D32" stroke-width="2"/>
+    <text x="50" y="75" text-anchor="middle" fill="white" font-size="12">L</text>
+    <text x="150" y="75" text-anchor="middle" fill="white" font-size="12">R</text>
+    
+    <!-- Second level -->
+    <line x1="50" y1="85" x2="25" y2="120" stroke="#2E7D32" stroke-width="2"/>
+    <line x1="50" y1="85" x2="75" y2="120" stroke="#2E7D32" stroke-width="2"/>
+    <line x1="150" y1="85" x2="125" y2="120" stroke="#2E7D32" stroke-width="2"/>
+    <line x1="150" y1="85" x2="175" y2="120" stroke="#2E7D32" stroke-width="2"/>
+    <circle cx="25" cy="120" r="15" fill="#4CAF50" stroke="#2E7D32" stroke-width="2"/>
+    <circle cx="75" cy="120" r="15" fill="#4CAF50" stroke="#2E7D32" stroke-width="2"/>
+    <circle cx="125" cy="120" r="15" fill="#4CAF50" stroke="#2E7D32" stroke-width="2"/>
+    <circle cx="175" cy="120" r="15" fill="#4CAF50" stroke="#2E7D32" stroke-width="2"/>
+    <text x="25" y="125" text-anchor="middle" fill="white" font-size="12">L</text>
+    <text x="75" y="125" text-anchor="middle" fill="white" font-size="12">R</text>
+    <text x="125" y="125" text-anchor="middle" fill="white" font-size="12">L</text>
+    <text x="175" y="125" text-anchor="middle" fill="white" font-size="12">R</text>
+</svg> 

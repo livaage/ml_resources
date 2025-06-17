@@ -6,8 +6,65 @@
     <title>ML Resources Hub</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .wip-banner {
+            background-color: #fff3cd;
+            color: #856404;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #ffeeba;
+        }
+
+        .wip-banner p {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .main-content {
+            margin-top: 120px; /* Increased to account for the banner */
+        }
+
+        .contact-section {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .contact-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .contact-email {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: inline-block;
+            margin: 1rem 0;
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--secondary-color);
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-email:hover {
+            background: var(--secondary-color);
+            color: var(--white);
+        }
+    </style>
 </head>
 <body>
+    <div class="wip-banner">
+        <p>🚧 This website is under construction. More content coming soon! ��</p>
+    </div>
     <nav class="navbar">
         <div class="nav-brand">ML Resources Hub</div>
         <div class="nav-links">
@@ -60,6 +117,14 @@
             </div>
         </section>
     </main>
+
+    <section class="contact-section">
+        <h2>Contact</h2>
+        <p>Have questions or suggestions? Get in touch!</p>
+        <a href="mailto:liv.helen.vage@cern.ch" class="contact-email">
+            <i class="fas fa-envelope"></i> liv.helen.vage@cern.ch
+        </a>
+    </section>
 
     <footer>
         <div class="footer-content">

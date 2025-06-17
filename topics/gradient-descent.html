@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Descent - ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .topic-content {
+            margin-top: 80px;
+            padding: 2rem;
+        }
+
+        .topic-section {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .topic-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .topic-section h3 {
+            color: var(--secondary-color);
+            margin: 1.5rem 0 1rem;
+        }
+
+        .math-formula {
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            font-family: 'Times New Roman', Times, serif;
+            text-align: center;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            font-family: monospace;
+        }
+
+        .visualization {
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .visualization img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html">ML Theory</a>
+            <a href="../practice.html">ML Practice</a>
+            <a href="../code-examples.html">Code Examples</a>
+            <a href="../best-practices.html">Best Practices</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="topic-content">
+        <div class="container">
+            <h1>Gradient Descent</h1>
+            
+            <section class="topic-section">
+                <h2>Overview</h2>
+                <p>Gradient descent is an optimization algorithm used to minimize the loss function by iteratively moving in the direction of steepest descent. It's a fundamental algorithm in machine learning, particularly in training neural networks.</p>
+            </section>
+
+            <section class="topic-section">
+                <h2>How It Works</h2>
+                <p>The basic idea of gradient descent is to:</p>
+                <ol>
+                    <li>Start at a random point in the parameter space</li>
+                    <li>Calculate the gradient (direction of steepest increase) of the loss function</li>
+                    <li>Move in the opposite direction of the gradient</li>
+                    <li>Repeat until convergence</li>
+                </ol>
+
+                <div class="math-formula">
+                    <p>θ = θ - α∇J(θ)</p>
+                    <p>where:</p>
+                    <p>θ = parameters</p>
+                    <p>α = learning rate</p>
+                    <p>∇J(θ) = gradient of the loss function</p>
+                </div>
+            </section>
+
+            <section class="topic-section">
+                <h2>Types of Gradient Descent</h2>
+                
+                <h3>Batch Gradient Descent</h3>
+                <p>Uses the entire training dataset to compute the gradient at each step.</p>
+                <ul>
+                    <li>Advantages: Stable convergence, accurate gradient</li>
+                    <li>Disadvantages: Computationally expensive, memory intensive</li>
+                </ul>
+
+                <h3>Stochastic Gradient Descent (SGD)</h3>
+                <p>Uses a single training example to compute the gradient at each step.</p>
+                <ul>
+                    <li>Advantages: Fast, can escape local minima</li>
+                    <li>Disadvantages: Noisy updates, may not converge</li>
+                </ul>
+
+                <h3>Mini-batch Gradient Descent</h3>
+                <p>Uses a small batch of training examples to compute the gradient.</p>
+                <ul>
+                    <li>Advantages: Balance between speed and stability</li>
+                    <li>Disadvantages: Requires tuning batch size</li>
+                </ul>
+            </section>
+
+            <section class="topic-section">
+                <h2>Implementation Example</h2>
+                <div class="code-example">
+                    <pre><code>import numpy as np
+
+def gradient_descent(X, y, learning_rate=0.01, num_iterations=1000):
+    # Initialize parameters
+    m = len(y)
+    theta = np.zeros(X.shape[1])
+    
+    # Gradient descent loop
+    for i in range(num_iterations):
+        # Calculate predictions
+        predictions = X.dot(theta)
+        
+        # Calculate error
+        error = predictions - y
+        
+        # Calculate gradient
+        gradient = X.T.dot(error) / m
+        
+        # Update parameters
+        theta = theta - learning_rate * gradient
+        
+    return theta
+
+# Example usage
+X = np.array([[1, 2], [2, 3], [3, 4]])
+y = np.array([2, 4, 6])
+theta = gradient_descent(X, y)</code></pre>
+                </div>
+            </section>
+
+            <section class="topic-section">
+                <h2>Common Challenges</h2>
+                <ul>
+                    <li>Learning rate selection</li>
+                    <li>Local minima</li>
+                    <li>Vanishing/exploding gradients</li>
+                    <li>Convergence speed</li>
+                </ul>
+
+                <h3>Solutions</h3>
+                <ul>
+                    <li>Learning rate scheduling</li>
+                    <li>Momentum</li>
+                    <li>Adaptive learning rates (Adam, RMSprop)</li>
+                    <li>Gradient clipping</li>
+                </ul>
+            </section>
+
+            <section class="topic-section">
+                <h2>Further Reading</h2>
+                <ul>
+                    <li>
+                        <a href="https://ruder.io/optimizing-gradient-descent/" target="_blank" class="external-link">
+                            An Overview of Gradient Descent Optimization Algorithms
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.deeplearningbook.org/contents/optimization.html" target="_blank" class="external-link">
+                            Deep Learning Book - Optimization Chapter
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.tensorflow.org/api_docs/python/tf/keras/optimizers" target="_blank" class="external-link">
+                            TensorFlow Optimizers Documentation
+                        </a>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html> 

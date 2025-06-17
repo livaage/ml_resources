@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="200" height="200" fill="#f5f5f5"/>
+    
+    <!-- Bell curve -->
+    <path d="M20,150 Q100,20 180,150" fill="none" stroke="#2196F3" stroke-width="2"/>
+    
+    <!-- Data points -->
+    <circle cx="40" cy="140" r="3" fill="#F44336"/>
+    <circle cx="60" cy="120" r="3" fill="#F44336"/>
+    <circle cx="80" cy="100" r="3" fill="#F44336"/>
+    <circle cx="100" cy="80" r="3" fill="#F44336"/>
+    <circle cx="120" cy="100" r="3" fill="#F44336"/>
+    <circle cx="140" cy="120" r="3" fill="#F44336"/>
+    <circle cx="160" cy="140" r="3" fill="#F44336"/>
+    
+    <!-- Mean line -->
+    <line x1="100" y1="20" x2="100" y2="180" stroke="#4CAF50" stroke-width="1" stroke-dasharray="5,5"/>
+    
+    <!-- Standard deviation lines -->
+    <line x1="60" y1="20" x2="60" y2="180" stroke="#4CAF50" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="140" y1="20" x2="140" y2="180" stroke="#4CAF50" stroke-width="1" stroke-dasharray="3,3"/>
+</svg> 

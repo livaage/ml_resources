@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformer Networks - ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="../../index.html">
+                <img src="../../images/transformer.svg" alt="Transformer Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+                ML Resources Hub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../theory.html">Theory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../practice.html">Practice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../code-examples.html">Code Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../best-practices.html">Best Practices</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            This page is under construction. Content is being continuously updated.
+        </div>
+
+        <div class="lead mb-4">
+            <img src="../../images/transformer.svg" alt="Transformer Logo" class="float-end ms-3" style="width: 150px; height: 150px;">
+            Transformer Networks are a revolutionary architecture in deep learning that uses self-attention mechanisms to process sequential data. They have become the foundation for state-of-the-art models in natural language processing, enabling breakthroughs in machine translation, text generation, and other language tasks. Transformers excel at capturing long-range dependencies and parallel processing of sequences.
+        </div>
+
+        <h1>Transformer Networks</h1>
+        <p class="lead">Transformer Networks were published in 2017 by Vaswani et al. in a now very famous paper called <a href="https://arxiv.org/abs/1706.03762" target="_blank">Attention is all you need</a>.
+            This paper used it for language translation, but it has since been used for a wide range of tasks, including image generation, speech recognition, and more.
+            The huge and sudden influx of Large Language Models (LLMs) was made possible by the transformer architecture. They managed to capture long term dependencies and could be trained on vast amounts of data in a way that their predecessor, mostly RNNs, could not.
+            There's a great visualisation <a href="https://poloclub.github.io/transformer-explainer/" target="_blank">here</a>. 
+
+        </p>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Core Concepts</h2>
+                        <p>Transformers are built on several key concepts that enable them to effectively process sequential data.</p>
+                        <ul>
+                            <li>
+                                <strong>Network Architecture</strong>
+                                <p>The structure of a Transformer consists of:</p>
+                                <ul>
+                                    <li>Encoder and decoder stacks</li>
+                                    <li>Multi-head attention layers</li>
+                                    <li>Position-wise feed-forward networks</li>
+                                    <li>Positional encoding</li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li>
+                                <strong>Key Operations</strong>
+                                <p>The main operations in Transformers include:</p>
+                                <ul>
+                                    <li>Self-attention computation</li>
+                                    <li>Multi-head attention</li>
+                                    <li>Position-wise feed-forward</li>
+                                    <li>Layer normalization</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h2>Key Components</h2>
+                                <div class="accordion" id="transformerDetails">
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#networkComponents">
+                                                Network Components
+                                            </button>
+                                        </h3>
+                                        <div id="networkComponents" class="accordion-collapse collapse" data-bs-parent="#transformerDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li>Attention layers</li>
+                                                    <li>Feed-forward networks</li>
+                                                    <li>Layer normalization</li>
+                                                    <li>Positional encoding</li>
+                                                    <li>Residual connections</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trainingComponents">
+                                                Training Components
+                                            </button>
+                                        </h3>
+                                        <div id="trainingComponents" class="accordion-collapse collapse" data-bs-parent="#transformerDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li>Loss functions</li>
+                                                    <li>Optimizers</li>
+                                                    <li>Learning rate scheduling</li>
+                                                    <li>Masking strategies</li>
+                                                    <li>Gradient clipping</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#advancedTopics">
+                                                Advanced Topics
+                                            </button>
+                                        </h3>
+                                        <div id="advancedTopics" class="accordion-collapse collapse" data-bs-parent="#transformerDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li>BERT and variants</li>
+                                                    <li>GPT models</li>
+                                                    <li>Cross-attention</li>
+                                                    <li>Efficient attention</li>
+                                                    <li>Long-range transformers</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>External Resources</h2>
+                        <div class="list-group">
+                            <a href="https://www.youtube.com/watch?v=wjZofJX0v4M" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-book"></i> An excellent video series on transformers
+                                <p class="mb-0">Youtube transformer series</p>
+                            </a>
+                            <a href="https://peterbloem.nl/blog/transformers" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-graduation-cap"></i> Transformer Tutorial with step by step pytorch
+                                <p class="mb-0">Detailed explanation of transformers</p>
+                            </a>
+                            <a href="https://www.coursera.org/learn/nlp-sequence-models" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-video"></i> Sequence Models
+                                <p class="mb-0">Deep learning course on transformers</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h2>Related Topics</h2>
+                        <div class="list-group">
+                            <a href="rnn.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Recurrent Neural Networks</h5>
+                                <p class="mb-0">Traditional sequence models</p>
+                            </a>
+                            <a href="../nlp.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Natural Language Processing</h5>
+                                <p class="mb-0">Key application of transformers</p>
+                            </a>
+                            <a href="../computer-vision.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Computer Vision</h5>
+                                <p class="mb-0">Vision transformer applications</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2>Implementation Examples</h2>
+                <ul class="nav nav-tabs mb-3" id="implementationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="keras-tab" data-bs-toggle="tab" data-bs-target="#keras" type="button" role="tab">Keras</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pytorch-tab" data-bs-toggle="tab" data-bs-target="#pytorch" type="button" role="tab">PyTorch</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="implementationTabsContent">
+                    <div class="tab-pane fade show active" id="keras" role="tabpanel">
+                        <div class="code-example">
+                            <h3>Transformer with TensorFlow/Keras</h3>
+                            <pre><code class="language-python">import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def create_transformer_model(input_shape, num_heads, dff, num_layers, num_classes):
+    # Input layers
+    inputs = layers.Input(shape=input_shape)
+    
+    # Positional encoding
+    x = layers.Embedding(input_shape[0], dff)(inputs)
+    x = x + positional_encoding(input_shape[0], dff)
+    
+    # Transformer blocks
+    for _ in range(num_layers):
+        # Multi-head attention
+        attention_output = layers.MultiHeadAttention(
+            num_heads=num_heads, key_dim=dff//num_heads
+        )(x, x)
+        x = layers.LayerNormalization(epsilon=1e-6)(x + attention_output)
+        
+        # Feed-forward network
+        ffn_output = layers.Dense(dff, activation='relu')(x)
+        ffn_output = layers.Dense(dff)(ffn_output)
+        x = layers.LayerNormalization(epsilon=1e-6)(x + ffn_output)
+    
+    # Output layer
+    outputs = layers.Dense(num_classes, activation='softmax')(x)
+    
+    return models.Model(inputs=inputs, outputs=outputs)
+
+def positional_encoding(position, d_model):
+    angle_rads = tf.range(position, dtype=tf.float32)[:, tf.newaxis] / \
+                 tf.pow(10000, tf.range(0, d_model, 2, dtype=tf.float32) / d_model)
+    
+    sines = tf.math.sin(angle_rads)
+    cosines = tf.math.cos(angle_rads)
+    
+    pos_encoding = tf.concat([sines, cosines], axis=-1)
+    pos_encoding = pos_encoding[tf.newaxis, ...]
+    
+    return tf.cast(pos_encoding, tf.float32)
+
+# Example usage
+input_shape = (100,)  # Sequence length of 100
+num_heads = 8
+dff = 512
+num_layers = 4
+num_classes = 10
+
+model = create_transformer_model(
+    input_shape, num_heads, dff, num_layers, num_classes
+)
+model.summary()</code></pre>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pytorch" role="tabpanel">
+                        <div class="code-example">
+                            <h3>Transformer with PyTorch</h3>
+                            <pre><code class="language-python">import torch
+import torch.nn as nn
+import math
+
+class PositionalEncoding(nn.Module):
+    def __init__(self, d_model, max_len=5000):
+        super().__init__()
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        return x + self.pe[:, :x.size(1)]
+
+class TransformerModel(nn.Module):
+    def __init__(self, input_dim, d_model, nhead, num_encoder_layers, dim_feedforward, num_classes, dropout=0.1):
+        super().__init__()
+        
+        self.embedding = nn.Embedding(input_dim, d_model)
+        self.pos_encoder = PositionalEncoding(d_model)
+        
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=nhead,
+            dim_feedforward=dim_feedforward,
+            dropout=dropout,
+            batch_first=True
+        )
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_encoder_layers)
+        
+        self.decoder = nn.Linear(d_model, num_classes)
+        
+    def forward(self, src, src_mask=None):
+        # src shape: (batch_size, seq_len)
+        x = self.embedding(src)
+        x = self.pos_encoder(x)
+        
+        if src_mask is None:
+            src_mask = self.generate_square_subsequent_mask(src.size(1)).to(src.device)
+        
+        output = self.transformer_encoder(x, src_mask)
+        output = self.decoder(output)
+        return output
+    
+    def generate_square_subsequent_mask(self, sz):
+        mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+        return mask
+
+# Example usage
+input_dim = 10000  # Vocabulary size
+d_model = 512      # Embedding dimension
+nhead = 8          # Number of attention heads
+num_encoder_layers = 6
+dim_feedforward = 2048
+num_classes = 10
+dropout = 0.1
+
+# Create model
+model = TransformerModel(
+    input_dim=input_dim,
+    d_model=d_model,
+    nhead=nhead,
+    num_encoder_layers=num_encoder_layers,
+    dim_feedforward=dim_feedforward,
+    num_classes=num_classes,
+    dropout=dropout
+)
+
+# Example input
+batch_size = 32
+seq_length = 100
+x = torch.randint(0, input_dim, (batch_size, seq_length))
+
+# Forward pass
+output = model(x)
+print(f"Output shape: {output.shape}")  # Should be (batch_size, seq_length, num_classes)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-4">
+        <div class="container">
+            <p>Contact: <a href="mailto:liv.helen.vage@cern.ch">liv.helen.vage@cern.ch</a></p>
+            <p>Last updated: March 2024</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

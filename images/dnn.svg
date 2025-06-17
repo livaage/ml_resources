@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background circle -->
+    <circle cx="100" cy="100" r="90" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+    
+    <!-- Neural Network Structure -->
+    <!-- Input Layer -->
+    <g transform="translate(35, 60)">
+        <circle cx="0" cy="0" r="8" fill="#6c757d"/>
+        <circle cx="0" cy="30" r="8" fill="#6c757d"/>
+        <circle cx="0" cy="60" r="8" fill="#6c757d"/>
+    </g>
+    
+    <!-- Hidden Layer 1 -->
+    <g transform="translate(75, 50)">
+        <circle cx="0" cy="0" r="8" fill="#0d6efd"/>
+        <circle cx="0" cy="30" r="8" fill="#0d6efd"/>
+        <circle cx="0" cy="60" r="8" fill="#0d6efd"/>
+        <circle cx="0" cy="90" r="8" fill="#0d6efd"/>
+    </g>
+    
+    <!-- Hidden Layer 2 -->
+    <g transform="translate(115, 50)">
+        <circle cx="0" cy="0" r="8" fill="#0d6efd"/>
+        <circle cx="0" cy="30" r="8" fill="#0d6efd"/>
+        <circle cx="0" cy="60" r="8" fill="#0d6efd"/>
+        <circle cx="0" cy="90" r="8" fill="#0d6efd"/>
+    </g>
+    
+    <!-- Output Layer -->
+    <g transform="translate(155, 60)">
+        <circle cx="0" cy="0" r="8" fill="#198754"/>
+        <circle cx="0" cy="30" r="8" fill="#198754"/>
+        <circle cx="0" cy="60" r="8" fill="#198754"/>
+    </g>
+    
+    <!-- Connections -->
+    <g stroke="#adb5bd" stroke-width="1">
+        <!-- Input to Hidden 1 -->
+        <line x1="43" y1="60" x2="75" y2="50"/>
+        <line x1="43" y1="60" x2="75" y2="80"/>
+        <line x1="43" y1="90" x2="75" y2="110"/>
+        <line x1="43" y1="120" x2="75" y2="140"/>
+        
+        <!-- Hidden 1 to Hidden 2 -->
+        <line x1="83" y1="50" x2="115" y2="50"/>
+        <line x1="83" y1="80" x2="115" y2="80"/>
+        <line x1="83" y1="110" x2="115" y2="110"/>
+        <line x1="83" y1="140" x2="115" y2="140"/>
+        
+        <!-- Hidden 2 to Output -->
+        <line x1="123" y1="50" x2="155" y2="60"/>
+        <line x1="123" y1="80" x2="155" y2="90"/>
+        <line x1="123" y1="110" x2="155" y2="120"/>
+        <line x1="123" y1="140" x2="155" y2="150"/>
+    </g>
+</svg> 

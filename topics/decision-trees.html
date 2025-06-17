@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Trees - ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">ML Resources</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../theory.html">Theory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../practice.html">Practice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../code-examples.html">Code Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../best-practices.html">Best Practices</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-tools"></i> This page is under construction. Content is being continuously updated.
+        </div>
+
+        <h1>Decision Trees </h1>
+        <p class="lead">Decision trees make decisions by learning where to cut on variables. Note that decision trees on their own are rarely used, 
+            but they are used as building blocks for more complex models. To learn why and to see a beautiful visualization of how decision trees work, 
+            please click <a href="https://mlu-explain.github.io/decision-tree/">this link</a>. The more complex models can often solve complex problems, while being more explainable, easier to train and faster to run than neural networks.
+            Unless you know you have a very complex problem, it is therefore often a good idea to start with a BDT or random forest to create a baseline. 
+        </p>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Core Concepts</h2>
+                        <p> Since decision trees are building blocks, we need to understand how they are used in more complex models. 
+                            The most common methods are Random Forests and Gradient Boosting. 
+                        </p>
+                        <ul>
+                            <li>
+                                <strong>Random Forests</strong>
+                                <p>Random Forests are an ensemble learning method that operates by constructing multiple decision trees during training and outputting the class that is the mode of the classes (classification) or mean prediction (regression) of the individual trees. They help reduce overfitting by introducing randomness in two ways:</p>
+                                <ul>
+                                    <li>Training each tree on a random subset of the data (bootstrap sampling)</li>
+                                    <li>Selecting a random subset of features at each split</li>
+                                </ul>
+                                <p>This approach creates diverse trees that are less likely to overfit. You can see a beautiful visualization and explanation of how random forests work <a href="https://mlu-explain.github.io/random-forest/">here</a>.</p>
+                            </li>
+                            <br>
+                            <li>
+                                <strong>Gradient Boosting</strong>
+                                <p>Gradient Boosting is a powerful ensemble technique that builds trees sequentially, where each new tree helps correct errors made by previously trained trees. The process involves:</p>
+                                <ul>
+                                    <li>Training trees one at a time</li>
+                                    <li>Each new tree focuses on the errors of the previous trees</li>
+                                    <li>Combining predictions using a weighted sum</li>
+                                </ul>
+                                <p>Popular implementations include:</p>
+                                <ul>
+                                    <li><a href="https://xgboost.readthedocs.io/" target="_blank">XGBoost</a> - Optimized for speed and performance</li>
+                                    <li><a href="https://lightgbm.readthedocs.io/" target="_blank">LightGBM</a> - Microsoft's gradient boosting framework</li>
+                                    <li><a href="https://catboost.ai/" target="_blank">CatBoost</a> - Yandex's gradient boosting library</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <br> 
+                        <p>
+                            Here is a table comparing the two methods. 
+                        </p>
+                        <div class="table-responsive mt-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Aspect</th>
+                                        <th>Random Forests</th>
+                                        <th>Gradient Boosting</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Training Speed</strong></td>
+                                        <td>Faster (parallel training)</td>
+                                        <td>Slower (sequential training)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Prediction Speed</strong></td>
+                                        <td>Slower</td>
+                                        <td>Faster</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Overfitting</strong></td>
+                                        <td>Less prone to overfitting</td>
+                                        <td>More prone to overfitting</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Hyperparameter Tuning</strong></td>
+                                        <td>Less sensitive</td>
+                                        <td>More sensitive</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Noise Handling</strong></td>
+                                        <td>Better</td>
+                                        <td>Worse</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Feature Importance</strong></td>
+                                        <td>More reliable</td>
+                                        <td>Less reliable</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Memory Usage</strong></td>
+                                        <td>Higher</td>
+                                        <td>Lower</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Best Use Cases</strong></td>
+                                        <td>General purpose, noisy data</td>
+                                        <td>Structured data, competitions</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h2>Detailed Concepts</h2>
+                                <div class="accordion" id="treeDetails">
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#treeDetailsContent">
+                                                Decision Tree Concepts
+                                            </button>
+                                        </h3>
+                                        <div id="treeDetailsContent" class="accordion-collapse collapse" data-bs-parent="#treeDetails">
+                                            <div class="accordion-body">
+                                                <h4>1. Basic Principles</h4>
+                                                <ul>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/tree.html#tree-structure" target="_blank">Tree structure and components</a>
+                                                        - Understanding nodes, branches, and leaves
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/tree.html#mathematical-formulation" target="_blank">Decision rules and splitting criteria</a>
+                                                        - How trees make decisions at each node
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://en.wikipedia.org/wiki/Information_gain_in_decision_trees" target="_blank">Information gain and entropy</a>
+                                                        - Measuring the quality of splits
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/tree.html#classification-criteria" target="_blank">Gini impurity</a>
+                                                        - Alternative splitting criterion
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/tree.html#minimal-cost-complexity-pruning" target="_blank">Tree pruning techniques</a>
+                                                        - Preventing overfitting
+                                                    </li>
+                                                </ul>
+
+                                                <h4>2. Model Evaluation</h4>
+                                                <ul>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">Cross-validation strategies</a>
+                                                        - Ensuring robust model evaluation
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/auto_examples/model_selection/plot_underfitting_overfitting.html" target="_blank">Overfitting and underfitting</a>
+                                                        - Common pitfalls and solutions
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/auto_examples/tree/plot_unveil_tree_structure.html" target="_blank">Tree depth and complexity</a>
+                                                        - Balancing model complexity
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/auto_examples/ensemble/plot_forest_importances.html" target="_blank">Feature importance</a>
+                                                        - Understanding which features matter most
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://christophm.github.io/interpretable-ml-book/tree.html" target="_blank">Model interpretability</a>
+                                                        - Making tree-based models explainable
+                                                    </li>
+                                                </ul>
+
+                                                <h4>3. Using decision trees in more complex models</h4>
+                                                <ul>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/ensemble.html#forest" target="_blank">Random Forests</a>
+                                                        - Ensemble of decision trees
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/ensemble.html#gradient-boosting" target="_blank">Gradient Boosting</a>
+                                                        - Sequential tree building
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://xgboost.readthedocs.io/en/stable/" target="_blank">XGBoost</a> and 
+                                                        <a href="https://lightgbm.readthedocs.io/en/latest/" target="_blank">LightGBM</a>
+                                                        - Optimized gradient boosting implementations
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/ensemble.html" target="_blank">Ensemble methods</a>
+                                                        - Combining multiple models
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/feature_selection.html" target="_blank">Tree-based feature selection</a>
+                                                        - Using trees for feature importance
+                                                    </li>
+                                                </ul>
+
+                                                <h4>4. Practical Considerations</h4>
+                                                <ul>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/preprocessing.html#encoding-categorical-features" target="_blank">Handling categorical variables</a>
+                                                        - Converting categories to numbers
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/impute.html" target="_blank">Missing value treatment</a>
+                                                        - Dealing with incomplete data
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/preprocessing.html#scaling-features-to-a-range" target="_blank">Feature scaling</a>
+                                                        - Normalizing and standardizing features
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/grid_search.html" target="_blank">Hyperparameter tuning</a>
+                                                        - Finding optimal model parameters
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/common_pitfalls.html" target="_blank">Common pitfalls and solutions</a>
+                                                        - Avoiding typical mistakes
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Implementation Examples</h2>
+                        <div class="accordion" id="implementationAccordion">
+                            <div class="accordion-item">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#randomForestExample">
+                                        Random Forest Implementation
+                                    </button>
+                                </h3>
+                                <div id="randomForestExample" class="accordion-collapse collapse show" data-bs-parent="#implementationAccordion">
+                                    <div class="accordion-body">
+                                        <pre><code class="language-python">
+# Import necessary libraries
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+import pandas as pd
+import numpy as np
+
+# Prepare your data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, 
+    test_size=0.2, 
+    random_state=42
+)
+
+# Initialize and train the model
+rf_model = RandomForestClassifier(
+    n_estimators=100,    # Number of trees
+    max_depth=10,        # Maximum depth of trees
+    min_samples_split=2, # Minimum samples required to split
+    random_state=42
+)
+rf_model.fit(X_train, y_train)
+
+# Make predictions
+predictions = rf_model.predict(X_test)
+
+# Get feature importance
+feature_importance = pd.DataFrame({
+    'feature': X_train.columns,
+    'importance': rf_model.feature_importances_
+}).sort_values('importance', ascending=False)
+
+# Print feature importance
+print("Feature Importance:")
+print(feature_importance)
+                                        </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#bdtExample">
+                                        Boosted decision tree (BDT) Implementation
+                                    </button>
+                                </h3>
+                                <div id="bdtExample" class="accordion-collapse collapse" data-bs-parent="#implementationAccordion">
+                                    <div class="accordion-body">
+                                        <pre><code class="language-python">
+# Import necessary libraries
+import xgboost as xgb
+from sklearn.model_selection import train_test_split
+import pandas as pd
+import numpy as np
+
+# Prepare your data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, 
+    test_size=0.2, 
+    random_state=42
+)
+
+# Initialize and train the model
+xgb_model = xgb.XGBClassifier(
+    n_estimators=100,    # Number of boosting rounds
+    max_depth=6,         # Maximum depth of trees
+    learning_rate=0.1,   # Step size shrinkage
+    subsample=0.8,       # Subsample ratio of training instances
+    colsample_bytree=0.8,# Subsample ratio of columns when constructing each tree
+    random_state=42
+)
+
+# Train with early stopping
+xgb_model.fit(
+    X_train, y_train,
+    eval_set=[(X_test, y_test)],
+    early_stopping_rounds=10,
+    verbose=False
+)
+
+# Make predictions
+predictions = xgb_model.predict(X_test)
+
+# Get feature importance
+feature_importance = pd.DataFrame({
+    'feature': X_train.columns,
+    'importance': xgb_model.feature_importances_
+}).sort_values('importance', ascending=False)
+
+# Print feature importance
+print("Feature Importance:")
+print(feature_importance)
+
+# Optional: Plot feature importance
+import matplotlib.pyplot as plt
+xgb.plot_importance(xgb_model)
+plt.show()
+                                        </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-center mb-4">
+                    <img src="../images/decision-trees.svg" alt="Decision Trees" class="img-fluid" style="max-width: 200px;">
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3>External Resources</h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="https://scikit-learn.org/stable/modules/tree.html" target="_blank">
+                                    <i class="fas fa-book"></i> Scikit-learn Documentation
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://www.coursera.org/learn/machine-learning" target="_blank">
+                                    <i class="fas fa-graduation-cap"></i> Coursera - Machine Learning
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://www.youtube.com/watch?v=7VeUPuFGJHk" target="_blank">
+                                    <i class="fas fa-video"></i> StatQuest - Decision Trees
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://xgboost.readthedocs.io/" target="_blank">
+                                    <i class="fas fa-laptop-code"></i> XGBoost Documentation
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Related Topics</h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="gradient-descent.html">
+                                    <i class="fas fa-link"></i> Gradient Descent
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="statistics-probability.html">
+                                    <i class="fas fa-link"></i> Statistics & Probability
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="logistic-regression.html">
+                                    <i class="fas fa-link"></i> Logistic Regression
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-light mt-5">
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Contact</h5>
+                    <p>Email: <a href="mailto:your.email@example.com" class="text-light">your.email@example.com</a></p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>Last updated: March 2024</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

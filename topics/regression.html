@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear & Logistic regression - ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">ML Resources</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../theory.html">Theory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../practice.html">Practice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../code-examples.html">Code Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../best-practices.html">Best Practices</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-tools"></i> This page is under construction. Content is being continuously updated.
+        </div>
+
+        <h1>Linear & Logistic Regression</h1>
+        <p class="lead">Regression models predict continuous values by learning relationships between variables. They are fundamental building blocks in machine learning and statistics, 
+            providing interpretable results and serving as a baseline for more complex models. To understand the basic principles of regression, 
+            please check out <a href="https://mlu-explain.github.io/linear-regression/" target="_blank">this interactive visualization</a>.
+        </p>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Core Concepts</h2>
+                        <p>Regression models come in two main flavors: linear regression for continuous outcomes and logistic regression for binary classification. 
+                           Both are interpretable and serve as excellent baselines before trying more complex models.</p>
+                        
+                        <ul>
+                            <li>
+                                <strong>Linear Regression</strong>
+                                <p>Linear regression models the relationship between a dependent variable and one or more independent variables using a linear equation. 
+                                   It's particularly useful because:</p>
+                                <ul>
+                                    <li>It's highly interpretable - coefficients directly show feature importance</li>
+                                    <li>It's computationally efficient</li>
+                                    <li>It provides statistical significance of features</li>
+                                    <li>It serves as a baseline for more complex models</li>
+                                </ul>
+                                <p>You can see a beautiful visualization and explanation of how linear regression works <a href="https://mlu-explain.github.io/linear-regression/" target="_blank">here</a>.</p>
+                            </li>
+                            <br>
+                            <li>
+                                <strong>Logistic Regression</strong>
+                                <p>Logistic regression, despite its name, is actually a classification algorithm that predicts binary outcomes. It's valuable because:</p>
+                                <ul>
+                                    <li>It provides probability estimates for predictions</li>
+                                    <li>It's interpretable through odds ratios</li>
+                                    <li>It can be regularized to prevent overfitting</li>
+                                    <li>It's often used as a baseline for binary classification</li>
+                                </ul>
+                                <p>You can see a beautiful visualization and explanation of how logistic regression works <a href="https://mlu-explain.github.io/logistic-regression/" target="_blank">here</a>.</p>
+                            </li>
+                        </ul>
+
+                        <div class="table-responsive mt-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Aspect</th>
+                                        <th>Linear Regression</th>
+                                        <th>Logistic Regression</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Output Type</strong></td>
+                                        <td>Continuous values</td>
+                                        <td>Binary probabilities</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Interpretability</strong></td>
+                                        <td>Direct coefficient interpretation</td>
+                                        <td>Odds ratio interpretation</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Use Cases</strong></td>
+                                        <td>Price prediction, trend analysis</td>
+                                        <td>Classification, risk assessment</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Assumptions</strong></td>
+                                        <td>Linear relationship, normal errors</td>
+                                        <td>Logit linearity, independence</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Regularization</strong></td>
+                                        <td>Ridge, Lasso, Elastic Net</td>
+                                        <td>Same options available</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h2>Detailed Concepts</h2>
+                                <div class="accordion" id="regressionDetails">
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#regressionDetailsContent">
+                                                Regression Concepts
+                                            </button>
+                                        </h3>
+                                        <div id="regressionDetailsContent" class="accordion-collapse collapse" data-bs-parent="#regressionDetails">
+                                            <div class="accordion-body">
+                                                <h4>1. Linear Regression</h4>
+                                                <ul>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/linear_model.html#ordinary-least-squares" target="_blank">Simple linear regression</a>
+                                                        - Modeling relationship between two variables
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/linear_model.html#multiple-regression" target="_blank">Multiple linear regression</a>
+                                                        - Extending to multiple predictors
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://en.wikipedia.org/wiki/Ordinary_least_squares" target="_blank">Ordinary Least Squares (OLS)</a>
+                                                        - Minimizing sum of squared residuals
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://www.statsmodels.org/stable/examples/notebooks/generated/ols.html" target="_blank">Assumptions and diagnostics</a>
+                                                        - Checking model validity
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics" target="_blank">Model evaluation metrics</a>
+                                                        - Measuring model performance
+                                                    </li>
+                                                </ul>
+
+                                                <h4>2. Advanced Regression</h4>
+                                                <ul>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/linear_model.html#polynomial-regression-extending-linear-models-with-basis-functions" target="_blank">Polynomial regression</a>
+                                                        - Modeling non-linear relationships
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/linear_model.html#ridge-regression" target="_blank">Ridge regression (L2)</a>
+                                                        - Handling multicollinearity
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/linear_model.html#lasso" target="_blank">Lasso regression (L1)</a>
+                                                        - Feature selection through regularization
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/linear_model.html#elastic-net" target="_blank">Elastic Net</a>
+                                                        - Combining L1 and L2 regularization
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/linear_model.html#non-linear-regression" target="_blank">Non-linear regression</a>
+                                                        - Modeling complex relationships
+                                                    </li>
+                                                </ul>
+
+                                                <h4>3. Model Evaluation</h4>
+                                                <ul>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/model_evaluation.html#r2-score" target="_blank">R-squared and adjusted R-squared</a>
+                                                        - Measuring explained variance
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/model_evaluation.html#mean-squared-error" target="_blank">Mean Squared Error (MSE)</a>
+                                                        - Average squared prediction error
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/model_evaluation.html#root-mean-squared-error" target="_blank">Root Mean Squared Error (RMSE)</a>
+                                                        - Square root of MSE
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">Cross-validation</a>
+                                                        - Ensuring robust evaluation
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://www.statsmodels.org/stable/examples/notebooks/generated/regression_plots.html" target="_blank">Residual analysis</a>
+                                                        - Checking model assumptions
+                                                    </li>
+                                                </ul>
+
+                                                <h4>4. Practical Applications</h4>
+                                                <ul>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/feature_selection.html" target="_blank">Feature selection</a>
+                                                        - Choosing relevant predictors
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://www.statsmodels.org/stable/examples/notebooks/generated/ols.html#Multicollinearity" target="_blank">Handling multicollinearity</a>
+                                                        - Dealing with correlated features
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/outlier_detection.html" target="_blank">Outlier detection</a>
+                                                        - Identifying influential points
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/preprocessing.html" target="_blank">Data preprocessing</a>
+                                                        - Preparing data for modeling
+                                                    </li>
+                                                    <li>
+                                                        <a href="https://scikit-learn.org/stable/modules/partial_dependence.html" target="_blank">Model interpretation</a>
+                                                        - Understanding feature effects
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Implementation Examples</h2>
+                        <div class="accordion" id="implementationAccordion">
+                            <div class="accordion-item">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#linearExample">
+                                        Linear Regression
+                                    </button>
+                                </h3>
+                                <div id="linearExample" class="accordion-collapse collapse show" data-bs-parent="#implementationAccordion">
+                                    <div class="accordion-body">
+                                        <pre><code class="language-python"># Import necessary libraries
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
+
+# Prepare your data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, 
+    test_size=0.2, 
+    random_state=42
+)
+
+# Scale the features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Linear Regression
+model = LinearRegression()
+model.fit(X_train_scaled, y_train)
+
+# Ridge Regression
+ridge = Ridge(alpha=1.0)
+ridge.fit(X_train_scaled, y_train)
+
+# Lasso Regression
+lasso = Lasso(alpha=1.0)
+lasso.fit(X_train_scaled, y_train)
+
+# Model Evaluation
+y_pred = model.predict(X_test_scaled)
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+# Print results
+print(f"Mean Squared Error: {mse:.2f}")
+print(f"R-squared Score: {r2:.2f}")
+
+# Feature importance
+feature_importance = pd.DataFrame({
+    'feature': X_train.columns,
+    'coefficient': model.coef_
+}).sort_values('coefficient', ascending=False)
+                                        </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#logisticExample">
+                                        Logistic Regression
+                                    </button>
+                                </h3>
+                                <div id="logisticExample" class="accordion-collapse collapse" data-bs-parent="#implementationAccordion">
+                                    <div class="accordion-body">
+                                        <pre><code class="language-python"># Import necessary libraries
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
+from sklearn.model_selection import train_test_split
+
+# Prepare your data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, 
+    test_size=0.2, 
+    random_state=42,
+    stratify=y  # Ensure balanced split for binary classification
+)
+
+# Scale the features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Initialize and train the model
+log_reg = LogisticRegression(
+    C=1.0,              # Inverse of regularization strength
+    penalty='l2',       # L2 regularization
+    solver='liblinear', # Algorithm for optimization
+    random_state=42
+)
+log_reg.fit(X_train_scaled, y_train)
+
+# Make predictions
+y_pred = log_reg.predict(X_test_scaled)
+y_pred_proba = log_reg.predict_proba(X_test_scaled)[:, 1]
+
+# Model Evaluation
+accuracy = accuracy_score(y_test, y_pred)
+roc_auc = roc_auc_score(y_test, y_pred_proba)
+
+# Print results
+print(f"Accuracy: {accuracy:.2f}")
+print(f"ROC AUC Score: {roc_auc:.2f}")
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+
+# Feature importance (coefficients)
+feature_importance = pd.DataFrame({
+    'feature': X_train.columns,
+    'coefficient': log_reg.coef_[0]
+}).sort_values('coefficient', ascending=False)
+
+# Calculate odds ratios
+feature_importance['odds_ratio'] = np.exp(feature_importance['coefficient'])
+print("\nFeature Importance (Odds Ratios):")
+print(feature_importance)
+                                        </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#polynomialExample">
+                                        Polynomial Regression
+                                    </button>
+                                </h3>
+                                <div id="polynomialExample" class="accordion-collapse collapse" data-bs-parent="#implementationAccordion">
+                                    <div class="accordion-body">
+                                        <pre><code class="language-python"># Import necessary libraries
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
+
+# Create polynomial features
+poly = PolynomialFeatures(degree=2, include_bias=False)
+X_poly = poly.fit_transform(X)
+
+# Split the data
+X_train, X_test, y_train, y_test = train_test_split(
+    X_poly, y, 
+    test_size=0.2, 
+    random_state=42
+)
+
+# Create and train the model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print(f"Mean Squared Error: {mse:.2f}")
+print(f"R-squared Score: {r2:.2f}")
+
+# Get feature names
+feature_names = poly.get_feature_names_out(X.columns)
+coefficients = pd.DataFrame({
+    'feature': feature_names,
+    'coefficient': model.coef_
+}).sort_values('coefficient', ascending=False)
+                                        </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-center mb-4">
+                    <svg width="200" height="150" viewBox="0 0 200 150" class="img-fluid">
+                        <!-- Background -->
+                        <rect width="200" height="150" fill="white"/>
+                        
+                        <!-- Grid lines -->
+                        <line x1="0" y1="30" x2="200" y2="30" stroke="#eee" stroke-width="1"/>
+                        <line x1="0" y1="60" x2="200" y2="60" stroke="#eee" stroke-width="1"/>
+                        <line x1="0" y1="90" x2="200" y2="90" stroke="#eee" stroke-width="1"/>
+                        <line x1="0" y1="120" x2="200" y2="120" stroke="#eee" stroke-width="1"/>
+                        
+                        <!-- Regression line -->
+                        <line x1="20" y1="120" x2="180" y2="40" stroke="#007bff" stroke-width="2"/>
+                        
+                        <!-- Data points -->
+                        <circle cx="40" cy="100" r="4" fill="#28a745"/>
+                        <circle cx="60" cy="90" r="4" fill="#28a745"/>
+                        <circle cx="80" cy="80" r="4" fill="#28a745"/>
+                        <circle cx="100" cy="70" r="4" fill="#28a745"/>
+                        <circle cx="120" cy="60" r="4" fill="#28a745"/>
+                        <circle cx="140" cy="50" r="4" fill="#28a745"/>
+                        <circle cx="160" cy="40" r="4" fill="#28a745"/>
+                        <circle cx="180" cy="30" r="4" fill="#28a745"/>
+                        <circle cx="40" cy="130" r="4" fill="#007bff"/>
+                        <circle cx="60" cy="120" r="4" fill="#007bff"/>
+                        <circle cx="80" cy="110" r="4" fill="#007bff"/>
+                        <circle cx="100" cy="100" r="4" fill="#007bff"/>
+                        <circle cx="120" cy="90" r="4" fill="#007bff"/>
+                        <circle cx="140" cy="80" r="4" fill="#007bff"/>
+                        <circle cx="160" cy="70" r="4" fill="#007bff"/>
+                        <circle cx="180" cy="60" r="4" fill="#007bff"/>
+                    </svg>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3>External Resources</h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="https://scikit-learn.org/stable/modules/linear_model.html" target="_blank">
+                                    <i class="fas fa-book"></i> Scikit-learn Documentation
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://www.coursera.org/learn/machine-learning" target="_blank">
+                                    <i class="fas fa-graduation-cap"></i> Coursera - Machine Learning
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://www.youtube.com/watch?v=zPG4NjIkCjc" target="_blank">
+                                    <i class="fas fa-video"></i> StatQuest - Linear Regression
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://www.statsmodels.org/" target="_blank">
+                                    <i class="fas fa-laptop-code"></i> Statsmodels Documentation
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Related Topics</h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="statistics-probability.html">
+                                    <i class="fas fa-link"></i> Statistics & Probability
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="gradient-descent.html">
+                                    <i class="fas fa-link"></i> Gradient Descent
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="classification.html">
+                                    <i class="fas fa-link"></i> Classification
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-light mt-5">
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Contact</h5>
+                    <p>Email: <a href="mailto:liv.helen.vage@cern.ch" class="text-light">liv.helen.vage@cern.ch</a></p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>Last updated: March 2024</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

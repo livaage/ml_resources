@@ -27,3 +27,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Contact
 
 Feel free to open an issue for any questions or suggestions. 
+
+To run this locally python3 -m http.server 8000

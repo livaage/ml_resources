@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recurrent Neural Networks - ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="../../index.html">
+                <img src="../../images/rnn.svg" alt="RNN Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+                ML Resources Hub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../theory.html">Theory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../practice.html">Practice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../code-examples.html">Code Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../best-practices.html">Best Practices</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-tools"></i> This page is under construction. Content is being continuously updated.
+        </div>
+
+        <h1>Recurrent Neural Networks (RNN)</h1>
+        <p class="lead">Recurrent Neural Networks are specialized neural networks designed for processing sequential data. 
+            RNNs are in many ways the preceeder of transformers. They are an in an interesting position right now, as many of their applications are being replaced by transformers. 
+            Contrary to what some people will say, they still have their use cases - see the table further down on this page.
+            They maintain an internal memory of previous inputs, making them particularly effective for tasks involving 
+            time series, natural language processing, and speech recognition. You can find a good visual explanation of RNNs <a href="https://distill.pub/2019/memorization-in-rnns/" target="_blank">here</a>.
+        </p>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Core Concepts</h2>
+                        <p>RNNs are built on several key concepts that enable them to effectively process sequential data.</p>
+                        <ul>
+                            <li>
+                                <strong>Network Architecture</strong>
+                                <p>The structure of an RNN consists of:</p>
+                                <ul>
+                                    <li>Recurrent layers for sequence processing</li>
+                                    <li>Hidden state for memory</li>
+                                    <li>Input and output layers</li>
+                                    <li>Activation functions</li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li>
+                                <strong>Key Operations</strong>
+                                <p>The main operations in RNNs include:</p>
+                                <ul>
+                                    <li>Sequence processing</li>
+                                    <li>Hidden state updates</li>
+                                    <li>Backpropagation through time</li>
+                                    <li>Gradient flow management</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h2>Key Components</h2>
+                                <div class="accordion" id="rnnDetails">
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#networkComponents">
+                                                Network Components
+                                            </button>
+                                        </h3>
+                                        <div id="networkComponents" class="accordion-collapse collapse" data-bs-parent="#rnnDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/rnn.html" target="_blank">Recurrent layers</a> - Deep Learning Book chapter on RNNs</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/rnn.html" target="_blank">Hidden state</a> - Deep Learning Book chapter on RNNs</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/mlp.html" target="_blank">Activation functions</a> - Deep Learning Book chapter on MLPs</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/rnn.html" target="_blank">Gates (LSTM/GRU)</a> - Deep Learning Book chapter on RNNs</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/regularization.html" target="_blank">Dropout layers</a> - Deep Learning Book chapter on regularization</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trainingComponents">
+                                                Training Components
+                                            </button>
+                                        </h3>
+                                        <div id="trainingComponents" class="accordion-collapse collapse" data-bs-parent="#rnnDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/mlp.html" target="_blank">Loss functions</a> - Deep Learning Book chapter on MLPs</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/optimization.html" target="_blank">Optimizers</a> - Deep Learning Book chapter on optimization</li>
+                                                    <li><a href="https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ReduceLROnPlateau.html" target="_blank">Learning rate</a> - PyTorch documentation on learning rate schedulers</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/optimization.html" target="_blank">Batch size</a> - Deep Learning Book chapter on optimization</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/regularization.html" target="_blank">Sequence length</a> - Deep Learning Book chapter on regularization</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#advancedTopics">
+                                                Advanced Topics
+                                            </button>
+                                        </h3>
+                                        <div id="advancedTopics" class="accordion-collapse collapse" data-bs-parent="#rnnDetails">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/rnn.html" target="_blank">LSTM networks</a> - Deep Learning Book chapter on RNNs</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/rnn.html" target="_blank">GRU networks</a> - Deep Learning Book chapter on RNNs</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/attention.html" target="_blank">Attention mechanisms</a> - Deep Learning Book chapter on attention</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/rnn.html" target="_blank">Bidirectional RNNs</a> - Deep Learning Book chapter on RNNs</li>
+                                                    <li><a href="https://www.deeplearningbook.org/contents/rnn.html" target="_blank">Encoder-decoder architecture</a> - Deep Learning Book chapter on RNNs</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-center mb-4">
+                    <img src="../../images/rnn.svg" alt="RNN" class="img-fluid" style="max-width: 200px;">
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>External Resources</h2>
+                        <div class="list-group">
+                            <a href="https://www.deeplearningbook.org/contents/rnn.html" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-book"></i> Deep Learning Book
+                                <p class="mb-0">Chapter on Recurrent Neural Networks</p>
+                            </a>
+                            <a href="https://www.coursera.org/learn/nlp-sequence-models" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-video"></i> Sequence Models Course
+                                <p class="mb-0">Andrew Ng's course on sequence models</p>
+                            </a>
+                            <a href="https://distill.pub/2019/attention/" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-brain"></i> Attention Visualization
+                                <p class="mb-0">Interactive visualization of attention mechanisms</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h2>Related Topics</h2>
+                        <div class="list-group">
+                            <a href="dnn.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Deep Neural Networks</h5>
+                                <p class="mb-0">Foundation of RNN architecture</p>
+                            </a>
+                            <a href="transformer.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Transformer Networks</h5>
+                                <p class="mb-0">Modern alternative to RNNs</p>
+                            </a>
+                            <a href="../nlp.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Natural Language Processing</h5>
+                                <p class="mb-0">Key application of RNNs</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2>Implementation Examples</h2>
+                <ul class="nav nav-tabs mb-3" id="implementationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="keras-tab" data-bs-toggle="tab" data-bs-target="#keras" type="button" role="tab">Keras</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pytorch-tab" data-bs-toggle="tab" data-bs-target="#pytorch" type="button" role="tab">PyTorch</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="implementationTabsContent">
+                    <div class="tab-pane fade show active" id="keras" role="tabpanel">
+                        <div class="code-example">
+                            <h3>RNN with TensorFlow/Keras</h3>
+                            <pre><code class="language-python">import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def create_rnn_model(input_shape, num_classes):
+    model = models.Sequential([
+        # Input layer
+        layers.Input(shape=input_shape),
+        
+        # RNN layers
+        layers.SimpleRNN(64, return_sequences=True),
+        layers.SimpleRNN(32),
+        
+        # Dense layers
+        layers.Dense(16, activation='relu'),
+        layers.Dense(num_classes, activation='softmax')
+    ])
+    
+    model.compile(
+        optimizer='adam',
+        loss='categorical_crossentropy',
+        metrics=['accuracy']
+    )
+    
+    return model
+
+# Example usage
+input_shape = (10, 20)  # Sequence length of 10, features of 20
+num_classes = 5
+model = create_rnn_model(input_shape, num_classes)
+model.summary()</code></pre>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pytorch" role="tabpanel">
+                        <div class="code-example">
+                            <h3>RNN with PyTorch</h3>
+                            <pre><code class="language-python">import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class RNN(nn.Module):
+    def __init__(self, input_size, hidden_size, num_classes):
+        super(RNN, self).__init__()
+        self.hidden_size = hidden_size
+        
+        # RNN layers
+        self.rnn1 = nn.RNN(input_size, hidden_size, batch_first=True, return_sequences=True)
+        self.rnn2 = nn.RNN(hidden_size, hidden_size, batch_first=True)
+        
+        # Dense layers
+        self.fc1 = nn.Linear(hidden_size, 16)
+        self.fc2 = nn.Linear(16, num_classes)
+    
+    def forward(self, x):
+        # Initialize hidden state
+        h0 = torch.zeros(1, x.size(0), self.hidden_size).to(x.device)
+        
+        # RNN layers
+        out, _ = self.rnn1(x, h0)
+        out, _ = self.rnn2(out)
+        
+        # Dense layers
+        out = F.relu(self.fc1(out[:, -1, :]))
+        out = self.fc2(out)
+        
+        return F.softmax(out, dim=1)
+
+# Example usage
+input_size = 20    # Number of features
+hidden_size = 64   # Number of hidden units
+num_classes = 5    # Number of output classes
+
+model = RNN(input_size, hidden_size, num_classes)
+print(model)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-4">
+        <div class="container">
+            <p>Contact: <a href="mailto:liv.helen.vage@cern.ch">liv.helen.vage@cern.ch</a></p>
+            <p>Last updated: March 2024</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
