@@ -4,137 +4,306 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gradient Descent - ML Resources Hub</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
     <style>
-        .topic-content {
-            margin-top: 80px;
-            padding: 2rem;
+        .visualization-container {
+            width: 100%;
+            height: 400px;
+            background: var(--light-bg);
+            border-radius: 5px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
         }
 
-        .topic-section {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+        .visualization-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .topic-section h2 {
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            min-width: 100px;
             color: var(--primary-color);
-            margin-bottom: 1rem;
+            font-weight: 500;
         }
 
-        .topic-section h3 {
-            color: var(--secondary-color);
-            margin: 1.5rem 0 1rem;
+        .control-group input {
+            width: 100px;
         }
 
-        .math-formula {
-            background: var(--light-bg);
-            padding: 1.5rem;
+        .control-group button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .control-group button:hover {
+            background: var(--secondary-color);
+        }
+
+        .status-display {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
             border-radius: 5px;
-            margin: 1rem 0;
-            font-family: 'Times New Roman', Times, serif;
-            text-align: center;
-        }
-
-        .code-example {
-            background: #2d2d2d;
-            color: #fff;
-            padding: 1rem;
-            border-radius: 5px;
-            margin: 1rem 0;
             font-family: monospace;
-        }
-
-        .visualization {
-            background: var(--light-bg);
-            padding: 1.5rem;
-            border-radius: 5px;
-            margin: 1rem 0;
-            text-align: center;
-        }
-
-        .visualization img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: var(--primary-color);
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-brand">ML Resources Hub</div>
-        <div class="nav-links">
-            <a href="../index.html">Home</a>
-            <a href="../theory.html">ML Theory</a>
-            <a href="../practice.html">ML Practice</a>
-            <a href="../code-examples.html">Code Examples</a>
-            <a href="../best-practices.html">Best Practices</a>
-        </div>
-        <div class="nav-toggle">
-            <i class="fas fa-bars"></i>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <img src="../images/gradient-descent.svg" alt="Gradient Descent Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+                ML Resources Hub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../theory.html">Theory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../practice.html">Practice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../code-examples.html">Code Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../best-practices.html">Best Practices</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
-    <main class="topic-content">
-        <div class="container">
-            <h1>Gradient Descent</h1>
-            
-            <section class="topic-section">
-                <h2>Overview</h2>
-                <p>Gradient descent is an optimization algorithm used to minimize the loss function by iteratively moving in the direction of steepest descent. It's a fundamental algorithm in machine learning, particularly in training neural networks.</p>
-            </section>
+    <div class="container mt-4">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            This page is under construction. Content is being continuously updated.
+        </div>
 
-            <section class="topic-section">
-                <h2>How It Works</h2>
-                <p>The basic idea of gradient descent is to:</p>
-                <ol>
-                    <li>Start at a random point in the parameter space</li>
-                    <li>Calculate the gradient (direction of steepest increase) of the loss function</li>
-                    <li>Move in the opposite direction of the gradient</li>
-                    <li>Repeat until convergence</li>
-                </ol>
+        <div class="lead mb-4">
+            <img src="../images/gradient-descent.svg" alt="Gradient Descent Logo" class="float-end ms-3" style="width: 150px; height: 150px;">
+            Gradient descent is an optimization algorithm used to minimize the loss function by iteratively moving in the direction of steepest descent. 
+            It's a fundamental algorithm in machine learning, particularly in training neural networks. The algorithm works by calculating the gradient 
+            of the loss function with respect to the parameters and updating them in the opposite direction of the gradient.
+        </div>
 
-                <div class="math-formula">
-                    <p>θ = θ - α∇J(θ)</p>
-                    <p>where:</p>
-                    <p>θ = parameters</p>
-                    <p>α = learning rate</p>
-                    <p>∇J(θ) = gradient of the loss function</p>
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>Core Concepts</h2>
+                        <p>Gradient descent is built on several key concepts that enable effective optimization.</p>
+                        <ul>
+                            <li>
+                                <strong>Basic Algorithm</strong>
+                                <p>The fundamental steps of gradient descent are:</p>
+                                <ul>
+                                    <li>Start at a random point in the parameter space</li>
+                                    <li>Calculate the gradient of the loss function</li>
+                                    <li>Move in the opposite direction of the gradient</li>
+                                    <li>Repeat until convergence</li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li>
+                                <strong>Key Components</strong>
+                                <p>The main components include:</p>
+                                <ul>
+                                    <li>Learning rate for step size control</li>
+                                    <li>Gradient calculation</li>
+                                    <li>Parameter updates</li>
+                                    <li>Convergence criteria</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h2>Types of Gradient Descent</h2>
+                                <div class="accordion" id="gradientDescentTypes">
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#batchGD">
+                                                Batch Gradient Descent
+                                            </button>
+                                        </h3>
+                                        <div id="batchGD" class="accordion-collapse collapse show" data-bs-parent="#gradientDescentTypes">
+                                            <div class="accordion-body">
+                                                <p>Uses the entire training dataset to compute the gradient at each step.</p>
+                                                <ul>
+                                                    <li>Advantages: Stable convergence, accurate gradient</li>
+                                                    <li>Disadvantages: Computationally expensive, memory intensive</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stochasticGD">
+                                                Stochastic Gradient Descent (SGD)
+                                            </button>
+                                        </h3>
+                                        <div id="stochasticGD" class="accordion-collapse collapse" data-bs-parent="#gradientDescentTypes">
+                                            <div class="accordion-body">
+                                                <p>Uses a single training example to compute the gradient at each step.</p>
+                                                <ul>
+                                                    <li>Advantages: Fast, can escape local minima</li>
+                                                    <li>Disadvantages: Noisy updates, may not converge</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#miniBatchGD">
+                                                Mini-batch Gradient Descent
+                                            </button>
+                                        </h3>
+                                        <div id="miniBatchGD" class="accordion-collapse collapse" data-bs-parent="#gradientDescentTypes">
+                                            <div class="accordion-body">
+                                                <p>Uses a small batch of training examples to compute the gradient.</p>
+                                                <ul>
+                                                    <li>Advantages: Balance between speed and stability</li>
+                                                    <li>Disadvantages: Requires tuning batch size</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </section>
+            </div>
 
-            <section class="topic-section">
-                <h2>Types of Gradient Descent</h2>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2>External Resources</h2>
+                        <div class="list-group">
+                            <a href="https://ruder.io/optimizing-gradient-descent/" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-book"></i> Gradient Descent Overview
+                                <p class="mb-0">Comprehensive guide to gradient descent optimization</p>
+                            </a>
+                            <a href="https://www.deeplearningbook.org/contents/optimization.html" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-graduation-cap"></i> Deep Learning Book
+                                <p class="mb-0">Chapter on optimization algorithms</p>
+                            </a>
+                            <a href="https://www.tensorflow.org/api_docs/python/tf/keras/optimizers" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="fas fa-code"></i> TensorFlow Optimizers
+                                <p class="mb-0">Documentation on optimization implementations</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h2>Related Topics</h2>
+                        <div class="list-group">
+                            <a href="neural-networks/dnn.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Deep Neural Networks</h5>
+                                <p class="mb-0">Application of gradient descent</p>
+                            </a>
+                            <a href="loss-functions.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Loss Functions</h5>
+                                <p class="mb-0">Functions optimized by gradient descent</p>
+                            </a>
+                            <a href="optimization.html" class="list-group-item list-group-item-action">
+                                <h5 class="mb-1">Optimization</h5>
+                                <p class="mb-0">Broader optimization techniques</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2>Interactive Visualization</h2>
+                <p>Explore how gradient descent navigates a 3D surface to find the minimum point. Click and drag to rotate the view, scroll to zoom.</p>
                 
-                <h3>Batch Gradient Descent</h3>
-                <p>Uses the entire training dataset to compute the gradient at each step.</p>
-                <ul>
-                    <li>Advantages: Stable convergence, accurate gradient</li>
-                    <li>Disadvantages: Computationally expensive, memory intensive</li>
-                </ul>
+                <div class="visualization-container" id="gradient-descent-viz">
+                    <div class="visualization-controls">
+                        <div class="control-group">
+                            <label>Learning Rate:</label>
+                            <input type="range" id="learningRate" min="0.001" max="0.1" step="0.001" value="0.01">
+                            <span id="learningRateValue">0.01</span>
+                        </div>
+                        <div class="control-group">
+                            <label>Start Position:</label>
+                            <input type="range" id="startX" min="-3" max="3" step="0.1" value="2">
+                            <span id="startXValue">2</span>
+                        </div>
+                        <div class="control-group">
+                            <button onclick="resetVisualization()">Reset</button>
+                            <button onclick="toggleAnimation()">Play/Pause</button>
+                        </div>
+                    </div>
+                    <div class="status-display" id="statusDisplay">
+                        Position: (2.00, 2.00)<br>
+                        Value: 8.00<br>
+                        Gradient: (4.00, 4.00)<br>
+                        Status: Running
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <h3>Stochastic Gradient Descent (SGD)</h3>
-                <p>Uses a single training example to compute the gradient at each step.</p>
-                <ul>
-                    <li>Advantages: Fast, can escape local minima</li>
-                    <li>Disadvantages: Noisy updates, may not converge</li>
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2>Implementation Examples</h2>
+                <ul class="nav nav-tabs mb-3" id="implementationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="numpy-tab" data-bs-toggle="tab" data-bs-target="#numpy" type="button" role="tab">NumPy</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pytorch-tab" data-bs-toggle="tab" data-bs-target="#pytorch" type="button" role="tab">PyTorch</button>
+                    </li>
                 </ul>
-
-                <h3>Mini-batch Gradient Descent</h3>
-                <p>Uses a small batch of training examples to compute the gradient.</p>
-                <ul>
-                    <li>Advantages: Balance between speed and stability</li>
-                    <li>Disadvantages: Requires tuning batch size</li>
-                </ul>
-            </section>
-
-            <section class="topic-section">
-                <h2>Implementation Example</h2>
-                <div class="code-example">
-                    <pre><code>import numpy as np
+                <div class="tab-content" id="implementationTabsContent">
+                    <div class="tab-pane fade show active" id="numpy" role="tabpanel">
+                        <div class="code-example">
+                            <pre><code class="language-python">import numpy as np
 
 def gradient_descent(X, y, learning_rate=0.01, num_iterations=1000):
     # Initialize parameters
@@ -161,61 +330,45 @@ def gradient_descent(X, y, learning_rate=0.01, num_iterations=1000):
 X = np.array([[1, 2], [2, 3], [3, 4]])
 y = np.array([2, 4, 6])
 theta = gradient_descent(X, y)</code></pre>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pytorch" role="tabpanel">
+                        <div class="code-example">
+                            <pre><code class="language-python">import torch
+import torch.nn as nn
+import torch.optim as optim
+
+# Define model
+model = nn.Linear(2, 1)
+criterion = nn.MSELoss()
+optimizer = optim.SGD(model.parameters(), lr=0.01)
+
+# Training loop
+for epoch in range(1000):
+    # Forward pass
+    outputs = model(X)
+    loss = criterion(outputs, y)
+    
+    # Backward pass and optimize
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()</code></pre>
+                        </div>
+                    </div>
                 </div>
-            </section>
-
-            <section class="topic-section">
-                <h2>Common Challenges</h2>
-                <ul>
-                    <li>Learning rate selection</li>
-                    <li>Local minima</li>
-                    <li>Vanishing/exploding gradients</li>
-                    <li>Convergence speed</li>
-                </ul>
-
-                <h3>Solutions</h3>
-                <ul>
-                    <li>Learning rate scheduling</li>
-                    <li>Momentum</li>
-                    <li>Adaptive learning rates (Adam, RMSprop)</li>
-                    <li>Gradient clipping</li>
-                </ul>
-            </section>
-
-            <section class="topic-section">
-                <h2>Further Reading</h2>
-                <ul>
-                    <li>
-                        <a href="https://ruder.io/optimizing-gradient-descent/" target="_blank" class="external-link">
-                            An Overview of Gradient Descent Optimization Algorithms
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://www.deeplearningbook.org/contents/optimization.html" target="_blank" class="external-link">
-                            Deep Learning Book - Optimization Chapter
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://www.tensorflow.org/api_docs/python/tf/keras/optimizers" target="_blank" class="external-link">
-                            TensorFlow Optimizers Documentation
-                        </a>
-                    </li>
-                </ul>
-            </section>
-        </div>
-    </main>
-
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
-            <div class="social-links">
-                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
-                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
             </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-4">
+        <div class="container">
+            <p>Contact: <a href="mailto:liv.helen.vage@cern.ch">liv.helen.vage@cern.ch</a></p>
+            <p>Last updated: March 2024</p>
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/main.js"></script>
+    <script src="../js/gradient-descent-viz.js"></script>
 </body>
 </html> 
