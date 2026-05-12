@@ -1,0 +1,28 @@
+#!/bin/bash
+# Pre-commit hook: rebuild topic pages from sources, stage the outputs.
+#
+# Enabled via `make setup` (which runs `git config core.hooksPath hooks`).
+
+set -e
+
+# Skip the build if Python isn't available (e.g. another environment).
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "[pre-commit] python3 not found, skipping topic-page build" >&2
+    exit 0
+fi
+
+# Build all topics. Fails loudly if any source is malformed.
+python3 build.py >&2
+
+# Re-stage outputs that have a corresponding source file.
+# Only stages topics/<name>.html for each topics/_src/<name>.html — won't touch
+# legacy or unrelated files.
+for src in topics/_src/*.html; do
+    [ -e "$src" ] || continue
+    out="topics/$(basename "$src")"
+    if [ -f "$out" ]; then
+        git add "$out"
+    fi
+done
+
+exit 0

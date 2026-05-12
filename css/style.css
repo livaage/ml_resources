@@ -493,6 +493,391 @@ code:not(pre code) {
 }
 
 
+/* ---------- Topic TL;DR pages (one short page per topic) ---------- */
+
+/* Narrower container for prose-style pages */
+.container-narrow {
+    max-width: 720px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+}
+
+/* Two-column layout: main content + sticky sidebar for external resources */
+.topic-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 3rem;
+    max-width: 1080px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+}
+.topic-main { min-width: 0; }
+.topic-sidebar {
+    position: sticky;
+    top: 90px;
+    align-self: start;
+}
+
+/* Difficulty selector (segmented control) */
+.level-tabs {
+    display: inline-flex;
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 0.25rem;
+    margin: 0 0 2rem;
+    gap: 0.2rem;
+    font-family: var(--font-sans);
+}
+.level-tab {
+    padding: 0.4rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    font-family: inherit;
+}
+.level-tab:hover { color: var(--ink); }
+.level-tab.active {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Content levels — only the active one is visible.
+   Default (no JS): "standard" is shown. */
+.topic-level { display: none; }
+.topic-level[data-level="standard"] { display: block; }
+.topic-level.active { display: block; }
+.topic-level:not(.active)[data-level="standard"] { display: none; }
+
+/* Footer callout per level: suggest the next level up (or down) */
+.level-next {
+    margin: 2.5rem 0 0;
+    padding: 0.85rem 1.1rem;
+    background: var(--accent-soft);
+    border: 1px solid rgba(79, 70, 229, 0.16);
+    border-radius: 10px;
+    font-size: 0.92rem;
+    color: var(--accent-hover);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    align-items: center;
+}
+.level-next button {
+    background: transparent;
+    border: none;
+    color: var(--accent-hover);
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+}
+.level-next button:hover { color: var(--accent); }
+
+/* Annotated formula: math + a labelled legend underneath */
+.formula-block .formula {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--ink);
+    padding: 0.5rem 0 0.85rem;
+    overflow-x: auto;
+}
+/* KaTeX overrides: collapse its own outer margins, allow horizontal scroll */
+.formula-block .formula .katex-display {
+    margin: 0.2rem 0 0.4rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.25rem;  /* room for scroll bar */
+}
+.formula-block .formula .katex { font-size: 1.05em; }
+.formula-legend {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-top: 1px solid rgba(79, 70, 229, 0.18);
+    padding-top: 0.75rem;
+}
+.formula-legend li {
+    margin: 0.25rem 0;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+}
+.formula-legend code {
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--accent-hover);
+    padding: 0.05rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    margin-right: 0.4rem;
+    min-width: 2.5em;
+    display: inline-block;
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .topic-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .topic-sidebar { position: static; }
+    .learn-more { margin-top: 0; }
+}
+
+/* Eyebrow as a breadcrumb-style back-link */
+a.eyebrow {
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+a.eyebrow:hover {
+    background: var(--accent);
+    color: var(--white);
+}
+
+/* TL;DR body: short and tight */
+.tldr-body p {
+    margin: 0 0 1rem;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+}
+.tldr-body p:last-child { margin-bottom: 0; }
+.tldr-body strong { color: var(--ink); }
+
+/* Key-idea callout: holds the core formula / one-sentence intuition */
+.key-idea {
+    background: linear-gradient(135deg, var(--accent-soft), var(--accent-warm-soft));
+    border: 1px solid rgba(79, 70, 229, 0.18);
+    border-radius: 12px;
+    padding: 1.4rem 1.6rem;
+    margin: 2rem 0;
+}
+.key-idea-label {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--accent-hover);
+    margin-bottom: 0.55rem;
+}
+.key-idea p {
+    margin: 0;
+    color: var(--ink);
+    font-size: 1.02rem;
+    line-height: 1.6;
+}
+.key-idea .formula {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--ink);
+    padding: 0.4rem 0 0.6rem;
+    overflow-x: auto;
+}
+
+/* When-to-use / when-to-avoid split box */
+.use-cases {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin: 2rem 0;
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.use-cases > div { padding: 1.2rem 1.4rem; }
+.use-cases .yes {
+    background: var(--surface);
+    border-right: 1px solid var(--hairline);
+}
+.use-cases .no { background: var(--light-bg); }
+.use-cases h3 {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin: 0 0 0.75rem;
+}
+.use-cases .yes h3 { color: #2d8a5a; }
+.use-cases .no h3 { color: var(--muted); }
+.use-cases ul { list-style: none; padding: 0; margin: 0; }
+.use-cases li {
+    padding: 0.3rem 0 0.3rem 1.35rem;
+    color: var(--ink-soft);
+    font-size: 0.93rem;
+    line-height: 1.45;
+    position: relative;
+}
+.use-cases .yes li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #2d8a5a;
+    font-weight: 600;
+}
+.use-cases .no li::before {
+    content: '✗';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+/* Neutral variant — for topics where the two columns aren't pro/con
+   (e.g., bias-variance "two failure modes"). Bullets instead of ✓/✗. */
+.use-cases.neutral .yes h3,
+.use-cases.neutral .no h3 { color: var(--ink); }
+.use-cases.neutral li::before {
+    content: '•';
+    color: var(--accent-warm);
+    font-size: 1.2em;
+    line-height: 1;
+    top: 0.15em;
+}
+
+/* Code snippet with copy button */
+.code-snippet {
+    position: relative;
+    margin: 2rem 0;
+}
+.code-snippet pre {
+    background: #1a1a1a;
+    color: #e8e8e8;
+    padding: 1.25rem 1.5rem;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 0;
+}
+.code-snippet code { font-family: var(--font-mono); }
+.copy-btn {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.65rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #b0b0b0;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.7rem;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.04em;
+}
+.copy-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+.copy-btn.copied {
+    background: rgba(79, 70, 229, 0.3);
+    border-color: rgba(79, 70, 229, 0.5);
+    color: #ffffff;
+}
+
+/* "Where to learn more" reading-list box with annotations */
+.learn-more {
+    margin: 3rem 0 2rem;
+    padding: 1.5rem 1.75rem;
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+}
+.learn-more h3 {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.9rem;
+}
+.learn-more ul { list-style: none; padding: 0; margin: 0; }
+.learn-more li {
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+.learn-more li:last-child { border-bottom: none; }
+.learn-more a {
+    color: var(--ink);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-weight: 500;
+}
+.learn-more a:hover { color: var(--accent); }
+.learn-more a i {
+    font-size: 0.7em;
+    color: var(--muted);
+    transition: color 0.2s ease;
+}
+.learn-more a:hover i { color: var(--accent); }
+.learn-more .annotation {
+    display: block;
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin-top: 0.15rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .use-cases { grid-template-columns: 1fr; }
+    .use-cases .yes { border-right: none; border-bottom: 1px solid var(--hairline); }
+}
+
+/* Prev/next navigation between sibling topics */
+.topic-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--hairline);
+    font-size: 0.9rem;
+}
+.topic-nav a {
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.2s ease;
+    max-width: 45%;
+}
+.topic-nav a:hover { color: var(--accent); }
+.topic-nav .topic-nav-label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.15rem;
+}
+.topic-nav .topic-nav-title { color: var(--ink); font-weight: 500; }
+.topic-nav a:hover .topic-nav-title { color: var(--accent); }
+.topic-nav .prev { text-align: left; }
+.topic-nav .next { text-align: right; margin-left: auto; }
+
+
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
     .nav-links { display: none; }

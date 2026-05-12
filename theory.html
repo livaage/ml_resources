@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ML Theory - ML Resources Hub</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
+    <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+        <title>ML Theory - ML Resources Hub</title>
+        <link href="css/style.css" rel="stylesheet"/>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+        <style>
         .topic-section {
             display: none;
         }
@@ -197,421 +198,621 @@
             font-size: 0.8rem;
         }
     </style>
-</head>
-<body>
-    <div class="wip-banner">
-        <p>🚧 This website is under construction — more content coming soon.</p>
-    </div>
-    <nav class="navbar">
-        <div class="nav-brand">ML Resources Hub</div>
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="theory.html" class="active">ML Theory</a>
-            <a href="practice.html">ML Practice</a>
-            <a href="code-examples.html">Code Examples</a>
-            <a href="best-practices.html">Best Practices</a>
+    </head>
+    <body>
+        <div class="wip-banner">
+            <p>🚧 This website is under construction — more content coming soon.</p>
         </div>
-        <div class="nav-toggle">
-            <i class="fas fa-bars"></i>
-        </div>
-    </nav>
+        <nav class="navbar">
+            <div class="nav-brand">ML Resources Hub</div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a class="active" href="theory.html">ML Theory</a>
+                <a href="practice.html">ML Practice</a>
+                <a href="code-examples.html">Code Examples</a>
+                <a href="best-practices.html">Best Practices</a>
+            </div>
+            <div class="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+        <main class="main-content">
+            <div class="container">
+                <header class="page-header">
+                    <div class="eyebrow">ML Theory</div>
+                    <h1>Machine Learning <em>Theory</em></h1>
+                    <p class="lead">Short TL;DRs on each ML topic, with curated pointers to the canonical deep dives. A structured tour from mathematical foundations through model families and frontier topics.</p>
+                </header>
+                <div class="main-sections">
 
-    <main class="main-content">
-        <div class="container">
-            <header class="page-header">
-                <div class="eyebrow">ML Theory</div>
-                <h1>Machine Learning <em>Theory</em></h1>
-                <p class="lead">Explore the fundamental concepts and mathematical foundations of machine learning.</p>
-            </header>
-
-            <div class="main-sections">
-                <div class="section-item">
-                    <h2 class="section-header">Fundamental Concepts</h2>
-                    <div class="section-content">
-                        <div class="main-topics">
-                            <div class="main-topic">
-                                <h3>Supervised & Unsupervised Learning</h3>
-                                <div class="topic-content">
-                                    <ul class="subtopic-list">
-                                        <li>
-                                            <a href="topics/learning-types.html">Supervised & Unsupervised Learning</a>
-                                            <div class="topic-description">
-                                                Learn about classification, regression, clustering, and dimensionality reduction.
-                                                <a href="https://en.wikipedia.org/wiki/Supervised_learning" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="main-topic">
-                                <h3>Data Handling</h3>
-                                <div class="topic-content">
-                                    <ul class="subtopic-list">
-                                        <li>
-                                            <a href="topics/data-preprocessing.html">Data Preprocessing</a>
-                                            <div class="topic-description">
-                                                Techniques for cleaning, transforming, and preparing data for ML models.
-                                                <a href="https://scikit-learn.org/stable/modules/preprocessing.html" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <a href="topics/feature-engineering.html">Feature Engineering</a>
-                                            <div class="topic-description">
-                                                Creating and selecting meaningful features for better model performance.
-                                                <a href="https://en.wikipedia.org/wiki/Feature_engineering" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <a href="topics/data-splitting.html">Data Splitting & Validation</a>
-                                            <div class="topic-description">
-                                                Techniques for training, validation, and test set creation.
-                                                <a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="main-topic">
-                                <h3>Optimization & Loss Functions</h3>
-                                <div class="topic-content">
-                                    <ul class="subtopic-list">
-                                        <li>
-                                            <a href="topics/gradient-descent.html">Gradient Descent</a>
-                                            <div class="topic-description">
-                                                Understanding optimization algorithms and their role in training models.
-                                                <a href="https://en.wikipedia.org/wiki/Gradient_descent" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <a href="topics/loss-functions.html">Loss Functions</a>
-                                            <div class="topic-description">
-                                                Different types of loss functions and their applications in ML.
-                                                <a href="https://en.wikipedia.org/wiki/Loss_function" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <a href="topics/optimization-algorithms.html">Advanced Optimization</a>
-                                            <div class="topic-description">
-                                                Advanced optimization techniques like Adam, RMSprop, and momentum.
-                                                <a href="https://ruder.io/optimizing-gradient-descent/" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                    </ul>
+                    <div class="section-item">
+                        <h2 class="section-header">Mathematical Foundations</h2>
+                        <div class="section-content">
+                            <div class="main-topics">
+                                <div class="main-topic">
+                                    <h3>The Math Behind ML</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/linear-algebra.html">Linear Algebra</a>
+                                                <div class="topic-description">
+                                                    Vectors, matrices, eigendecomposition, SVD — the language models speak.
+                                                    <a href="https://en.wikipedia.org/wiki/Linear_algebra" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/calculus.html">Calculus &amp; Gradients</a>
+                                                <div class="topic-description">
+                                                    Derivatives, chain rule, partial derivatives, Jacobians — the machinery of training.
+                                                    <a href="https://en.wikipedia.org/wiki/Matrix_calculus" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/statistics-probability.html">Probability &amp; Statistics</a>
+                                                <div class="topic-description">
+                                                    Distributions, expectation, MLE / MAP, hypothesis testing.
+                                                    <a href="https://en.wikipedia.org/wiki/Probability_theory" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/information-theory.html">Information Theory</a>
+                                                <div class="topic-description">
+                                                    Entropy, KL divergence, cross-entropy, mutual information.
+                                                    <a href="https://en.wikipedia.org/wiki/Information_theory" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="section-item">
-                    <h2 class="section-header">Mathematical Foundations</h2>
-                    <div class="section-content">
-                        <div class="main-topics">
-                            <div class="main-topic">
-                                <h3>Linear Algebra</h3>
-                                <div class="topic-content">
-                                    <ul class="subtopic-list">
-                                        <li>
-                                            <a href="topics/linear-algebra.html">Linear Algebra</a>
-                                            <div class="topic-description">
-                                                Essential linear algebra concepts for ML: vectors, matrices, transformations, and decompositions.
-                                                <a href="https://en.wikipedia.org/wiki/Linear_algebra" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                    </ul>
+                    <div class="section-item">
+                        <h2 class="section-header">Core Concepts</h2>
+                        <div class="section-content">
+                            <div class="main-topics">
+                                <div class="main-topic">
+                                    <h3>The Learning Problem</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/learning-types.html">Learning Paradigms</a>
+                                                <div class="topic-description">
+                                                    Supervised, unsupervised, self-supervised, and reinforcement — orienting the landscape.
+                                                    <a href="https://en.wikipedia.org/wiki/Machine_learning#Approaches" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/inductive-bias.html">Hypothesis Spaces &amp; Inductive Bias</a>
+                                                <div class="topic-description">
+                                                    What it means for a model to "learn", and the assumptions baked into every algorithm.
+                                                    <a href="https://en.wikipedia.org/wiki/Inductive_bias" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="main-topic">
-                                <h3>Statistics & Probability</h3>
-                                <div class="topic-content">
-                                    <ul class="subtopic-list">
-                                        <li>
-                                            <a href="topics/statistics-probability.html">Statistics & Probability</a>
-                                            <div class="topic-description">
-                                                Core statistical concepts and probability theory for ML applications.
-                                                <a href="https://en.wikipedia.org/wiki/Probability" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                    </ul>
+                                <div class="main-topic">
+                                    <h3>Training</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/loss-functions.html">Loss Functions</a>
+                                                <div class="topic-description">
+                                                    Quantifying error: MSE, cross-entropy, hinge — and how the loss shapes what a model learns.
+                                                    <a href="https://en.wikipedia.org/wiki/Loss_function" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/gradient-descent.html">Gradient Descent</a>
+                                                <div class="topic-description">
+                                                    The workhorse optimizer — batch, stochastic, and mini-batch variants.
+                                                    <a href="https://en.wikipedia.org/wiki/Gradient_descent" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/optimization-algorithms.html">Advanced Optimizers</a>
+                                                <div class="topic-description">
+                                                    Momentum, RMSprop, Adam, and friends — beyond vanilla SGD.
+                                                    <a href="https://ruder.io/optimizing-gradient-descent/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Generalization</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/bias-variance.html">Bias-Variance &amp; Overfitting</a>
+                                                <div class="topic-description">
+                                                    Why models fail to generalize, and the trade-offs at the heart of it.
+                                                    <a href="https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/regularization.html">Regularization</a>
+                                                <div class="topic-description">
+                                                    L1 / L2, dropout, early stopping, weight decay — taming model complexity.
+                                                    <a href="https://en.wikipedia.org/wiki/Regularization_(mathematics)" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/model-selection.html">Model Selection</a>
+                                                <div class="topic-description">
+                                                    Cross-validation, nested CV, and choosing between candidate models.
+                                                    <a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Evaluation</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/classification-metrics.html">Classification Metrics</a>
+                                                <div class="topic-description">
+                                                    Accuracy, precision, recall, F1, ROC / AUC — picking the metric that fits the problem.
+                                                    <a href="https://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/regression-metrics.html">Regression Metrics</a>
+                                                <div class="topic-description">
+                                                    MSE, MAE, R² — and when each one lies to you.
+                                                    <a href="https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/calibration.html">Calibration</a>
+                                                <div class="topic-description">
+                                                    Are your model's "70% confident" predictions actually right 70% of the time?
+                                                    <a href="https://scikit-learn.org/stable/modules/calibration.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="section-item">
-                    <h2 class="section-header">Core ML Algorithms</h2>
-                    <div class="section-content">
-                        <div class="main-topics">
-                            <div class="main-topic">
-                                <h3>Supervised Learning Algorithms</h3>
-                                <div class="topic-content">
-                                    <ul class="subtopic-list">
-                                        <li>
-                                            <a href="topics/regression.html">Linear & Logistic Regression</a>
-                                            <div class="topic-description">
-                                                Understanding and implementing regression models for both continuous and categorical outcomes.
-                                                <a href="https://scikit-learn.org/stable/modules/linear_model.html" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <a href="topics/decision-trees.html">Decision Trees</a>
-                                            <div class="topic-description">
-                                                Tree-based models for classification and regression.
-                                                <a href="https://en.wikipedia.org/wiki/Decision_tree_learning" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <a href="topics/support-vector-machines.html">Support Vector Machines</a>
-                                            <div class="topic-description">
-                                                Powerful classification algorithm using maximum margin separation.
-                                                <a href="https://en.wikipedia.org/wiki/Support_vector_machine" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <a href="topics/neural-networks.html">Neural Networks</a>
-                                            <div class="topic-description">
-                                                Deep learning architectures and their applications.
-                                                <details class="nested-details">
-                                                    <summary>Architectures</summary>
-                                                    <ul>
-                                                        <li>
-                                                            <a href="topics/neural-networks/dnn.html">Deep Neural Networks (DNN)</a>
-                                                            <div class="topic-description">
-                                                                Multi-layer perceptrons and feedforward networks.
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <a href="topics/neural-networks/cnn.html">Convolutional Neural Networks (CNN)</a>
-                                                            <div class="topic-description">
-                                                                Specialized for image processing and computer vision.
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <a href="topics/neural-networks/rnn.html">Recurrent Neural Networks (RNN)</a>
-                                                            <div class="topic-description">
-                                                                LSTM, GRU, and sequence modeling.
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <a href="topics/neural-networks/transformer.html">Transformers</a>
-                                                            <div class="topic-description">
-                                                                Attention mechanisms and modern NLP architectures.
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <a href="topics/neural-networks/gnn.html">Graph Neural Networks (GNN)</a>
-                                                            <div class="topic-description">
-                                                                Processing graph-structured data.
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <a href="topics/neural-networks/gan.html">Generative Adversarial Networks (GAN)</a>
-                                                            <div class="topic-description">
-                                                                Generative models and adversarial training.
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <a href="topics/neural-networks/autoencoder.html">Autoencoders</a>
-                                                            <div class="topic-description">
-                                                                Dimensionality reduction and feature learning.
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                </details>
-                                                <a href="https://www.tensorflow.org/guide/keras/sequential_model" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                    </ul>
+                    <div class="section-item">
+                        <h2 class="section-header">Data &amp; Features</h2>
+                        <div class="section-content">
+                            <div class="main-topics">
+                                <div class="main-topic">
+                                    <h3>Preparing Data</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/data-preprocessing.html">Data Preprocessing</a>
+                                                <div class="topic-description">
+                                                    Cleaning, scaling, encoding categorical variables, handling outliers.
+                                                    <a href="https://scikit-learn.org/stable/modules/preprocessing.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/feature-engineering.html">Feature Engineering</a>
+                                                <div class="topic-description">
+                                                    Crafting and selecting the features that make models work.
+                                                    <a href="https://en.wikipedia.org/wiki/Feature_engineering" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/data-splitting.html">Splits &amp; Cross-Validation</a>
+                                                <div class="topic-description">
+                                                    Train / val / test, k-fold, stratified, and time-series splits.
+                                                    <a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="main-topic">
-                                <h3>Unsupervised Learning Algorithms</h3>
-                                <div class="topic-content">
-                                    <ul class="subtopic-list">
-                                        <li>
-                                            <a href="topics/clustering.html">Clustering Algorithms</a>
-                                            <div class="topic-description">
-                                                Methods for grouping similar data points together.
-                                                <a href="https://scikit-learn.org/stable/modules/clustering.html" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <a href="topics/dimensionality-reduction.html">Dimensionality Reduction</a>
-                                            <div class="topic-description">
-                                                Techniques for reducing the number of features while preserving important information.
-                                                <details class="nested-details">
-                                                    <summary>Key Methods</summary>
-                                                    <ul>
-                                                        <li>
-                                                            <a href="topics/dimensionality-reduction/pca.html">Principal Component Analysis (PCA)</a>
-                                                            <div class="topic-description">
-                                                                Linear dimensionality reduction using singular value decomposition.
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <a href="topics/dimensionality-reduction/t-sne.html">t-SNE</a>
-                                                            <div class="topic-description">
-                                                                t-Distributed Stochastic Neighbor Embedding for visualization.
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <a href="topics/dimensionality-reduction/umap.html">UMAP</a>
-                                                            <div class="topic-description">
-                                                                Uniform Manifold Approximation and Projection for dimensionality reduction.
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <a href="topics/dimensionality-reduction/ica.html">Independent Component Analysis (ICA)</a>
-                                                            <div class="topic-description">
-                                                                Finding statistically independent components in data.
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                </details>
-                                                <a href="https://scikit-learn.org/stable/modules/decomposition.html" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <a href="topics/anomaly-detection.html">Anomaly Detection</a>
-                                            <div class="topic-description">
-                                                Identifying unusual patterns or outliers in data.
-                                                <a href="https://scikit-learn.org/stable/modules/outlier_detection.html" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <a href="topics/association-rules.html">Association Rules</a>
-                                            <div class="topic-description">
-                                                Discovering interesting relationships between variables in large datasets.
-                                                <a href="https://en.wikipedia.org/wiki/Association_rule_learning" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                    </ul>
+
+                                <div class="main-topic">
+                                    <h3>Common Pitfalls</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/imbalanced-data.html">Imbalanced Data</a>
+                                                <div class="topic-description">
+                                                    Resampling, class weights, and metrics that survive a 99 / 1 split.
+                                                    <a href="https://imbalanced-learn.org/stable/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/missing-data.html">Missing Data</a>
+                                                <div class="topic-description">
+                                                    Imputation strategies, and when the missingness itself is signal.
+                                                    <a href="https://scikit-learn.org/stable/modules/impute.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/data-leakage.html">Data Leakage</a>
+                                                <div class="topic-description">
+                                                    The most common reason your validation score lied to you.
+                                                    <a href="https://en.wikipedia.org/wiki/Leakage_(machine_learning)" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="section-item">
-                    <h2 class="section-header">Advanced Topics</h2>
-                    <div class="section-content">
-                        <div class="main-topics">
-                            <div class="main-topic">
-                                <h3>Reinforcement Learning</h3>
-                                <div class="topic-content">
-                                    <ul class="subtopic-list">
-                                        <li>
-                                            <a href="topics/reinforcement-learning.html">Reinforcement Learning</a>
-                                            <div class="topic-description">
-                                                Learning through interaction with an environment.
-                                                <a href="https://en.wikipedia.org/wiki/Reinforcement_learning" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                    </ul>
+                    <div class="section-item">
+                        <h2 class="section-header">Model Families</h2>
+                        <div class="section-content">
+                            <div class="main-topics">
+                                <div class="main-topic">
+                                    <h3>Linear Models</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/regression.html">Linear &amp; Logistic Regression</a>
+                                                <div class="topic-description">
+                                                    Linear regression, ridge, lasso, elastic net, and logistic regression for classification.
+                                                    <a href="https://scikit-learn.org/stable/modules/linear_model.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="main-topic">
-                                <h3>Deep Learning</h3>
-                                <div class="topic-content">
-                                    <ul class="subtopic-list">
-                                        <li>
-                                            <a href="#deep-learning">Deep Learning</a>
-                                            <div class="topic-description">
-                                                Neural networks and their applications.
-                                                <a href="https://www.deeplearningbook.org/" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                    </ul>
+                                <div class="main-topic">
+                                    <h3>Kernel Methods</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/support-vector-machines.html">Support Vector Machines</a>
+                                                <div class="topic-description">
+                                                    Maximum-margin classifiers and the kernel trick.
+                                                    <a href="https://en.wikipedia.org/wiki/Support_vector_machine" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/gaussian-processes.html">Gaussian Processes</a>
+                                                <div class="topic-description">
+                                                    Bayesian non-parametric regression with calibrated uncertainty.
+                                                    <a href="https://distill.pub/2019/visual-exploration-gaussian-processes/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="main-topic">
-                                <h3>Natural Language Processing</h3>
-                                <div class="topic-content">
-                                    <ul class="subtopic-list">
-                                        <li>
-                                            <a href="#nlp">Natural Language Processing</a>
-                                            <div class="topic-description">
-                                                Understanding and processing human language.
-                                                <a href="https://www.nltk.org/" target="_blank" class="external-link">
-                                                    Learn more <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                    </ul>
+                                <div class="main-topic">
+                                    <h3>Tree-Based &amp; Ensembles</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/decision-trees.html">Decision Trees</a>
+                                                <div class="topic-description">
+                                                    CART, splitting criteria, pruning — the building block.
+                                                    <a href="https://en.wikipedia.org/wiki/Decision_tree_learning" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/random-forests.html">Random Forests</a>
+                                                <div class="topic-description">
+                                                    Bagging + decision trees — strong baselines with very little tuning.
+                                                    <a href="https://en.wikipedia.org/wiki/Random_forest" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/gradient-boosting.html">Gradient Boosting (XGBoost, LightGBM)</a>
+                                                <div class="topic-description">
+                                                    Boosted trees — still the SOTA on most tabular data.
+                                                    <a href="https://xgboost.readthedocs.io/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Probabilistic Models</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/naive-bayes.html">Naive Bayes</a>
+                                                <div class="topic-description">
+                                                    Conditional independence assumptions and Bayesian classification.
+                                                    <a href="https://scikit-learn.org/stable/modules/naive_bayes.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/gaussian-mixture-models.html">Gaussian Mixture Models</a>
+                                                <div class="topic-description">
+                                                    Density estimation and soft clustering via mixtures of Gaussians.
+                                                    <a href="https://scikit-learn.org/stable/modules/mixture.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/hidden-markov-models.html">Hidden Markov Models</a>
+                                                <div class="topic-description">
+                                                    Latent-state sequence models — the classical alternative to RNNs.
+                                                    <a href="https://en.wikipedia.org/wiki/Hidden_Markov_model" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/bayesian-inference.html">Bayesian Inference</a>
+                                                <div class="topic-description">
+                                                    Priors, posteriors, MCMC, variational inference — modelling uncertainty itself.
+                                                    <a href="https://en.wikipedia.org/wiki/Bayesian_inference" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Neural Networks</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/neural-networks.html">Neural Networks</a>
+                                                <div class="topic-description">
+                                                    The basics — perceptrons, backpropagation, activation functions.
+                                                    <details class="nested-details">
+                                                        <summary>Architectures</summary>
+                                                        <ul>
+                                                            <li>
+                                                                <a href="topics/neural-networks/dnn.html">Deep Neural Networks (DNN)</a>
+                                                                <div class="topic-description">Multi-layer perceptrons and feedforward networks.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/neural-networks/cnn.html">Convolutional Neural Networks (CNN)</a>
+                                                                <div class="topic-description">Specialized for image processing and computer vision.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/neural-networks/rnn.html">Recurrent Neural Networks (RNN)</a>
+                                                                <div class="topic-description">LSTM, GRU, and sequence modelling.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/neural-networks/transformer.html">Transformers</a>
+                                                                <div class="topic-description">Attention mechanisms and modern NLP architectures.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/neural-networks/gnn.html">Graph Neural Networks (GNN)</a>
+                                                                <div class="topic-description">Processing graph-structured data.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/neural-networks/autoencoder.html">Autoencoders &amp; VAEs</a>
+                                                                <div class="topic-description">Self-supervised representation learning and generative latents.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/neural-networks/gan.html">Generative Adversarial Networks (GAN)</a>
+                                                                <div class="topic-description">Generative models trained via adversarial games.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/neural-networks/diffusion.html">Diffusion Models</a>
+                                                                <div class="topic-description">The current SOTA for image generation.</div>
+                                                            </li>
+                                                        </ul>
+                                                    </details>
+                                                    <a href="https://www.deeplearningbook.org/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Clustering</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/clustering.html">Clustering Algorithms</a>
+                                                <div class="topic-description">
+                                                    k-means, hierarchical, DBSCAN, spectral — grouping without labels.
+                                                    <a href="https://scikit-learn.org/stable/modules/clustering.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Dimensionality Reduction</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/dimensionality-reduction.html">Dimensionality Reduction</a>
+                                                <div class="topic-description">
+                                                    Compressing high-dimensional data to its informative core.
+                                                    <details class="nested-details">
+                                                        <summary>Key Methods</summary>
+                                                        <ul>
+                                                            <li>
+                                                                <a href="topics/dimensionality-reduction/pca.html">Principal Component Analysis (PCA)</a>
+                                                                <div class="topic-description">Linear dimensionality reduction via SVD.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/dimensionality-reduction/t-sne.html">t-SNE</a>
+                                                                <div class="topic-description">Non-linear embedding for visualization.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/dimensionality-reduction/umap.html">UMAP</a>
+                                                                <div class="topic-description">Faster non-linear alternative to t-SNE.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/dimensionality-reduction/ica.html">Independent Component Analysis (ICA)</a>
+                                                                <div class="topic-description">Recovering statistically independent sources.</div>
+                                                            </li>
+                                                        </ul>
+                                                    </details>
+                                                    <a href="https://scikit-learn.org/stable/modules/decomposition.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Anomaly Detection</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/anomaly-detection.html">Anomaly Detection</a>
+                                                <div class="topic-description">
+                                                    Isolation forests, one-class SVMs, autoencoder reconstruction — finding the rare needles.
+                                                    <a href="https://scikit-learn.org/stable/modules/outlier_detection.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="section-item">
+                        <h2 class="section-header">Learning Paradigms</h2>
+                        <div class="section-content">
+                            <div class="main-topics">
+                                <div class="main-topic">
+                                    <h3>Beyond Supervised Learning</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/learning-types.html">Supervised &amp; Unsupervised</a>
+                                                <div class="topic-description">
+                                                    The classical split — a property of the training data, not the model.
+                                                    <a href="https://en.wikipedia.org/wiki/Supervised_learning" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/self-supervised.html">Self-Supervised &amp; Contrastive</a>
+                                                <div class="topic-description">
+                                                    Constructing labels from the data itself — the engine behind modern foundation models.
+                                                    <a href="https://lilianweng.github.io/posts/2021-05-31-contrastive/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/semi-supervised.html">Semi-Supervised Learning</a>
+                                                <div class="topic-description">
+                                                    Leveraging a few labels plus a lot of unlabeled data.
+                                                    <a href="https://en.wikipedia.org/wiki/Semi-supervised_learning" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/reinforcement-learning.html">Reinforcement Learning</a>
+                                                <div class="topic-description">
+                                                    Learning by interaction — states, actions, rewards, policies.
+                                                    <a href="http://incompleteideas.net/book/the-book.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/transfer-learning.html">Transfer Learning &amp; Fine-Tuning</a>
+                                                <div class="topic-description">
+                                                    Reusing pre-trained models on new tasks with less data.
+                                                    <a href="https://en.wikipedia.org/wiki/Transfer_learning" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-item">
+                        <h2 class="section-header">Applications &amp; Frontier</h2>
+                        <div class="section-content">
+                            <div class="main-topics">
+                                <div class="main-topic">
+                                    <h3>Application Domains</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/nlp.html">Natural Language Processing</a>
+                                                <div class="topic-description">
+                                                    Tokenization, embeddings, sequence-to-sequence, and modern LLMs.
+                                                    <a href="https://web.stanford.edu/class/cs224n/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/computer-vision.html">Computer Vision</a>
+                                                <div class="topic-description">
+                                                    Classification, detection, segmentation — and how it became a CNN / transformer affair.
+                                                    <a href="http://cs231n.stanford.edu/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Frontier</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/generative-models.html">Generative Models</a>
+                                                <div class="topic-description">
+                                                    GANs, VAEs, diffusion, flow models — sampling new data from a learned distribution.
+                                                    <a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/llms.html">Foundation Models &amp; LLMs</a>
+                                                <div class="topic-description">
+                                                    Scaling, pre-training, RLHF, in-context learning — the current paradigm.
+                                                    <a href="https://arxiv.org/abs/2108.07258" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/interpretability.html">Interpretability &amp; Explainability</a>
+                                                <div class="topic-description">
+                                                    SHAP, LIME, attribution methods, mechanistic interpretability.
+                                                    <a href="https://christophm.github.io/interpretable-ml-book/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/fairness.html">Fairness, Bias &amp; Ethics</a>
+                                                <div class="topic-description">
+                                                    Where models embed or amplify human bias — and what to do about it.
+                                                    <a href="https://fairmlbook.org/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-        </div>
-    </main>
-
-    <section class="contact-section">
-        <h2>Contact</h2>
-        <p>Have questions or suggestions? Get in touch!</p>
-        <a href="mailto:liv.helen.vage@cern.ch" class="contact-email">
-            <i class="fas fa-envelope"></i> liv.helen.vage@cern.ch
-        </a>
-    </section>
-
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
-            <div class="social-links">
-                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
-                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+        </main>
+        <section class="contact-section">
+            <h2>Contact</h2>
+            <p>Have questions or suggestions? Get in touch!</p>
+            <a class="contact-email" href="mailto:liv.helen.vage@cern.ch">
+                <i class="fas fa-envelope"></i> liv.helen.vage@cern.ch
+            </a>
+        </section>
+        <footer>
+            <div class="footer-content">
+                <p>© 2024 ML Resources Hub. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+                </div>
             </div>
-        </div>
-    </footer>
-
-    <script src="js/main.js"></script>
-    <script>
+        </footer>
+        <script src="js/main.js"></script>
+        <script>
     document.addEventListener('DOMContentLoaded', function() {
         const sectionHeaders = document.querySelectorAll('.section-header');
         
@@ -623,5 +824,5 @@
         });
     });
     </script>
-</body>
+    </body>
 </html> 

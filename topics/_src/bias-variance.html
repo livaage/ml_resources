@@ -1,0 +1,227 @@
+<!-- TOPIC META -->
+title: Bias-Variance &amp; Overfitting — ML Resources Hub
+eyebrow_text: ← Theory · Generalization
+eyebrow_href: ../theory.html
+heading: Bias-Variance &amp; Overfitting
+lead: The trade-off at the heart of why models fail to generalize.
+
+
+<!-- TOPIC CONTENT -->
+<section class="topic-level" data-level="basic">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p>There are <strong>two ways</strong> a model can be wrong. <strong>Bias</strong>: the model is too simple to capture the pattern. <strong>Variance</strong>: the model has memorized the training data, including its noise. Most fixes trade one for the other.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>Picture trying to fit a straight line through data that's actually curved. The line is <em>biased</em> — no matter how much data you give it, it can't bend enough to match. Now picture a wiggly curve that passes through every single training point. Zero training error, but it's memorized the noise — show it new points and they'll be all over the map. That's <em>variance</em>.</p>
+        <p>The art of training a model is finding the sweet spot in between: complex enough to capture the real pattern, simple enough to ignore the noise.</p>
+    </article>
+
+    <div class="use-cases neutral">
+        <div class="yes">
+            <h3>High bias (underfitting)</h3>
+            <ul>
+                <li>Training error is poor</li>
+                <li>Test error is also poor</li>
+                <li>The model can't even fit the data it's trained on</li>
+                <li><strong>Fix:</strong> more features, a more complex model, less regularization</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>High variance (overfitting)</h3>
+            <ul>
+                <li>Training error is tiny</li>
+                <li>Test error is much larger</li>
+                <li>The model "memorized" the training set</li>
+                <li><strong>Fix:</strong> more data, a simpler model, regularization, ensembling</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># Quickest diagnostic: compare training vs test accuracy
+print(f"Train: {model.score(X_train, y_train):.3f}")
+print(f"Test:  {model.score(X_test,  y_test):.3f}")
+
+# If both are low      -> high bias (underfitting)
+# If train >> test     -> high variance (overfitting)
+# If both reasonable   -> you're in the sweet spot
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want to see the math?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level active" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">The decomposition</span>
+        <span class="formula">$$ \mathbb{E}\!\left[(y - \hat{f}(x))^2\right] \;=\; \mathrm{Bias}[\hat{f}(x)]^{\,2} \;+\; \mathrm{Var}[\hat{f}(x)] \;+\; \sigma^2 $$</span>
+        <ul class="formula-legend">
+            <li><code>E[…]</code>expected error over all possible training sets &amp; inputs</li>
+            <li><code>Bias</code>how far the <em>average</em> prediction sits from the truth</li>
+            <li><code>Var</code>how much predictions wobble as you re-sample the training data</li>
+            <li><code>σ²</code>irreducible noise — error you can't escape</li>
+        </ul>
+        <p style="margin-top:0.75rem">Total expected error splits cleanly into three terms. Two are <em>your</em> problem; one isn't.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Bias</strong> is error from picking the wrong model class. A linear model has high bias on a quadratic problem no matter how much data you feed it — the hypothesis space simply doesn't contain the right answer.</p>
+        <p><strong>Variance</strong> is error from being too sensitive to the specific training sample. A deep, unpruned tree picks up on noise; re-fit it on a slightly different sample and you get a noticeably different model.</p>
+        <p><strong>Irreducible noise (σ²)</strong> is the floor: it's noise in <em>y</em> given <em>x</em>. No model can do better.</p>
+        <p>The trade-off comes from how knobs move bias and variance together:</p>
+    </article>
+
+    <div class="use-cases neutral">
+        <div class="yes">
+            <h3>Increases bias, reduces variance</h3>
+            <ul>
+                <li>Simpler model class (linear → polynomial degree ↓)</li>
+                <li>Stronger regularization (L1, L2, dropout)</li>
+                <li>Smaller trees, more pruning</li>
+                <li>Smaller neural networks</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Reduces variance, bias unchanged</h3>
+            <ul>
+                <li>More training data</li>
+                <li>Ensembling (bagging, random forests)</li>
+                <li>Averaging across initial seeds</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.model_selection import learning_curve
+import numpy as np
+
+train_sizes, train_scores, val_scores = learning_curve(
+    model, X, y,
+    train_sizes=np.linspace(0.1, 1.0, 10),
+    cv=5,
+    scoring="neg_mean_squared_error",
+    n_jobs=-1,
+)
+
+# Convergence behaviour of the two curves diagnoses the regime:
+#   gap between them is large and stable -> high variance
+#   both plateau at a high error          -> high bias
+#   both converge low                     -> you're in the sweet spot
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Curious how this breaks down for modern deep nets?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Formal decomposition (squared loss)</span>
+        <span class="formula">$$ \begin{aligned}
+\mathbb{E}_{D,\varepsilon}\!\left[(y - \hat{f}_D(x))^2\right]
+&\;=\; \underbrace{\left(\bar{f}(x) - f(x)\right)^2}_{\text{bias}^2}
+\;+\; \underbrace{\mathbb{E}_D\!\left[\left(\hat{f}_D(x) - \bar{f}(x)\right)^2\right]}_{\text{variance}}
+\;+\; \sigma^2
+\end{aligned} $$</span>
+        <ul class="formula-legend">
+            <li><code>D</code>random training sample drawn from the data distribution</li>
+            <li><code>f(x)</code>true underlying function</li>
+            <li><code>f̂<sub>D</sub>(x)</code>the model fit on a particular dataset <em>D</em></li>
+            <li><code>f̄(x)</code>shorthand for <em>E<sub>D</sub>[f̂<sub>D</sub>(x)]</em> — the average prediction across training sets</li>
+            <li><code>ε</code>noise; <em>y</em> = <em>f</em>(<em>x</em>) + <em>ε</em> with <em>Var</em>(<em>ε</em>) = <em>σ²</em></li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p>The decomposition holds <strong>for squared loss only</strong>. It does not generalize cleanly to 0-1 loss or cross-entropy; the most common attempt at a unified treatment is Domingos (2000). For classification, the practical analogue is the trade-off between training and test error, but "bias" and "variance" become heuristic labels rather than algebraic terms.</p>
+        <p><strong>Double descent.</strong> The classical U-shape in test error vs. capacity describes only the under-parameterized regime. For modern interpolating models — wide neural networks, kernel methods at the interpolation threshold — test error often <em>decreases again</em> as capacity grows past the point where training error hits zero. Belkin et al. (2019) named this the <em>double descent</em> phenomenon.</p>
+        <p><strong>Implication.</strong> "Increasing capacity inflates variance" is a sound principle for classical ML but a poor description of deep nets. The implicit bias of the optimizer (SGD with weight decay) does most of the regularization work even when explicit regularization is minimal. Bias-variance is still a useful frame, but only one of several — see also benign overfitting (Bartlett et al.) and norm-based generalization bounds.</p>
+    </article>
+
+    <div class="use-cases neutral">
+        <div class="yes">
+            <h3>Classical regime</h3>
+            <ul>
+                <li>Number of params ≪ training points</li>
+                <li>Linear models, trees, classical ML</li>
+                <li>Decomposition is quantitatively useful</li>
+                <li>Capacity ↑ → variance ↑ holds reliably</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Modern overparameterized regime</h3>
+            <ul>
+                <li>Models interpolate the training set (zero training loss)</li>
+                <li>Deep nets, wide kernels, transfer-learned models</li>
+                <li>Double descent: test error drops past interpolation</li>
+                <li>Generalization governed by optimizer's implicit bias</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import numpy as np
+from sklearn.utils import resample
+from sklearn.base import clone
+
+# Empirical bias-variance estimate via bootstrap
+def bias_variance(estimator, X_train, y_train, X_test, y_test, n_boot=200, seed=0):
+    rng = np.random.RandomState(seed)
+    preds = np.zeros((n_boot, len(X_test)))
+    for b in range(n_boot):
+        Xb, yb = resample(X_train, y_train, random_state=rng.randint(1e9))
+        preds[b] = clone(estimator).fit(Xb, yb).predict(X_test)
+
+    mean_pred = preds.mean(axis=0)
+    bias_sq  = ((mean_pred - y_test) ** 2).mean()
+    variance =  preds.var(axis=0).mean()
+    noise    =  max(0.0, ((y_test - mean_pred) ** 2).mean() - bias_sq)
+    return bias_sq, variance, noise
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">ESL, chapter 7 <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The canonical treatment of bias-variance and model assessment. Read alongside chapter 2 for context.</span>
+        </li>
+        <li>
+            <a href="https://www.pnas.org/doi/10.1073/pnas.1903070116" target="_blank">Belkin et al. (2019) <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">"Reconciling modern ML practice and the classical bias-variance trade-off" — the double-descent paper. Short, accessible.</span>
+        </li>
+        <li>
+            <a href="https://homes.cs.washington.edu/~pedrod/papers/mlc00a.pdf" target="_blank">Domingos (2000) <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Unified bias-variance decomposition for 0-1, squared, and other losses. Read when squared-loss isn't enough.</span>
+        </li>
+        <li>
+            <a href="https://mlu-explain.github.io/bias-variance/" target="_blank">MLU-Explain — Bias-Variance <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Interactive visualization showing how complexity moves bias and variance. Best intuition builder.</span>
+        </li>
+        <li>
+            <a href="https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff" target="_blank">Wikipedia <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Quick reference for the derivation and connections to regularization.</span>
+        </li>
+    </ul>
+</div>
