@@ -1,0 +1,226 @@
+<!-- TOPIC META -->
+title: Gaussian Processes — ML Resources Hub
+eyebrow_text: ← Theory · Kernel Methods
+eyebrow_href: ../theory.html
+heading: Gaussian Processes
+lead: A probability distribution over functions. Predict with calibrated uncertainty, not just a point estimate.
+prev_href: support-vector-machines.html
+prev_title: Support Vector Machines
+
+
+<!-- TOPIC CONTENT -->
+<section class="topic-level" data-level="basic">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Instead of one guess, give me a range.</strong> A Gaussian process predicts both a value <em>and</em> how confident it is about that value. Where you have lots of nearby data, it's confident; where you don't, it widens its uncertainty.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>Most regression models give you one number per prediction. A Gaussian process gives you a number <em>and</em> an error bar — and the error bar is data-aware: it shrinks near your training points and grows when you predict far away from anything you've seen.</p>
+        <p>That uncertainty is the whole point. GPs are slow and don't scale to big data, but when you have a few hundred points and you care about <em>knowing what you don't know</em> — design of experiments, Bayesian optimization, robotics — they're the right tool.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>You have small data (≲1000 points)</li>
+                <li>Calibrated uncertainty matters</li>
+                <li>You want a non-parametric model that adapts to the data</li>
+                <li>You're doing Bayesian optimization</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>You have a lot of data (GPs are O(N³))</li>
+                <li>You only need point predictions, not uncertainty</li>
+                <li>The signal is well-behaved and a simpler model would do</li>
+                <li>You're working with images or text (use neural nets)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF
+
+gp = GaussianProcessRegressor(kernel=RBF(length_scale=1.0))
+gp.fit(X_train, y_train)
+
+# Predict with uncertainty
+y_mean, y_std = gp.predict(X_test, return_std=True)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want to see what's actually happening under the hood?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level active" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Key idea</span>
+        <span class="formula">$$ f(\mathbf{x}) \;\sim\; \mathcal{GP}\!\left(m(\mathbf{x}),\; k(\mathbf{x}, \mathbf{x}')\right) $$</span>
+        <ul class="formula-legend">
+            <li><code>m(x)</code>mean function (often zero)</li>
+            <li><code>k(x,x')</code>kernel — encodes how similar outputs should be when inputs are similar</li>
+        </ul>
+        <p style="margin-top:0.75rem">A GP is a distribution over functions such that any finite set of function values is jointly Gaussian. The kernel determines what kind of functions are likely — smooth, periodic, rough, etc.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>The kernel <em>k</em> is the heart of the model. The most common one — the RBF kernel <em>k(x, x') = exp(−‖x − x'‖² / 2ℓ²)</em> — assumes smooth functions; nearby inputs produce similar outputs, with "nearby" controlled by the length scale ℓ.</p>
+        <p>Given training data, the posterior over <em>f</em>(<em>x</em><sub>*</sub>) at a test point is also Gaussian, in closed form:</p>
+        <p style="text-align: center; font-family: var(--font-mono); font-size: 0.95rem;">μ<sub>*</sub> = k<sub>*</sub><sup>T</sup>(K + σ²I)<sup>−1</sup>y &nbsp;&nbsp;&nbsp; σ²<sub>*</sub> = k(x<sub>*</sub>,x<sub>*</sub>) − k<sub>*</sub><sup>T</sup>(K + σ²I)<sup>−1</sup>k<sub>*</sub></p>
+        <p>That matrix inverse is the source of the O(N³) cost — it's what kills GPs on large data.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Small to medium data with strong prior beliefs about smoothness</li>
+                <li>You want principled hyperparameter selection via marginal likelihood</li>
+                <li>Active learning / Bayesian optimization (need uncertainty to pick next point)</li>
+                <li>Time-series with seasonality (composable kernels)</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>N > a few thousand — use sparse approximations or switch models</li>
+                <li>Functions are non-stationary in ways the kernel can't capture</li>
+                <li>You have categorical features (need custom kernels)</li>
+                <li>Output is high-dimensional (vector-valued GPs are awkward)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, WhiteKernel, ConstantKernel as C
+
+# Composable kernel: amplitude * RBF + noise
+kernel = C(1.0) * RBF(length_scale=1.0) + WhiteKernel(noise_level=0.1)
+
+gp = GaussianProcessRegressor(
+    kernel=kernel,
+    n_restarts_optimizer=10,   # random restarts for marginal-likelihood optimization
+    normalize_y=True,
+).fit(X_train, y_train)
+
+print("Fitted kernel:", gp.kernel_)
+print("Log-marginal likelihood:", gp.log_marginal_likelihood(gp.kernel_.theta))
+
+y_mean, y_std = gp.predict(X_test, return_std=True)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want sparse approximations and the kernel-engineering tradeoffs?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Marginal likelihood (hyperparameter learning)</span>
+        <span class="formula">$$ \log p(\mathbf{y} \mid X, \boldsymbol{\theta}) \;=\; -\tfrac{1}{2}\mathbf{y}^\top K_\theta^{-1}\mathbf{y} \;-\; \tfrac{1}{2}\log\!|K_\theta| \;-\; \tfrac{n}{2}\log 2\pi $$</span>
+        <ul class="formula-legend">
+            <li><code>K<sub>θ</sub></code>covariance matrix induced by kernel hyperparameters <em>θ</em></li>
+            <li>fit term — <code>y<sup>T</sup>K<sup>-1</sup>y</code> penalizes poor data fit</li>
+            <li>complexity term — <code>log|K|</code> penalizes overly-flexible kernels</li>
+        </ul>
+        <p style="margin-top:0.75rem">The log marginal likelihood automatically trades off fit vs. complexity — a built-in Occam's razor. Optimize it w.r.t. kernel hyperparameters to set length scales, amplitudes, and noise simultaneously.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Scaling.</strong> The cubic cost of inverting the N×N kernel matrix is the headline limitation. Sparse approximations represent the GP via <em>m</em> ≪ N inducing points and reduce cost to O(Nm²). FITC and DTC are early variants; SVGP (variational, Hensman et al.) is the modern workhorse and scales to millions of points via stochastic optimization.</p>
+        <p><strong>Kernel composition.</strong> Sums and products of valid kernels are valid kernels. This lets you encode structure: <code>RBF + Periodic</code> for time series with seasonality, <code>RBF × Linear</code> for trends, etc. Automatic kernel discovery (Duvenaud et al.) tries to compose these structures from data.</p>
+        <p><strong>Connection to neural networks.</strong> An infinitely-wide neural network with random Gaussian weights converges to a GP (Neal, 1996). The NTK (neural tangent kernel) describes the GP that trained networks effectively act as in the infinite-width limit — connecting GPs to deep learning theory.</p>
+        <p><strong>Likelihood freedom.</strong> The closed-form posterior requires Gaussian likelihood. For classification or other non-Gaussian likelihoods, approximate inference is needed: Laplace, EP (expectation propagation), or variational methods.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Bayesian optimization / experimental design</li>
+                <li>Spatial statistics (kriging is a GP)</li>
+                <li>You want interpretable hyperparameters (length scale = "how far is similar?")</li>
+                <li>Multi-fidelity modelling — cheap and expensive evaluations</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>You can't choose a sensible kernel (no inductive bias)</li>
+                <li>You need extrapolation — RBF kernels decay to the prior mean</li>
+                <li>Strict inference latency — sparse GPs are still slower than NNs</li>
+                <li>Heavy-tailed noise — Gaussian likelihood is too sensitive to outliers</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import gpytorch, torch
+
+class ExactGP(gpytorch.models.ExactGP):
+    def __init__(self, X, y, likelihood):
+        super().__init__(X, y, likelihood)
+        self.mean   = gpytorch.means.ConstantMean()
+        self.cov    = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
+    def forward(self, x):
+        return gpytorch.distributions.MultivariateNormal(self.mean(x), self.cov(x))
+
+likelihood = gpytorch.likelihoods.GaussianLikelihood()
+model      = ExactGP(X_train, y_train, likelihood)
+mll        = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model)
+
+# Optimize marginal likelihood via Adam
+model.train(); likelihood.train()
+opt = torch.optim.Adam(model.parameters(), lr=0.1)
+for _ in range(200):
+    opt.zero_grad()
+    loss = -mll(model(X_train), y_train)
+    loss.backward()
+    opt.step()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://distill.pub/2019/visual-exploration-gaussian-processes/" target="_blank">Distill — A Visual Exploration of GPs <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Best intuition builder. Interactive widgets for kernels, conditioning, and the posterior. Start here.</span>
+        </li>
+        <li>
+            <a href="https://gaussianprocess.org/gpml/" target="_blank">Rasmussen &amp; Williams — Gaussian Processes for ML <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The textbook. Free PDF. Comprehensive treatment from regression to classification to sparse approximations.</span>
+        </li>
+        <li>
+            <a href="https://docs.gpytorch.ai/en/stable/" target="_blank">GPyTorch documentation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Modern GPU-accelerated GP library, with tutorials covering sparse and deep GPs. The library most people actually use.</span>
+        </li>
+        <li>
+            <a href="https://scikit-learn.org/stable/modules/gaussian_process.html" target="_blank">scikit-learn GP module <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Good for small data and prototyping. No sparse GP support, but the API is the simplest.</span>
+        </li>
+    </ul>
+</div>

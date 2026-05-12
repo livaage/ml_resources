@@ -1,0 +1,213 @@
+<!-- TOPIC META -->
+title: Naive Bayes — ML Resources Hub
+eyebrow_text: ← Theory · Probabilistic Models
+eyebrow_href: ../theory.html
+heading: Naive Bayes
+lead: A surprisingly effective classifier built on a deliberately naive independence assumption.
+next_href: gaussian-mixture-models.html
+next_title: Gaussian Mixture Models
+
+
+<!-- TOPIC CONTENT -->
+<section class="topic-level" data-level="basic">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Pretend each feature is independent of the others, then multiply probabilities.</strong> The assumption is almost always wrong, but the math becomes so simple — and so fast — that the model is surprisingly competitive on text and other discrete-feature problems.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>Naive Bayes asks: given the words in this email, how likely is each class (spam vs. not spam)? It computes that by pretending each word is independent of every other word — which is obviously false in real language — but then it argmaxes over classes, and the wrong probabilities often still rank the classes correctly.</p>
+        <p>It's fast, trains in a single pass over the data, handles thousands of features without breaking a sweat, and is still the default baseline for many text-classification problems.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Text classification (spam, sentiment, topic)</li>
+                <li>You need a fast baseline before trying anything fancier</li>
+                <li>Training data is small but you have many features</li>
+                <li>You need online / streaming training</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Feature interactions matter (the independence assumption costs too much)</li>
+                <li>Continuous features without natural Gaussian structure</li>
+                <li>You need calibrated probability estimates</li>
+                <li>You're modelling images or sequences</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
+vec = CountVectorizer()
+X = vec.fit_transform(texts)
+
+clf = MultinomialNB().fit(X, labels)
+print("Top spam words:", vec.get_feature_names_out()[clf.feature_log_prob_[1].argsort()[-10:]])
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the actual Bayes' rule?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level active" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Key idea</span>
+        <span class="formula">$$ P(y \mid \mathbf{x}) \;\propto\; P(y)\,\prod_{i=1}^{d} P(x_i \mid y) $$</span>
+        <ul class="formula-legend">
+            <li><code>P(y)</code>class prior — proportion of each class in training data</li>
+            <li><code>P(x<sub>i</sub>|y)</code>per-feature likelihood, modelled by a simple distribution</li>
+            <li>The "naive" part is the product — features assumed independent given <em>y</em></li>
+        </ul>
+        <p style="margin-top:0.75rem">Bayes' rule plus the conditional-independence assumption. The denominator <code>P(x)</code> doesn't depend on <em>y</em>, so it drops out when comparing classes.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Variants by likelihood.</strong> <em>Multinomial</em> NB models word counts and is the classic choice for text. <em>Bernoulli</em> NB models presence / absence of words (useful for short documents). <em>Gaussian</em> NB models continuous features as Gaussian per class. The structure is the same; only the per-feature density changes.</p>
+        <p><strong>Laplace smoothing.</strong> If a word never appeared with class <em>y</em> in training, <em>P(x<sub>i</sub> | y) = 0</em> would zero the entire product. Add-one (Laplace) smoothing replaces zeros with a small prior count, which is essentially a Dirichlet prior on the categorical likelihood.</p>
+        <p><strong>Why it works despite being wrong.</strong> Naive Bayes is a biased probability estimator but a competitive <em>ranker</em>: the argmax over classes is often correct even when the individual probabilities are miscalibrated. For decision-making it's fine; for confidence estimates it isn't.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Bag-of-words text classification</li>
+                <li>Document filtering with online updates</li>
+                <li>You want a transparent baseline you can read off</li>
+                <li>Class priors shift between train and test (you can re-prior easily)</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Probability calibration matters — the over-confidence is notorious</li>
+                <li>Features are heavily correlated and you can't decorrelate them</li>
+                <li>Continuous features that are multi-modal per class</li>
+                <li>Sequence structure matters (use a sequence model)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import classification_report
+
+pipe = Pipeline([
+    ("tfidf", TfidfVectorizer(min_df=5, ngram_range=(1, 2))),
+    ("nb",    MultinomialNB(alpha=0.1)),    # Laplace smoothing
+])
+pipe.fit(X_train_text, y_train)
+
+y_pred = pipe.predict(X_test_text)
+print(classification_report(y_test, y_pred))
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the connection to logistic regression and the failure modes?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Log-posterior (linear in features)</span>
+        <span class="formula">$$ \log P(y \mid \mathbf{x}) \;=\; \log P(y) \;+\; \sum_{i=1}^{d} \log P(x_i \mid y) \;+\; \text{const} $$</span>
+        <ul class="formula-legend">
+            <li>The log-posterior is <strong>linear</strong> in the features (for many likelihood families)</li>
+            <li>Naive Bayes is therefore a linear classifier in disguise</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>NB vs. logistic regression.</strong> Both produce linear decision boundaries in the log-likelihood representation. NB is a <em>generative</em> model: it models <em>P(x, y) = P(y)·P(x|y)</em>. Logistic regression is <em>discriminative</em>: it models <em>P(y | x)</em> directly. Ng &amp; Jordan (2001) showed that NB reaches its (worse) asymptotic error faster — so NB wins at small <em>N</em>, LR wins at large <em>N</em>.</p>
+        <p><strong>Complement NB</strong> (Rennie et al. 2003). For unbalanced text classification, modeling <em>P(x | ¬y)</em> instead of <em>P(x | y)</em> and flipping signs reduces the bias toward the majority class. Implemented in sklearn as <code>ComplementNB</code> — often beats MultinomialNB on real text.</p>
+        <p><strong>Calibration.</strong> NB's probability estimates are systematically over-confident because the independence assumption underestimates correlated evidence (the same signal gets counted multiple times). Post-hoc calibration (Platt scaling, isotonic regression) on a held-out set can fix the probabilities without changing the classifier.</p>
+        <p><strong>Connection to language modelling.</strong> A unigram language model with class-conditional unigrams <em>is</em> multinomial NB. n-gram smoothing techniques (Good-Turing, Kneser-Ney) directly carry over.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Limited labelled data, many features — NB's asymptotic-error trade-off wins</li>
+                <li>Streaming setting with class priors that drift</li>
+                <li>Interpretable baseline alongside a heavier model for ablation</li>
+                <li>You need very fast inference (e.g. online filtering)</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Long-form text or sequence structure — n-gram NB caps at small windows</li>
+                <li>Continuous features are multi-modal — Gaussian NB will get badly wrong</li>
+                <li>You need probabilities used in downstream Bayesian computation</li>
+                <li>Adversarial inputs — easily exploited via crafted feature combinations</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.naive_bayes import ComplementNB
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.pipeline import Pipeline
+
+# ComplementNB for imbalanced text + isotonic calibration for honest probabilities
+base = Pipeline([
+    ("tfidf", TfidfVectorizer(min_df=5, sublinear_tf=True, ngram_range=(1, 2))),
+    ("nb",    ComplementNB(alpha=0.1)),
+])
+clf = CalibratedClassifierCV(base, method="isotonic", cv=5)
+clf.fit(X_train, y_train)
+
+# Now clf.predict_proba is well-calibrated on held-out data
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://scikit-learn.org/stable/modules/naive_bayes.html" target="_blank">scikit-learn user guide <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Practical comparison of all four NB variants (Gaussian / Multinomial / Complement / Bernoulli).</span>
+        </li>
+        <li>
+            <a href="https://web.stanford.edu/~jurafsky/slp3/4.pdf" target="_blank">Jurafsky &amp; Martin, ch. 4 <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">NB applied to text classification with worked examples — the clearest intro for NLP context.</span>
+        </li>
+        <li>
+            <a href="https://ai.stanford.edu/~ang/papers/nips01-discriminativegenerative.pdf" target="_blank">Ng &amp; Jordan (2001) <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">"On Discriminative vs. Generative Classifiers" — when does NB beat logistic regression? Short and clear.</span>
+        </li>
+        <li>
+            <a href="https://www.aaai.org/Papers/ICML/2003/ICML03-081.pdf" target="_blank">Rennie et al. (2003) <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">"Tackling the Poor Assumptions of Naive Bayes" — introduces Complement NB and explains practical failure modes.</span>
+        </li>
+    </ul>
+</div>

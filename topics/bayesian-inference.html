@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bayesian Inference — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html" class="active">ML Theory</a>
+            <a href="../practice.html">ML Practice</a>
+            <a href="../code-examples.html">Code Examples</a>
+            <a href="../best-practices.html">Best Practices</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../theory.html" class="eyebrow">← Theory · Probabilistic Models</a>
+                    <h1>Bayesian Inference</h1>
+                    <p class="lead">Update beliefs about parameters as you see data — get distributions, not point estimates.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Difficulty">
+                    <button class="level-tab" data-level="basic" type="button">Basic</button>
+                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level" data-level="basic">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Start with a belief, see some data, update.</strong> Classical statistics gives you a single best estimate of a parameter (and maybe a confidence interval). Bayesian inference gives you a full <em>distribution</em> over the parameter — capturing everything you know and don't know about it after seeing the data.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>Suppose you want to know a coin's bias. After 10 flips you saw 7 heads. A classical estimate is 0.7 — period. A Bayesian says: "Before flipping, I believed the bias was probably around 0.5 (the <em>prior</em>). Now I've updated to a distribution centered slightly above 0.5 but with a lot of spread (the <em>posterior</em>) — I'm not very sure yet."</p>
+        <p>That distribution is the answer. Want a point estimate? Take its mean. Want uncertainty? Read off the credible interval. Want to predict? Average predictions over the posterior. The framework gives you principled answers to all of these.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>You have small data and strong prior knowledge</li>
+                <li>Honest uncertainty matters (clinical trials, A/B tests, forecasts)</li>
+                <li>You need to combine evidence from multiple sources</li>
+                <li>Decision-theoretic framing (loss × posterior → optimal action)</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>You have a lot of data and the prior doesn't matter</li>
+                <li>You only need a point estimate and don't care about uncertainty</li>
+                <li>The model is complex and you can't afford MCMC / VI</li>
+                <li>The audience won't accept "subjective" priors</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># Coin-flip example: Beta(α, β) prior + Binomial likelihood -> Beta posterior
+from scipy.stats import beta
+
+alpha_prior, beta_prior = 2, 2          # weak prior around p=0.5
+heads, tails = 7, 3                     # observed data
+
+alpha_post = alpha_prior + heads
+beta_post  = beta_prior  + tails
+
+posterior = beta(alpha_post, beta_post)
+print(f"Posterior mean: {posterior.mean():.3f}")
+print(f"95% credible interval: ({posterior.ppf(0.025):.3f}, {posterior.ppf(0.975):.3f})")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want Bayes' rule and conjugate priors?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level active" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Bayes' rule</span>
+        <span class="formula">$$ \underbrace{p(\theta \mid \mathcal{D})}_{\text{posterior}} \;=\; \frac{\overbrace{p(\mathcal{D} \mid \theta)}^{\text{likelihood}} \;\overbrace{p(\theta)}^{\text{prior}}}{\underbrace{p(\mathcal{D})}_{\text{evidence}}} $$</span>
+        <ul class="formula-legend">
+            <li><code>θ</code>parameters or hypotheses</li>
+            <li><code>D</code>observed data</li>
+            <li><code>p(D)</code>marginal likelihood — usually intractable, but it's just a normalizer over <em>θ</em></li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Conjugate priors.</strong> If the prior and likelihood are a "conjugate pair", the posterior is in the same family as the prior — closed-form update, no numerical integration needed. Beta-Binomial (coin flips), Gaussian-Gaussian (mean estimation with known variance), Dirichlet-Multinomial (category proportions). Use these when you can.</p>
+        <p><strong>When conjugacy fails.</strong> Most real models aren't conjugate. Two options:</p>
+        <p><strong>MCMC</strong> (Markov chain Monte Carlo) generates samples from the posterior without computing the normalizer. Modern variants — Hamiltonian Monte Carlo (HMC), the No-U-Turn Sampler (NUTS) — handle high-dim continuous parameters well.</p>
+        <p><strong>Variational inference (VI)</strong> turns inference into optimization: pick a tractable approximating family <em>q(θ)</em>, then optimize <em>q</em> to minimize KL divergence to the posterior. Faster than MCMC but biased — <em>q</em> can't capture posterior shapes it doesn't have the flexibility for.</p>
+        <p><strong>Predictive distributions.</strong> Instead of plugging in a point estimate, average predictions over the posterior: <em>p(x<sub>new</sub> | D) = ∫ p(x<sub>new</sub> | θ) p(θ | D) dθ</em>. This automatically accounts for parameter uncertainty.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Small / heterogeneous data — priors regularize gracefully</li>
+                <li>You need a coherent uncertainty propagation through several modelling steps</li>
+                <li>Mixed-effects / hierarchical models — Bayesian framework is natural</li>
+                <li>Decision making — combine posteriors with utility functions</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Likelihood is too expensive to evaluate repeatedly (no MCMC budget)</li>
+                <li>Prior is hard to justify and the audience wants "no priors"</li>
+                <li>Posterior is multi-modal and you don't have specialized samplers</li>
+                <li>Real-time inference — MCMC is slow</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import pymc as pm
+
+# Bayesian linear regression: model = α + β·x + noise
+with pm.Model() as model:
+    alpha = pm.Normal("alpha", mu=0, sigma=10)
+    beta  = pm.Normal("beta",  mu=0, sigma=10)
+    sigma = pm.HalfNormal("sigma", sigma=1)
+
+    mu = alpha + beta * x_obs
+    pm.Normal("y", mu=mu, sigma=sigma, observed=y_obs)
+
+    # NUTS sampler — adaptive HMC
+    trace = pm.sample(2000, tune=1000, chains=4, target_accept=0.9)
+
+# Posterior summaries
+import arviz as az
+print(az.summary(trace, var_names=["alpha", "beta", "sigma"]))
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the MCMC mechanics, VI bounds, and the diagnostics?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Variational lower bound (ELBO)</span>
+        <span class="formula">$$ \log p(\mathcal{D}) \;\geq\; \mathbb{E}_{q(\theta)}\!\left[\log p(\mathcal{D}, \theta) - \log q(\theta)\right] \;=\; \mathcal{L}(q) $$</span>
+        <ul class="formula-legend">
+            <li>Maximize <em>ℒ</em> over <em>q</em> — equivalent to minimizing <em>KL(q ∥ posterior)</em></li>
+            <li>Gap = KL divergence — when zero, <em>q</em> = posterior</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>MCMC choices.</strong> Random-walk Metropolis is robust but mixes slowly. Gibbs sampling factorizes posterior into conditionals — efficient when conjugacy is partial. Hamiltonian Monte Carlo uses gradients to make informed proposals — much better mixing on continuous high-dim problems. NUTS auto-tunes HMC step size and trajectory length. Use NUTS by default in modern PPLs (PyMC, Stan, NumPyro).</p>
+        <p><strong>Convergence diagnostics.</strong> R-hat compares within-chain to between-chain variance — should be near 1 for convergence. Effective sample size measures autocorrelation-adjusted information per draw. Energy plots reveal HMC pathologies. Trust nothing; always check.</p>
+        <p><strong>VI methods.</strong> Mean-field VI factorizes <em>q(θ) = ∏ q(θ<sub>i</sub>)</em> — fast but blind to correlations. Black-box VI / SVI uses gradient-based optimization with Monte Carlo gradients (works for any model in a PPL). Normalizing flows give expressive <em>q</em> while keeping density evaluation tractable — closing the gap on MCMC for high-dim continuous posteriors.</p>
+        <p><strong>Prior sensitivity.</strong> Sensitivity to priors should be checked. Tighter priors = stronger regularization. For hierarchical models, weakly informative priors on top-level scales (HalfNormal, HalfCauchy) prevent funnel pathologies in MCMC. <em>Reparameterize</em> centered models to non-centered when geometry is hostile.</p>
+        <p><strong>Model comparison.</strong> Bayes factors are tempting but unstable for diffuse priors. Use information criteria — WAIC, LOO-CV via importance sampling (PSIS-LOO) — for predictive comparison.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Hierarchical / multilevel structure to exploit</li>
+                <li>You need to propagate uncertainty through a pipeline of models</li>
+                <li>Sparse signals where priors do the regularizing work</li>
+                <li>Probabilistic programming gives you compositional model construction</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Big data &amp; deep models — VI / MCMC don't scale; use SGD-friendly point estimates with explicit uncertainty (deep ensembles, MC dropout)</li>
+                <li>Likelihood-free / simulation-based setting — use ABC or SBI methods</li>
+                <li>Strict latency budget at inference time</li>
+                <li>Posterior is sharply multi-modal and you can't engineer good chains</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import numpyro
+import numpyro.distributions as dist
+from jax import random
+from numpyro.infer import MCMC, NUTS
+
+# Same Bayesian regression in NumPyro — JAX-accelerated NUTS
+def model(x, y=None):
+    alpha = numpyro.sample("alpha", dist.Normal(0., 10.))
+    beta  = numpyro.sample("beta",  dist.Normal(0., 10.))
+    sigma = numpyro.sample("sigma", dist.HalfNormal(1.))
+    mu = alpha + beta * x
+    numpyro.sample("obs", dist.Normal(mu, sigma), obs=y)
+
+kernel = NUTS(model, target_accept_prob=0.9)
+mcmc   = MCMC(kernel, num_warmup=1000, num_samples=2000, num_chains=4)
+mcmc.run(random.PRNGKey(0), x=x_obs, y=y_obs)
+mcmc.print_summary()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="hidden-markov-models.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Hidden Markov Models</span>
+                        </span>
+                    </a>
+                    
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://xcelab.net/rm/statistical-rethinking/" target="_blank">McElreath — Statistical Rethinking <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The friendliest Bayesian textbook. Builds intuition with concrete examples, every chapter has Stan/PyMC code. Lectures on YouTube too.</span>
+        </li>
+        <li>
+            <a href="https://www.pymc.io/projects/docs/en/stable/learn.html" target="_blank">PyMC learning resources <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">PyMC's curated tutorial collection — A/B testing, GLMs, hierarchical models, time series. Hands-on, well-maintained.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/1601.00670" target="_blank">Blei et al. (2017) — VI Review <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">"Variational Inference: A Review for Statisticians" — the standard reference for understanding VI.</span>
+        </li>
+        <li>
+            <a href="https://www.mcmchandbook.net/" target="_blank">Brooks et al. — MCMC Handbook <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Encyclopedic reference for MCMC algorithms and diagnostics. Free chapters online.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../js/topic-page.js"></script>
+</body>
+</html>

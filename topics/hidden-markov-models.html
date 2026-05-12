@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hidden Markov Models — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html" class="active">ML Theory</a>
+            <a href="../practice.html">ML Practice</a>
+            <a href="../code-examples.html">Code Examples</a>
+            <a href="../best-practices.html">Best Practices</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../theory.html" class="eyebrow">← Theory · Probabilistic Models</a>
+                    <h1>Hidden Markov Models</h1>
+                    <p class="lead">Latent-state sequence models — what RNNs replaced, but still useful when interpretability matters.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Difficulty">
+                    <button class="level-tab" data-level="basic" type="button">Basic</button>
+                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level" data-level="basic">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>A system you can't see directly, but you can see its outputs.</strong> The state changes over time according to its own rules. You only observe noisy emissions. Given the emissions, you infer the hidden states.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>Classic example: speech recognition. The "hidden state" is the phoneme being spoken; the "observation" is the audio signal. You don't see the phoneme directly, only the sound. The model captures (a) which phonemes tend to follow which (transition probabilities) and (b) what each phoneme tends to sound like (emission probabilities).</p>
+        <p>HMMs have been largely replaced by RNNs and transformers in speech and NLP, but they're still the right tool when (a) the latent states have a real interpretation you care about, (b) data is small, or (c) you want exact inference rather than approximate.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>The hidden states correspond to real-world categories you care about</li>
+                <li>Small data — exact inference is feasible and helps</li>
+                <li>Biological sequence analysis (gene finding, protein structure)</li>
+                <li>You need a probabilistic story you can interrogate</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Lots of data and you don't care about latent-state interpretability — use RNN / transformer</li>
+                <li>State transitions depend on long-range context (Markov assumption breaks)</li>
+                <li>Emissions are high-dimensional images or text</li>
+                <li>You want end-to-end learning of representations</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from hmmlearn import hmm
+
+# 3 hidden states, Gaussian emissions
+model = hmm.GaussianHMM(n_components=3, covariance_type="full")
+model.fit(observations)   # shape: (n_samples, n_features)
+
+# Decode: most likely hidden-state sequence (Viterbi)
+hidden_states = model.predict(observations)
+
+# Score: log-likelihood of the observed sequence under the model
+print(f"log p(obs) = {model.score(observations):.2f}")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the three classical problems and the algorithms?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level active" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">The model</span>
+        <span class="formula">$$ p(\mathbf{x}_{1:T}, \mathbf{z}_{1:T}) \;=\; \pi(z_1)\,\prod_{t=2}^{T} A(z_t \mid z_{t-1}) \,\prod_{t=1}^{T} B(x_t \mid z_t) $$</span>
+        <ul class="formula-legend">
+            <li><code>π</code>initial state distribution</li>
+            <li><code>A</code>state transition matrix</li>
+            <li><code>B</code>emission distribution (Gaussian, multinomial, …)</li>
+            <li><code>z<sub>t</sub></code>hidden state at time <em>t</em></li>
+            <li><code>x<sub>t</sub></code>observed emission at time <em>t</em></li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p>Three classical problems, each with its own algorithm:</p>
+        <p><strong>1. Evaluation</strong> — given a model, how likely is an observed sequence? Use the <em>forward algorithm</em>. Dynamic programming, O(<em>T·K²</em>) where <em>K</em> is the number of states.</p>
+        <p><strong>2. Decoding</strong> — given a model and observations, what's the most likely hidden state sequence? Use the <em>Viterbi algorithm</em>. Same complexity as forward, but tracks the argmax path.</p>
+        <p><strong>3. Learning</strong> — given observations only, fit the model parameters. Use the <em>Baum-Welch algorithm</em> (EM specialized to HMMs). Iterate: E-step computes posterior over latent states via forward-backward; M-step updates π, <em>A</em>, <em>B</em>.</p>
+        <p>Without the Markov assumption, all of these would be exponential in <em>T</em>. The local conditioning is what makes HMMs tractable.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Tagging tasks where labels follow a Markov chain (POS tagging, NER)</li>
+                <li>Acoustic modelling for small-vocabulary speech</li>
+                <li>Bioinformatics (CpG islands, gene structure, profile HMMs)</li>
+                <li>Activity recognition from sensor sequences</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Long-range dependencies — RNN / transformer captures them better</li>
+                <li>Continuous high-dim emissions — better handled by deep generative models</li>
+                <li>You need to learn the state space (not just its parameters)</li>
+                <li>Labels are observed at every step — use CRF / sequence tagger instead</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from hmmlearn import hmm
+import numpy as np
+
+# Multinomial emissions for discrete observations
+model = hmm.CategoricalHMM(n_components=3, n_iter=100, random_state=0)
+model.fit(X, lengths=lengths)    # lengths splits concatenated sequences
+
+# Posterior probability of each state at each timestep
+log_prob, posteriors = model.score_samples(X)
+
+# Viterbi: most likely state sequence
+states = model.predict(X)
+
+print("Transition matrix:")
+print(np.round(model.transmat_, 3))
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want forward-backward, max-product, and the CRF connection?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Forward recursion</span>
+        <span class="formula">$$ \alpha_t(j) \;=\; B(x_t \mid z_t{=}j) \;\sum_{i=1}^{K} \alpha_{t-1}(i)\, A(i \to j) $$</span>
+        <ul class="formula-legend">
+            <li><code>α<sub>t</sub>(j)</code>joint probability of observations 1..t and hidden state <em>j</em> at <em>t</em></li>
+            <li>Combined with the analogous <strong>backward</strong> recursion <em>β<sub>t</sub>(j)</em>, you get the full posterior <em>γ<sub>t</sub>(j)</em> at each step</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Sum-product vs max-product.</strong> Forward-backward and Viterbi are the same dynamic program with different semiring operations: forward sums over paths to compute <em>p(x)</em>; Viterbi maxes over paths to find the best one. Both are O(<em>T·K²</em>) and both run in log-space in practice to avoid underflow.</p>
+        <p><strong>Baum-Welch.</strong> The EM algorithm for HMMs. The E-step uses forward-backward to compute expected state and transition counts; the M-step normalizes those counts to update π, <em>A</em>, and the emission parameters. Local optima are common; warm-start with k-means or supervised pre-training if you have it.</p>
+        <p><strong>HMMs vs. CRFs.</strong> HMMs are generative (model <em>p(x, z)</em>); CRFs are discriminative (model <em>p(z | x)</em> directly). CRFs win when you can engineer good features over the observations <em>and</em> have labels for training. HMMs win when labels are scarce or you want to do unsupervised structure discovery.</p>
+        <p><strong>Generalizations.</strong> HSMMs (hidden semi-Markov) allow non-geometric state durations. Factorial HMMs decompose the state into multiple chains. Input-output HMMs condition transitions and emissions on external inputs. Beyond that, you've reinvented an RNN — at which point you probably should just use one.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>You need exact inference and have computational budget for it</li>
+                <li>Latent structure interpretation is the goal (e.g. regime detection)</li>
+                <li>Probabilistic outputs feed downstream Bayesian computation</li>
+                <li>Domain knowledge dictates a specific transition structure</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>You can afford to label sequences — train a sequence tagger / transformer instead</li>
+                <li>The state space is unknown and continuous</li>
+                <li>You need to model variable-rate sequences with strong dependencies</li>
+                <li>You want to backprop through the model end-to-end (use a differentiable variant)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import numpy as np
+
+def forward_log(log_pi, log_A, log_B):
+    """Forward in log-space. log_B has shape (T, K) — log emission probs."""
+    T, K = log_B.shape
+    log_alpha = np.empty_like(log_B)
+    log_alpha[0] = log_pi + log_B[0]
+    for t in range(1, T):
+        # logsumexp trick to stay numerically stable
+        log_alpha[t] = log_B[t] + _logsumexp(log_alpha[t-1, :, None] + log_A, axis=0)
+    return log_alpha
+
+def _logsumexp(x, axis):
+    m = x.max(axis=axis, keepdims=True)
+    return (m + np.log(np.exp(x - m).sum(axis=axis, keepdims=True))).squeeze(axis)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="gaussian-mixture-models.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Gaussian Mixture Models</span>
+                        </span>
+                    </a>
+                    <a href="bayesian-inference.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Bayesian Inference</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://www.cs.ubc.ca/~murphyk/Bayes/rabiner.pdf" target="_blank">Rabiner (1989) tutorial <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The classic tutorial on HMMs. Covers the three problems, all algorithms, applications to speech. Still the best single source.</span>
+        </li>
+        <li>
+            <a href="https://hmmlearn.readthedocs.io/" target="_blank">hmmlearn documentation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The maintained scikit-learn-style Python implementation. Categorical, Gaussian, and GMM emissions.</span>
+        </li>
+        <li>
+            <a href="https://web.stanford.edu/~jurafsky/slp3/A.pdf" target="_blank">Jurafsky &amp; Martin, appendix A <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">HMMs for NLP with worked examples (POS tagging). Cleaner notation than Rabiner.</span>
+        </li>
+        <li>
+            <a href="https://en.wikipedia.org/wiki/Viterbi_algorithm" target="_blank">Wikipedia — Viterbi algorithm <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Quick reference for the decoding step in isolation. Includes pseudocode.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../js/topic-page.js"></script>
+</body>
+</html>

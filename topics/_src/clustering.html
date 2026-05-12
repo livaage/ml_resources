@@ -1,0 +1,217 @@
+<!-- TOPIC META -->
+title: Clustering Algorithms — ML Resources Hub
+eyebrow_text: ← Theory · Model Families
+eyebrow_href: ../theory.html
+heading: Clustering Algorithms
+lead: Group similar items together without labels — k-means, DBSCAN, hierarchical, and friends.
+
+
+<!-- TOPIC CONTENT -->
+<section class="topic-level" data-level="basic">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Find natural groups in your data without telling the algorithm what to look for.</strong> No labels, no target variable. The algorithm decides what "similar" means based on a distance metric you provide.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>The most famous algorithm is <strong>k-means</strong>: pick <em>k</em> in advance, then iteratively assign each point to the nearest cluster center and move each center to the average of its assigned points. Simple, fast, but biased toward equal-size spherical clusters.</p>
+        <p>Other approaches: <strong>DBSCAN</strong> finds clusters of arbitrary shape based on local density (and labels sparse regions as noise). <strong>Hierarchical clustering</strong> builds a tree of clusters at every scale, letting you pick the granularity afterward.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>You suspect there are natural groups but have no labels</li>
+                <li>Customer / user segmentation</li>
+                <li>Exploratory data analysis on a new dataset</li>
+                <li>Vector quantization / image compression</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>You have labels — use supervised learning instead</li>
+                <li>You don't know what distance metric makes sense for your data</li>
+                <li>The data has no real cluster structure (then any algorithm invents some)</li>
+                <li>You need to "explain" the clusters — clustering doesn't justify itself</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.cluster import KMeans
+
+km = KMeans(n_clusters=4, n_init=10, random_state=0).fit(X)
+
+print("Cluster sizes:", [(km.labels_ == k).sum() for k in range(4)])
+print("Cluster centers shape:", km.cluster_centers_.shape)
+
+# Predict cluster for new points
+new_labels = km.predict(X_new)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want to see how these algorithms actually work?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level active" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">k-means objective</span>
+        <span class="formula">$$ \min_{\{\boldsymbol{\mu}_k\}} \sum_{k=1}^{K} \sum_{\mathbf{x}_i \in C_k} \|\mathbf{x}_i - \boldsymbol{\mu}_k\|^2 $$</span>
+        <ul class="formula-legend">
+            <li><code>C<sub>k</sub></code>the set of points assigned to cluster <em>k</em></li>
+            <li><code>μ<sub>k</sub></code>the centroid of cluster <em>k</em> (the mean of its points)</li>
+            <li>Lloyd's algorithm alternates assignment and centroid update — guaranteed to converge to a local minimum</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>k-means.</strong> Assumes spherical, equal-size, equal-variance clusters. Sensitive to initialization — use <code>k-means++</code> seeding and <code>n_init &gt; 1</code> to mitigate. Picking <em>K</em>: elbow on inertia, silhouette score, or the gap statistic.</p>
+        <p><strong>DBSCAN</strong> (Density-Based Spatial Clustering). Two parameters: <code>eps</code> (neighbourhood radius) and <code>min_samples</code>. A point is "core" if it has ≥ min_samples neighbours within eps; clusters grow from core points. Points outside any cluster are labelled noise. Handles arbitrary shapes; no <em>K</em> to choose. Struggles with varying densities.</p>
+        <p><strong>Hierarchical / agglomerative.</strong> Start with each point its own cluster, then repeatedly merge the closest pair. Choose linkage: single (chain-like clusters), complete (compact), average, or Ward (minimum variance). Produces a dendrogram you can cut at any height.</p>
+        <p><strong>Spectral clustering.</strong> Build a similarity graph, embed it via the eigenvectors of the graph Laplacian, then run k-means in that embedding. Handles non-convex shapes that k-means can't.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li><strong>k-means:</strong> roughly spherical groups, large data, fast iteration</li>
+                <li><strong>DBSCAN:</strong> arbitrary shapes, noise present, unknown <em>K</em></li>
+                <li><strong>Hierarchical:</strong> you want to see structure at multiple scales</li>
+                <li><strong>Spectral:</strong> data lies on a manifold, similarity matters more than Euclidean distance</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Very high-dimensional data — distances become uninformative ("curse of dimensionality")</li>
+                <li>Mixed-type features — clustering is metric-bound</li>
+                <li>You need overlapping clusters (use GMM for soft assignment)</li>
+                <li>Cluster validity is unknown — silhouette &amp; gap statistic only help so much</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
+from sklearn.metrics import silhouette_score
+import numpy as np
+
+# Compare three algorithms with silhouette
+for name, algo in [
+    ("k-means",     KMeans(n_clusters=4, n_init=10, random_state=0)),
+    ("dbscan",      DBSCAN(eps=0.5, min_samples=5)),
+    ("agglomerative", AgglomerativeClustering(n_clusters=4, linkage="ward")),
+]:
+    labels = algo.fit_predict(X)
+    # silhouette is undefined if any single cluster
+    if len(set(labels)) > 1:
+        s = silhouette_score(X, labels)
+        print(f"{name:20s} silhouette = {s:.3f}, n_clusters = {len(set(labels))}")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the embedding view and modern density-based methods?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Spectral clustering</span>
+        <span class="formula">$$ L \;=\; D - W \quad\text{or}\quad L_{\text{sym}} = I - D^{-1/2} W D^{-1/2} $$</span>
+        <ul class="formula-legend">
+            <li><code>W</code>similarity matrix (e.g. Gaussian kernel of pairwise distances)</li>
+            <li><code>D</code>diagonal degree matrix, <em>D<sub>ii</sub> = Σ<sub>j</sub> W<sub>ij</sub></em></li>
+            <li>Embed via the smallest <em>k</em> eigenvectors of <em>L</em>, then cluster in that space</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>k-means is a Voronoi quantizer.</strong> It minimizes the variance within Voronoi cells. With high-dim data, every pair of random points is approximately equidistant (concentration of measure), which is why k-means quality degrades sharply above ~50 dimensions. Pre-embed via PCA or autoencoder before clustering.</p>
+        <p><strong>HDBSCAN.</strong> A hierarchical variant of DBSCAN that doesn't require a global eps. Builds a tree of mutual-reachability distances and extracts stable clusters at varying densities. The de-facto modern default when you'd previously have used DBSCAN.</p>
+        <p><strong>Mean shift.</strong> Non-parametric mode-seeking: each point climbs the density gradient toward a local mode. Number of clusters determined by the number of distinct modes. Bandwidth selection is the main hyperparameter.</p>
+        <p><strong>Validity indices.</strong> Internal indices (silhouette, Davies-Bouldin, Calinski-Harabasz) score partitions without ground truth but assume some geometric notion of "good clustering". External indices (ARI, NMI) compare against a labelled ground truth — useful for benchmark datasets, less so in the wild.</p>
+        <p><strong>Deep clustering.</strong> Joint learning of representations and cluster assignments (DEC, DeepCluster, contrastive methods). Outperforms classical methods on high-dim structured data (images, text) where the right embedding is task-specific.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li><strong>HDBSCAN:</strong> varying densities, unknown noise level — modern default</li>
+                <li><strong>Deep clustering:</strong> images, text, audio — learn the embedding too</li>
+                <li><strong>Mean shift:</strong> mode-finding in non-Gaussian densities</li>
+                <li>Stability is a more important property than partition quality</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Very large data and you need streaming — most methods are batch</li>
+                <li>You can't pre-compute or cheaply approximate the full similarity matrix</li>
+                <li>You'd benefit from a generative model instead — fit a GMM or Bayesian non-parametric</li>
+                <li>The point of the analysis is causal — clustering doesn't infer causes</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import hdbscan
+from sklearn.preprocessing import StandardScaler
+
+X_scaled = StandardScaler().fit_transform(X)
+
+clusterer = hdbscan.HDBSCAN(
+    min_cluster_size=15,
+    min_samples=5,
+    cluster_selection_method="eom",   # "excess of mass" — good default
+)
+labels = clusterer.fit_predict(X_scaled)
+
+# -1 = noise; cluster persistence scores indicate stability
+print(f"Found {labels.max() + 1} clusters, {(labels == -1).sum()} noise points")
+print(f"Cluster persistence: {clusterer.cluster_persistence_.round(3)}")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://scikit-learn.org/stable/modules/clustering.html" target="_blank">scikit-learn — Clustering <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Visual comparison of all clustering algorithms on toy datasets. Always start here to pick a candidate.</span>
+        </li>
+        <li>
+            <a href="https://hdbscan.readthedocs.io/" target="_blank">HDBSCAN documentation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Exceptionally well-written. The "How HDBSCAN Works" guide is the clearest introduction to modern density-based clustering.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/0711.0189" target="_blank">von Luxburg (2007) — Spectral Clustering tutorial <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Definitive introduction to spectral methods. Derivation, normalized vs. unnormalized variants, eigengap heuristic.</span>
+        </li>
+        <li>
+            <a href="https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set" target="_blank">Wikipedia — Choosing K <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Survey of methods (elbow, silhouette, gap statistic, BIC). Useful summary when you need to defend your choice.</span>
+        </li>
+    </ul>
+</div>

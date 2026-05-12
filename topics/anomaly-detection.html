@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detection — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html" class="active">ML Theory</a>
+            <a href="../practice.html">ML Practice</a>
+            <a href="../code-examples.html">Code Examples</a>
+            <a href="../best-practices.html">Best Practices</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../theory.html" class="eyebrow">← Theory · Model Families</a>
+                    <h1>Anomaly Detection</h1>
+                    <p class="lead">Find the points that don't look like the rest — fraud, defects, intrusions, the rare and weird.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Difficulty">
+                    <button class="level-tab" data-level="basic" type="button">Basic</button>
+                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level" data-level="basic">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Learn what "normal" looks like; flag what doesn't.</strong> Anomaly detection is unsupervised — you usually don't have labelled anomalies, just the assumption that most of your data is normal and a few rare points are not.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>Three classical strategies. <strong>Density-based</strong>: a point with low probability under a model of "normal" is anomalous. <strong>Distance-based</strong>: a point far from its nearest neighbours is anomalous. <strong>Reconstruction-based</strong>: train a model to compress and reconstruct normal data; points it reconstructs badly are anomalous.</p>
+        <p>The right choice depends on what "anomalous" means in your domain — a fraudster looks different from a manufacturing defect looks different from a network intrusion.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Fraud / intrusion / defect detection</li>
+                <li>You have plenty of normal data but few or no labelled anomalies</li>
+                <li>Monitoring sensor data for unusual patterns</li>
+                <li>Cleaning a dataset of outliers before modelling</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>You have labels for both classes — train a regular classifier (with class weights)</li>
+                <li>Anomalies are common enough to balance — it's just classification</li>
+                <li>"Anomalous" isn't well-defined and changes over time</li>
+                <li>You need to explain why a specific point was flagged</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.ensemble import IsolationForest
+
+iso = IsolationForest(contamination=0.05, random_state=0).fit(X_train)
+
+# -1 = anomaly, 1 = normal
+labels = iso.predict(X_test)
+scores = iso.score_samples(X_test)   # lower = more anomalous
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the actual algorithms?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level active" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Three strategies</span>
+        <span class="formula">$$ \text{score}(x) \;\in\; \big\{\, \underbrace{-\log p(x)}_{\text{density}},\; \underbrace{d(x, \mathrm{NN}_k(x))}_{\text{distance}},\; \underbrace{\|x - \hat{x}\|}_{\text{reconstruction}} \,\big\} $$</span>
+        <ul class="formula-legend">
+            <li>Each strategy assigns a continuous score — threshold to decide normal vs. anomalous</li>
+            <li>Choice of strategy = assumption about what makes anomalies "weird"</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Isolation Forest.</strong> Builds random trees that split features at random thresholds. Anomalies — being in sparse regions — get isolated in fewer splits. The score is average path length to isolation. Cheap, scales well, and works in moderate dimensions. Default for tabular anomaly detection.</p>
+        <p><strong>One-Class SVM.</strong> Fits a decision boundary around the "normal" data in a kernel feature space, treating the origin as the "anomaly side". Good with small data and a sensible kernel; doesn't scale to big data.</p>
+        <p><strong>Local Outlier Factor (LOF).</strong> Compares each point's local density to its neighbours' local densities. Catches anomalies in heterogeneous-density data that global methods miss. Score &gt; 1 means lower density than neighbours.</p>
+        <p><strong>Autoencoder reconstruction.</strong> Train an autoencoder on normal data; at inference time, flag points with high reconstruction error. Scales to images and high-dim data where other methods struggle.</p>
+        <p><strong>Threshold setting.</strong> All methods give continuous scores; the threshold is a business decision (precision vs. recall trade-off). With no labels, use a quantile of training scores; with some labels, calibrate against the validation set.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li><strong>Isolation Forest:</strong> moderate-dim tabular — strong default</li>
+                <li><strong>One-Class SVM:</strong> small / clean dataset with kernel intuition</li>
+                <li><strong>LOF:</strong> heterogeneous local density (clusters of different sizes)</li>
+                <li><strong>Autoencoder:</strong> images, time series, high-dim structured data</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>"Anomalous" depends on labelled examples and you have plenty of them</li>
+                <li>The score distribution is bi-modal and no threshold cleanly separates classes</li>
+                <li>Anomalies arrive in groups (contextual) — single-point methods miss the group</li>
+                <li>The data-generating process drifts over time — model becomes stale</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.ensemble import IsolationForest
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.svm import OneClassSVM
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+
+X_scaled = StandardScaler().fit_transform(X)
+
+methods = {
+    "iforest":  IsolationForest(contamination=0.05, random_state=0),
+    "lof":      LocalOutlierFactor(n_neighbors=20, contamination=0.05),
+    "ocsvm":    OneClassSVM(nu=0.05, kernel="rbf", gamma="scale"),
+}
+
+for name, m in methods.items():
+    if hasattr(m, "fit_predict"):
+        labels = m.fit_predict(X_scaled)         # for LOF
+    else:
+        labels = m.fit(X_scaled).predict(X_scaled)
+    print(f"{name:10s} flagged {(labels == -1).sum():,} points as anomalous")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want deep methods and contextual / collective anomalies?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Three flavours of anomaly</span>
+        <span class="formula">$$ \text{point} \;\subset\; \text{contextual} \;\subset\; \text{collective} $$</span>
+        <ul class="formula-legend">
+            <li><strong>Point</strong>: one observation is anomalous regardless of context</li>
+            <li><strong>Contextual</strong>: an observation is anomalous given a context (time, location)</li>
+            <li><strong>Collective</strong>: a sequence / group is anomalous as a whole</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Deep one-class methods.</strong> Deep SVDD (Ruff et al.) replaces the kernel feature map with a learned neural network and shrinks the data into a small hypersphere. Trained end-to-end; works for images and time series. Watch for representation collapse (every input maps to the centre).</p>
+        <p><strong>Generative anomaly detection.</strong> Train a generative model (GAN, normalizing flow, diffusion) on normal data; anomalies have low likelihood or low-quality reconstructions. State of the art on industrial defect detection (MVTec AD). Caveat: deep generative models <em>do not</em> reliably assign low likelihood to out-of-distribution inputs — see Nalisnick et al. 2019.</p>
+        <p><strong>Sequence and time-series.</strong> Forecast-based methods flag points where the prediction error exceeds a threshold (ARIMA residuals, Prophet, deep forecast models). Reconstruction-based methods (LSTM autoencoders, transformer denoisers) work for collective anomalies — flag a window whose reconstruction is poor.</p>
+        <p><strong>Calibration.</strong> Anomaly scores are not probabilities. Convert via percentile-based mapping or fit a tail distribution (Generalized Pareto). PR-AUC is the right summary metric in the heavily-imbalanced regime; ROC-AUC overstates performance.</p>
+        <p><strong>Evaluation pitfalls.</strong> Without labels, you're estimating performance from synthetic anomalies — which often don't match real ones. With labels, watch out for label leakage from the threshold-setting process. Always evaluate on a held-out period for time-series.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li><strong>Deep SVDD:</strong> images, learned representations, end-to-end pipeline</li>
+                <li><strong>Normalizing flows:</strong> need calibrated densities, not just scores</li>
+                <li><strong>LSTM / transformer reconstruction:</strong> sequential data with structure</li>
+                <li><strong>Density-ratio:</strong> compare against a known reference distribution</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>You truly have labels — use supervised methods with class weights / focal loss</li>
+                <li>"Normal" is multi-modal and rare — single-class methods overfit one mode</li>
+                <li>Anomalies must be human-interpretable — deep methods are opaque</li>
+                <li>You can't retrain regularly and the data drifts</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+
+class AutoencoderAD(nn.Module):
+    def __init__(self, d_in):
+        super().__init__()
+        self.enc = nn.Sequential(nn.Linear(d_in, 64), nn.ReLU(), nn.Linear(64, 16))
+        self.dec = nn.Sequential(nn.Linear(16, 64), nn.ReLU(), nn.Linear(64, d_in))
+    def forward(self, x):
+        return self.dec(self.enc(x))
+
+# Train ONLY on normal data
+model = AutoencoderAD(d_in=X_normal.shape[1])
+opt   = torch.optim.Adam(model.parameters(), lr=1e-3)
+for _ in range(100):
+    opt.zero_grad()
+    loss = ((model(X_normal) - X_normal) ** 2).mean()
+    loss.backward(); opt.step()
+
+# Anomaly score = per-sample reconstruction error
+with torch.no_grad():
+    err = ((model(X_test) - X_test) ** 2).mean(dim=1)
+threshold = err[y_test == 0].quantile(0.99)    # top 1% of normal training errors
+flagged = err > threshold
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    
+                    
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://scikit-learn.org/stable/modules/outlier_detection.html" target="_blank">scikit-learn — Outlier detection <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Side-by-side comparison of Isolation Forest, One-Class SVM, LOF, and Elliptic Envelope on toy data. Start here.</span>
+        </li>
+        <li>
+            <a href="https://pyod.readthedocs.io/" target="_blank">PyOD library <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Unified API across ~40 anomaly-detection algorithms — classical, deep, and ensemble. Includes benchmarks.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/2007.02500" target="_blank">Ruff et al. — Deep AD survey (2021) <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">"A Unifying Review of Deep and Shallow Anomaly Detection" — best modern survey. Covers SVDD, generative, self-supervised methods.</span>
+        </li>
+        <li>
+            <a href="https://www.mvtec.com/company/research/datasets/mvtec-ad" target="_blank">MVTec AD benchmark <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Industrial defect-detection benchmark. The de-facto standard for evaluating image-based anomaly methods.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../js/topic-page.js"></script>
+</body>
+</html>
