@@ -150,6 +150,44 @@
             font-size: 1.2rem;
         }
 
+        /* Featured main-topic card — wider, more visual weight */
+        .main-topic-featured {
+            background: linear-gradient(135deg, var(--surface), var(--accent-soft));
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            box-shadow: 0 4px 14px -8px rgba(79, 70, 229, 0.18);
+        }
+        .main-topic-featured h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.4rem;
+        }
+        .main-topic-blurb {
+            color: var(--muted);
+            font-size: 0.92rem;
+            margin: 0 0 1rem;
+            line-height: 1.5;
+        }
+        /* On wider screens the featured card spans two columns; on small it goes back to one */
+        @media (max-width: 900px) {
+            .main-topic-featured { grid-column: auto !important; }
+        }
+
+        /* Small count chip beside an h3 */
+        .topic-count {
+            display: inline-flex;
+            align-items: center;
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.18rem 0.6rem;
+            background: var(--accent);
+            color: var(--white);
+            border-radius: 999px;
+        }
+
         .topic-content {
             display: block;
         }
@@ -461,7 +499,6 @@
                                                 <a href="topics/regression.html">Linear &amp; Logistic Regression</a>
                                                 <div class="topic-description">
                                                     Linear regression, ridge, lasso, elastic net, and logistic regression for classification.
-                                                    <a href="https://scikit-learn.org/stable/modules/linear_model.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                         </ul>
@@ -476,14 +513,12 @@
                                                 <a href="topics/support-vector-machines.html">Support Vector Machines</a>
                                                 <div class="topic-description">
                                                     Maximum-margin classifiers and the kernel trick.
-                                                    <a href="https://en.wikipedia.org/wiki/Support_vector_machine" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                             <li>
                                                 <a href="topics/gaussian-processes.html">Gaussian Processes</a>
                                                 <div class="topic-description">
                                                     Bayesian non-parametric regression with calibrated uncertainty.
-                                                    <a href="https://distill.pub/2019/visual-exploration-gaussian-processes/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                         </ul>
@@ -498,21 +533,18 @@
                                                 <a href="topics/decision-trees.html">Decision Trees</a>
                                                 <div class="topic-description">
                                                     CART, splitting criteria, pruning — the building block.
-                                                    <a href="https://en.wikipedia.org/wiki/Decision_tree_learning" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                             <li>
                                                 <a href="topics/random-forests.html">Random Forests</a>
                                                 <div class="topic-description">
                                                     Bagging + decision trees — strong baselines with very little tuning.
-                                                    <a href="https://en.wikipedia.org/wiki/Random_forest" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                             <li>
                                                 <a href="topics/gradient-boosting.html">Gradient Boosting (XGBoost, LightGBM)</a>
                                                 <div class="topic-description">
                                                     Boosted trees — still the SOTA on most tabular data.
-                                                    <a href="https://xgboost.readthedocs.io/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                         </ul>
@@ -527,28 +559,24 @@
                                                 <a href="topics/naive-bayes.html">Naive Bayes</a>
                                                 <div class="topic-description">
                                                     Conditional independence assumptions and Bayesian classification.
-                                                    <a href="https://scikit-learn.org/stable/modules/naive_bayes.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                             <li>
                                                 <a href="topics/gaussian-mixture-models.html">Gaussian Mixture Models</a>
                                                 <div class="topic-description">
                                                     Density estimation and soft clustering via mixtures of Gaussians.
-                                                    <a href="https://scikit-learn.org/stable/modules/mixture.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                             <li>
                                                 <a href="topics/hidden-markov-models.html">Hidden Markov Models</a>
                                                 <div class="topic-description">
                                                     Latent-state sequence models — the classical alternative to RNNs.
-                                                    <a href="https://en.wikipedia.org/wiki/Hidden_Markov_model" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                             <li>
                                                 <a href="topics/bayesian-inference.html">Bayesian Inference</a>
                                                 <div class="topic-description">
                                                     Priors, posteriors, MCMC, variational inference — modelling uncertainty itself.
-                                                    <a href="https://en.wikipedia.org/wiki/Bayesian_inference" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                         </ul>
@@ -563,15 +591,15 @@
                                                 <a href="topics/neural-networks.html">Neural Networks</a>
                                                 <div class="topic-description">
                                                     The basics — perceptrons, backpropagation, activation functions.
-                                                    <a href="https://www.deeplearningbook.org/" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                         </ul>
                                     </div>
                                 </div>
 
-                                <div class="main-topic">
-                                    <h3>NN Architectures</h3>
+                                <div class="main-topic main-topic-featured" style="grid-column: span 2;">
+                                    <h3>NN Architectures <span class="topic-count">8 architectures</span></h3>
+                                    <p class="main-topic-blurb">The full deep-learning zoo — from the original perceptron stack to today's diffusion models.</p>
                                     <div class="topic-content">
                                         <ul class="subtopic-list">
                                             <li>
@@ -618,7 +646,6 @@
                                                 <a href="topics/clustering.html">Clustering Algorithms</a>
                                                 <div class="topic-description">
                                                     k-means, hierarchical, DBSCAN, spectral — grouping without labels.
-                                                    <a href="https://scikit-learn.org/stable/modules/clustering.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                         </ul>
@@ -654,7 +681,6 @@
                                                             </li>
                                                         </ul>
                                                     </details>
-                                                    <a href="https://scikit-learn.org/stable/modules/decomposition.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                         </ul>
@@ -669,7 +695,6 @@
                                                 <a href="topics/anomaly-detection.html">Anomaly Detection</a>
                                                 <div class="topic-description">
                                                     Isolation forests, one-class SVMs, autoencoder reconstruction — finding the rare needles.
-                                                    <a href="https://scikit-learn.org/stable/modules/outlier_detection.html" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                             </li>
                                         </ul>

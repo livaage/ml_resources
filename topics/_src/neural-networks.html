@@ -1,49 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Networks — ML Resources Hub</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <style>
-        .main-content { margin-top: 80px; }
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-brand">ML Resources Hub</div>
-        <div class="nav-links">
-            <a href="../index.html">Home</a>
-            <a href="../theory.html" class="active">ML Theory</a>
-            <a href="../practice.html">ML Practice</a>
-            <a href="../code-examples.html">Code Examples</a>
-            <a href="../best-practices.html">Best Practices</a>
-        </div>
-        <div class="nav-toggle">
-            <i class="fas fa-bars"></i>
-        </div>
-    </nav>
+<!-- TOPIC META -->
+title: Neural Networks — ML Resources Hub
+eyebrow_text: ← Theory · Model Families
+eyebrow_href: {{root}}theory.html
+heading: Neural Networks
+lead: The foundation — artificial neurons, layers, and the trick that lets them learn from examples.
+next_href: neural-networks/dnn.html
+next_title: Deep Neural Networks
 
-    <main class="main-content">
-        <div class="topic-layout">
 
-            <div class="topic-main">
-                <header class="page-header">
-                    <a href="../theory.html" class="eyebrow">← Theory · Model Families</a>
-                    <h1>Neural Networks</h1>
-                    <p class="lead">The foundation — artificial neurons, layers, and the trick that lets them learn from examples.</p>
-                </header>
-
-                <div class="level-tabs" role="tablist" aria-label="Difficulty">
-                    <button class="level-tab" data-level="basic" type="button">Basic</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
-                </div>
-
-                <section class="topic-level" data-level="basic">
+<!-- TOPIC CONTENT -->
+<section class="topic-level" data-level="basic">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>A neural network is a flexible function you teach by example.</strong> It's built from millions of little "neurons" — each just a weighted sum followed by a small bend. Adjust all those weights via gradient descent, and the whole thing learns to map inputs (images, text, sensor data) to outputs (labels, predictions, the next word).</p>
@@ -52,7 +18,7 @@
     <article class="tldr-body">
         <p>Forget the brain metaphor for a moment. An <em>artificial neuron</em> is a tiny computation: take several numbers in, multiply each by a learnable weight, add a bias, and pass the result through a nonlinear function like ReLU. Stack a few of these into a "layer". Stack a few layers. That's a neural network.</p>
         <p>The magic is in the <em>training</em>: an algorithm called <strong>backpropagation</strong> figures out, for every weight in the network, which direction to nudge it to make the predictions slightly better. Repeat that for millions of examples and the network learns whatever pattern the data contains.</p>
-        <p>If this is your first network, the natural next step is the <a href="../topics/neural-networks/dnn.html">Deep Neural Network</a> page — the simplest concrete architecture.</p>
+        <p>If this is your first network, the natural next step is the <a href="{{root}}topics/neural-networks/dnn.html">Deep Neural Network</a> page — the simplest concrete architecture.</p>
     </article>
 
     <div class="use-cases">
@@ -254,19 +220,9 @@ class TinyNet(nn.Module):
     </div>
 </section>
 
-                <nav class="topic-nav">
-                    
-                    <a href="neural-networks/dnn.html" class="next">
-                        <span>
-                            <span class="topic-nav-label">Next</span>
-                            <span class="topic-nav-title">Deep Neural Networks</span>
-                        </span>
-                    </a>
-                </nav>
-            </div>
 
-            <aside class="topic-sidebar">
-                <div class="learn-more">
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
         <li>
@@ -291,35 +247,3 @@ class TinyNet(nn.Module):
         </li>
     </ul>
 </div>
-            </aside>
-
-        </div>
-    </main>
-
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
-            <div class="social-links">
-                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
-                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-            onload="renderMathInElement(document.body, {
-                delimiters: [
-                    { left: '$$', right: '$$', display: true },
-                    { left: '$',  right: '$',  display: false },
-                    { left: '\\[', right: '\\]', display: true },
-                    { left: '\\(', right: '\\)', display: false }
-                ],
-                throwOnError: false
-            });"></script>
-    <script src="../js/topic-page.js"></script>
-</body>
-</html>
