@@ -1,49 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deep Neural Networks (DNN) — ML Resources Hub</title>
-    <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <style>
-        .main-content { margin-top: 80px; }
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-brand">ML Resources Hub</div>
-        <div class="nav-links">
-            <a href="../../index.html">Home</a>
-            <a href="../../theory.html" class="active">ML Theory</a>
-            <a href="../../practice.html">ML Practice</a>
-            <a href="../../code-examples.html">Code Examples</a>
-            <a href="../../best-practices.html">Best Practices</a>
-        </div>
-        <div class="nav-toggle">
-            <i class="fas fa-bars"></i>
-        </div>
-    </nav>
+<!-- TOPIC META -->
+title: Deep Neural Networks (DNN) — ML Resources Hub
+eyebrow_text: ← Theory · Neural Networks
+eyebrow_href: {{root}}theory.html
+heading: Deep Neural Networks
+lead: Stacked layers of weighted sums and nonlinearities — the foundation everything else builds on.
+next_href: cnn.html
+next_title: Convolutional Neural Networks
 
-    <main class="main-content">
-        <div class="topic-layout">
 
-            <div class="topic-main">
-                <header class="page-header">
-                    <a href="../../theory.html" class="eyebrow">← Theory · Neural Networks</a>
-                    <h1>Deep Neural Networks</h1>
-                    <p class="lead">Stacked layers of weighted sums and nonlinearities — the foundation everything else builds on.</p>
-                </header>
-
-                <div class="level-tabs" role="tablist" aria-label="Difficulty">
-                    <button class="level-tab" data-level="basic" type="button">Basic</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
-                </div>
-
-                <section class="topic-level" data-level="basic">
+<!-- TOPIC CONTENT -->
+<section class="topic-level" data-level="basic">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Stack simple operations until something complex emerges.</strong> Each layer does a weighted sum of its inputs, then bends the result through a nonlinear function. Stack enough of these and you can approximate just about any function — image classification, language translation, game playing.</p>
@@ -182,7 +148,7 @@ for epoch in range(50):
         <p><strong>Vanishing / exploding gradients.</strong> In deep networks, repeated multiplication of small or large Jacobian factors makes gradients shrink or explode through the chain rule. Modern fixes: ReLU (constant gradient on positive inputs), batch / layer normalization (keep activations on a sensible scale), residual connections (gradient highways).</p>
         <p><strong>The optimization landscape</strong> is non-convex with many local minima and saddle points. SGD finds <em>flat</em> minima that generalize well; sharp minima generalize poorly. This is part of why batch size and learning rate matter for generalization, not just for training speed.</p>
         <p><strong>Dead ReLUs.</strong> If a unit's pre-activation goes strongly negative and stays there, its gradient is zero and it never updates again. Mitigations: smaller learning rate, Leaky ReLU / GELU, careful initialization, batch norm.</p>
-        <p><strong>Double descent.</strong> Past the interpolation threshold (where the network can perfectly memorize the training set), test error often <em>decreases</em> as you grow the model further. Connect to <a href="../../topics/bias-variance.html">bias-variance</a> — classical theory predicts the opposite.</p>
+        <p><strong>Double descent.</strong> Past the interpolation threshold (where the network can perfectly memorize the training set), test error often <em>decreases</em> as you grow the model further. Connect to <a href="{{root}}topics/bias-variance.html">bias-variance</a> — classical theory predicts the opposite.</p>
     </article>
 
     <div class="use-cases">
@@ -242,19 +208,9 @@ class DeepMLP(nn.Module):
     </div>
 </section>
 
-                <nav class="topic-nav">
-                    
-                    <a href="cnn.html" class="next">
-                        <span>
-                            <span class="topic-nav-label">Next</span>
-                            <span class="topic-nav-title">Convolutional Neural Networks</span>
-                        </span>
-                    </a>
-                </nav>
-            </div>
 
-            <aside class="topic-sidebar">
-                <div class="learn-more">
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
         <li>
@@ -275,35 +231,3 @@ class DeepMLP(nn.Module):
         </li>
     </ul>
 </div>
-            </aside>
-
-        </div>
-    </main>
-
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
-            <div class="social-links">
-                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
-                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-            onload="renderMathInElement(document.body, {
-                delimiters: [
-                    { left: '$$', right: '$$', display: true },
-                    { left: '$',  right: '$',  display: false },
-                    { left: '\\[', right: '\\]', display: true },
-                    { left: '\\(', right: '\\)', display: false }
-                ],
-                throwOnError: false
-            });"></script>
-    <script src="../../js/topic-page.js"></script>
-</body>
-</html>

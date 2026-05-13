@@ -95,7 +95,9 @@ def render_nav(meta: dict[str, str], side: str) -> str:
     )
 
 
-def render(template: str, meta: dict[str, str], content: str, sidebar: str) -> str:
+def render(template: str, meta: dict[str, str], content: str, sidebar: str, root: str) -> str:
+    """Render the template + content. `root` is the relative path back to the
+    site root (e.g. "../" for topics/foo.html, "../../" for topics/foo/bar.html)."""
     substitutions = {
         "{{title}}":        meta["title"],
         "{{eyebrow_text}}": meta["eyebrow_text"],
@@ -111,6 +113,9 @@ def render(template: str, meta: dict[str, str], content: str, sidebar: str) -> s
     for needle, value in substitutions.items():
         out = out.replace(needle, value)
 
+    # Substitute {{root}} last so it works in both template and content.
+    out = out.replace("{{root}}", root)
+
     # Sanity: complain if any unfilled {{placeholder}} slipped through
     leftover = re.findall(r"\{\{[a-zA-Z_]+\}\}", out)
     if leftover:
@@ -120,15 +125,19 @@ def render(template: str, meta: dict[str, str], content: str, sidebar: str) -> s
 
 def build_one(src: Path, template: str) -> Path:
     meta, content, sidebar = parse_source(src.read_text())
-    rendered = render(template, meta, content, sidebar)
-    out = OUT_DIR / src.name
+    rel = src.relative_to(SRC_DIR)
+    # "../" per directory level back to the site root
+    root = "../" * len(rel.parts)
+    rendered = render(template, meta, content, sidebar, root)
+    out = OUT_DIR / rel
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(rendered)
     return out
 
 
 def build_all(template: str) -> int:
-    """Build every source file; return number of errors."""
-    sources = sorted(SRC_DIR.glob("*.html"))
+    """Build every source file (recursively); return number of errors."""
+    sources = sorted(SRC_DIR.rglob("*.html"))
     if not sources:
         print(f"error: no sources in {SRC_DIR}", file=sys.stderr)
         return 1
@@ -150,7 +159,7 @@ def watch_loop(template_path: Path) -> int:
 
     def snapshot() -> dict[Path, float]:
         m: dict[Path, float] = {}
-        for f in SRC_DIR.glob("*.html"):
+        for f in SRC_DIR.rglob("*.html"):
             m[f] = f.stat().st_mtime
         if template_path.exists():
             m[template_path] = template_path.stat().st_mtime
@@ -193,7 +202,7 @@ def main() -> int:
     template = TEMPLATE.read_text()
 
     if len(sys.argv) > 1:
-        # Build a single named topic
+        # Build a single named topic (supports nested: "neural-networks/cnn")
         name = sys.argv[1].removesuffix(".html")
         src = SRC_DIR / f"{name}.html"
         if not src.exists():

@@ -15,11 +15,12 @@ fi
 python3 build.py >&2
 
 # Re-stage outputs that have a corresponding source file.
-# Only stages topics/<name>.html for each topics/_src/<name>.html — won't touch
-# legacy or unrelated files.
-for src in topics/_src/*.html; do
-    [ -e "$src" ] || continue
-    out="topics/$(basename "$src")"
+# Mirrors the source layout — handles nested paths like
+# topics/_src/neural-networks/cnn.html → topics/neural-networks/cnn.html.
+find topics/_src -name '*.html' -print0 |
+while IFS= read -r -d '' src; do
+    rel="${src#topics/_src/}"
+    out="topics/$rel"
     if [ -f "$out" ]; then
         git add "$out"
     fi

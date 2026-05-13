@@ -1,49 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generative Adversarial Networks (GAN) — ML Resources Hub</title>
-    <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <style>
-        .main-content { margin-top: 80px; }
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-brand">ML Resources Hub</div>
-        <div class="nav-links">
-            <a href="../../index.html">Home</a>
-            <a href="../../theory.html" class="active">ML Theory</a>
-            <a href="../../practice.html">ML Practice</a>
-            <a href="../../code-examples.html">Code Examples</a>
-            <a href="../../best-practices.html">Best Practices</a>
-        </div>
-        <div class="nav-toggle">
-            <i class="fas fa-bars"></i>
-        </div>
-    </nav>
+<!-- TOPIC META -->
+title: Generative Adversarial Networks (GAN) — ML Resources Hub
+eyebrow_text: ← Theory · Neural Networks
+eyebrow_href: {{root}}theory.html
+heading: Generative Adversarial Networks
+lead: A generator and a discriminator in adversarial training — the architecture that started the modern image-generation era.
+prev_href: autoencoder.html
+prev_title: Autoencoders &amp; VAEs
+next_href: diffusion.html
+next_title: Diffusion Models
 
-    <main class="main-content">
-        <div class="topic-layout">
 
-            <div class="topic-main">
-                <header class="page-header">
-                    <a href="../../theory.html" class="eyebrow">← Theory · Neural Networks</a>
-                    <h1>Generative Adversarial Networks</h1>
-                    <p class="lead">A generator and a discriminator in adversarial training — the architecture that started the modern image-generation era.</p>
-                </header>
-
-                <div class="level-tabs" role="tablist" aria-label="Difficulty">
-                    <button class="level-tab" data-level="basic" type="button">Basic</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
-                </div>
-
-                <section class="topic-level" data-level="basic">
+<!-- TOPIC CONTENT -->
+<section class="topic-level" data-level="basic">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Two networks playing against each other.</strong> A <em>generator</em> tries to make fake samples that look real. A <em>discriminator</em> tries to tell real from fake. They train together — each gets better as the other improves, like a counterfeiter and a detective sharpening each other's skills.</p>
@@ -262,24 +230,9 @@ def hinge_g_loss(d_fake):
     </div>
 </section>
 
-                <nav class="topic-nav">
-                    <a href="autoencoder.html" class="prev">
-                        <span>
-                            <span class="topic-nav-label">Previous</span>
-                            <span class="topic-nav-title">Autoencoders &amp; VAEs</span>
-                        </span>
-                    </a>
-                    <a href="diffusion.html" class="next">
-                        <span>
-                            <span class="topic-nav-label">Next</span>
-                            <span class="topic-nav-title">Diffusion Models</span>
-                        </span>
-                    </a>
-                </nav>
-            </div>
 
-            <aside class="topic-sidebar">
-                <div class="learn-more">
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
         <li>
@@ -300,35 +253,3 @@ def hinge_g_loss(d_fake):
         </li>
     </ul>
 </div>
-            </aside>
-
-        </div>
-    </main>
-
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
-            <div class="social-links">
-                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
-                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-            onload="renderMathInElement(document.body, {
-                delimiters: [
-                    { left: '$$', right: '$$', display: true },
-                    { left: '$',  right: '$',  display: false },
-                    { left: '\\[', right: '\\]', display: true },
-                    { left: '\\(', right: '\\)', display: false }
-                ],
-                throwOnError: false
-            });"></script>
-    <script src="../../js/topic-page.js"></script>
-</body>
-</html>

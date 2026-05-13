@@ -1,0 +1,235 @@
+<!-- TOPIC META -->
+title: Diffusion Models — ML Resources Hub
+eyebrow_text: ← Theory · Neural Networks
+eyebrow_href: {{root}}theory.html
+heading: Diffusion Models
+lead: Iterative denoising — the current SOTA for image, audio, and video generation.
+prev_href: gan.html
+prev_title: Generative Adversarial Networks
+
+
+<!-- TOPIC CONTENT -->
+<section class="topic-level" data-level="basic">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Add noise to your data, then learn to remove it.</strong> Take a real image, blur it slightly, then more, then more, until it's pure noise. Now train a network to reverse the process — given a noisy image, predict the noise. Once trained, start from pure noise and run the denoiser many times. What pops out is a new sample.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>The miracle: you only ever train on the inverse of a process you fully control (adding Gaussian noise). The forward process is just <em>x + noise</em> at varying strengths. The model only has to learn one thing — "given this noisy image and this noise level, what noise was added?" — and that's enough to generate completely new samples from pure noise at inference.</p>
+        <p>Diffusion now powers most modern image generators (Stable Diffusion, DALL-E 3, Imagen, Midjourney), video models (Sora, Veo), and even some 3D and audio generators.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>High-quality image / video / audio generation</li>
+                <li>Text-conditioned generation with strong control via classifier-free guidance</li>
+                <li>You can afford 20–50 forward passes at inference (or use distillation)</li>
+                <li>Sample diversity matters more than inference speed</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Single-step inference is required (use a GAN or distilled diffusion)</li>
+                <li>You need likelihoods (use a normalizing flow)</li>
+                <li>You don't have compute for both training and inference</li>
+                <li>Domain doesn't have enough training data to learn the noise-to-signal mapping</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from diffusers import StableDiffusionPipeline
+import torch
+
+pipe = StableDiffusionPipeline.from_pretrained(
+    "runwayml/stable-diffusion-v1-5",
+    torch_dtype=torch.float16,
+).to("cuda")
+
+image = pipe("A serene mountain lake at sunset", num_inference_steps=30).images[0]
+image.save("output.png")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the forward/reverse process math?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level active" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Forward and reverse processes</span>
+        <span class="formula">$$ q(\mathbf{x}_t \mid \mathbf{x}_0) \;=\; \mathcal{N}\!\big(\sqrt{\bar\alpha_t}\,\mathbf{x}_0,\; (1 - \bar\alpha_t)\,\mathbf{I}\big), \qquad p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t) \;=\; \mathcal{N}(\boldsymbol{\mu}_\theta, \boldsymbol{\Sigma}_\theta) $$</span>
+        <ul class="formula-legend">
+            <li><code>q(x<sub>t</sub>|x<sub>0</sub>)</code>forward process — closed-form Gaussian, no learning needed</li>
+            <li><code>p<sub>θ</sub>(x<sub>t-1</sub>|x<sub>t</sub>)</code>reverse process — learned by the model</li>
+            <li><code>ᾱ<sub>t</sub></code>cumulative noise schedule — controls how much signal remains at step <em>t</em></li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Forward process.</strong> A Markov chain that adds Gaussian noise over <em>T</em> steps (typically 1000). After <em>T</em> steps the data is indistinguishable from pure noise. Crucially, you can jump directly to any timestep — the closed-form formula above lets you compute <em>x<sub>t</sub></em> from <em>x<sub>0</sub></em> in one step.</p>
+        <p><strong>Training objective.</strong> Sample a data point <em>x<sub>0</sub></em>, sample a timestep <em>t</em>, sample noise <em>ε</em>, compute the noisy version <em>x<sub>t</sub></em>, then train the model to predict <em>ε</em>. Loss is simple MSE between predicted and true noise. That's it — no adversarial training, no ELBO, no instability.</p>
+        <p><strong>Sampling.</strong> Start from pure noise <em>x<sub>T</sub></em>, iteratively predict and subtract noise to get <em>x<sub>T-1</sub></em>, <em>x<sub>T-2</sub></em>, …, <em>x<sub>0</sub></em>. Each step uses the model's noise prediction at the current step. DDPM uses 1000 steps; DDIM (Song et al., 2021) reduces this to 50 or fewer with deterministic sampling.</p>
+        <p><strong>Classifier-free guidance.</strong> Train the model both conditionally (given a text prompt) and unconditionally (random null prompt with some probability). At inference, blend: <em>ε̂ = ε<sub>uncond</sub> + s · (ε<sub>cond</sub> − ε<sub>uncond</sub>)</em>. The guidance scale <em>s</em> controls how strongly the prompt influences the result. Trades diversity for prompt fidelity.</p>
+        <p><strong>Architecture.</strong> A U-Net (or now, a transformer) that takes <em>(x<sub>t</sub>, t)</em> and predicts noise. The timestep is encoded with sinusoidal embeddings. Text conditioning is added via cross-attention.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>State-of-the-art quality matters more than speed</li>
+                <li>Conditional generation (text, class, image-to-image)</li>
+                <li>You need diversity across samples</li>
+                <li>You're willing to use 20–50 inference steps</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Strict latency budget — use a single-step distilled model</li>
+                <li>Likelihoods are required for downstream use</li>
+                <li>Small dataset and no pretrained model — diffusion needs scale</li>
+                <li>You're doing density estimation (the model predicts noise, not log-density)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+import torch.nn.functional as F
+
+# DDPM training loop, distilled to its essence
+def diffusion_loss(model, x_0, alphas_cumprod):
+    B = x_0.size(0)
+    T = alphas_cumprod.size(0)
+    t = torch.randint(0, T, (B,), device=x_0.device)
+    noise = torch.randn_like(x_0)
+
+    # Closed-form noisy version: x_t = sqrt(alpha_bar) * x_0 + sqrt(1 - alpha_bar) * noise
+    a_bar = alphas_cumprod[t].view(-1, 1, 1, 1)
+    x_t   = a_bar.sqrt() * x_0 + (1 - a_bar).sqrt() * noise
+
+    # Model predicts the noise; loss is just MSE
+    pred = model(x_t, t)
+    return F.mse_loss(pred, noise)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the SDE view, score matching, and modern accelerations?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Score-based view (SDE)</span>
+        <span class="formula">$$ \mathrm{d}\mathbf{x} \;=\; \boldsymbol{f}(\mathbf{x}, t)\,\mathrm{d}t + g(t)\,\mathrm{d}\mathbf{w}, \qquad \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \approx \mathbf{s}_\theta(\mathbf{x}, t) $$</span>
+        <ul class="formula-legend">
+            <li><code>f, g</code>drift and diffusion coefficients of the noising SDE</li>
+            <li><code>s<sub>θ</sub></code>learned <em>score function</em> — gradient of log-density at time <em>t</em></li>
+            <li>Sampling = solve the reverse-time SDE, which only needs the score</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>SDE formulation (Song et al., 2021).</strong> The discrete-time DDPM is a special case of a continuous stochastic differential equation. The forward process is an SDE adding noise; the reverse process is another SDE that depends on the <em>score</em> ∇ log <em>p<sub>t</sub>(x)</em>. Training is equivalent to learning the score at every noise level — <em>denoising score matching</em>.</p>
+        <p><strong>DDIM vs. DDPM sampling.</strong> DDPM is stochastic (adds noise at every step). DDIM is deterministic — the same noise vector always produces the same image. DDIM enables interpolation in latent space and is faster: 50 DDIM steps ≈ 1000 DDPM steps in quality.</p>
+        <p><strong>Latent diffusion.</strong> Train a VAE encoder to compress images to a 4× smaller latent space, then train the diffusion model in that latent space. Massively reduces compute. Stable Diffusion is exactly this. Decoder generates final pixels. The VAE is task-agnostic — it just removes perceptual redundancy.</p>
+        <p><strong>Consistency models &amp; distillation.</strong> Training a separate "student" model to map noise directly to data in one or a few steps, using the trained diffusion model as supervision. Consistency models (Song et al., 2023), Progressive Distillation (Salimans &amp; Ho, 2022), and Adversarial Diffusion Distillation (SDXL Turbo) all attack the inference-speed problem.</p>
+        <p><strong>Diffusion transformers (DiT).</strong> Replace the U-Net with a transformer over latent patches. Scales better than U-Nets with compute and data; the backbone of Stable Diffusion 3 and Sora. Vit-style architecture with timestep + class conditioning via AdaLN.</p>
+        <p><strong>Why diffusion beat GANs.</strong> Stable training, no mode collapse, easy conditioning (classifier-free guidance), excellent likelihood-free metrics, and a sampling process you can stop or modify mid-way. The trade-off — inference cost — has been steadily closed.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li><strong>DiT in latent space</strong>: text-to-image / video at scale</li>
+                <li><strong>Score matching</strong>: density estimation and out-of-distribution detection</li>
+                <li><strong>Consistency model</strong>: when latency matters</li>
+                <li>Conditional generation with controllable guidance strength</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Extreme real-time latency — even consistency models are slower than a single-step GAN</li>
+                <li>You need likelihoods exactly — diffusion gives variational bounds, not exact</li>
+                <li>You can't afford the U-Net / transformer at inference time</li>
+                <li>Small data — diffusion still needs significant data to generalize</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+
+# DDIM sampling — deterministic, faster than DDPM
+@torch.no_grad()
+def ddim_sample(model, shape, alphas_cumprod, n_steps=50, device="cuda"):
+    # Use a coarse subset of timesteps
+    T  = alphas_cumprod.size(0)
+    timesteps = torch.linspace(T - 1, 0, n_steps + 1).long().to(device)
+    x = torch.randn(shape, device=device)
+
+    for i in range(n_steps):
+        t      = timesteps[i].expand(shape[0])
+        t_next = timesteps[i + 1].expand(shape[0])
+        a_t    = alphas_cumprod[t].view(-1, 1, 1, 1)
+        a_next = alphas_cumprod[t_next].view(-1, 1, 1, 1)
+
+        # Predict the noise, derive x_0, then advance to next timestep
+        noise = model(x, t)
+        x0    = (x - (1 - a_t).sqrt() * noise) / a_t.sqrt()
+        x     = a_next.sqrt() * x0 + (1 - a_next).sqrt() * noise
+
+    return x
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/" target="_blank">Lilian Weng — What are Diffusion Models? <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The clearest unified treatment of DDPM, score matching, and SDE views. The single best resource.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/2006.11239" target="_blank">Ho et al. (2020) — DDPM <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The paper that made diffusion competitive. Establishes the noise-prediction objective and the U-Net backbone.</span>
+        </li>
+        <li>
+            <a href="https://yang-song.net/blog/2021/score/" target="_blank">Yang Song — Generative Modeling by Estimating Gradients <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The unified SDE / score-matching view from one of the field's main authors. The right pivot for understanding the modern theory.</span>
+        </li>
+        <li>
+            <a href="https://huggingface.co/docs/diffusers" target="_blank">Hugging Face Diffusers <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The library most modern diffusion work runs on. Excellent tutorials, model zoo, training scripts, and schedulers.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/2112.10752" target="_blank">Rombach et al. (2022) — Latent Diffusion <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Stable Diffusion's paper. Shows how decoupling perceptual compression and diffusion makes high-res generation tractable.</span>
+        </li>
+    </ul>
+</div>
