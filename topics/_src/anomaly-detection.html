@@ -13,6 +13,36 @@ lead: Find the points that don't look like the rest — fraud, defects, intrusio
         <p><strong>Learn what "normal" looks like; flag what doesn't.</strong> Anomaly detection is unsupervised — you usually don't have labelled anomalies, just the assumption that most of your data is normal and a few rare points are not.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Slide the threshold — every point below the cutoff density gets flagged in terracotta</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Data
+                <select id="viz-anom-data"></select>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                τ
+                <input id="viz-anom-threshold" class="viz-classic-slider" type="range">
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                h
+                <input id="viz-anom-bw" class="viz-classic-slider" type="range">
+            </label>
+            <button id="viz-anom-reset" type="button">Re-sample</button>
+            <span class="viz-classic-badge" id="viz-anom-threshold-lbl">τ = 0.25</span>
+            <span class="viz-classic-badge" id="viz-anom-bw-lbl">h = 0.12</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-anom-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-anom-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/anomaly.js"></script>
+
+    <p class="viz-intro">The cream-to-indigo heatmap is a kernel density estimate of "where normal lives". Points are flagged as anomalies when their local density score drops below the threshold τ. Drop the bandwidth <em>h</em> and the model becomes sensitive to local quirks (over-fits); raise it and only the most isolated points stand out. The <em>Ring</em> dataset is a classic — the genuinely anomalous points live <em>inside</em> the ring, where most distance-based methods would happily call them "central and normal".</p>
+
     <article class="tldr-body">
         <p>Three classical strategies. <strong>Density-based</strong>: a point with low probability under a model of "normal" is anomalous. <strong>Distance-based</strong>: a point far from its nearest neighbours is anomalous. <strong>Reconstruction-based</strong>: train a model to compress and reconstruct normal data; points it reconstructs badly are anomalous.</p>
         <p>The right choice depends on what "anomalous" means in your domain — a fraudster looks different from a manufacturing defect looks different from a network intrusion.</p>
