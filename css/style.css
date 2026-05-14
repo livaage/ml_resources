@@ -555,6 +555,69 @@ code:not(pre code) {
 .topic-level.active { display: block; }
 .topic-level:not(.active)[data-level="intuition"] { display: none; }
 
+/* GNN message-passing viz — click any node, watch its signal propagate */
+.viz-gnn { padding: 1.25rem 1.5rem 1.5rem; }
+.viz-gnn-controls {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 0.85rem;
+}
+.viz-gnn-controls button,
+.viz-gnn-controls select {
+    padding: 0.35rem 0.85rem;
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+.viz-gnn-controls button:hover,
+.viz-gnn-controls select:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-hover);
+}
+.viz-gnn-round {
+    margin-left: auto;
+    padding: 0.25rem 0.7rem;
+    background: var(--accent-soft);
+    color: var(--accent-hover);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+.viz-gnn-canvas-wrap {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+.viz-gnn-canvas-wrap canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    cursor: pointer;
+    touch-action: none;
+}
+.viz-gnn-caption {
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+}
+.viz-gnn-caption strong { color: var(--accent-hover); }
+
+
 /* DNN forward-pass viz — network diagram with per-neuron mini-heatmaps */
 .viz-dnn { padding: 1.25rem 1.5rem 1.5rem; }
 .viz-dnn-canvas-wrap {

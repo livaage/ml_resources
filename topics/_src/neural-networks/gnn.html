@@ -17,6 +17,29 @@ next_title: Autoencoders &amp; VAEs
         <p><strong>Each node updates itself based on its neighbours.</strong> Like a social network of nodes passing notes — every round, each node reads its neighbours' messages, combines them with its own state, and updates. Do this a few rounds and even far-away nodes' information has rippled through.</p>
     </div>
 
+    <div class="viz-embed viz-gnn">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Click any node to make it the source · then "Step" or "Auto" to propagate</span>
+        </div>
+        <div class="viz-gnn-controls">
+            <button id="viz-gnn-step"  type="button">Step</button>
+            <button id="viz-gnn-reset" type="button">Reset</button>
+            <button id="viz-gnn-play"  type="button">Auto</button>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Aggregation
+                <select id="viz-gnn-agg"></select>
+            </label>
+            <span class="viz-gnn-round" id="viz-gnn-round">Round 0</span>
+        </div>
+        <div class="viz-gnn-canvas-wrap">
+            <canvas id="viz-gnn-canvas"></canvas>
+        </div>
+        <div class="viz-gnn-caption" id="viz-gnn-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/gnn.js"></script>
+
+    <p class="viz-intro">After <em>K</em> rounds of message-passing, each node's representation reflects information from nodes up to <em>K</em> hops away. That's why GNNs typically use 2–4 layers — past a few hops, the graph starts to over-smooth and every node ends up looking the same. Click a node on the edge of the graph and watch how many rounds it takes for the signal to reach the opposite side.</p>
+
     <article class="tldr-body">
         <p>A graph is just nodes and edges. Many real datasets are graphs: atoms connected by bonds (molecules), people connected by friendships (social networks), papers connected by citations (academic graphs), even code where functions call each other.</p>
         <p>GNNs let each node have a feature vector, then repeatedly update each node by mixing in the features of its neighbours. After <em>L</em> rounds, every node's representation reflects information from nodes up to <em>L</em> hops away.</p>
