@@ -555,6 +555,44 @@ code:not(pre code) {
 .topic-level.active { display: block; }
 .topic-level:not(.active)[data-level="intuition"] { display: none; }
 
+/* DNN forward-pass viz — network diagram with per-neuron mini-heatmaps */
+.viz-dnn { padding: 1.25rem 1.5rem 1.5rem; }
+.viz-dnn-canvas-wrap {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+.viz-dnn-canvas-wrap canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    cursor: crosshair;
+    touch-action: none;
+}
+.viz-dnn-math {
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 0.85rem 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--ink);
+    line-height: 1.7;
+    overflow-x: auto;
+}
+.viz-dnn-math .lbl {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 0.5rem;
+}
+.viz-dnn-math .sum { color: var(--accent); font-weight: 600; }
+
+
 /* RNN recurrence viz — sequence unrolled across timesteps */
 .viz-rnn {
     padding: 1.25rem 1.5rem 1.5rem;

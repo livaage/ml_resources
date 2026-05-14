@@ -15,6 +15,25 @@ next_title: Convolutional Neural Networks
         <p><strong>Stack simple operations until something complex emerges.</strong> Each layer does a weighted sum of its inputs, then bends the result through a nonlinear function. Stack enough of these and you can approximate just about any function — image classification, language translation, game playing.</p>
     </div>
 
+    <div class="viz-embed viz-dnn">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Click any heatmap to set the input point — see how each neuron responds</span>
+            <div class="viz-embed-controls">
+                <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                    Pattern
+                    <select id="viz-dnn-preset"></select>
+                </label>
+            </div>
+        </div>
+        <div class="viz-dnn-canvas-wrap">
+            <canvas id="viz-dnn-canvas"></canvas>
+        </div>
+        <div class="viz-dnn-math" id="viz-dnn-math"></div>
+    </div>
+    <script src="{{root}}js/viz/dnn.js"></script>
+
+    <p class="viz-intro">Each <strong>hidden neuron</strong> shows its activation across the entire input space — that's the heatmap inside the circle. Different neurons learn to detect different regions of the input. The <strong>output neuron</strong> on the right combines them into the final decision (indigo = class 0, orange = class 1). Drag the marker to see how the network responds to different points. Try the <em>XOR-like</em> pattern — it's the canonical "this can't be done with a single linear layer" example.</p>
+
     <article class="tldr-body">
         <p>A neural network is just a chain of <em>layers</em>. Each layer takes a vector in, multiplies it by a matrix of weights, adds a bias, and runs the result through a "nonlinearity" (like ReLU: max(0, x)). The nonlinearity is essential — without it, no matter how many layers you stack, the whole thing collapses to a single linear function.</p>
         <p>Training works by gradient descent: nudge each weight in the direction that reduces the prediction error, computed via the chain rule (a.k.a. <em>backpropagation</em>).</p>
