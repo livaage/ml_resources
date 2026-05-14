@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CI for ML — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="">Theory</a>
+            <a href="../../engineering.html" class="active">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../engineering.html" class="eyebrow">← Engineering · CI / CD</a>
+                    <h1>CI for ML</h1>
+                    <p class="lead">GitHub Actions for an ML repo — what to run on every PR, what to schedule, what's worth a GPU.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Run the cheap checks on every PR; run the expensive ones less often.</strong> Lint + types + unit tests + 1-batch overfit on CPU on every push. Full training runs on a schedule. GPU-required tests on demand or nightly. Don't make every contributor wait for a model to train.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>The setup most repos converge on: GitHub Actions for orchestration, three workflow files (PR-fast, PR-slow, nightly), Docker for env consistency, and clear separation between "lint and test the code" and "actually validate the model".</p>
+        <p><strong>What runs on every PR.</strong> ruff / black / mypy (linting + types). Unit tests on CPU. The 1-batch overfit smoke test. A data-schema validation. Total time target: under 5 minutes.</p>
+        <p><strong>What runs less often.</strong> Full training on a tiny dataset. Integration test against a held-out evaluation set. GPU benchmarks. Model registry promotion gates.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-yaml"># .github/workflows/pr.yml — runs on every push to a PR
+name: PR Checks
+on: [pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install uv &amp;&amp; uv pip install --system -r requirements.txt
+      - run: ruff check .
+      - run: mypy --strict src/
+      - run: pytest -q --cov=src tests/unit
+      - run: pytest -q tests/smoke      # 1-batch overfit, schema checks
+</code></pre>
+    </div>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Three workflow tiers</h3>
+            <ul>
+                <li><strong>PR (every push)</strong>: lint, types, unit tests, 1-batch overfit. &lt; 5 min.</li>
+                <li><strong>Nightly</strong>: full pipeline on tiny dataset, model evals on held-out set, security scan</li>
+                <li><strong>On-demand / release</strong>: full training, GPU benchmarks, model registry promotion</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Common mistakes</h3>
+            <ul>
+                <li>Running everything on every PR — devs stop reading red builds</li>
+                <li>Caching deps badly — flaky installs slow every run</li>
+                <li>No matrix testing across Python / CUDA versions you actually support</li>
+                <li>Storing model artefacts in the repo (use a registry instead)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="level-next">
+        <span>Want matrix builds, caching, &amp; GPU CI strategies?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">CI cost model</span>
+        <span class="formula">$$ \text{cost} = (\text{frequency}) \times (\text{duration}) \times (\text{rate}) $$</span>
+        <ul class="formula-legend">
+            <li>The PR loop is high-frequency, low-duration — optimise duration</li>
+            <li>The release loop is low-frequency, high-duration — duration matters less</li>
+            <li>Spend GPU-minutes where they actually catch bugs</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Cache aggressively.</strong> pip / uv cache, model checkpoints, dataset downloads, Docker layers. Most ML CI time is waiting for installs and downloads. <code>actions/cache</code> with a key on the lockfile hash gets you 90% of the way.</p>
+        <p><strong>Matrix builds.</strong> Test against the Python + CUDA + torch versions you support. <code>strategy.matrix</code> in GitHub Actions; <code>fail-fast: false</code> so one failure doesn't kill the others.</p>
+        <p><strong>GPU CI.</strong> Self-hosted runners with GPUs, or paid services (Modal, CoreWeave, RunPod). Run only the tests that genuinely need a GPU — most ML code can be unit-tested on CPU.</p>
+        <p><strong>Container-based CI.</strong> Build a Docker image with your env once; reuse across jobs. <code>nvcr.io/nvidia/pytorch:24.05-py3</code> is a sensible base; pin the tag.</p>
+        <p><strong>Pre-commit hooks.</strong> Run lint + format + simple checks locally before the commit lands. Pre-commit catches typos and format issues without burning CI minutes.</p>
+        <p><strong>Branch protection.</strong> Require PR review, require all checks pass, require linear history. The "checks pass" is what turns CI into actual enforcement instead of a vibes-based warning.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-yaml">name: PR Checks
+on: [pull_request]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+        torch:  ["2.4", "2.5"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: ${{ matrix.python }} }
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ matrix.python }}-${{ hashFiles('uv.lock') }}
+      - run: pip install uv
+      - run: uv pip install --system -r requirements.txt torch==${{ matrix.torch }}
+      - run: pytest -q --cov=src
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want artifact registries, automatic version bumps, &amp; ML-specific check gates?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Promotion pipeline</span>
+        <span class="formula">$$ \text{commit} \to \text{lint/test} \to \text{train} \to \text{eval} \to \text{registry: staging} \to \text{promote: production} $$</span>
+        <ul class="formula-legend">
+            <li>Each stage has explicit criteria for the next</li>
+            <li>Failing criteria => roll back; passing => promote</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Reproducible runs in CI.</strong> Pin everything: Python, torch, CUDA, NumPy, system OS. Use a hashed lockfile. Set determinism flags. Save the run's full provenance (config, git sha, data hash) as an artefact.</p>
+        <p><strong>Model evaluation gates.</strong> A model is only promoted if it beats the production baseline on held-out evals and clears subgroup-specific bars (no regressions on minority groups). Tools: model registries (MLflow, W&amp;B), promotion workflows, model cards.</p>
+        <p><strong>Data drift checks in CI.</strong> Before retraining, validate that the new data matches the schema and distribution of training data within thresholds. Great Expectations + a GH Action runs this on every data update.</p>
+        <p><strong>Security &amp; supply chain.</strong> Pip-audit or safety on every PR. Dependabot for automated security updates. SBOM generation. Pin git submodules / external models by SHA.</p>
+        <p><strong>Cost monitoring.</strong> Track CI / training cost per PR. Quotas per team. Alert when a run uses 10× normal compute — usually means a bug.</p>
+        <p><strong>Self-hosted runners.</strong> For GPU jobs or special hardware. Manage scaling (Karpenter, RunPod) so you only pay for time you use. Worth it when GitHub-hosted GPU pricing exceeds your dedicated-runner cost.</p>
+        <p><strong>Release engineering.</strong> Semantic versioning for the package; a separate version for the trained model (commit + checkpoint id). Changelog auto-generation from conventional commits.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-yaml">name: Nightly Train + Eval
+on:
+  schedule: [{ cron: '0 6 * * *' }]   # daily at 06:00 UTC
+
+jobs:
+  train:
+    runs-on: [self-hosted, gpu]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Train tiny model on subset
+        run: python -m my_project.train --config configs/ci-tiny.yaml
+      - name: Eval against baseline
+        run: |
+          python -m my_project.eval \
+            --checkpoint outputs/latest.pt \
+            --baseline   gs://my-bucket/baseline.pt \
+            --fail-if-worse-than 0.02       # &gt; 2pp regression fails the job
+      - name: Promote on success
+        if: ${{ success() }}
+        run: mlflow models register --name my-model --source outputs/latest.pt
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="logging-debugging.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Logging &amp; Debugging</span>
+                        </span>
+                    </a>
+                    <a href="data-validation.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Data Validation</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://docs.github.com/en/actions" target="_blank">GitHub Actions Documentation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The reference for the most-used CI platform in open-source ML. Workflow syntax, marketplace actions, secrets handling.</span>
+        </li>
+        <li>
+            <a href="https://martinfowler.com/articles/cd4ml.html" target="_blank">Sato — Continuous Delivery for ML <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">ThoughtWorks' essay on CD for ML systems. Long but the canonical reference for the data + model + code triple.</span>
+        </li>
+        <li>
+            <a href="https://pre-commit.com/" target="_blank">pre-commit Framework <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Run linters and formatters before commits land. Saves CI minutes and reviewer time.</span>
+        </li>
+        <li>
+            <a href="https://dvc.org/" target="_blank">DVC — Data Version Control <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Git for data and models. Pairs naturally with CI to detect data changes that should trigger retraining.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

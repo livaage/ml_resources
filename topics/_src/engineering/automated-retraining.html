@@ -1,0 +1,203 @@
+<!-- TOPIC META -->
+title: Automated Retraining — ML Resources Hub
+eyebrow_text: ← Engineering · CI / CD
+eyebrow_href: {{root}}engineering.html
+heading: Automated Retraining
+lead: When to retrain, how to schedule it, and what gates promote a fresh model to production.
+active_nav: engineering
+prev_href: data-validation.html
+prev_title: Data Validation
+next_href: model-registries.html
+next_title: Model Registries
+
+
+<!-- TOPIC CONTENT -->
+<section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Models go stale. Retrain on a schedule or a trigger.</strong> The "schedule" answer is "weekly / monthly / quarterly" and works for most use cases. The "trigger" answer is "drift detected, performance dropped, new data arrived" — more responsive but harder to engineer. Most production systems use both.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>Two failure modes to avoid: <strong>never retrain</strong> (the model gradually drifts out of usefulness) and <strong>retrain too eagerly</strong> (every new model destabilises predictions, breaks downstream systems, and introduces churn). The right cadence depends on how fast your data distribution changes.</p>
+        <p><strong>When to retrain.</strong> Calendar trigger: every N days/weeks. Drift trigger: data or prediction distribution has changed. Performance trigger: live metrics have dropped. New-data trigger: a significant amount of fresh labelled data is available.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Retraining triggers</h3>
+            <ul>
+                <li><strong>Calendar</strong>: simplest; weekly / monthly / quarterly</li>
+                <li><strong>Data drift</strong>: PSI / KS thresholds exceeded</li>
+                <li><strong>Performance drift</strong>: live precision / recall drop</li>
+                <li><strong>New data</strong>: K new labelled examples accumulated</li>
+                <li><strong>Manual</strong>: data scientist kicks it off after a discovery</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Pitfalls</h3>
+            <ul>
+                <li>Retraining too often → instability + drift in predictions seen by downstream systems</li>
+                <li>Retraining never → silent degradation</li>
+                <li>No promotion gate → bad models reach production</li>
+                <li>No rollback plan → a bad deploy is hard to undo</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-yaml"># A scheduled GitHub Action that retrains weekly
+name: Weekly Retrain
+on:
+  schedule: [{ cron: '0 3 * * 1' }]    # 03:00 UTC Mondays
+  workflow_dispatch: {}                 # also runnable on demand
+
+jobs:
+  retrain:
+    runs-on: [self-hosted, gpu]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull fresh data
+        run: dvc pull data/
+      - name: Validate data
+        run: python -m my_project.validate_data data/
+      - name: Train
+        run: python -m my_project.train --config configs/prod.yaml
+      - name: Evaluate against production baseline
+        id: eval
+        run: python -m my_project.eval --baseline registry://my-model:prod
+      - name: Register staging model
+        if: ${{ steps.eval.outputs.beats_baseline == 'true' }}
+        run: mlflow models register --name my-model --stage Staging
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the gating logic, rollback, &amp; the human-in-the-loop?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Promotion criteria</span>
+        <span class="formula">$$ \text{promote} \;\Leftrightarrow\; \text{new beats baseline by} \geq \delta \;\wedge\; \text{no regression on subgroup metrics} $$</span>
+        <ul class="formula-legend">
+            <li><em>δ</em> = practically meaningful improvement, not statistical noise</li>
+            <li>Subgroup regressions = silent harm; gate on them explicitly</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Promotion gates.</strong> Before a new model goes live: aggregate metric must beat baseline by at least δ on a frozen test set. No regression on subgroups (gender, geography, segment) by more than ε. Latency within budget. Cost within budget. All four are concrete, all four can be checked automatically.</p>
+        <p><strong>Shadow deployment.</strong> Send live traffic to both the current model and the candidate; only log the candidate's predictions, don't act on them. Compare metrics over a few days; promote if the candidate wins. The lowest-risk way to vet a model.</p>
+        <p><strong>Canary deployment.</strong> Send a small fraction (1–5%) of traffic to the candidate. Watch metrics. Gradually ramp up if healthy. Roll back instantly if not. Standard for any high-stakes deployment.</p>
+        <p><strong>Rollback discipline.</strong> Every deployment must have a one-click rollback. The model registry should keep the previous N versions. The serving system should re-load on a config change without a full restart.</p>
+        <p><strong>Human-in-the-loop.</strong> For high-stakes domains, an actual person reviews the candidate model: looks at predictions on key examples, checks subgroup metrics, signs off. CI gates everything passable; the human catches the rest.</p>
+        <p><strong>Champion / challenger.</strong> The current model is the "champion"; the new is the "challenger". Run both, log both, declare a winner after a fixed evaluation window. Production-grade A/B for models.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import mlflow
+
+def should_promote(candidate_run_id, prod_run_id, *,
+                   metric="val/auc", min_improvement=0.005,
+                   subgroup_metrics=None, max_subgroup_regression=0.01):
+    cand = mlflow.get_run(candidate_run_id).data.metrics
+    prod = mlflow.get_run(prod_run_id).data.metrics
+
+    if cand[metric] - prod[metric] &lt; min_improvement:
+        return False, f"{metric} insufficient improvement"
+
+    for sg in subgroup_metrics or []:
+        if cand[sg] &lt; prod[sg] - max_subgroup_regression:
+            return False, f"regression on {sg}"
+
+    return True, "promoted"
+
+# In the retraining workflow:
+ok, reason = should_promote(new_run_id, prod_run_id,
+                            subgroup_metrics=["val/auc_female", "val/auc_male"])
+if ok:
+    mlflow.transition_model_version_stage(name="my-model", version=v, stage="Production")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want online learning, multi-armed bandits, &amp; cost-aware retraining?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Retrain decision</span>
+        <span class="formula">$$ \text{retrain} \;\Leftrightarrow\; \mathbb{E}[\text{benefit}] &gt; \text{cost} + \text{risk premium} $$</span>
+        <ul class="formula-legend">
+            <li>Benefit: predicted performance gain × business value</li>
+            <li>Cost: compute + engineering + downstream disruption</li>
+            <li>Risk premium: every deploy can break something</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Online learning.</strong> Update model weights continuously from streaming data. Different from retraining in that the model is never "redeployed" — its parameters are constantly evolving. Hard: stability, catastrophic forgetting, monitoring. River library + Vowpal Wabbit are reference implementations.</p>
+        <p><strong>Cost-aware retraining.</strong> Each retrain costs compute + engineering attention. Multi-armed bandit literature has the right framework: "exploit" the current model unless evidence accumulates that retraining would pay off. Some teams just retrain on a calendar; principled cost trade-offs are rare in production.</p>
+        <p><strong>Re-training vs fine-tuning.</strong> Full retrain: throw away the old model, train from scratch on (new + old) data. Fine-tune: warm-start from the old model. Fine-tuning is faster and more stable but accumulates drift; full retrain is the safe baseline.</p>
+        <p><strong>Concept drift vs data drift.</strong> Data drift: P(X) changes; the inputs look different. Concept drift: P(Y | X) changes; the relationship between inputs and outputs has changed. Different remedies — data drift can sometimes be ignored; concept drift requires retraining.</p>
+        <p><strong>Champion-challenger at scale.</strong> Many candidates competing; the production traffic is split across them by a bandit policy. Wins over time. Useful when you can afford to run multiple models in parallel.</p>
+        <p><strong>Federated retraining.</strong> When data can't leave the user device (privacy / bandwidth). Federated averaging: train local updates, aggregate centrally, ship new weights. Brings new failure modes — clients dropping out, malicious updates, non-IID data per client.</p>
+        <p><strong>Catastrophe drills.</strong> Periodically simulate a bad deploy and ensure the rollback works. Don't trust untested rollbacks any more than untested backups.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from river import linear_model, optim, preprocessing, metrics
+
+# Online learning — single-example updates, no batch training
+model = preprocessing.StandardScaler() | linear_model.LogisticRegression(optimizer=optim.SGD(0.01))
+auc = metrics.ROCAUC()
+
+for x, y in streaming_iter():
+    y_pred = model.predict_proba_one(x).get(1, 0.5)
+    auc.update(y, y_pred)
+    model.learn_one(x, y)
+
+    if step % 1000 == 0:
+        print(step, auc)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://martinfowler.com/articles/cd4ml.html" target="_blank">Sato — Continuous Delivery for ML <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Same ThoughtWorks essay as on CI for ML — the model-promotion section is the canonical reference.</span>
+        </li>
+        <li>
+            <a href="https://huyenchip.com/2022/01/02/real-time-machine-learning-challenges-and-solutions.html" target="_blank">Chip Huyen — Real-Time ML Challenges <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Practical survey of real-time / continual ML systems. Online learning, monitoring, lambda architectures.</span>
+        </li>
+        <li>
+            <a href="https://riverml.xyz/" target="_blank">River — Online Learning in Python <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Reference library for online learning. Streaming-friendly version of scikit-learn.</span>
+        </li>
+        <li>
+            <a href="https://www.tecton.ai/blog/feature-store-vs-ml-platform/" target="_blank">Tecton — Feature Store Architectures <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Feature stores are central to robust retraining pipelines. This post lays out the architectural choices.</span>
+        </li>
+    </ul>
+</div>

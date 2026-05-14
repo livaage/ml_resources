@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Debugging — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="">Theory</a>
+            <a href="../../engineering.html" class="active">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../engineering.html" class="eyebrow">← Engineering · Debugging &amp; Profiling</a>
+                    <h1>Training Debugging</h1>
+                    <p class="lead">NaNs, exploding gradients, divergent loss — and the small checklist that catches 95% of training pathologies.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Most training failures fall into a small set of diagnosable categories.</strong> Loss is NaN → numerical instability. Loss diverges → lr too high or bad init. Loss plateaus → gradient flow stopped. Loss looks fine but val is bad → overfitting / leakage / domain shift. Each has a small set of likely causes and a standard checklist.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>The 5-minute checklist for any training run that's misbehaving.</strong> (1) Drop lr by 10× — does the divergence stop? (2) Add gradient clipping at 1.0 — does it stabilise? (3) Try fp32 (off mixed-precision) — does the NaN disappear? (4) Take 2 examples and try to overfit — does loss go to ~0? (5) Check the data with print statements — does anything look wrong (NaNs, weird scales, wrong labels)?</p>
+        <p><strong>Most common causes by symptom.</strong> NaN in step 1: bad init or bad data. NaN after step N: explosion (use clipping) or numerical issue in a specific layer. Loss won't decrease at all: gradients aren't flowing (detached graph, frozen layer, wrong optimizer setup). Loss decreases but val is awful: overfitting, leakage, or distribution shift.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>The standard checks</h3>
+            <ul>
+                <li>Drop lr 10× — fixes 80% of divergence</li>
+                <li>Add <code>clip_grad_norm_(1.0)</code> — fixes the rest</li>
+                <li>Try fp32 to rule out mixed-precision issues</li>
+                <li>Overfit a tiny batch — confirms the loop is correct</li>
+                <li>Inspect 5 random batches — does the data look sane?</li>
+                <li>Check parameter / activation stats — anything saturated?</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>What to NOT do first</h3>
+            <ul>
+                <li>Switch architecture — fix the loop bugs first</li>
+                <li>Add more regularization to fix divergence</li>
+                <li>Tune hyperparameters before confirming the baseline works</li>
+                <li>Conclude the model "doesn't work" without finishing the checklist</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+
+def diagnose_training(model, x, y, loss_fn, opt, n_steps=200):
+    """Five-minute sanity check on a tiny batch."""
+    x, y = x[:2], y[:2]                          # 2 examples
+    loss_history = []
+    for step in range(n_steps):
+        opt.zero_grad()
+        pred = model(x)
+        loss = loss_fn(pred, y)
+        if torch.isnan(loss):
+            print(f"NaN at step {step}")
+            return loss_history
+        loss.backward()
+        gnorm = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        opt.step()
+        loss_history.append(loss.item())
+        if step % 50 == 0:
+            print(f"step={step} loss={loss.item():.4f} gnorm={gnorm:.4f}")
+    if loss_history[-1] &gt; 0.1:
+        print("Failed to overfit 2 examples — check the loop, loss, or model")
+    return loss_history
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want NaN forensics, gradient hooks, &amp; mixed-precision pitfalls?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Why training diverges</span>
+        <span class="formula">$$ \Delta\theta = -\eta \nabla L \;\Rightarrow\; |\nabla L| \gg \tfrac{1}{\eta} \;\Rightarrow\; \text{overshoot} \;\Rightarrow\; \text{larger gradient} \;\Rightarrow\; \text{NaN} $$</span>
+        <ul class="formula-legend">
+            <li>Positive feedback loop between gradient magnitude and loss</li>
+            <li>Cutoff (clipping) breaks the loop; lower lr makes it less likely</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Anomaly detection.</strong> <code>torch.autograd.set_detect_anomaly(True)</code> tracks where in the backward pass a NaN originated. Slow — use for one debug run.</p>
+        <p><strong>Layer-by-layer hooks.</strong> Attach a forward hook to every layer; check for NaN / Inf in the output. The first layer that produces NaN is the culprit. Common: division by zero in normalisation, log(0), exp(huge) in softmax, fp16 underflow in attention.</p>
+        <p><strong>Mixed-precision pitfalls.</strong> Softmax over very large or very small logits → fp16 NaN. Loss scaling helps but isn't a silver bullet. <code>torch.amp.autocast</code> + <code>GradScaler</code> are the standard pattern; bf16 is more robust than fp16 if your hardware supports it.</p>
+        <p><strong>Gradient explosion.</strong> Symptom: loss spikes then NaNs. Cause: a large activation produces a large gradient, which makes a large weight update, which makes a larger activation. Fix: gradient clipping (almost always &lt; 1.0 for transformers / RNNs).</p>
+        <p><strong>Gradient vanishing.</strong> Symptom: loss plateaus, gradient norms decay toward zero. Cause: deep networks with bad init, saturating activations (sigmoid, tanh), or accumulated multiplicative effects. Fix: residual connections, Layer Norm, He / Xavier init.</p>
+        <p><strong>Bad initialisation.</strong> Weights too large → activations explode → gradients explode. Weights too small → activations vanish → no learning. PyTorch's defaults are usually OK; if you're rolling your own layers, use <code>nn.init.kaiming_normal_</code> or similar.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+
+# Hook every layer; report the first layer to produce NaN
+def install_nan_hooks(model):
+    def make_hook(name):
+        def hook(module, inp, out):
+            tensors = out if isinstance(out, (list, tuple)) else (out,)
+            for t in tensors:
+                if isinstance(t, torch.Tensor) and not t.isfinite().all():
+                    print(f"⚠  non-finite in {name}: "
+                          f"NaN={t.isnan().any().item()} Inf={t.isinf().any().item()}")
+                    return
+        return hook
+    for name, mod in model.named_modules():
+        if name: mod.register_forward_hook(make_hook(name))
+
+# Mixed precision the right way
+scaler = torch.amp.GradScaler()
+for x, y in loader:
+    opt.zero_grad()
+    with torch.amp.autocast("cuda", dtype=torch.bfloat16):
+        loss = loss_fn(model(x), y)
+    scaler.scale(loss).backward()
+    scaler.unscale_(opt)
+    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+    scaler.step(opt); scaler.update()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want distributed debugging, OOM forensics, &amp; subtle correctness bugs?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Distributed mismatch</span>
+        <span class="formula">$$ \text{rank}_i.\theta_{t+1} \neq \text{rank}_j.\theta_{t+1} \;\Rightarrow\; \text{drift, divergence, or NaN} $$</span>
+        <ul class="formula-legend">
+            <li>Parameter sync is what keeps ranks consistent</li>
+            <li>Any source of asymmetry — different seeds, different batch ordering, different num steps — causes drift</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Distributed debugging.</strong> First rule: reproduce on 1 GPU. ~80% of "distributed bugs" are actually single-GPU bugs that happen to surface in the distributed setting. When the bug genuinely needs &gt; 1 GPU: log per-rank metrics, look for the rank where something diverges, then bisect on what's different.</p>
+        <p><strong>Gradient sync bugs.</strong> Symptom: all ranks converge slowly or to a worse minimum than single-GPU. Causes: missing <code>DDP</code> wrapper on a model that gets cloned; ranks computing different losses (e.g., different normalisation across the batch); gradient hooks that don't allreduce.</p>
+        <p><strong>OOM forensics.</strong> <code>torch.cuda.memory_summary()</code> shows allocations. Memory growing over time → leak (tensors held alive by some Python reference, often inside a logging dictionary). Memory high but stable → just need a smaller batch or more aggressive activation checkpointing.</p>
+        <p><strong>Subtle correctness bugs.</strong> Detached graphs (gradient doesn't flow). Frozen layers (parameters that should train but don't). Off-by-one in masks. Wrong dimension for softmax. Reduction over the wrong axis. The 1-batch overfit catches most of these.</p>
+        <p><strong>Profiler + debugger.</strong> When training is slow, profile. When it's wrong, debug. Mixing the two wastes time. PyTorch profiler with the <code>profile_memory=True</code> flag is the canonical tool for both.</p>
+        <p><strong>Catastrophic-forgetting variant.</strong> Fine-tuning destroys earlier capability. Symptom: a model that was great on one task is now bad on it after training on another. Mitigations: lower lr, fewer epochs, freeze earlier layers, EWC-style regularization.</p>
+        <p><strong>The "git bisect" trick.</strong> If a model used to train fine and now diverges, bisect through git history to find the commit that broke it. Faster than reading every diff.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch, torch.distributed as dist
+
+# Per-rank sanity log
+def log_per_rank(name, tensor):
+    rank = dist.get_rank() if dist.is_initialized() else 0
+    print(f"[rank{rank}] {name}: mean={tensor.mean():.4f} std={tensor.std():.4f}")
+
+# Detect: are all ranks computing the same loss?
+def check_loss_equal(loss):
+    if not dist.is_initialized(): return
+    losses = [torch.zeros_like(loss) for _ in range(dist.get_world_size())]
+    dist.all_gather(losses, loss)
+    stacked = torch.stack(losses)
+    if (stacked.max() - stacked.min()).abs() &gt; 1e-3:
+        print(f"⚠  losses differ across ranks: {[l.item() for l in losses]}")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="model-registries.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Model Registries</span>
+                        </span>
+                    </a>
+                    <a href="loss-curve-forensics.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Loss Curve Forensics</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://karpathy.github.io/2019/04/25/recipe/" target="_blank">Karpathy — A Recipe for Training Neural Networks <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Still the best single source on debugging training. Read once a year.</span>
+        </li>
+        <li>
+            <a href="https://pytorch.org/docs/stable/notes/numerical_accuracy.html" target="_blank">PyTorch — Numerical Accuracy Notes <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Official guide on fp16 / bf16 / fp32 trade-offs and the deterministic-ops flags.</span>
+        </li>
+        <li>
+            <a href="https://pytorch.org/docs/stable/notes/autograd.html#anomaly-detection" target="_blank">PyTorch — Autograd Anomaly Detection <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The reference docs for <code>set_detect_anomaly</code> — your friend when chasing NaNs in backward.</span>
+        </li>
+        <li>
+            <a href="https://github.com/pytorch/pytorch/wiki/PyTorch-Common-Pitfalls" target="_blank">PyTorch Common Pitfalls <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Community-maintained list of the bugs that bite everyone. Long and worth skimming.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

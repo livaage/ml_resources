@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loss Curve Forensics — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="">Theory</a>
+            <a href="../../engineering.html" class="active">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../engineering.html" class="eyebrow">← Engineering · Debugging &amp; Profiling</a>
+                    <h1>Loss Curve Forensics</h1>
+                    <p class="lead">Reading a loss plot like a doctor reads an X-ray — each pattern points to a specific failure.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>The shape of your loss curve is a diagnosis.</strong> Spike-then-NaN is exploding gradients. Plateau at the start is gradients not flowing. Smooth decrease then sharp drop is a learning-rate schedule kick. Train loss low but val high is overfitting. Pattern → diagnosis → fix is a much faster loop than guesswork.</p>
+    </div>
+
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Click each pattern — see the loss curve and the most likely diagnosis</span>
+        </div>
+        <div class="viz-classic-controls">
+            <button id="viz-lc-healthy"   type="button" class="active">Healthy</button>
+            <button id="viz-lc-diverge"   type="button">Diverges</button>
+            <button id="viz-lc-plateau"   type="button">Plateaus</button>
+            <button id="viz-lc-oscillate" type="button">Oscillates</button>
+            <button id="viz-lc-overfit"   type="button">Overfits</button>
+            <button id="viz-lc-schedule"  type="button">Schedule kick</button>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-lc-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-lc-caption"></div>
+    </div>
+    <script src="../../js/viz/loss-curves.js"></script>
+
+    <p class="viz-intro">Six canonical training pathologies side-by-side with their likely causes. The healthy curve is your target. The other five are common; each has 1–3 typical root causes and a known fix.</p>
+
+    <article class="tldr-body">
+        <p><strong>Healthy curve.</strong> Smooth, monotonic-ish decrease in train loss. Val loss tracks it for a while, may diverge a bit (mild overfitting). Both flatten near the end.</p>
+        <p><strong>Divergent.</strong> Loss rises rapidly then NaN. Almost always: learning rate too high, gradient explosion, fp16 underflow, or bad initialisation. Fix: drop lr 10×, clip gradients, try bf16 or fp32.</p>
+        <p><strong>Plateau from step 1.</strong> Loss never decreases meaningfully. Gradients aren't flowing — detached graph, frozen layer, wrong optimizer setup. Run a 1-batch overfit: if it fails, you have a loop bug.</p>
+        <p><strong>Oscillates.</strong> Loss bounces up and down without converging. Learning rate too high; reduce it. Or batch too small + lr too high — same fix.</p>
+        <p><strong>Train ≪ val (overfitting).</strong> Train loss continues to drop but val rises. Need regularization, more data, or earlier stopping.</p>
+        <p><strong>Schedule kick.</strong> Smooth curve with a sudden drop at a known step. A learning-rate scheduler moved to a lower lr; the model finally settled. Often a good sign, but check there's not an unintended schedule kicking in.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>What to log</h3>
+            <ul>
+                <li>Train loss every N batches; val loss per epoch (or every K steps)</li>
+                <li>Gradient norm</li>
+                <li>Learning rate (yes, even though you control it)</li>
+                <li>Activation stats (a sample of layers)</li>
+                <li>System metrics (GPU util, memory)</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>What loss curves don't tell you</h3>
+            <ul>
+                <li>Whether the model has learned the right thing (run evals!)</li>
+                <li>Subgroup performance (look at per-class metrics)</li>
+                <li>Calibration (low loss doesn't mean calibrated)</li>
+                <li>Generalization to OOD inputs</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="level-next">
+        <span>Want subgroup diagnostics &amp; eval-time forensics?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">The 4 forensic plots</span>
+        <span class="formula">$$ \text{loss curve}, \;\text{gradient norm}, \;\text{per-class val acc}, \;\text{calibration} $$</span>
+        <ul class="formula-legend">
+            <li>Loss: smooth or not</li>
+            <li>Gradient norm: stable, growing, or vanishing</li>
+            <li>Per-class: catches "great on average, awful on class 7"</li>
+            <li>Calibration: are the probabilities trustworthy?</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Gradient norm.</strong> Stable around a few units → healthy. Growing exponentially → explosion. Decaying toward 0 → vanishing. Always log it.</p>
+        <p><strong>Per-class metrics.</strong> Average accuracy can hide a class that's at 0% recall. Plot per-class val accuracy over time; a class that's always near zero needs attention (more data, weighted loss, or oversampling).</p>
+        <p><strong>Smoothed vs raw.</strong> Raw loss per batch is noisy. Smoothed (EMA, window-mean) is what you compare across runs. Most trackers do this automatically; if not, smooth with α ≈ 0.9.</p>
+        <p><strong>Loss spikes.</strong> Common with large batch + adaptive optimizer (Adam). Usually safe to ignore if recovery is quick; investigate if recovery takes a while. Gradient clipping reduces them.</p>
+        <p><strong>Warm-up.</strong> Linear lr ramp from 0 to target over the first few hundred steps. Essential for transformers (Adam's bias correction misbehaves at step 1). Without it, you often see a brief spike that the rest of training overcomes — but cleaner with warm-up.</p>
+        <p><strong>Train vs val together.</strong> Plot them on the same axes. Train below val and both decreasing — healthy. Train below val and val rising — overfitting; stop or regularise. Train above val (rare but real) — usually a metric bug or different normalisation.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import wandb
+
+def log_health(step, loss, grad_norm, lr, per_class_acc=None):
+    payload = {"train/loss": loss, "train/grad_norm": grad_norm, "lr": lr}
+    if per_class_acc is not None:
+        for c, acc in enumerate(per_class_acc):
+            payload[f"val/acc_class_{c}"] = acc
+    wandb.log(payload, step=step)
+
+# Quick "early stopping watchdog" — bail if no improvement for K evals
+class EarlyStop:
+    def __init__(self, patience=5, min_delta=0.001):
+        self.best = float("inf"); self.wait = 0
+        self.patience = patience; self.min_delta = min_delta
+    def step(self, val_loss):
+        if val_loss &lt; self.best - self.min_delta:
+            self.best = val_loss; self.wait = 0
+            return False
+        self.wait += 1
+        return self.wait &gt; self.patience
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want curvature signs, double descent, &amp; the modern "loss spike" literature?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Adam's bias correction effect</span>
+        <span class="formula">$$ \hat m = \frac{m_t}{1 - \beta_1^t}, \quad \hat v = \frac{v_t}{1 - \beta_2^t} $$</span>
+        <ul class="formula-legend">
+            <li>Near <em>t = 0</em>, denominators are tiny → effective step size is huge</li>
+            <li>Why warm-up is essential for transformers + Adam / AdamW</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Loss spikes at scale.</strong> LLM training (~1B+ params) often shows occasional sharp loss spikes followed by recovery. Investigated in PaLM 2 / Megatron logs. Sometimes attributed to outlier examples; sometimes to optimiser numerical state. Many shops just blacklist outlier batches and continue.</p>
+        <p><strong>Double descent.</strong> In overparameterised models, test loss can rise then fall again as you increase capacity past the interpolation threshold. A loss curve that "should" indicate overfitting can be the descent's start. Modern: just train longer / bigger.</p>
+        <p><strong>Grokking.</strong> Small-scale algorithmic tasks (modular arithmetic) — train loss plateaus near zero, val loss takes 100× more steps to catch up. The curve looks like a plateau then a sudden cliff. Nanda et al. 2023 reverse-engineered the mechanism.</p>
+        <p><strong>Curvature diagnostics.</strong> Hessian eigenvalues, gradient covariance, Fisher information at the trained parameters. Flat minima → better generalization (sometimes). Tools: PyHessian, BackPACK. Useful for advanced analysis; not routine debugging.</p>
+        <p><strong>Catastrophic forgetting traces.</strong> Multi-task or sequential fine-tuning — a task's loss rises after training on a different task. Plot per-task loss to see which tasks are at risk; mitigate with EWC, replay buffers, or lower learning rates.</p>
+        <p><strong>Generalization gap.</strong> Train loss − val loss. Stable gap → expected; widening gap → overfitting. Closes at the end of training in well-regularised runs.</p>
+        <p><strong>Beyond loss.</strong> Some pathologies don't show in loss but in downstream metrics — calibration drift, subgroup regressions, hallucination rates for LLMs. Make sure those are also tracked.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+
+# Largest Hessian eigenvalue via power iteration (Yao et al., PyHessian)
+def top_hessian_eig(loss_fn, params, num_iters=20):
+    v = [torch.randn_like(p) for p in params]
+    for _ in range(num_iters):
+        grads = torch.autograd.grad(
+            loss_fn(), params, create_graph=True
+        )
+        Hv = torch.autograd.grad(
+            sum((g * vi).sum() for g, vi in zip(grads, v)), params,
+        )
+        # Normalise
+        n = torch.sqrt(sum((h * h).sum() for h in Hv))
+        v = [h / n for h in Hv]
+    return n.item()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="training-debugging.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Training Debugging</span>
+                        </span>
+                    </a>
+                    <a href="profiling.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Profiling</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://karpathy.github.io/2019/04/25/recipe/" target="_blank">Karpathy — A Recipe for Training Neural Networks <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Same recipe linked elsewhere. The "overfit a tiny batch" section is the heart of the debugging methodology.</span>
+        </li>
+        <li>
+            <a href="https://lilianweng.github.io/posts/2018-06-24-attention/" target="_blank">Lilian Weng — Attention &amp; Transformer notes <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Walks through the warm-up requirement and what goes wrong without it. Useful context for transformer-specific debugging.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/2201.02177" target="_blank">Power et al. (2022) — Grokking <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The grokking paper. Small toy problems with the "plateau then cliff" curves that reverse-engineered themselves into a mechanistic story.</span>
+        </li>
+        <li>
+            <a href="https://github.com/amirgholami/PyHessian" target="_blank">PyHessian <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Hessian eigenvalue spectrum tools for PyTorch. Useful when you want to understand the local geometry around your trained model.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

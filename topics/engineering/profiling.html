@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profiling — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="">Theory</a>
+            <a href="../../engineering.html" class="active">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../engineering.html" class="eyebrow">← Engineering · Debugging &amp; Profiling</a>
+                    <h1>Profiling</h1>
+                    <p class="lead">Where is the time going — compute, memory, data loading, communication? Profile before you optimise.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>"Why is training slow?" has a small set of answers.</strong> The four candidates: the GPU is waiting for data (data-loading bottleneck), the GPU is waiting for the network (communication bottleneck in distributed), the GPU is doing the wrong thing (small ops, kernel launch overhead), or the model genuinely takes that long (compute-bound). Profile first; optimise the actual bottleneck.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>The first question: is your GPU utilisation high (~90%+) or low? <code>nvidia-smi -l 1</code> tells you. Low util almost always means a CPU bottleneck — data loading is the usual culprit. High util means you're compute-bound; further speedup needs kernel-level or precision changes.</p>
+        <p><strong>The standard tools.</strong> <code>nvidia-smi</code> for utilisation. PyTorch profiler for op-level timing. cProfile for Python-side. <code>py-spy</code> for sampling without restart. Chrome trace viewer for everything.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>The 4 bottlenecks</h3>
+            <ul>
+                <li><strong>Data loader</strong>: GPU idle, CPU pegged. Fix: more <code>num_workers</code>, prefetching, faster format (Parquet, WebDataset)</li>
+                <li><strong>Communication</strong>: small bursts of GPU activity, gaps between. Fix: gradient accumulation, gradient bucketing, faster interconnect</li>
+                <li><strong>Small ops</strong>: kernel launch overhead dominates. Fix: <code>torch.compile</code>, kernel fusion, larger batches</li>
+                <li><strong>Genuine compute</strong>: GPU pinned, no idle. Fix: mixed precision, more efficient architecture, more / better hardware</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Common mistakes</h3>
+            <ul>
+                <li>Optimising before profiling</li>
+                <li>Trusting wall-clock without isolating the cause</li>
+                <li>Profiling on the warm-up step (cudaMalloc dominates)</li>
+                <li>Forgetting to <code>torch.cuda.synchronize()</code> before timing</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+from torch.profiler import profile, ProfilerActivity
+
+# PyTorch profiler — both CPU and CUDA, with shape info
+with profile(
+    activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+    record_shapes=True,
+    profile_memory=True,
+) as prof:
+    for step in range(5):
+        train_one_step()
+
+# Top operators by GPU time
+print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=20))
+
+# Or export Chrome trace, view in chrome://tracing
+prof.export_chrome_trace("trace.json")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want kernel fusion, memory profiling, &amp; the data-loader recipes?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Throughput formula</span>
+        <span class="formula">$$ \text{throughput} = \frac{\text{batch size} \times \text{steps/sec}}{\text{world size}} $$</span>
+        <ul class="formula-legend">
+            <li>Compare across configurations — the same compute, more throughput is the goal</li>
+            <li>Plot vs batch size: throughput plateaus when you hit the compute bound</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>The PyTorch profiler.</strong> Captures CUDA kernels, CPU ops, memory allocations, and (optionally) stack traces. Export to Chrome trace and view in <code>chrome://tracing</code> or Perfetto. Shows the gap pattern between kernels — the gaps tell you where the GPU is waiting.</p>
+        <p><strong>Memory profiling.</strong> <code>torch.cuda.memory_summary()</code> for a snapshot. <code>torch.cuda.memory._record_memory_history()</code> for a full timeline (PyTorch 2.0+). Plotted via <code>memory_viz</code> — shows every allocation over time.</p>
+        <p><strong>Data-loader recipes.</strong> <code>num_workers</code> ≈ number of CPU cores ÷ 2. <code>pin_memory=True</code> if going GPU. <code>persistent_workers=True</code> to avoid restarting workers each epoch. <code>prefetch_factor=4</code> to pipeline loading and compute. Store data in fast formats (Parquet for tabular, WebDataset for images, tarred for streaming).</p>
+        <p><strong>torch.compile.</strong> PyTorch 2.0+ JIT. Often 30–50% speed-up on transformers; fuses ops and inlines kernels. Worth trying on any model that's not data-loader bound. Some ops fall back to eager; the trace will show you which.</p>
+        <p><strong>Mixed precision.</strong> bf16 (Ampere+) is more robust than fp16; same speed-up. <code>torch.amp.autocast("cuda", dtype=torch.bfloat16)</code>. Doubles throughput on most transformers; loses a tiny bit of accuracy that's well worth it.</p>
+        <p><strong>Gradient accumulation.</strong> Want a batch of 1024 but only 128 fits? Run 8 micro-batches, accumulate gradients, step once. Effectively the same as batch 1024 on most architectures (but watch BatchNorm).</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from torch.utils.data import DataLoader
+
+# Sensible data-loader defaults
+loader = DataLoader(
+    dataset,
+    batch_size=128,
+    shuffle=True,
+    num_workers=8,
+    pin_memory=True,
+    persistent_workers=True,
+    prefetch_factor=4,
+    drop_last=True,
+)
+
+# torch.compile — often 30%+ speed-up
+model = torch.compile(model, mode="default")     # or "max-autotune" for max speedup
+
+# Gradient accumulation — bigger effective batch without OOM
+opt.zero_grad()
+for micro_batch in chunked(batch, 4):
+    with torch.amp.autocast("cuda", dtype=torch.bfloat16):
+        loss = loss_fn(model(micro_batch)) / 4    # divide by accumulation steps
+    loss.backward()
+opt.step()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want kernel-level optimisation, FlashAttention, &amp; NVIDIA tools?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Roofline model</span>
+        <span class="formula">$$ \text{perf} = \min\!\big(\text{peak FLOP/s}, \;\text{arithmetic intensity} \times \text{peak bandwidth}\big) $$</span>
+        <ul class="formula-legend">
+            <li>Memory-bound ops (low arithmetic intensity) can't reach peak FLOPs</li>
+            <li>Fusing memory-bound ops shifts you toward compute-bound</li>
+            <li>Hardware vendors' roofline plots show the theoretical limits</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>FlashAttention.</strong> Dao et al. (2022, 2023). Memory-aware exact attention — tiles the QK<sup>T</sup>V computation to stay in SRAM. 2–4× speed-up on long sequences and a memory reduction that lets you fit much larger contexts. The standard attention implementation in modern frameworks.</p>
+        <p><strong>NVIDIA tools.</strong> <code>nvprof</code> / <code>nsys</code> for system-wide profiles. <code>ncu</code> (Nsight Compute) for kernel-level analysis. <code>nvidia-smi dmon</code> for live monitoring. Heavier than PyTorch's profiler; necessary when you're chasing the last ten percent.</p>
+        <p><strong>Custom kernels.</strong> Triton (OpenAI) or CUDA. Pays off when you have a hot path that PyTorch's eager / compile path doesn't fuse well. <code>torch.utils.cpp_extension</code> for CUDA / C++ kernels; <code>triton.language</code> for the easier path.</p>
+        <p><strong>Activation checkpointing.</strong> Trade compute for memory — recompute activations on the backward pass instead of storing them. <code>torch.utils.checkpoint.checkpoint</code>. Often the only way to fit large models on limited GPUs.</p>
+        <p><strong>Distributed bottlenecks.</strong> All-reduce time grows with parameter count. Gradient bucketing lumps small tensors. Overlap compute and communication. ZeRO (DeepSpeed, FSDP) shards optimizer state across ranks. Pipeline parallelism for very long models.</p>
+        <p><strong>Memory fragmentation.</strong> Lots of allocations and frees → cudaMalloc returns "no memory" even though some is "free". <code>torch.cuda.empty_cache()</code> can help; <code>expandable_segments:True</code> in <code>PYTORCH_CUDA_ALLOC_CONF</code> reduces fragmentation in PyTorch 2.0+.</p>
+        <p><strong>The "compile then optimise" hierarchy.</strong> torch.compile → mixed precision → gradient accumulation → data-loader tuning → activation checkpointing → custom kernels. Apply in this order; most workflows stop after the first 3.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+from torch.utils.checkpoint import checkpoint
+
+# Activation checkpointing — recompute on backward, save memory
+class CheckpointedBlock(torch.nn.Module):
+    def __init__(self, inner): super().__init__(); self.inner = inner
+    def forward(self, x):
+        return checkpoint(self.inner, x, use_reentrant=False)
+
+# Use FlashAttention via SDPA backend
+from torch.nn.functional import scaled_dot_product_attention
+with torch.nn.attention.sdpa_kernel(
+    backends=[torch.nn.attention.SDPBackend.FLASH_ATTENTION]
+):
+    out = scaled_dot_product_attention(q, k, v, is_causal=True)
+
+# Avoid fragmentation
+# Env var (set before launch): PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="loss-curve-forensics.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Loss Curve Forensics</span>
+                        </span>
+                    </a>
+                    <a href="distributed-pitfalls.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Distributed Training Pitfalls</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://pytorch.org/tutorials/recipes/recipes/profiler_recipe.html" target="_blank">PyTorch Profiler Recipe <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Official walkthrough on the PyTorch profiler with Chrome-trace integration.</span>
+        </li>
+        <li>
+            <a href="https://horace.io/brrr_intro.html" target="_blank">Horace He — Making Deep Learning Go Brrrr <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Best single read on what actually makes ML workloads fast. Memory bandwidth, kernel fusion, the modern intuition.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/2205.14135" target="_blank">Dao et al. (2022) — FlashAttention <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The paper that made long-context attention practical. Tile the computation to stay in SRAM.</span>
+        </li>
+        <li>
+            <a href="https://github.com/openai/triton" target="_blank">Triton <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">OpenAI's Python-flavoured CUDA. The pragmatic way to write custom kernels without going full CUDA C++.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

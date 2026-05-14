@@ -1,0 +1,214 @@
+<!-- TOPIC META -->
+title: Logging &amp; Debugging — ML Resources Hub
+eyebrow_text: ← Engineering · Development Loop
+eyebrow_href: {{root}}engineering.html
+heading: Logging &amp; Debugging
+lead: Structured logs, the right print statements, and which debugger tricks work on tensors.
+active_nav: engineering
+prev_href: testing-ml-code.html
+prev_title: Testing ML Code
+next_href: ci-for-ml.html
+next_title: CI for ML
+
+
+<!-- TOPIC CONTENT -->
+<section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>"NaN" is a clue, not a stack trace.</strong> ML bugs usually present as silent degradation — bad metrics, divergent loss, slow training — not as crashes. The trick is making each level of the stack legible: structured logs you can search, useful prints at the right verbosity, a debugger that handles tensors.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Use real logging, not print.</strong> Python's <code>logging</code> module — or better, <code>loguru</code> — gives you levels, timestamps, structured records, and rotation for free. The five-minute investment pays off forever.</p>
+        <p><strong>Log what matters.</strong> Loss, learning rate, gradient norms, data shapes, the configuration object on startup. Not every batch — sample every N batches. If you're using a tracker (W&amp;B / MLflow), it's also your log.</p>
+        <p><strong>Most ML bugs.</strong> NaN / Inf propagation, shape mismatches (sometimes silently broadcasting), gradient explosion or vanishing, learning-rate too high, data corruption upstream of training, label noise, distribution shift between train and val.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from loguru import logger
+import torch
+
+# Structured logging with levels
+logger.add("train.log", rotation="100 MB", level="INFO",
+           format="{time} {level} {message}")
+
+logger.info("config: {}", cfg)
+
+for step in range(num_steps):
+    loss, metrics = train_step()
+
+    if torch.isnan(loss):
+        logger.error("NaN at step {}", step)
+        debug_dump(step)
+        raise RuntimeError("NaN loss")
+
+    if step % 100 == 0:
+        gnorm = sum(p.grad.norm().item() for p in model.parameters() if p.grad is not None)
+        logger.info("step={} loss={:.4f} gnorm={:.4f}", step, loss.item(), gnorm)
+</code></pre>
+    </div>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>What to watch in training</h3>
+            <ul>
+                <li><strong>Loss</strong>: smooth decrease; NaN spike = something exploded</li>
+                <li><strong>Gradient norm</strong>: stable; growing = lr too high; collapsing = vanishing</li>
+                <li><strong>Activation stats</strong>: most activations should be neither 0 nor saturated</li>
+                <li><strong>Learning rate</strong>: log it explicitly; schedule bugs are common</li>
+                <li><strong>GPU utilization</strong>: low util usually = data-loading bottleneck</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Common silent failures</h3>
+            <ul>
+                <li>Wrong data type (fp16 underflow, int truncation)</li>
+                <li>Broadcasting where you didn't expect (e.g. (B,) vs (B, 1))</li>
+                <li>Detached graph — gradients don't flow</li>
+                <li>Frozen layers you forgot to unfreeze</li>
+                <li>Wrong device — silent half-CPU half-GPU</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="level-next">
+        <span>Want anomaly detection, NaN sources, &amp; debugging recipes?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">The first-five-things-to-check checklist</span>
+        <span class="formula">$$ \text{loss} \xrightarrow{?} \text{NaN/diverge} \;\Rightarrow\; \text{lr}, \;\text{init}, \;\text{numerical stability}, \;\text{data}, \;\text{precision} $$</span>
+        <ul class="formula-legend">
+            <li>Drop the lr by 10×: does the divergence go away?</li>
+            <li>Re-init: bad initialisation? deeper-net pathology?</li>
+            <li>Add eps to denominators, clip gradients</li>
+            <li>Check the data: outliers, label encoding, NaNs upstream</li>
+            <li>Try fp32: an fp16 underflow / overflow is masking the problem</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Anomaly detection during training.</strong> <code>torch.autograd.set_detect_anomaly(True)</code> — slow, but tracks where a NaN originated. Use for one debug run; turn off for production.</p>
+        <p><strong>Gradient clipping.</strong> <code>torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)</code>. Almost always worth it for transformers and RNNs. The clip-then-NaN heuristic: if clipping fixes the divergence, you have an exploding gradient problem.</p>
+        <p><strong>NaN forensics.</strong> Hook every layer's forward/backward to check for NaN; first layer that produces them is the culprit. Common sources: 1/0 in normalisation, log(0), exp(huge), softmax over identical logits with fp16.</p>
+        <p><strong>The 1-batch overfit.</strong> Take 2–8 examples. The model should overfit perfectly in under 1000 steps. If it can't, something is fundamentally wrong (architecture, loss, data pipeline).</p>
+        <p><strong>Tensor-aware debugger.</strong> pdb works fine; for tensor inspection use <code>display(tensor.shape, tensor.dtype, tensor.device, tensor.requires_grad)</code>. <code>ipdb</code> is nicer. PyCharm and VSCode have visual tensor inspectors.</p>
+        <p><strong>The pickle vs JSON rule.</strong> Save configs, hyperparameters, and metrics as JSON or YAML — diff-friendly, language-agnostic. Save model weights as pickle / safetensors. Don't mix the two purposes.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+
+# NaN-source finder: hook every module
+def attach_nan_hooks(model):
+    def hook(name):
+        def fn(module, inp, out):
+            if isinstance(out, torch.Tensor) and torch.isnan(out).any():
+                print(f"NaN in forward output of {name}")
+        return fn
+    for name, mod in model.named_modules():
+        mod.register_forward_hook(hook(name))
+
+# Print per-layer activation stats to spot saturating layers
+def activation_summary(model, x):
+    activations = {}
+    def hook(name):
+        return lambda m, i, o: activations.update({name: o.detach()})
+    for name, mod in model.named_modules():
+        mod.register_forward_hook(hook(name))
+    model(x)
+    for name, a in activations.items():
+        print(f"{name:30s} mean={a.mean():.3f} std={a.std():.3f} "
+              f"max={a.max():.3f} sat={(a.abs() &gt; 5).float().mean():.2%}")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want anomaly detection at scale, distributed debugging, &amp; OOM forensics?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Loss curve patterns</span>
+        <span class="formula">$$ \text{divergence}, \;\text{plateau}, \;\text{cliff}, \;\text{oscillation}, \;\text{step decay} \;\to\; \text{each implies a specific bug class} $$</span>
+        <ul class="formula-legend">
+            <li>Each pattern has a small set of likely causes</li>
+            <li>Documented troubleshooting tree → much faster than guessing</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Loss curve forensics.</strong> Diverges sharply: lr too high, bad init, or numerical issue. Plateaus immediately: gradient flow stopped (detach, frozen). Oscillates: lr too high or batch too small. Cliff (sudden drop): a learning rate schedule kick, or the model finally found the right answer.</p>
+        <p><strong>Distributed debugging.</strong> Two ranks producing different losses on the same data → a sync or seeding issue. Use <code>torch.distributed.barrier()</code> + per-rank logging to find where they diverge. Always reproduce on a single GPU before debugging distributed; you'd be amazed how often a 1-GPU debug fixes the cluster bug.</p>
+        <p><strong>OOM (Out-of-Memory) forensics.</strong> Memory usage growing over time → leak (something not getting freed; common with detached graphs kept alive). Plateaus high but stable → just need a smaller batch or more aggressive checkpointing. <code>torch.cuda.memory_summary()</code> shows allocation breakdown.</p>
+        <p><strong>Profiler-led debugging.</strong> If training is slow, profile first. Common culprits: data loading (CPU bottleneck — increase <code>num_workers</code>), small ops (kernel launch overhead — fuse them), single-host sync (<code>torch.distributed.gather</code> blocking on the slowest rank).</p>
+        <p><strong>The "minimal reproducer" discipline.</strong> Reproduce any non-trivial bug in &lt; 30 lines of code with explicit seeds and data. Most ML bugs become 10× easier once isolated; many disappear on re-creation.</p>
+        <p><strong>Logging hygiene at scale.</strong> Per-rank log files. JSON-lines format for parsing. Trace IDs across services. Sentry / Datadog / similar for alerting on real production failures. Cardinality matters — don't log per-example fields you'll have a billion of.</p>
+        <p><strong>Reproducible bug reports.</strong> Save the config, the data hash, the git sha, and the exact CUDA / driver / torch version. Most "this used to work" bugs are environment drift.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch, gc
+
+def memory_audit(label=""):
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        alloc = torch.cuda.memory_allocated() / 1e9
+        reserved = torch.cuda.memory_reserved() / 1e9
+        print(f"[{label}] alloc {alloc:.2f} GB  reserved {reserved:.2f} GB")
+
+# Find the biggest tensors alive — useful for leak hunting
+def biggest_tensors(top_k=10):
+    tensors = []
+    for obj in gc.get_objects():
+        try:
+            if torch.is_tensor(obj):
+                tensors.append((obj.numel() * obj.element_size(), tuple(obj.shape), obj.dtype))
+        except: pass
+    tensors.sort(reverse=True)
+    for size, shape, dtype in tensors[:top_k]:
+        print(f"  {size / 1e6:6.1f} MB  {shape}  {dtype}")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://karpathy.github.io/2019/04/25/recipe/" target="_blank">Karpathy — A Recipe for Training Neural Networks <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The canonical reference for debugging neural net training. Every section is worth re-reading.</span>
+        </li>
+        <li>
+            <a href="https://github.com/Delgan/loguru" target="_blank">loguru <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Modern Python logging that "just works". Zero-config, structured, rotating, colourful by default.</span>
+        </li>
+        <li>
+            <a href="https://pytorch.org/tutorials/recipes/recipes/profiler_recipe.html" target="_blank">PyTorch Profiler Recipe <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Official walkthrough on the PyTorch profiler — first stop when training is slow.</span>
+        </li>
+        <li>
+            <a href="https://github.com/lebrice/SimpleParsing/blob/master/docs/troubleshooting.md" target="_blank">SimpleParsing — Troubleshooting <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Many of the same patterns transfer to ML codebases — including configuration debugging.</span>
+        </li>
+    </ul>
+</div>

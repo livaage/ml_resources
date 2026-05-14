@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notebook → Script — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="">Theory</a>
+            <a href="../../engineering.html" class="active">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../engineering.html" class="eyebrow">← Engineering · Time-Savers</a>
+                    <h1>Notebook → Script</h1>
+                    <p class="lead">Notebooks are for exploration. Scripts are for production. The patterns for moving between them.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Notebooks let you explore; scripts let you ship.</strong> Once a notebook proves out an idea, refactor it into a script: parameterised, importable, testable, runnable from the command line. Keep the notebook as the "lab report"; let the script do the work.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>The mistake.</strong> A 2 000-cell notebook with print statements, ad-hoc plotting, hardcoded paths, and a model checkpoint somewhere in <code>/tmp</code>. Works once on your machine; impossible to share, reproduce, or schedule.</p>
+        <p><strong>The pattern.</strong> Pull every reusable function out of the notebook into a Python module. Move config into a YAML file. Wrap the "main flow" in a function with named arguments. Add a CLI. Keep the notebook for one-off analyses and to call the new module.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Notebooks shine for</h3>
+            <ul>
+                <li>Exploratory data analysis, ad-hoc plotting</li>
+                <li>Demos and walkthroughs</li>
+                <li>Result inspection from a trained run</li>
+                <li>Quick "is this idea worth pursuing?" checks</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Scripts win for</h3>
+            <ul>
+                <li>Anything that runs on a schedule</li>
+                <li>Reproducible training runs (CI, retraining)</li>
+                <li>Anything tested with pytest</li>
+                <li>Code that needs to be imported into other code</li>
+                <li>CLI-driven workflows</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># From notebook clutter to a clean script
+
+# Before: notebook
+# Cell 1
+# import all the things
+# DATA_PATH = "/Users/liv/data/v3.csv"   # hardcoded
+# Cell 2
+# df = pd.read_csv(DATA_PATH); df = df[df.x &gt; 0]   # silent filtering
+# Cell 3
+# X = df[["a", "b"]]; y = df["t"]
+# model = RandomForest().fit(X, y)
+# Cell 4
+# accuracy = model.score(X_test, y_test)   # train ≠ test? not clear
+
+# After: src/my_project/train.py
+import typer
+from pathlib import Path
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+
+app = typer.Typer()
+
+@app.command()
+def train(
+    data: Path = typer.Option(...),
+    out:  Path = typer.Option(...),
+    seed: int  = 0,
+):
+    df = pd.read_csv(data)
+    df = df[df.x &gt; 0]
+    X, y = df[["a", "b"]], df["t"]
+    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=seed)
+    model = RandomForestClassifier(random_state=seed).fit(X_tr, y_tr)
+    print(f"test acc = {model.score(X_te, y_te):.4f}")
+    out.mkdir(parents=True, exist_ok=True)
+    joblib.dump(model, out / "model.pkl")
+
+if __name__ == "__main__": app()
+
+# Now: python -m my_project.train --data data/v3.csv --out runs/exp01
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want module structure, &amp; CI integration?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">The "promote" gradient</span>
+        <span class="formula">$$ \text{notebook} \to \text{function in notebook} \to \text{function in module} \to \text{CLI entry-point} $$</span>
+        <ul class="formula-legend">
+            <li>Each step is a small refactor</li>
+            <li>Do them when the code is reused, not when it's first written</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Refactor in place.</strong> When a notebook cell becomes a thing you'd want to call twice, wrap it in a function (still in the notebook). When you'd want to call it from another notebook, move it to a module. When it needs to run unattended, give it a CLI.</p>
+        <p><strong>jupytext.</strong> Pair every <code>.ipynb</code> with a <code>.py</code> percent-format file. The .py is what you commit and diff; the .ipynb is what you open in Jupyter. Solves the "notebooks don't diff well" pain.</p>
+        <p><strong>nbdev.</strong> fastai's tool that treats notebooks as the source of truth for Python modules. Useful for very-notebook-centric teams; loses most "scripts and tests" benefits.</p>
+        <p><strong>Configuration externalised.</strong> The script reads a YAML / Hydra config. Hyperparameters, paths, seeds — all in the config. The script just does what the config says.</p>
+        <p><strong>Logging instead of print.</strong> <code>loguru</code> or <code>logging</code> with levels. Easy to silence in tests; routable to files in production. <code>print</code> belongs in notebooks, not scripts.</p>
+        <p><strong>Don't import the notebook.</strong> Importing <code>.ipynb</code> files runs every cell. Move the functions to a module; import the module from the notebook.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># Pair a notebook with a .py file for diffable version control
+# pip install jupytext
+
+# 1) Pair it once:
+# jupytext --set-formats ipynb,py:percent notebook.ipynb
+
+# 2) Now both files stay in sync. Commit only the .py:
+# git add notebook.py
+# (Add notebook.ipynb to .gitignore)
+
+# The .py file looks like:
+# # %% [markdown]
+# # # My Analysis
+# # %%
+# import pandas as pd
+# df = pd.read_csv("data.csv")
+# # %%
+# df.describe()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want testable functions, side-effect isolation, &amp; pure-function refactors?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Pure functions</span>
+        <span class="formula">$$ f(x) = y \quad \text{with no global state, no I/O, no side effects} $$</span>
+        <ul class="formula-legend">
+            <li>Easy to test — just pass inputs, assert outputs</li>
+            <li>Easy to reuse — the function doesn't depend on context</li>
+            <li>Easy to parallelise — no shared state to coordinate</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Pull I/O to the edges.</strong> The middle of the pipeline should be pure: take a DataFrame, return a DataFrame. The edges (load, save, log) handle I/O. Easy to test the middle; the edges are mostly trivial.</p>
+        <p><strong>Side-effect isolation.</strong> Each function does one thing — either a transformation or an I/O. Functions that mix both ("load and clean the data") are harder to test.</p>
+        <p><strong>Determinism in helper functions.</strong> Anything that uses random numbers takes a seed or a generator. Then the same call always gives the same result.</p>
+        <p><strong>Type hints.</strong> Catch bugs early — and serve as documentation. <code>pandas-stubs</code>, <code>numpy.typing</code>, <code>torchtyping</code> for tensor shapes. <code>mypy --strict</code> in CI catches a class of bugs that escape notebooks.</p>
+        <p><strong>Notebook smoke tests.</strong> Run the notebook headlessly in CI (<code>jupyter nbconvert --execute</code>) to catch broken outputs. Treat notebooks like scripts: they should run end-to-end.</p>
+        <p><strong>Library + scripts pattern.</strong> Put reusable code in a library (<code>src/my_project/</code>). Scripts in <code>scripts/</code> just orchestrate the library. Notebooks in <code>notebooks/</code> use the library too. Same code, three entry points.</p>
+        <p><strong>When NOT to refactor.</strong> One-off analyses, one-time data prep, ad-hoc plots. Refactoring "for the future" that never comes is the most expensive waste in research engineering.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># Pure transformation function — easy to test and reuse
+from typing import Sequence
+import numpy as np
+import pandas as pd
+
+def normalise_features(
+    df: pd.DataFrame,
+    columns: Sequence[str],
+    stats: dict[str, tuple[float, float]] | None = None,
+) -&gt; tuple[pd.DataFrame, dict[str, tuple[float, float]]]:
+    """Standardise columns. If stats given, use them; else fit them.
+    Returns (normalised df, fitted stats)."""
+    out = df.copy()
+    new_stats = stats or {}
+    for c in columns:
+        if c not in new_stats:
+            new_stats[c] = (out[c].mean(), out[c].std() + 1e-9)
+        m, s = new_stats[c]
+        out[c] = (out[c] - m) / s
+    return out, new_stats
+
+# Now testable
+def test_normalise():
+    df = pd.DataFrame({"x": [0., 1., 2., 3.]})
+    n, stats = normalise_features(df, ["x"])
+    assert abs(n.x.mean()) &lt; 1e-9
+    assert abs(n.x.std(ddof=1) - 1.0) &lt; 0.1
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="ab-testing.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">A/B Testing</span>
+                        </span>
+                    </a>
+                    <a href="training-scaffolding.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Training Scaffolding</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://jupytext.readthedocs.io/" target="_blank">Jupytext <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Round-trip notebooks ↔ .py files. Solves "notebooks don't diff" without making you give up Jupyter.</span>
+        </li>
+        <li>
+            <a href="https://typer.tiangolo.com/" target="_blank">Typer <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Modern CLI library for Python — type hints become arguments. The least-friction way to give your scripts proper command-line interfaces.</span>
+        </li>
+        <li>
+            <a href="https://github.com/khuyentran1401/data-science-template" target="_blank">cookiecutter-data-science <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Project scaffolding for data-science / ML repos with reasonable defaults for the notebook + script split.</span>
+        </li>
+        <li>
+            <a href="https://drivendata.github.io/cookiecutter-data-science/" target="_blank">Drivendata — Cookiecutter Data Science <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The most-used data-science project template. Opinionated layout; battle-tested.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

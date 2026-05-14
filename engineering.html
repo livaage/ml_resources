@@ -153,19 +153,19 @@
                                 <div class="topic-content">
                                     <ul class="subtopic-list">
                                         <li>
-                                            <a href="topics/practice/repo-layout.html">Repository Layout</a>
+                                            <a href="topics/engineering/repo-layout.html">Repository Layout</a>
                                             <div class="topic-description">Where to put your data, models, configs, and code so future-you doesn't curse past-you.</div>
                                         </li>
                                         <li>
-                                            <a href="topics/practice/configuration.html">Configuration Management</a>
+                                            <a href="topics/engineering/configuration.html">Configuration Management</a>
                                             <div class="topic-description">Hydra, YAML, dotenv — keeping hyperparameters and paths out of your code.</div>
                                         </li>
                                         <li>
-                                            <a href="topics/practice/reproducibility.html">Reproducibility</a>
+                                            <a href="topics/engineering/reproducibility.html">Reproducibility</a>
                                             <div class="topic-description">Seeds, deterministic ops, locking dependencies — making "it worked on my machine" actually portable.</div>
                                         </li>
                                         <li>
-                                            <a href="topics/practice/env-deps.html">Environments &amp; Dependencies</a>
+                                            <a href="topics/engineering/env-deps.html">Environments &amp; Dependencies</a>
                                             <div class="topic-description">uv, conda, Docker — choosing the right level of isolation for your workflow.</div>
                                         </li>
                                     </ul>
@@ -176,37 +176,157 @@
                 </div>
 
                 <div class="section-item">
-                    <h2 class="section-header">Development Loop <span class="group-status">Coming Soon</span></h2>
+                    <h2 class="section-header">Development Loop</h2>
                     <div class="section-content">
-                        <p style="color: var(--muted)">Experiment tracking, hyperparameter search, testing ML code, logging &amp; debugging. Coming next.</p>
+                        <div class="main-topics">
+                            <div class="main-topic">
+                                <h3>Iterating Fast</h3>
+                                <div class="topic-content">
+                                    <ul class="subtopic-list">
+                                        <li>
+                                            <a href="topics/engineering/experiment-tracking.html">Experiment Tracking</a>
+                                            <div class="topic-description">W&amp;B, MLflow — log every run so you can find "the good one" three weeks later.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/hyperparameter-search.html">Hyperparameter Search</a>
+                                            <div class="topic-description">Grid, random, Bayesian, Hyperband — pick by trial cost.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/testing-ml-code.html">Testing ML Code</a>
+                                            <div class="topic-description">Shape, range, gradient flow + the 1-batch overfit. The pyramid that catches 95% of bugs.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/logging-debugging.html">Logging &amp; Debugging</a>
+                                            <div class="topic-description">Structured logs, NaN forensics, the 5-minute checklist for any training failure.</div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="section-item">
-                    <h2 class="section-header">CI / CD <span class="group-status">Coming Soon</span></h2>
+                    <h2 class="section-header">CI / CD</h2>
                     <div class="section-content">
-                        <p style="color: var(--muted)">CI for ML (GitHub Actions), data validation, automated retraining, model registries.</p>
+                        <div class="main-topics">
+                            <div class="main-topic">
+                                <h3>Automation</h3>
+                                <div class="topic-content">
+                                    <ul class="subtopic-list">
+                                        <li>
+                                            <a href="topics/engineering/ci-for-ml.html">CI for ML</a>
+                                            <div class="topic-description">GitHub Actions workflows for an ML repo — fast on PR, slow on schedule.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/data-validation.html">Data Validation</a>
+                                            <div class="topic-description">Schemas, ranges, drift — catching bad data before it poisons your model.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/automated-retraining.html">Automated Retraining</a>
+                                            <div class="topic-description">When to retrain (calendar / drift / new data), promotion gates, rollback.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/model-registries.html">Model Registries</a>
+                                            <div class="topic-description">One source of truth for every model version — MLflow, W&amp;B Artifacts.</div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="section-item">
-                    <h2 class="section-header">Debugging &amp; Profiling <span class="group-status">Coming Soon</span></h2>
+                    <h2 class="section-header">Debugging &amp; Profiling</h2>
                     <div class="section-content">
-                        <p style="color: var(--muted)">Diagnosing training failures, loss-curve forensics, profiling compute &amp; memory, distributed training pitfalls.</p>
+                        <div class="main-topics">
+                            <div class="main-topic">
+                                <h3>Diagnostics</h3>
+                                <div class="topic-content">
+                                    <ul class="subtopic-list">
+                                        <li>
+                                            <a href="topics/engineering/training-debugging.html">Training Debugging</a>
+                                            <div class="topic-description">NaNs, divergence, gradient pathologies — the small checklist that catches almost everything.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/loss-curve-forensics.html">Loss Curve Forensics</a>
+                                            <div class="topic-description">Six canonical patterns and what each one diagnoses.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/profiling.html">Profiling</a>
+                                            <div class="topic-description">PyTorch profiler, memory, data-loader bottlenecks — find before you optimise.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/distributed-pitfalls.html">Distributed Training Pitfalls</a>
+                                            <div class="topic-description">DDP, FSDP, ZeRO, tensor / pipeline parallel — and the silent failure modes.</div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="section-item">
-                    <h2 class="section-header">Production <span class="group-status">Coming Soon</span></h2>
+                    <h2 class="section-header">Production</h2>
                     <div class="section-content">
-                        <p style="color: var(--muted)">Serving (FastAPI / BentoML / Triton), monitoring drift, quantization &amp; distillation, A/B testing.</p>
+                        <div class="main-topics">
+                            <div class="main-topic">
+                                <h3>Deployment</h3>
+                                <div class="topic-content">
+                                    <ul class="subtopic-list">
+                                        <li>
+                                            <a href="topics/engineering/serving.html">Serving</a>
+                                            <div class="topic-description">FastAPI, BentoML, Triton, vLLM — the four standard serving stacks.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/monitoring.html">Monitoring</a>
+                                            <div class="topic-description">System, data, prediction, performance — what to watch and when to alert.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/quantization-distillation.html">Quantization &amp; Distillation</a>
+                                            <div class="topic-description">int8 / int4, knowledge distillation, pruning — make models smaller and faster.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/ab-testing.html">A/B Testing</a>
+                                            <div class="topic-description">Sample size, sequential testing, CUPED — comparing models in production.</div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="section-item">
-                    <h2 class="section-header">Time-Savers <span class="group-status">Coming Soon</span></h2>
+                    <h2 class="section-header">Time-Savers</h2>
                     <div class="section-content">
-                        <p style="color: var(--muted)">Notebook → script patterns, reusable training-loop scaffolding, CLI patterns, useful libraries.</p>
+                        <div class="main-topics">
+                            <div class="main-topic">
+                                <h3>Patterns &amp; Tools</h3>
+                                <div class="topic-content">
+                                    <ul class="subtopic-list">
+                                        <li>
+                                            <a href="topics/engineering/notebook-to-script.html">Notebook → Script</a>
+                                            <div class="topic-description">Moving from exploration to reproducible code. Jupytext, modules, CLI.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/training-scaffolding.html">Training Scaffolding</a>
+                                            <div class="topic-description">Lightning, Accelerate, callbacks — stop rewriting the training loop.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/cli-patterns.html">CLI Patterns</a>
+                                            <div class="topic-description">Typer, click, Hydra — clean command lines + config files.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/engineering/useful-libraries.html">Useful Libraries</a>
+                                            <div class="topic-description">A curated list of the small libraries that punch above their weight.</div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

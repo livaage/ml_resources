@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="">Theory</a>
+            <a href="../../engineering.html" class="active">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../engineering.html" class="eyebrow">← Engineering · Production</a>
+                    <h1>Monitoring</h1>
+                    <p class="lead">Watch your deployed model — for drift, for degradation, for outright failure.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>The model that worked yesterday may not work today.</strong> Inputs drift. Behaviour changes. Edge cases pile up. Monitor four things: <em>system</em> health (uptime, latency), <em>data</em> drift (input distributions), <em>prediction</em> drift (output distributions), and <em>performance</em> (where ground truth is available). Each fails differently; each needs its own alerting.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>The four monitoring planes.</strong> System (latency, throughput, errors, GPU util). Data (per-feature drift vs training). Prediction (output distribution drift). Performance (accuracy, calibration where you have feedback). System monitoring is "is the server up". The other three are "is the model still doing its job".</p>
+        <p><strong>The hard part.</strong> You usually don't have ground truth at deployment time. You see the prediction; you don't see the answer for hours, days, or never. Inference becomes a guessing game. Workarounds: proxy metrics, A/B against a baseline, periodic labelled audits.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>What to alert on</h3>
+            <ul>
+                <li><strong>Server</strong>: 5xx rate, p99 latency, queue depth</li>
+                <li><strong>Data</strong>: PSI &gt; 0.25, missing rate up, schema violations</li>
+                <li><strong>Predictions</strong>: positive-rate shift, score distribution shift</li>
+                <li><strong>Performance</strong>: aggregate metric drop where labels available</li>
+                <li><strong>Subgroups</strong>: per-segment regression beyond threshold</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Common mistakes</h3>
+            <ul>
+                <li>Only system-level monitoring — the API is "up" but predicting garbage</li>
+                <li>Alerting on noise — too many false positives, alerts get ignored</li>
+                <li>No baseline — drift comparisons need a reference distribution</li>
+                <li>Aggregate-only metrics — subgroup regressions stay hidden</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from prometheus_client import Counter, Histogram, start_http_server
+
+# Standard server-side metrics
+REQUESTS = Counter("preds_total", "Total predictions", ["model_version", "status"])
+LATENCY  = Histogram("pred_latency_seconds", "Inference latency",
+                    buckets=[.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5])
+
+@app.post("/predict")
+def predict(req: Request):
+    t0 = time.time()
+    try:
+        score = MODEL(req.x)
+        REQUESTS.labels(model_version=MODEL.version, status="ok").inc()
+        return {"score": score}
+    except Exception as e:
+        REQUESTS.labels(model_version=MODEL.version, status="error").inc()
+        raise
+    finally:
+        LATENCY.observe(time.time() - t0)
+
+start_http_server(9000)        # /metrics endpoint for Prometheus
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want drift detectors, delayed feedback, &amp; alert tuning?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Two ways "broken" looks</span>
+        <span class="formula">$$ \underbrace{P(X) \;\text{changes}}_{\text{data drift}} \quad \text{or} \quad \underbrace{P(Y \mid X) \;\text{changes}}_{\text{concept drift}} $$</span>
+        <ul class="formula-legend">
+            <li>Data drift: inputs look different but the relationship is the same</li>
+            <li>Concept drift: same inputs, different optimal answer</li>
+            <li>Detecting them requires different signals</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Data drift detectors.</strong> Compare incoming features against the training distribution. KS for numerical, chi-squared for categorical, PSI for binned numerical. Run on a rolling window; alert when above threshold. See <a href="data-validation.html">Data Validation</a>.</p>
+        <p><strong>Prediction drift.</strong> The model's output distribution itself can drift even without obvious input drift — the model is making different decisions. Often the first signal of concept drift. Compare current prediction histograms against a baseline.</p>
+        <p><strong>Delayed feedback.</strong> Many real systems have labels weeks later (loan defaults, click-through, fraud). Build a delayed-evaluation pipeline that joins predictions with labels when they arrive; recompute metrics on the lookback window. A dashboard that's behind by 30 days is still useful.</p>
+        <p><strong>Proxy metrics.</strong> When no ground truth is available — engagement metrics, click-through, user feedback, downstream conversion. Calibrate proxies against periodic labelled audits.</p>
+        <p><strong>Tools.</strong> Evidently, NannyML, Whylogs, Arize, Fiddler. Open-source for the first three; commercial dashboards for the last two. Most do data + prediction drift; Arize and Fiddler add subgroup analysis and explainability.</p>
+        <p><strong>Alert hygiene.</strong> Tune thresholds so alerts fire rarely but reliably. Group related signals. Have a runbook ("if drift on feature X, do Y"). Test alerts periodically. False alarms train the team to ignore alerts.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import pandas as pd
+from evidently.report import Report
+from evidently.metrics import (
+    DataDriftPreset, TargetDriftPreset, RegressionPreset,
+)
+
+# Daily drift report
+report = Report(metrics=[DataDriftPreset(), TargetDriftPreset()])
+report.run(reference_data=df_train, current_data=df_today)
+report.save_html(f"drift_{today}.html")
+
+# Programmatic — fetch the drift result, alert if needed
+result = report.as_dict()
+drift_share = result["metrics"][0]["result"]["dataset_drift"]
+if drift_share:
+    alert_slack("Data drift detected in production model")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want shadow models, automated retraining triggers, &amp; observability platforms?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Performance estimation without labels</span>
+        <span class="formula">$$ \text{CBPE: } \hat\mu = \frac{1}{n}\sum_i \mathbb{E}_{p(y|\hat y_i, x_i)}\!\big[\,\ell(y, \hat y_i)\big] $$</span>
+        <ul class="formula-legend">
+            <li>NannyML's "Confidence-Based Performance Estimation"</li>
+            <li>Uses the model's own calibrated probabilities to predict its error</li>
+            <li>Surprisingly accurate when calibration holds</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Shadow models.</strong> Run a candidate model alongside production; log both predictions. Compare their distributions and performance (when labels arrive). Identifies regressions before promotion. Standard for high-stakes domains.</p>
+        <p><strong>Automatic retraining triggers.</strong> When drift alarms fire, kick off a retraining job. Conservative: alarm only, human decides. Aggressive: auto-retrain + auto-promote (with promotion gates). See <a href="automated-retraining.html">Automated Retraining</a>.</p>
+        <p><strong>Per-feature drift attribution.</strong> When overall drift fires, which features are responsible? Greedy: sort features by individual KS statistic. Better: SHAP-on-drift — the contribution of each feature to the model's output shift.</p>
+        <p><strong>Calibration drift.</strong> A model can have stable accuracy but drift in its predicted probabilities — confidence rises or falls relative to truth. Track per-bin observed accuracy vs predicted probability over time.</p>
+        <p><strong>Subgroup monitoring.</strong> Aggregate metrics hide subgroup harm. Slice by demographic, geography, customer segment. Alert separately. See <a href="../fairness.html">Fairness</a>.</p>
+        <p><strong>Logging infrastructure.</strong> Production ML monitoring is essentially "structured logging at scale + dashboards". Kafka for stream ingestion, ClickHouse / DuckDB / Snowflake for analytics, Grafana for dashboards, Alertmanager / PagerDuty for paging.</p>
+        <p><strong>Cost monitoring.</strong> Inference is expensive — track $/request, GPU utilisation, request mix. Many shops over-provision GPUs because the costs are invisible at the model-developer level.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import nannyml as nml
+
+# Performance estimation without labels (CBPE) — needs calibrated probabilities
+estimator = nml.CBPE(
+    y_pred_proba="y_proba",
+    y_pred="y_pred",
+    y_true="y_true",
+    timestamp_column_name="ts",
+    metrics=["accuracy", "roc_auc"],
+    chunk_period="W",
+)
+estimator.fit(reference_data=df_reference)
+results = estimator.estimate(df_production)
+results.plot().show()
+
+# Univariate drift by feature
+drift = nml.UnivariateDriftCalculator(
+    column_names=feature_cols,
+    chunk_period="D",
+).fit(reference_data=df_reference).calculate(df_production)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="serving.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Serving</span>
+                        </span>
+                    </a>
+                    <a href="quantization-distillation.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Quantization &amp; Distillation</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://www.evidentlyai.com/" target="_blank">Evidently AI <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Open-source drift detection and model monitoring. Generates HTML reports; easy to drop into a CI / scheduled job.</span>
+        </li>
+        <li>
+            <a href="https://nannyml.readthedocs.io/" target="_blank">NannyML <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Specialises in performance estimation without ground truth. The CBPE method is unique and surprisingly effective.</span>
+        </li>
+        <li>
+            <a href="https://whylabs.ai/whylogs" target="_blank">Whylogs <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Logging-style data profiling library. Lightweight; designed to capture statistical fingerprints of every batch your model sees.</span>
+        </li>
+        <li>
+            <a href="https://huyenchip.com/2022/04/27/data-distribution-shifts.html" target="_blank">Chip Huyen — Data Distribution Shifts <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Excellent overview of the kinds of shift production systems face and how to detect them.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

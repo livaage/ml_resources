@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing ML Code — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="">Theory</a>
+            <a href="../../engineering.html" class="active">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../engineering.html" class="eyebrow">← Engineering · Development Loop</a>
+                    <h1>Testing ML Code</h1>
+                    <p class="lead">Unit tests on tensors, integration tests on pipelines, data tests on inputs — applying normal-software discipline to ML.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>ML code is still code.</strong> The hard part of ML code is what happens with the data and the model; the rest is plain Python that benefits from the same testing you'd write for anything else. Plus three ML-specific tests: shape, range, gradient flow.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>The disasters: silent shape bugs (broadcasting where you didn't expect), gradient-stopping mistakes (a <code>.detach()</code> in the wrong place), data corruption (NaN propagation), reproducibility loss (a seed didn't take). All of these are catchable with cheap tests.</p>
+        <p><strong>Five tests every ML repo should have.</strong> (1) Forward pass produces the right output shape. (2) Backward pass produces non-zero gradients on every learnable parameter. (3) A single training step decreases the loss on a tiny batch. (4) Loaded checkpoints reproduce exactly. (5) The same seed produces the same output.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>What to test</h3>
+            <ul>
+                <li><strong>Shapes</strong>: inputs, outputs, intermediate activations</li>
+                <li><strong>Numeric range</strong>: no NaNs / Infs after forward / backward</li>
+                <li><strong>Gradients</strong>: non-zero on every trainable parameter</li>
+                <li><strong>Loss decrease</strong>: 100 steps on 1 batch should overfit it</li>
+                <li><strong>Determinism</strong>: same seed → same loss to 1e-6</li>
+                <li><strong>Data pipeline</strong>: schemas, ranges, missing rates</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>What to NOT test</h3>
+            <ul>
+                <li>Final accuracy on the real dataset (too slow + brittle)</li>
+                <li>Exact-equality of arbitrary intermediate tensors (floating-point)</li>
+                <li>Library internals (PyTorch already tests itself)</li>
+                <li>Anything that needs a GPU (run those separately, less often)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import pytest
+import torch
+from my_model import MyNet
+
+@pytest.fixture
+def model(): return MyNet(in_dim=128, out_dim=10)
+
+def test_forward_shape(model):
+    x = torch.randn(4, 128)
+    assert model(x).shape == (4, 10)
+
+def test_grad_flow(model):
+    x = torch.randn(4, 128); y = torch.randint(10, (4,))
+    loss = torch.nn.functional.cross_entropy(model(x), y)
+    loss.backward()
+    for name, p in model.named_parameters():
+        assert p.grad is not None, f"no grad: {name}"
+        assert (p.grad != 0).any(), f"all-zero grad: {name}"
+
+def test_overfit_tiny_batch(model):
+    x = torch.randn(2, 128); y = torch.tensor([3, 7])
+    opt = torch.optim.Adam(model.parameters(), lr=1e-2)
+    for _ in range(200):
+        opt.zero_grad()
+        loss = torch.nn.functional.cross_entropy(model(x), y)
+        loss.backward(); opt.step()
+    assert loss.item() &lt; 0.1, f"can't overfit 2 samples: {loss.item()}"
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want data tests, property-based tests, &amp; CI integration?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">The test pyramid for ML</span>
+        <span class="formula">$$ \underbrace{\text{unit (fast, many)}}_{\text{shapes, ranges, grads}} \;\;\;>\;\;\; \underbrace{\text{integration (medium)}}_{\text{1-batch overfit, save/load}} \;\;\;>\;\;\; \underbrace{\text{end-to-end (slow, few)}}_{\text{tiny full pipeline}} $$</span>
+        <ul class="formula-legend">
+            <li>Many cheap tests at the bottom — they catch most bugs</li>
+            <li>A few expensive tests at the top — only what really requires it</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Data validation.</strong> Schema (column names, types). Ranges (age &gt; 0). Missingness (fewer than X% nulls per column). Cardinality (distinct categories within expected set). Tools: Great Expectations, Pandera, deequ.</p>
+        <p><strong>Property-based testing.</strong> Hypothesis library — generate random tensors and assert properties (output shape always matches input batch size; gradient norm bounded). Catches edge cases hand-written tests miss.</p>
+        <p><strong>Snapshot tests.</strong> Save the output of a deterministic pipeline once, assert it matches on subsequent runs. Catches accidental behaviour changes; brittle against intentional ones — has to be regenerated when you change the model.</p>
+        <p><strong>Integration test recipe.</strong> A tiny synthetic dataset (10 examples), a 1-batch training run, a save-and-reload, an inference call. Total runtime: under a second. Catches 90% of "did I break the pipeline" bugs.</p>
+        <p><strong>CI for ML.</strong> Run the unit + fast integration tests on every PR. Run slower (1-minute) end-to-end tests on merge. Keep GPU tests on a separate workflow that runs on demand or nightly. See <a href="ci-for-ml.html">CI for ML</a>.</p>
+        <p><strong>Test the failure modes.</strong> What happens with an empty batch? With NaN inputs? With a class that wasn't seen at training? Each of these usually warrants a test that asserts an explicit error rather than silent garbage.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import pandera as pa
+from pandera import Column, Check
+from hypothesis import given, strategies as st
+import torch
+
+# Pandera schema for input data
+schema = pa.DataFrameSchema({
+    "age":    Column(int,   Check.in_range(0, 120)),
+    "income": Column(float, Check.greater_than_or_equal_to(0)),
+    "city":   Column(str,   Check.isin(["London", "Paris", "Berlin"])),
+})
+
+def load_data(path):
+    df = pd.read_csv(path)
+    return schema.validate(df)               # raises if input doesn't conform
+
+# Property-based: model behaviour across random shapes
+@given(
+    batch=st.integers(min_value=1, max_value=64),
+    dim=st.integers(min_value=4, max_value=256),
+)
+def test_forward_arbitrary_shape(batch, dim):
+    model = MyNet(in_dim=dim, out_dim=10)
+    x = torch.randn(batch, dim)
+    out = model(x)
+    assert out.shape == (batch, 10)
+    assert not out.isnan().any()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want fuzzing, mutation testing, golden datasets, &amp; flake hunting?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Determinism budget</span>
+        <span class="formula">$$ \|\text{out}(s_1) - \text{out}(s_2)\|_\infty &lt; \epsilon $$</span>
+        <ul class="formula-legend">
+            <li>Two seeded runs should agree to <em>ε</em></li>
+            <li>cuDNN nondeterminism, atomic adds, multi-GPU sync — all break this</li>
+            <li>The right ε is small but not zero on GPU</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Golden datasets.</strong> Tiny, hand-curated, labelled by you, kept in the repo. Run the trained model on these every CI; assert accuracy &gt; threshold and that specific edge-case predictions still pass. Catches regression from accidental changes.</p>
+        <p><strong>Mutation testing.</strong> Tools like mutmut systematically introduce small bugs into your code (flipping conditions, changing constants) and check if your tests catch them. If a mutation survives, the test suite has a gap.</p>
+        <p><strong>Flaky test hunting.</strong> ML tests that fail intermittently — almost always due to seeded but non-deterministic ops, or to data loaders with random sampling without seeds. Use <code>pytest-rerunfailures</code> to surface them; fix the root cause, don't just retry.</p>
+        <p><strong>Test data versioning.</strong> Your tests are only as stable as their data. DVC / LakeFS for test datasets, or commit a small parquet directly. Either way: identify each test by its data version.</p>
+        <p><strong>Determinism on GPU.</strong> cuDNN benchmark mode picks fastest kernels, which can differ between runs. <code>torch.use_deterministic_algorithms(True)</code> + <code>CUBLAS_WORKSPACE_CONFIG=:4096:8</code> get you most of the way; some ops still aren't deterministic. Tests that assert bit-exact GPU equality are usually a mistake.</p>
+        <p><strong>Differential testing.</strong> Compare two implementations of the same thing — your model vs a reference implementation, your CUDA kernel vs the CPU version, the new optimiser vs the old one. Run both on the same input, assert output close.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import os, random
+import numpy as np
+import torch
+
+def fully_deterministic(seed=42):
+    """Best-effort determinism on PyTorch + CUDA."""
+    os.environ["PYTHONHASHSEED"]      = str(seed)
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+    random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.use_deterministic_algorithms(True)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+# Differential test — model.eval() should equal a reference
+def test_against_reference(model, ref_model, x):
+    model.eval(); ref_model.eval()
+    with torch.no_grad():
+        a = model(x); b = ref_model(x)
+    assert (a - b).abs().max() &lt; 1e-4, (a - b).abs().max()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="hyperparameter-search.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Hyperparameter Search</span>
+                        </span>
+                    </a>
+                    <a href="logging-debugging.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Logging &amp; Debugging</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://eugeneyan.com/writing/testing-ml/" target="_blank">Eugene Yan — Testing ML Systems <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Practical taxonomy of ML tests (data, model, pipeline) with examples. Best one-stop overview.</span>
+        </li>
+        <li>
+            <a href="https://docs.pytest.org/" target="_blank">pytest Documentation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The Python testing framework. Fixtures, parametrize, plugins — read at least the basics if you're doing serious ML engineering.</span>
+        </li>
+        <li>
+            <a href="https://pandera.readthedocs.io/" target="_blank">Pandera <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Statistical schema validation for pandas / Polars DataFrames. Cleanest API for "this column should be int in [0, 120]" checks.</span>
+        </li>
+        <li>
+            <a href="https://hypothesis.readthedocs.io/" target="_blank">Hypothesis — Property-Based Testing <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Generate random inputs to your tests. Catches edge cases you'd never write by hand.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

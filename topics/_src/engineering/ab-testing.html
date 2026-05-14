@@ -1,0 +1,213 @@
+<!-- TOPIC META -->
+title: A/B Testing — ML Resources Hub
+eyebrow_text: ← Engineering · Production
+eyebrow_href: {{root}}engineering.html
+heading: A/B Testing
+lead: Comparing models in production — sample size, statistical significance, bandits, and the human factors.
+active_nav: engineering
+prev_href: quantization-distillation.html
+prev_title: Quantization &amp; Distillation
+next_href: notebook-to-script.html
+next_title: Notebook → Script
+
+
+<!-- TOPIC CONTENT -->
+<section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>You can't tell from offline metrics alone whether a model is "better".</strong> Offline AUC up doesn't always mean online conversion up. A/B test in production with a clearly-defined metric, enough sample size for the effect you care about, and pre-registered analysis. Then decide.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>The basic A/B.</strong> Random 50/50 split of users (or sessions). Group A (control) gets the current model; Group B gets the candidate. Compare a primary metric over a fixed evaluation window. Hypothesis test: is the difference larger than chance?</p>
+        <p><strong>Sample size.</strong> Smaller effect → larger sample needed. The standard formula: <em>n ≈ 16 / d²</em> where <em>d</em> is the effect size in standard-deviation units. A 1% relative improvement on a 10%-baseline metric needs ~20 000 users per arm.</p>
+        <p><strong>Common gotchas.</strong> Peeking at results and stopping early (inflates false-positive rate). Network effects (the treatment of one user affects another). Novelty effects (users react to anything new, then revert). Seasonality (test on a representative time window).</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>When A/B works well</h3>
+            <ul>
+                <li>Clearly-defined primary metric (CTR, conversion, latency)</li>
+                <li>Independent users / sessions (no network effects)</li>
+                <li>Effect size estimate from offline data</li>
+                <li>Enough traffic to reach significance in days, not months</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>When it doesn't</h3>
+            <ul>
+                <li>Low traffic — power is too low to detect anything</li>
+                <li>Network effects (social, marketplace)</li>
+                <li>Slow feedback (months between exposure and outcome)</li>
+                <li>Multiple competing metrics with trade-offs — needs a different framework</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import numpy as np
+from scipy import stats
+
+# Sample size for a 2-proportion test
+def required_n(p1, p2, alpha=0.05, power=0.80):
+    z_alpha = stats.norm.ppf(1 - alpha / 2)
+    z_beta  = stats.norm.ppf(power)
+    p_bar = (p1 + p2) / 2
+    se = (2 * p_bar * (1 - p_bar)) ** 0.5
+    n = ((z_alpha * se + z_beta * (p1 * (1 - p1) + p2 * (1 - p2)) ** 0.5)
+         / abs(p1 - p2)) ** 2
+    return int(n)
+
+print(required_n(0.10, 0.105))    # ~62 000 per arm to detect 5% relative lift
+
+# Two-proportion z-test for results
+def ab_test(success_a, n_a, success_b, n_b):
+    p_a, p_b = success_a / n_a, success_b / n_b
+    p_pool = (success_a + success_b) / (n_a + n_b)
+    se = (p_pool * (1 - p_pool) * (1 / n_a + 1 / n_b)) ** 0.5
+    z = (p_b - p_a) / se
+    p_value = 2 * (1 - stats.norm.cdf(abs(z)))
+    return {"p_a": p_a, "p_b": p_b, "lift": p_b - p_a, "p_value": p_value}
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want sequential testing, multi-armed bandits, &amp; Bayesian A/B?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Statistical power</span>
+        <span class="formula">$$ n \approx \frac{2\sigma^2 (z_{1-\alpha/2} + z_{1-\beta})^2}{\delta^2} $$</span>
+        <ul class="formula-legend">
+            <li><em>δ</em> the minimum detectable effect</li>
+            <li><em>α, β</em> false-positive and false-negative rates (typically 0.05, 0.20)</li>
+            <li><em>σ</em> standard deviation of the metric</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Sequential testing.</strong> Fixed-horizon A/B requires committing to a sample size up front. Sequential / always-valid p-values let you peek without inflating false positives. Methods: SPRT, mSPRT, group-sequential designs, e-values. Tools: Optimizely, Statsig, Eppo all implement some variant.</p>
+        <p><strong>CUPED (variance reduction).</strong> Microsoft's technique: regress the metric on a pre-experiment covariate (the same user's metric before the test). The residuals have much lower variance, so you need fewer users for the same power. 20–50% sample size reduction is typical.</p>
+        <p><strong>Multi-armed bandits.</strong> Instead of fixed splits, allocate more traffic to better-performing arms over time. Thompson sampling is the popular choice. Trade-off: faster learning vs cleaner causal inference. Use bandits for exploitation; A/B for explanation.</p>
+        <p><strong>Bayesian A/B.</strong> Compute the posterior probability that B beats A by at least <em>δ</em>. More intuitive for stakeholders ("80% chance B is better"). Same data; different interpretation. Doesn't fix multiple-comparisons or peeking by itself.</p>
+        <p><strong>Multiple comparisons.</strong> Testing many metrics increases the chance of a false positive somewhere. Pre-register a primary metric; report others as "exploratory". Bonferroni or Benjamini-Hochberg for principled correction.</p>
+        <p><strong>Subgroup analysis.</strong> The treatment can help one segment and hurt another. Slice by demographics, geography, device. Watch for Simpson's paradox: aggregate looks fine, every subgroup is worse.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import numpy as np
+
+# CUPED — variance reduction using pre-period covariate
+def cuped_ate(y_a, x_a, y_b, x_b):
+    """Average Treatment Effect with CUPED-adjusted outcomes."""
+    y_all = np.concatenate([y_a, y_b])
+    x_all = np.concatenate([x_a, x_b])
+    # Optimal theta
+    theta = np.cov(y_all, x_all)[0, 1] / np.var(x_all)
+    y_adj = y_all - theta * (x_all - x_all.mean())
+    y_a_adj, y_b_adj = y_adj[:len(y_a)], y_adj[len(y_a):]
+    return y_b_adj.mean() - y_a_adj.mean()
+
+# Thompson sampling bandit — Bernoulli arms
+class ThompsonBandit:
+    def __init__(self, n_arms):
+        self.alpha = np.ones(n_arms); self.beta = np.ones(n_arms)
+    def select(self):
+        return np.argmax(np.random.beta(self.alpha, self.beta))
+    def update(self, arm, reward):
+        self.alpha[arm] += reward
+        self.beta[arm]  += 1 - reward
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want interleaving, off-policy evaluation, &amp; long-term effects?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Inverse propensity scoring</span>
+        <span class="formula">$$ \hat V = \frac{1}{n} \sum_{i=1}^n \frac{\mathbb{1}\{a_i = \pi(x_i)\}}{p_\mathrm{behaviour}(a_i \mid x_i)} \, r_i $$</span>
+        <ul class="formula-legend">
+            <li>Estimate the value of a new policy <em>π</em> from logs of an old behaviour policy</li>
+            <li>Doesn't require deploying <em>π</em> to evaluate it</li>
+            <li>Variance grows with how different <em>π</em> is from behaviour</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Interleaving.</strong> Show both models' results to the same user (e.g., ranked-list problems — interleave A's and B's recommendations). Much higher statistical power per user; works because each user is their own control. Used heavily at Microsoft, Netflix, search engines.</p>
+        <p><strong>Off-policy evaluation (OPE).</strong> Estimate how a new policy would perform from logs of a previous one. IPS (inverse propensity scoring), doubly robust estimators, model-based OPE. Standard in recommendation and ad-ranking. Requires the logging policy to have explored — if it always picked the same thing, you can't evaluate alternatives.</p>
+        <p><strong>Long-term effects.</strong> Some changes hurt short-term metrics but help long-term (paywalls, ads, content moderation). Different evaluation: long-term holdouts, instrumental variables, or careful causal modelling. Hard; rarely done well.</p>
+        <p><strong>Heterogeneous treatment effects (HTE).</strong> The treatment helps some users and hurts others. Estimating <em>τ(x) = E[Y(1) − Y(0) | X = x]</em> with causal forests, double ML, or T-/X-learners. Useful for targeted deployment.</p>
+        <p><strong>Switchback experiments.</strong> When users can't be split (e.g., ride-share dispatching), switch the treatment on and off over time within the same population. Mitigates network effects.</p>
+        <p><strong>Pre-registration &amp; audit.</strong> Write the analysis plan before looking at results. Commit to one primary metric, one stopping rule, one analysis method. Reduces hindsight-driven p-hacking — and makes the test reusable in retros.</p>
+        <p><strong>Cost-aware testing.</strong> Each "challenger" model deployment incurs implementation, ramp, and rollback costs. Decision-theoretic framing: expected value of running the test &gt; cost of running it? Often the test isn't worth running because the expected effect is too small.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import numpy as np
+
+# Inverse Propensity Scoring — estimate policy value from logged data
+def ips_estimate(actions, rewards, propensities, new_policy):
+    """
+    actions:      array of taken actions
+    rewards:      observed reward for each
+    propensities: P(action | context) under the LOGGING policy
+    new_policy:   function returning P(action | context) under the NEW policy
+    """
+    weights = np.array([
+        new_policy(a, ctx) / propensities[i]
+        for i, (a, ctx) in enumerate(zip(actions, contexts))
+    ])
+    return (weights * rewards).mean()
+
+# Switchback for network-effect mitigation
+def switchback_test(treatment_schedule, observations):
+    """Treatment switches on/off in blocks; compare blocks of A vs B."""
+    df = pd.DataFrame(observations)
+    df["assignment"] = treatment_schedule
+    return df.groupby("assignment")["metric"].mean()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://exp-platform.com/" target="_blank">Microsoft Experimentation Platform <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Kohavi et al.'s research site. The "trustworthy A/B testing" papers are required reading for anyone running production experiments.</span>
+        </li>
+        <li>
+            <a href="https://www.statsig.com/" target="_blank">Statsig — Documentation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">A modern experimentation platform; their blog covers sequential testing, CUPED, and HTE in accessible language.</span>
+        </li>
+        <li>
+            <a href="https://www.amazon.com/Trustworthy-Online-Controlled-Experiments-Practical/dp/1108724264" target="_blank">Kohavi, Tang &amp; Xu — Trustworthy Online Controlled Experiments <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The textbook. Pragmatic, exhaustive; covers the entire A/B testing lifecycle in industry.</span>
+        </li>
+        <li>
+            <a href="https://lilianweng.github.io/posts/2018-10-21-mab/" target="_blank">Lilian Weng — Multi-Armed Bandits <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Clear introduction to bandits and their relationship to A/B testing.</span>
+        </li>
+    </ul>
+</div>

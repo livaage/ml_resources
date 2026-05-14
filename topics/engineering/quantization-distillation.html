@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantization &amp; Distillation — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="">Theory</a>
+            <a href="../../engineering.html" class="active">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../engineering.html" class="eyebrow">← Engineering · Production</a>
+                    <h1>Quantization &amp; Distillation</h1>
+                    <p class="lead">Make models smaller and faster — int8 / int4, knowledge distillation, pruning. What each one costs in accuracy.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Inference cost is the binding constraint for most deployed ML.</strong> Three knobs reduce it: quantize (smaller representations), distill (smaller architectures), prune (sparser weights). Combined they routinely give 4-10× speed-ups with marginal accuracy loss. The exact recipe depends on the model and the deployment target.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Quantization.</strong> Convert fp32 weights and activations to int8 (or int4 / fp8). 4× memory, 2-4× faster matmuls. Three flavours: post-training quantization (PTQ — apply to a trained model), quantization-aware training (QAT — train with simulated quantization), and weight-only quantization (the easiest for LLMs).</p>
+        <p><strong>Distillation.</strong> Train a small "student" model to imitate a large "teacher" model. The student learns soft probabilities (not hard labels), often along with hidden representations. Works because the teacher's full output distribution encodes information that the labels alone don't.</p>
+        <p><strong>Pruning.</strong> Remove weights / neurons / heads that contribute little. Unstructured (individual weights → sparse matrix) or structured (whole channels / heads → smaller dense matrix). Structured pruning gives real speed-ups on standard hardware.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>When to use each</h3>
+            <ul>
+                <li><strong>Quantize</strong>: every deployment. Lowest risk, biggest typical win</li>
+                <li><strong>Distill</strong>: when target is much smaller than teacher; needs training pipeline</li>
+                <li><strong>Prune</strong>: structured pruning before quantization for compounded gains</li>
+                <li><strong>Speculative decoding</strong>: for LLMs — use a small model as drafter</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Trade-offs</h3>
+            <ul>
+                <li>int8 PTQ: ~1pp accuracy drop, sometimes none</li>
+                <li>int4 weight-only: usable for LLMs; vision models often suffer more</li>
+                <li>Distillation: needs more training compute, possibly more data</li>
+                <li>Unstructured pruning: rarely faster on commodity GPUs</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+from torch.ao.quantization import quantize_dynamic
+
+# Dynamic quantization — int8 weights, fp32 activations.
+# Easiest possible win; ~2× speedup on CPU inference for transformers / LSTMs.
+qmodel = quantize_dynamic(
+    model.eval(),
+    {torch.nn.Linear},
+    dtype=torch.qint8,
+)
+torch.save(qmodel.state_dict(), "quantized.pt")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want PTQ vs QAT, distillation losses, &amp; the LLM quantization stack?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Distillation loss</span>
+        <span class="formula">$$ \mathcal{L} = \alpha \cdot \mathrm{CE}(y_{\text{hard}}, p_S) + (1-\alpha) \cdot T^2 \cdot \mathrm{KL}\!\big(p_T / T \;\|\; p_S / T\big) $$</span>
+        <ul class="formula-legend">
+            <li><em>T</em> = temperature (typically 2–10) — softens both distributions</li>
+            <li><em>α</em> mixes hard-label loss with soft-distribution-matching loss</li>
+            <li>Hinton et al. (2015) — the original knowledge distillation recipe</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Post-training quantization (PTQ).</strong> Quantize a trained model with calibration data — find scale/zero-point per layer that minimises quantization error. Easy, fast, ~1pp accuracy drop typical. <code>torch.ao</code>, ONNX Runtime, TensorRT all support it.</p>
+        <p><strong>Quantization-aware training (QAT).</strong> Train with simulated quantization in the forward pass. The model adapts; accuracy is usually equal to fp32. Costs an extra training pass; useful when PTQ loses too much.</p>
+        <p><strong>Weight-only quantization (LLMs).</strong> Weights in int4, activations stay in fp16/bf16. Specialised kernels (FlashInfer, ExLlama, AWQ) for the dequantize-and-multiply. Standard for LLM inference. GPTQ, AWQ, bitsandbytes are the three reference algorithms.</p>
+        <p><strong>Knowledge distillation.</strong> Loss matches the teacher's softmax outputs (soft labels), often along with intermediate hidden states. Works because the teacher's "wrong" output probabilities encode useful structure. DistilBERT (66% smaller, 97% of BERT's accuracy) is the canonical demo.</p>
+        <p><strong>Structured pruning.</strong> Remove entire channels, heads, or layers. <code>torch.nn.utils.prune</code> for unstructured; <code>SparseML</code>, <code>nn_pruning</code> for structured. Modern recipe: prune + fine-tune to recover accuracy.</p>
+        <p><strong>Mixed quantization.</strong> Different layers at different precisions. <code>SmoothQuant</code> for LLMs; <code>llm.int8()</code> for outlier-aware schemes. The largest gains often come from being smart about <em>where</em> the precision lives.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch.nn.functional as F
+
+# Hinton-style distillation loss
+def distill_loss(student_logits, teacher_logits, y_hard, alpha=0.7, T=4.0):
+    soft_loss = F.kl_div(
+        F.log_softmax(student_logits / T, dim=-1),
+        F.softmax(teacher_logits / T, dim=-1),
+        reduction="batchmean",
+    ) * (T * T)
+    hard_loss = F.cross_entropy(student_logits, y_hard)
+    return alpha * soft_loss + (1 - alpha) * hard_loss
+
+# LLM weight-only quantization — bitsandbytes (huggingface)
+from transformers import AutoModelForCausalLM, BitsAndBytesConfig
+qconf = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype="bfloat16")
+model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3-8B-Instruct",
+                                              quantization_config=qconf)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want SmoothQuant, GPTQ, AWQ, &amp; modern LLM compression?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Per-channel quantization scale</span>
+        <span class="formula">$$ q_i = \mathrm{round}\!\left(\frac{w_i}{s_c}\right) \cdot s_c, \quad s_c = \frac{\max_i |w_{i,c}|}{127} $$</span>
+        <ul class="formula-legend">
+            <li>Each output channel <em>c</em> gets its own scale</li>
+            <li>Mitigates the loss from outlier channels</li>
+            <li>Per-tensor is the alternative — cheaper, more loss</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>SmoothQuant.</strong> Xiao et al. (2023). LLM activations have huge outliers in a few channels. Shift the difficulty from activations into weights by an absorbed scaling factor; quantize both successfully in int8. Production-quality int8 LLM inference.</p>
+        <p><strong>GPTQ.</strong> Frantar et al. (2022). Layer-wise weight quantization with second-order error minimisation. Strong int4 quantization for LLMs at relatively low cost.</p>
+        <p><strong>AWQ.</strong> Lin et al. (2023). Identify which weight channels are most "salient" and protect them during quantization. Typically beats GPTQ for int4 LLM serving.</p>
+        <p><strong>LoRA + quantization (QLoRA).</strong> Dettmers et al. (2023). Fine-tune a quantized base model with LoRA adapters. Lets you fine-tune 65B-parameter models on a single 48GB GPU.</p>
+        <p><strong>Speculative decoding.</strong> Use a small drafter model to propose <em>k</em> tokens; the big target model verifies them in one pass. Standard in vLLM, TGI, llama.cpp. Often gives 2× speed-up for LLMs at no accuracy cost.</p>
+        <p><strong>Mixture of Experts (MoE) inference.</strong> Only a fraction of parameters active per token. Effective parameter count is much higher than active. Different deployment story than dense models — KV cache management, routing optimisation, expert co-location.</p>
+        <p><strong>Hardware-aware design.</strong> Different hardware likes different things: GPUs reward batch parallelism; CPUs reward int8 + vectorisation; mobile rewards int4 + sparsity. The "best" compression is hardware-dependent.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># QLoRA — fine-tune a 4-bit base model with LoRA adapters
+from transformers import AutoModelForCausalLM, BitsAndBytesConfig
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+
+base = AutoModelForCausalLM.from_pretrained(
+    "meta-llama/Llama-3-8B",
+    quantization_config=BitsAndBytesConfig(load_in_4bit=True,
+                                            bnb_4bit_compute_dtype="bfloat16"),
+    device_map="auto",
+)
+base = prepare_model_for_kbit_training(base)
+peft_cfg = LoraConfig(r=16, lora_alpha=32,
+                     target_modules=["q_proj", "v_proj"],
+                     bias="none", task_type="CAUSAL_LM")
+model = get_peft_model(base, peft_cfg)
+model.print_trainable_parameters()
+# trainable: ~1% of total — fits on a single consumer GPU
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="monitoring.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Monitoring</span>
+                        </span>
+                    </a>
+                    <a href="ab-testing.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">A/B Testing</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://pytorch.org/docs/stable/quantization.html" target="_blank">PyTorch Quantization Documentation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Official guide. PTQ, QAT, the new <code>torch.ao</code> API.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/1503.02531" target="_blank">Hinton et al. (2015) — Knowledge Distillation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The original distillation paper. Still readable; the temperature trick is the heart of the recipe.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/2305.14314" target="_blank">Dettmers et al. (2023) — QLoRA <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Fine-tune giant models on a single GPU via 4-bit base + LoRA. Practical revolution for LLM customisation.</span>
+        </li>
+        <li>
+            <a href="https://github.com/casper-hansen/AutoAWQ" target="_blank">AutoAWQ <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Reference implementation of AWQ for LLM weight quantization. Plays nicely with HuggingFace transformers.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

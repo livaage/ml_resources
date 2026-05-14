@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Registries — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="">Theory</a>
+            <a href="../../engineering.html" class="active">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../engineering.html" class="eyebrow">← Engineering · CI / CD</a>
+                    <h1>Model Registries</h1>
+                    <p class="lead">A central catalogue of every model version — with metadata, lineage, and clear stages.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>One source of truth for every model artefact.</strong> Each trained model gets a name, a version, metadata (metrics, config, lineage), and a stage (None → Staging → Production → Archived). Deployment systems pull "the model tagged production" by name, never by file path.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>Why this matters: in production you want to upgrade or roll back a model without redeploying the serving infrastructure. The registry is the indirection — the serving code asks "give me the current production model"; the registry returns the right artefact. Versioning, audit trails, and rollback are all properties of the registry.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>What the registry stores</h3>
+            <ul>
+                <li>The model artefact (weights / pickle / ONNX)</li>
+                <li>Hyperparameters and the training config</li>
+                <li>Training metrics and final eval scores</li>
+                <li>Dataset version / hash</li>
+                <li>Lineage: parent model, training run, code commit</li>
+                <li>Stage: None / Staging / Production / Archived</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Tools</h3>
+            <ul>
+                <li><strong>MLflow Model Registry</strong>: open-source, mature</li>
+                <li><strong>W&amp;B Artifacts</strong>: hosted, same-tool as tracking</li>
+                <li><strong>SageMaker Model Registry</strong>: AWS-native</li>
+                <li><strong>Vertex Model Registry</strong>: GCP-native</li>
+                <li><strong>BentoML Yatai</strong>: model + bento packaging</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import mlflow
+
+# At the end of training, log the model and metadata
+with mlflow.start_run() as run:
+    mlflow.log_params(cfg.flatten())
+    mlflow.log_metrics({"val/auc": 0.91, "test/auc": 0.89})
+    mlflow.pytorch.log_model(model, "model")
+
+# Register as a versioned entity
+result = mlflow.register_model(
+    f"runs:/{run.info.run_id}/model",
+    name="credit-risk-classifier",
+)
+print(f"Registered version {result.version}")
+
+# Promote to production after promotion gate passes
+client = mlflow.tracking.MlflowClient()
+client.transition_model_version_stage(
+    name="credit-risk-classifier", version=result.version, stage="Production",
+)
+
+# At serve time
+model = mlflow.pytorch.load_model("models:/credit-risk-classifier/Production")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want lineage tracking, model cards, &amp; multi-environment promotion?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Model versioning identity</span>
+        <span class="formula">$$ \text{model version} \;=\; \text{hash}(\text{code commit}, \text{data hash}, \text{config}, \text{seeds}) $$</span>
+        <ul class="formula-legend">
+            <li>Reproducibility = re-deriving the same model from these inputs</li>
+            <li>The registry stores the artefact and the inputs separately</li>
+            <li>Audit trail: who created it, when, with what data, why promoted</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Stages.</strong> "None" (just registered), "Staging" (under evaluation), "Production" (serving live), "Archived" (kept for audit). The transitions need explicit gates — usually CI green + eval pass for Staging, human review for Production.</p>
+        <p><strong>Aliases vs stages.</strong> MLflow has both. Stages are bucket-based; aliases are pointer-based ("@latest", "@champion", "@candidate"). Modern MLflow favours aliases; flexible enough for non-linear workflows.</p>
+        <p><strong>Multi-environment promotion.</strong> Dev → staging → production. Each environment's serving system points at its registry stage. Promotion is a registry operation, not a redeploy.</p>
+        <p><strong>Lineage.</strong> Every model points to its training run, which points to its config, dataset version, and parent model (if fine-tuned). A few hops takes you from a production prediction back to the raw data that produced it.</p>
+        <p><strong>Model cards.</strong> Mitchell et al. (2019). Standardised model documentation — intended use, training data, performance metrics across subgroups, ethical considerations. Increasingly a regulatory requirement; HuggingFace, OpenAI, and Anthropic all ship them.</p>
+        <p><strong>Artefact storage.</strong> The registry tracks; the storage holds the weights. S3 / GCS / Azure Blob / on-prem. Use registries that decouple metadata storage from artefact storage so you can swap backends without losing history.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import mlflow
+from mlflow.tracking import MlflowClient
+
+client = MlflowClient()
+
+# Modern MLflow style — use aliases for routing
+client.set_registered_model_alias(
+    name="credit-risk-classifier", alias="production", version=42,
+)
+client.set_registered_model_alias(
+    name="credit-risk-classifier", alias="champion", version=42,
+)
+client.set_registered_model_alias(
+    name="credit-risk-classifier", alias="challenger", version=43,
+)
+
+# Serving code is decoupled from versions
+prod = mlflow.pytorch.load_model("models:/credit-risk-classifier@production")
+
+# Roll back: just re-point the alias, no redeploy
+client.set_registered_model_alias(
+    name="credit-risk-classifier", alias="production", version=41,
+)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want model cards, governance, &amp; supply-chain attestation?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Supply chain for models</span>
+        <span class="formula">$$ (\text{base model}, \text{dataset}, \text{code}, \text{config}) \xrightarrow{\text{training}} (\text{artefact}, \text{provenance}, \text{signature}) $$</span>
+        <ul class="formula-legend">
+            <li>Each input is itself versioned and signed</li>
+            <li>Output artefact carries a provenance record traceable to all inputs</li>
+            <li>SLSA-like attestation for ML — not yet standard but converging</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Model cards in the registry.</strong> Auto-generate from the training run: dataset, training metrics, subgroup metrics, intended use, known limitations. Mitchell et al.'s template is the reference; HuggingFace has built-in support.</p>
+        <p><strong>Governance &amp; audit.</strong> Who can promote? Who reviewed? When? Most enterprise registries (MLflow Enterprise, AzureML, Vertex) have role-based access + audit logs. For high-stakes domains (medical, financial), this is a regulatory requirement.</p>
+        <p><strong>Model signing &amp; attestation.</strong> Cryptographically sign artefacts so consumers can verify provenance. Sigstore for ML. SBOM (software bill of materials) extending to model artefacts. Active area in 2024+ as supply-chain attacks become a concern.</p>
+        <p><strong>Lineage propagation.</strong> Fine-tuned model → base model → pre-training data. Each step links to the previous; a prediction can be traced back through fine-tuning to pre-training data. Useful for debugging and compliance.</p>
+        <p><strong>Registry-driven CI.</strong> CI workflows triggered by registry events: new "staging" model → run extended evals; new "production" model → deploy + announce. Registries with webhooks (MLflow Enterprise, W&amp;B) make this natural.</p>
+        <p><strong>Distillation lineage.</strong> A distilled student model points to its teacher. Compound chains (teacher → student → re-distilled student) need careful tracking; otherwise debugging "where did this behaviour come from" is impossible.</p>
+        <p><strong>Multi-model systems.</strong> When a production prediction depends on several models (retrieval encoder + ranker + reranker + LLM), the registry needs to support "deployments" that bundle versions across multiple model names.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import mlflow
+from huggingface_hub import ModelCard, ModelCardData
+
+# Auto-generate a model card from the training run
+def make_card(run_id, model_name, version):
+    run = mlflow.get_run(run_id)
+    card_data = ModelCardData(
+        language="en",
+        license="apache-2.0",
+        model_name=model_name,
+        tags=["classification", "credit-risk"],
+        metrics={
+            "val_auc": run.data.metrics["val/auc"],
+            "test_auc": run.data.metrics["test/auc"],
+        },
+    )
+    card = ModelCard.from_template(card_data, template_path="MODEL_CARD_TEMPLATE.md")
+    card.save(f"cards/{model_name}-{version}.md")
+    return card
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="automated-retraining.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Automated Retraining</span>
+                        </span>
+                    </a>
+                    <a href="training-debugging.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Training Debugging</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://mlflow.org/docs/latest/model-registry.html" target="_blank">MLflow Model Registry Docs <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The most-used open-source registry. Stages, aliases, webhooks, governance.</span>
+        </li>
+        <li>
+            <a href="https://docs.wandb.ai/guides/artifacts" target="_blank">W&amp;B Artifacts <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">W&amp;B's take on artefact + model versioning. Tighter integration with W&amp;B tracking; less full-featured as a standalone registry.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/1810.03993" target="_blank">Mitchell et al. (2019) — Model Cards <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The model card paper. Standardised documentation now widely adopted across the industry.</span>
+        </li>
+        <li>
+            <a href="https://huggingface.co/docs/hub/model-cards" target="_blank">HuggingFace — Model Cards <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Practical template + library for producing model cards. The largest registry of public model cards.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

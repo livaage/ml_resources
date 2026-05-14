@@ -1,0 +1,205 @@
+<!-- TOPIC META -->
+title: Useful Libraries — ML Resources Hub
+eyebrow_text: ← Engineering · Time-Savers
+eyebrow_href: {{root}}engineering.html
+heading: Useful Libraries
+lead: Small libraries that punch above their weight — keep them on your radar so you don't reinvent them.
+active_nav: engineering
+prev_href: cli-patterns.html
+prev_title: CLI Patterns
+
+
+<!-- TOPIC CONTENT -->
+<section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Most "I just need to..." problems have a library.</strong> Knowing the right small library beats writing 200 lines of bespoke code. This page is a curated list — not exhaustive, but the ones that come up in nearly every ML project.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>The set below isn't a tier list — every library here is worth a 30-minute investment. If you haven't used 4 of them, that's 4 places where you've probably been writing more code than you needed to.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Data &amp; configs</h3>
+            <ul>
+                <li><strong>polars</strong>: faster pandas. Eager + lazy API. The new default for tabular work above ~1M rows.</li>
+                <li><strong>pydantic</strong>: typed dataclasses with validation. Standard for configs and API schemas.</li>
+                <li><strong>hydra</strong>: composable YAML configs with CLI overrides.</li>
+                <li><strong>jsonargparse</strong>: argparse + dataclasses + YAML. Less heavy than Hydra.</li>
+                <li><strong>great_expectations</strong>: declarative data validation.</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Modelling &amp; training</h3>
+            <ul>
+                <li><strong>lightning</strong>: training-loop scaffolding</li>
+                <li><strong>accelerate</strong>: distributed + mixed precision for your custom loop</li>
+                <li><strong>einops</strong>: tensor reshaping with named axes — readable in months</li>
+                <li><strong>timm</strong>: every vision backbone, pretrained</li>
+                <li><strong>transformers</strong>: every NLP / multimodal model, pretrained</li>
+                <li><strong>peft</strong>: LoRA, adapters, prompt tuning</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># einops — readable tensor reshaping
+from einops import rearrange, repeat, reduce, einsum
+
+# Batch × Heads × Seq × Dim → Batch × Seq × (Heads · Dim)
+out = rearrange(x, "b h n d -&gt; b n (h d)")
+
+# Tile a vector across the batch
+batched = repeat(v, "d -&gt; b d", b=32)
+
+# Reduce over the spatial axes
+pooled = reduce(features, "b c h w -&gt; b c", "mean")
+
+# Explicit einsum
+attn = einsum(q, k, "b h n d, b h m d -&gt; b h n m")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want experiment tooling, dev quality of life, &amp; the production stack?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">The "always reach for" set</span>
+        <span class="formula">$$ \text{uv}, \text{ruff}, \text{pre-commit}, \text{loguru}, \text{rich}, \text{pytest} $$</span>
+        <ul class="formula-legend">
+            <li>These six are the "every project, no excuse" baseline</li>
+            <li>Together: dependency mgmt, lint, hooks, logging, pretty output, tests</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Experiment tracking.</strong> <code>wandb</code>, <code>mlflow</code>, <code>aim</code>, <code>comet</code>, <code>neptune</code>. Pick one and stick with it. See <a href="experiment-tracking.html">Experiment Tracking</a>.</p>
+        <p><strong>Dev quality of life.</strong> <code>uv</code> (fast Python package manager, replaces pip/poetry/venv). <code>ruff</code> (linter + formatter; replaces black + flake8 + isort + many more). <code>pre-commit</code> (run hooks on git commit). <code>rich</code> (pretty terminal output, progress bars). <code>loguru</code> (logging that just works). <code>pytest</code> (the testing framework).</p>
+        <p><strong>Tabular &amp; data.</strong> <code>polars</code> (faster pandas). <code>duckdb</code> (SQL on parquet, blazingly fast for analytics). <code>pyarrow</code> (the columnar foundation). <code>fsspec</code> (uniform interface to local/S3/GCS).</p>
+        <p><strong>Modelling.</strong> <code>scikit-learn</code> (still the right answer for tabular ML). <code>xgboost</code> / <code>lightgbm</code> / <code>catboost</code> (gradient boosting). <code>statsmodels</code> (classical statistics). <code>scipy</code> (everything else).</p>
+        <p><strong>NLP.</strong> <code>sentence-transformers</code> for embedding. <code>tiktoken</code> for OpenAI-compatible tokenisation. <code>spacy</code> for classical NLP. <code>llama-cpp-python</code> for local LLMs.</p>
+        <p><strong>Inference / serving.</strong> <code>onnxruntime</code>, <code>vllm</code>, <code>tgi</code>, <code>bentoml</code>, <code>fastapi</code>. See <a href="serving.html">Serving</a>.</p>
+        <p><strong>Visualisation.</strong> <code>matplotlib</code> + <code>seaborn</code> (the classics). <code>plotly</code> (interactive). <code>altair</code> (declarative). <code>holoviews</code> for time series.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># uv — fast dependency management. Replaces pip + venv + pip-tools.
+# pip install uv
+# uv venv && source .venv/bin/activate
+# uv pip install torch transformers wandb hydra-core polars
+# uv pip compile pyproject.toml -o requirements.lock      # lockfile
+
+# ruff — lint + format. Replaces black + flake8 + isort.
+# pip install ruff
+# ruff check .              # lint
+# ruff format .             # format
+# Add to pre-commit:
+# - repo: https://github.com/astral-sh/ruff-pre-commit
+#   rev: v0.4.0
+#   hooks:
+#     - id: ruff
+#     - id: ruff-format
+
+# rich — pretty terminal output
+from rich.progress import track
+from rich.console import Console
+console = Console()
+for item in track(items, description="Training..."):
+    process(item)
+console.print(f"[bold green]Done![/]")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the niche-but-saves-a-day libraries?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">"I wish I'd known about that"</span>
+        <span class="formula">$$ \text{specialised library} \;\gg\; \text{your hand-rolled version} $$</span>
+        <ul class="formula-legend">
+            <li>Niche libraries usually beat hand-rolled code by 5–50×</li>
+            <li>Maintainers have already hit the edge cases you'll hit later</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Optimisation.</strong> <code>optuna</code> for hyperparameter search. <code>scipy.optimize</code> for classical optimisation. <code>pyomo</code> / <code>cvxpy</code> for math programming.</p>
+        <p><strong>Geometry &amp; signal.</strong> <code>scikit-image</code> for image processing. <code>librosa</code> for audio. <code>shapely</code> + <code>geopandas</code> for geospatial. <code>biopython</code> for bio.</p>
+        <p><strong>Profiling.</strong> <code>py-spy</code> (sampling profiler, attach to running process). <code>scalene</code> (CPU + GPU + memory). <code>line_profiler</code> (per-line CPU). <code>memray</code> (per-allocation memory).</p>
+        <p><strong>Storage.</strong> <code>safetensors</code> (safe alternative to pickle for model weights). <code>zarr</code> (chunked array storage). <code>lmdb</code> (memory-mapped key-value store). <code>webdataset</code> (tar-based streaming for vision).</p>
+        <p><strong>Reproducibility.</strong> <code>dvc</code> (git for data). <code>nbstripout</code> (strip notebook outputs before commit). <code>mlflow</code> for experiment + model versioning.</p>
+        <p><strong>Causality &amp; uncertainty.</strong> <code>dowhy</code>, <code>EconML</code> for causal inference. <code>NumPyro</code> / <code>PyMC</code> for Bayesian modelling. <code>arviz</code> for posterior diagnostics.</p>
+        <p><strong>Speed-ups.</strong> <code>numba</code> (JIT for numpy). <code>cython</code> (compile-to-C for hot loops). <code>cupy</code> (numpy on GPU). <code>jax</code> (numpy + autodiff + JIT + vmap — the underrated alternative to PyTorch for research).</p>
+        <p><strong>Concurrency.</strong> <code>joblib</code> (parallel for-loops). <code>dask</code> (pandas / numpy at scale). <code>ray</code> (distributed Python, including Ray Train + Ray Serve).</p>
+        <p><strong>The "I write this in every project" set.</strong> A function to fix all seeds. A function to log GPU memory. A function to count parameters. Put them in <code>utils/</code>. Steal from your last project.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># A few utility functions worth copying between projects
+
+import os, random
+import numpy as np
+import torch
+
+def fix_seeds(seed=42):
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
+    if torch.cuda.is_available(): torch.cuda.manual_seed_all(seed)
+
+def count_params(model):
+    total     = sum(p.numel() for p in model.parameters())
+    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    return total, trainable
+
+def gpu_memory_summary():
+    if not torch.cuda.is_available(): return
+    alloc = torch.cuda.memory_allocated() / 1e9
+    reserved = torch.cuda.memory_reserved() / 1e9
+    print(f"alloc {alloc:.2f} GB  reserved {reserved:.2f} GB")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://docs.astral.sh/uv/" target="_blank">uv — Python Package Manager <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Astral's pip / venv / poetry replacement. 10–100× faster. The new default.</span>
+        </li>
+        <li>
+            <a href="https://einops.rocks/" target="_blank">einops <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Tensor operations with named axes. Replaces <code>view</code> / <code>permute</code> with code your reviewer can read. Worth learning thoroughly.</span>
+        </li>
+        <li>
+            <a href="https://www.pola.rs/" target="_blank">Polars <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The pandas successor. Faster, more memory-efficient, lazy execution. Reads / writes everything pandas does.</span>
+        </li>
+        <li>
+            <a href="https://github.com/vinta/awesome-python" target="_blank">awesome-python <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Curated list of useful Python libraries by category. Not ML-specific; still useful for the broader Python tools.</span>
+        </li>
+    </ul>
+</div>

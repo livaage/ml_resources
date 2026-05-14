@@ -1,0 +1,215 @@
+<!-- TOPIC META -->
+title: Serving — ML Resources Hub
+eyebrow_text: ← Engineering · Production
+eyebrow_href: {{root}}engineering.html
+heading: Serving
+lead: FastAPI, BentoML, Triton, vLLM — how a trained model becomes an endpoint your product can call.
+active_nav: engineering
+prev_href: distributed-pitfalls.html
+prev_title: Distributed Training Pitfalls
+next_href: monitoring.html
+next_title: Monitoring
+
+
+<!-- TOPIC CONTENT -->
+<section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Training and serving are different problems.</strong> Training optimises for throughput on a fixed dataset. Serving optimises for latency on one request at a time (or small batches). The right tool, the right format, and the right batching strategy all change. Don't ship a 100-line Flask app; use one of the four standard serving stacks.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>The four standard stacks.</strong> FastAPI + uvicorn for "I want a Python endpoint that calls my model" (small models, hobby projects). BentoML for "I want a packaged, deployable model" (production tabular / sklearn / small DL). Triton for "I want NVIDIA-optimised, dynamic batching, multi-framework". vLLM (or TGI) for "I'm serving an LLM and need throughput".</p>
+        <p><strong>Three big serving decisions.</strong> Sync vs async (mostly sync for low-latency, async if you can wait or stream). Single-request vs batched (batching trades latency for throughput). CPU vs GPU (CPU for small models, GPU for transformers / large CNNs).</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Stack by use-case</h3>
+            <ul>
+                <li><strong>Small Python model</strong>: FastAPI + uvicorn</li>
+                <li><strong>Tabular / sklearn / packaged</strong>: BentoML</li>
+                <li><strong>GPU model with dynamic batching</strong>: Triton</li>
+                <li><strong>LLM</strong>: vLLM, TGI, or a hosted API</li>
+                <li><strong>Edge / mobile</strong>: ONNX Runtime, TFLite, CoreML</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Common pitfalls</h3>
+            <ul>
+                <li>Loading the model on every request — load once at startup</li>
+                <li>Hardcoded paths — use a registry alias instead</li>
+                <li>Synchronous I/O blocking GPU — use async or thread pool</li>
+                <li>No request validation — bad inputs crash the server</li>
+                <li>No timeout — a slow GPU stalls everything</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+import torch, mlflow
+
+app = FastAPI()
+
+# Load the model once at startup
+MODEL = mlflow.pytorch.load_model("models:/credit-risk@production").eval()
+
+class Request(BaseModel):
+    features: list[float] = Field(..., min_length=16, max_length=16)
+
+class Response(BaseModel):
+    score: float
+    model_version: str
+
+@app.post("/predict", response_model=Response)
+def predict(req: Request):
+    x = torch.tensor(req.features, dtype=torch.float32).unsqueeze(0)
+    with torch.inference_mode():
+        score = MODEL(x).sigmoid().item()
+    return Response(score=score, model_version=MODEL.version)
+
+@app.get("/health")
+def health(): return {"status": "ok"}
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want dynamic batching, ONNX, &amp; the LLM serving stack?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Latency budget decomposition</span>
+        <span class="formula">$$ T_{\text{request}} = T_{\text{net}} + T_{\text{preprocess}} + T_{\text{queue}} + T_{\text{forward}} + T_{\text{postprocess}} $$</span>
+        <ul class="formula-legend">
+            <li>Profile each piece — the bottleneck is rarely where you think</li>
+            <li>Pre/post-processing often dominates small-model latency</li>
+            <li>Queue time is what dynamic batching trades against</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Dynamic batching.</strong> The server accumulates inflight requests up to a small time window (10–50 ms) or batch size; runs the model once on the batch; splits the outputs. Triton, BentoML, and most serving frameworks support this natively. Huge throughput win for GPU-served models with bursty traffic.</p>
+        <p><strong>ONNX.</strong> Open neural-network exchange — convert your PyTorch / TF model to a portable graph. Runs on ONNX Runtime (CPU, GPU, edge, mobile). Useful when you want to deploy outside the original training framework, or want graph-level optimisations.</p>
+        <p><strong>TorchScript vs torch.compile vs ONNX.</strong> TorchScript: PyTorch's classic graph format. <code>torch.compile</code>: modern JIT (PyTorch 2.0+); usually faster for training. ONNX: framework-agnostic. For pure inference on PyTorch, <code>torch.compile</code> or ONNX Runtime are usually fastest.</p>
+        <p><strong>LLM serving stack.</strong> vLLM (UC Berkeley) and TGI (HuggingFace) are the open-source standards. PagedAttention to avoid memory waste, continuous batching to mix concurrent requests, KV cache management. Hosted APIs (OpenAI, Anthropic, Replicate) abstract all of this.</p>
+        <p><strong>Quantisation for serving.</strong> int8 / int4 weights. Often 2–4× smaller and faster with little accuracy loss. <code>bitsandbytes</code>, <code>autoawq</code>, <code>gptq</code> for LLMs. <code>torch.ao</code> for tabular / vision. See <a href="quantization-distillation.html">Quantization &amp; Distillation</a>.</p>
+        <p><strong>Multi-model serving.</strong> Modern serving frameworks let you load multiple models in one process, share GPU memory, and route requests based on the URL. Useful when you have many small models — or different fine-tunes of one base.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import bentoml, torch
+
+# Export model for BentoML
+saved = bentoml.pytorch.save_model("credit-risk", model)
+
+# Service definition
+@bentoml.service(
+    resources={"gpu": 1},
+    traffic={"timeout": 5},
+    workers=1,
+)
+class CreditRiskService:
+    @bentoml.api(
+        batchable=True,
+        batch_dim=0,
+        max_batch_size=64,
+        max_latency_ms=50,
+    )
+    async def predict(self, features: list[list[float]]) -&gt; list[float]:
+        x = torch.tensor(features)
+        with torch.inference_mode():
+            scores = self.model(x).sigmoid()
+        return scores.tolist()
+
+# bentoml serve credit_risk:CreditRiskService --port 3000
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want LLM serving deep-dive, autoscaling, &amp; SLA engineering?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">LLM serving throughput</span>
+        <span class="formula">$$ \text{tok/s} \approx \frac{\text{compute capacity}}{\text{KV cache pressure} + \text{prefill cost}} $$</span>
+        <ul class="formula-legend">
+            <li>KV cache dominates memory for long contexts</li>
+            <li>Continuous batching mixes prefill and decode → big throughput gain</li>
+            <li>PagedAttention frees fragmented KV memory blocks</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>PagedAttention (vLLM).</strong> Kwon et al. (2023). KV cache stored in paged blocks (like virtual memory). Avoids the fragmentation of contiguous-allocation schemes. 2–4× throughput improvement.</p>
+        <p><strong>Continuous batching.</strong> Don't wait for a batch to finish before starting a new one — feed in new requests as old ones complete. Combined with prefill / decode separation, much higher GPU util than naive batching.</p>
+        <p><strong>Speculative decoding.</strong> A small "draft" model proposes <em>k</em> tokens; the big "target" model verifies them in one pass. Accept the prefix the target agrees with; resample from where it disagrees. 2× speed-up with no accuracy loss (in expectation). Built into vLLM, TGI, llama.cpp.</p>
+        <p><strong>Autoscaling.</strong> KServe, BentoCloud, Modal, RunPod. Scale replicas based on QPS, queue depth, or GPU utilisation. Pre-warmed pools for low cold-start. Scale-to-zero for cost-sensitive workloads.</p>
+        <p><strong>SLA engineering.</strong> p50, p95, p99 latency. Saturation thresholds. Error budgets. Most ML APIs have "p99 latency under X ms" as a hard requirement. Monitor + alert on it; load-test with realistic traffic distributions.</p>
+        <p><strong>Edge inference.</strong> ONNX Runtime, TFLite, CoreML, MediaPipe. Quantisation is essential (int8 or int4). Many vision and small NLP models run on phones with sub-100ms latency.</p>
+        <p><strong>Streaming responses.</strong> For LLMs, stream tokens as they're generated. Server-Sent Events or HTTP chunked transfer. Improves perceived latency dramatically; standard in all production chat APIs.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># vLLM — serve an LLM with PagedAttention + continuous batching
+# pip install vllm
+from vllm import LLM, SamplingParams
+
+llm = LLM(
+    model="meta-llama/Llama-3-8B-Instruct",
+    gpu_memory_utilization=0.85,
+    max_model_len=8192,
+    enable_chunked_prefill=True,
+)
+
+sampling = SamplingParams(temperature=0.7, top_p=0.95, max_tokens=512)
+outputs = llm.generate([prompt], sampling)
+print(outputs[0].outputs[0].text)
+
+# Or run as a server:
+# vllm serve meta-llama/Llama-3-8B-Instruct --port 8000
+# OpenAI-compatible endpoint at /v1/chat/completions
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://docs.vllm.ai/" target="_blank">vLLM Documentation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The reference open-source LLM serving stack. PagedAttention, continuous batching, OpenAI-compatible API.</span>
+        </li>
+        <li>
+            <a href="https://docs.bentoml.com/" target="_blank">BentoML Documentation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Excellent practical framework for packaging and deploying any ML model. Multi-framework support, dynamic batching, Yatai for production.</span>
+        </li>
+        <li>
+            <a href="https://docs.nvidia.com/deeplearning/triton-inference-server/" target="_blank">NVIDIA Triton Inference Server <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">NVIDIA's production-grade serving framework. Multi-framework, multi-model, dynamic batching, ensemble pipelines.</span>
+        </li>
+        <li>
+            <a href="https://onnxruntime.ai/" target="_blank">ONNX Runtime <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Cross-platform model runtime. The standard answer for "deploy this model somewhere other than where it was trained".</span>
+        </li>
+    </ul>
+</div>
