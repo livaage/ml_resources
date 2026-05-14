@@ -13,6 +13,36 @@ lead: The trade-off at the heart of why models fail to generalize.
         <p>There are <strong>two ways</strong> a model can be wrong. <strong>Bias</strong>: the model is too simple to capture the pattern. <strong>Variance</strong>: the model has memorized the training data, including its noise. Most fixes trade one for the other.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Slide the polynomial degree — 30 fits on different samples overlay; the bias-variance U-curve sits on the right</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Target
+                <select id="viz-bv-target"></select>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Degree
+                <input id="viz-bv-degree" class="viz-classic-slider" type="range">
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                σ
+                <input id="viz-bv-noise" class="viz-classic-slider" type="range">
+            </label>
+            <button id="viz-bv-reset" type="button">Re-sample</button>
+            <span class="viz-classic-badge" id="viz-bv-degree-lbl">deg = 4</span>
+            <span class="viz-classic-badge" id="viz-bv-noise-lbl">σ = 0.18</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-bv-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-bv-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/bias-variance.js"></script>
+
+    <p class="viz-intro">Left: 30 polynomials of the chosen degree, each fit to a different noisy sample of the target. The bold orange line is their pointwise mean. <strong>Bias</strong> is how far that mean misses the target (dashed). <strong>Variance</strong> is the spread of the faded indigo curves around the mean. Right: those two quantities as the degree changes — bias drops, variance rises, and total error makes a U. Sliding the degree slider moves a vertical line through that plot so you can see exactly where you are on the trade-off curve.</p>
+
     <article class="tldr-body">
         <p>Picture trying to fit a straight line through data that's actually curved. The line is <em>biased</em> — no matter how much data you give it, it can't bend enough to match. Now picture a wiggly curve that passes through every single training point. Zero training error, but it's memorized the noise — show it new points and they'll be all over the map. That's <em>variance</em>.</p>
         <p>The art of training a model is finding the sweet spot in between: complex enough to capture the real pattern, simple enough to ignore the noise.</p>
