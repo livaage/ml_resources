@@ -13,16 +13,23 @@
     let W, H;  // CSS pixels
     let ctx;
 
-    // DPR-aware sizing — sharp on retina
+    // DPR-aware sizing — sharp on retina.
+    // The canvas may live inside a hidden tab when this script runs, so we
+    // also wire up a ResizeObserver below to handle the becomes-visible case.
     function resize() {
         const rect = canvas.getBoundingClientRect();
-        const dpr  = window.devicePixelRatio || 1;
-        W = rect.width;
-        H = rect.height;
-        canvas.width  = W * dpr;
-        canvas.height = H * dpr;
+        const W_css = Math.round(rect.width);
+        if (W_css <= 0) return;                       // not laid out yet
+        const H_css = Math.round(W_css * 9 / 16);
+        canvas.style.height = H_css + 'px';
+
+        const dpr = window.devicePixelRatio || 1;
+        W = W_css;
+        H = H_css;
+        canvas.width  = W_css * dpr;
+        canvas.height = H_css * dpr;
         ctx = canvas.getContext('2d');
-        ctx.scale(dpr, dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         draw();
     }
 
@@ -256,6 +263,15 @@
         draw();
     });
 
-    window.addEventListener('resize', resize);
+    if (typeof ResizeObserver !== 'undefined') {
+        let debounce = null;
+        const ro = new ResizeObserver(() => {
+            clearTimeout(debounce);
+            debounce = setTimeout(resize, 60);
+        });
+        ro.observe(canvas);
+    } else {
+        window.addEventListener('resize', resize);
+    }
     resize();
 })();
