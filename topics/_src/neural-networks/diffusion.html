@@ -15,6 +15,30 @@ prev_title: Generative Adversarial Networks
         <p><strong>Add noise to your data, then learn to remove it.</strong> Take a real image, blur it slightly, then more, then more, until it's pure noise. Now train a network to reverse the process — given a noisy image, predict the noise. Once trained, start from pure noise and run the denoiser many times. What pops out is a new sample.</p>
     </div>
 
+    <div class="viz-embed viz-diff">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Drag the slider or hit Forward / Reverse — watch the image walk between clean and pure noise along the cosine schedule</span>
+        </div>
+        <div class="viz-diff-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Image
+                <select id="viz-diff-preset"></select>
+            </label>
+            <button id="viz-diff-forward" type="button">Forward ▶</button>
+            <button id="viz-diff-reverse" type="button">◀ Reverse</button>
+            <button id="viz-diff-reset"   type="button">Reset</button>
+            <input id="viz-diff-slider" class="viz-diff-slider" type="range" aria-label="diffusion timestep">
+            <span class="viz-diff-t" id="viz-diff-t">t = 0</span>
+        </div>
+        <div class="viz-diff-canvas-wrap">
+            <canvas id="viz-diff-canvas"></canvas>
+        </div>
+        <div class="viz-diff-caption" id="viz-diff-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/diffusion.js"></script>
+
+    <p class="viz-intro">The middle panel is what the model sees at timestep <em>t</em>. The right panel is what a "perfect denoiser" would predict for <em>x₀</em> — and you can watch that prediction sharpen as you move backward through time. The equation under the images shows the forward formula explicitly: <em>x_t = √α̅ · x₀ + √(1-α̅) · ε</em>. Training a diffusion model is just teaching a network to predict <em>ε</em> given <em>x_t</em>; everything else falls out of that.</p>
+
     <article class="tldr-body">
         <p>The miracle: you only ever train on the inverse of a process you fully control (adding Gaussian noise). The forward process is just <em>x + noise</em> at varying strengths. The model only has to learn one thing — "given this noisy image and this noise level, what noise was added?" — and that's enough to generate completely new samples from pure noise at inference.</p>
         <p>Diffusion now powers most modern image generators (Stable Diffusion, DALL-E 3, Imagen, Midjourney), video models (Sora, Veo), and even some 3D and audio generators.</p>

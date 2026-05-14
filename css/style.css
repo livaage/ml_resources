@@ -865,6 +865,75 @@ code:not(pre code) {
 .viz-gan-caption strong { color: var(--accent-hover); }
 
 
+/* Diffusion viz — timeline strip, big x_t / predicted x_0 / predicted noise */
+.viz-diff { padding: 1.25rem 1.5rem 1.5rem; }
+.viz-diff-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 0.85rem;
+}
+.viz-diff-controls button,
+.viz-diff-controls select {
+    padding: 0.35rem 0.85rem;
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.viz-diff-controls button:hover,
+.viz-diff-controls select:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-hover);
+}
+.viz-diff-slider {
+    flex: 1;
+    min-width: 160px;
+    accent-color: var(--accent-warm);
+    cursor: pointer;
+}
+.viz-diff-t {
+    padding: 0.25rem 0.7rem;
+    background: var(--accent-soft);
+    color: var(--accent-hover);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+    min-width: 4.5em;
+    text-align: center;
+}
+.viz-diff-canvas-wrap {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+.viz-diff-canvas-wrap canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+}
+.viz-diff-caption {
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+}
+.viz-diff-caption strong { color: var(--accent-hover); }
+
+
 /* Transformer attention viz — heads as tabs, arcs above tokens, heatmap below */
 .viz-tx {
     padding: 1.25rem 1.5rem 1.5rem;
