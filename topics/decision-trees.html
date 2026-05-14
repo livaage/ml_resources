@@ -48,6 +48,31 @@
         <p><strong>A series of yes/no questions that funnel data to a prediction.</strong> "Is income &gt; £30k?" → "Yes" → "Is age &gt; 40?" → "Yes" → predict "high credit". The algorithm picks the questions and the order, learning them from training data.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Slide the depth — watch the tree carve axis-aligned regions and the right-hand diagram grow</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Dataset
+                <select id="viz-tree-data"></select>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Depth
+                <input id="viz-tree-depth" class="viz-classic-slider" type="range">
+            </label>
+            <button id="viz-tree-reset" type="button">Re-sample</button>
+            <span class="viz-classic-badge" id="viz-tree-depth-lbl">max depth = 3</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-tree-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-tree-caption"></div>
+    </div>
+    <script src="../js/viz/decision-trees.js"></script>
+
+    <p class="viz-intro">Every split is axis-aligned — so a single tree can only carve feature space into rectangles. That's fine for the <em>Linear boundary</em> dataset (one split does it) but watch what happens on <em>XOR</em>: depth 1 can't separate the classes at all, but depth 2 nails it with two perpendicular splits. Crank to depth 8 on a noisy dataset and you'll see overfitting — every training point gets its own tiny region.</p>
+
     <article class="tldr-body">
         <p>Decision trees are perhaps the most intuitive ML model — you can read one off and explain exactly why it made each prediction. They handle mixed feature types (numeric + categorical), don't need normalisation, and don't make assumptions about the shape of the data.</p>
         <p>The big downside: a single tree is brittle. Small changes in the training data produce very different trees, so they overfit easily. The fix is ensembles (<a href="../topics/random-forests.html">random forests</a>, <a href="../topics/gradient-boosting.html">gradient boosting</a>) — many trees combined. But you have to understand a single tree first.</p>
