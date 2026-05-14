@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code &amp; Implementation Resources — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+
+        .subject-section { margin-bottom: 3rem; }
+        .subject-section h2 {
+            font-family: var(--font-serif);
+            font-size: 1.55rem;
+            font-weight: 500;
+            color: var(--ink);
+            margin: 0 0 0.4rem;
+        }
+        .subject-section .group-blurb {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin: 0 0 1.25rem;
+            max-width: 680px;
+        }
+        .resources-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid var(--hairline);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+        .resources-list li {
+            padding: 1rem 1.4rem;
+            border-bottom: 1px solid var(--hairline);
+        }
+        .resources-list li:last-child { border-bottom: none; }
+        .resources-list a {
+            color: var(--ink);
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.4rem;
+        }
+        .resources-list a:hover { color: var(--accent); }
+        .resources-list a i {
+            font-size: 0.72em;
+            color: var(--muted);
+            transition: color 0.2s ease;
+        }
+        .resources-list a:hover i { color: var(--accent); }
+        .resources-list .annotation {
+            display: block;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+            margin-top: 0.25rem;
+        }
+        .resources-list .res-meta {
+            display: inline-block;
+            margin-left: 0.55rem;
+            padding: 0.05rem 0.45rem;
+            background: var(--accent-soft);
+            color: var(--accent-hover);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            vertical-align: 2px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html">Theory</a>
+            <a href="../engineering.html">Engineering</a>
+            <a href="../resources.html" class="active">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <header class="page-header">
+                <a href="../resources.html" class="eyebrow">← Resources</a>
+                <h1>Code &amp; Implementation</h1>
+                <p class="lead">Where to read well-tested code, find idiomatic patterns, and learn by reading the source. The site won't reinvent these — they're already excellent.</p>
+            </header>
+
+            <section class="subject-section">
+                <h2>Core library docs</h2>
+                <p class="group-blurb">The official reference for the libraries you'll use daily. Read the <em>user guides</em>, not just the API reference.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://scikit-learn.org/stable/user_guide.html" target="_blank">scikit-learn user guide <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Classical ML</span>
+                        <span class="annotation">The gold standard for classical-ML reference code. Every algorithm has a worked example, a "tips on practical use" subsection, and references to the original papers. The user guide alone is a full course.</span>
+                    </li>
+                    <li>
+                        <a href="https://pytorch.org/docs/stable/index.html" target="_blank">PyTorch documentation <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Deep learning</span>
+                        <span class="annotation">The framework most modern research uses. Start with the 60-minute blitz, then read the autograd notes — understanding autograd well is what separates beginners from intermediate users.</span>
+                    </li>
+                    <li>
+                        <a href="https://jax.readthedocs.io/" target="_blank">JAX documentation <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Deep learning</span>
+                        <span class="annotation">Google's NumPy-on-GPU with first-class transformations (jit, vmap, grad). Increasingly the choice for research; the <em>Thinking in JAX</em> guide is essential.</span>
+                    </li>
+                    <li>
+                        <a href="https://huggingface.co/docs" target="_blank">Hugging Face docs <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Transformers</span>
+                        <span class="annotation">The default entry point for pretrained transformers, datasets, and serving. The "transformers" library is the de-facto standard for working with LLMs and vision transformers in Python.</span>
+                    </li>
+                    <li>
+                        <a href="https://lightning.ai/docs/pytorch/stable/" target="_blank">PyTorch Lightning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Training scaffolding</span>
+                        <span class="annotation">Removes the boilerplate from PyTorch training loops. If you find yourself re-writing the same trainer for every project, this is the abstraction to learn.</span>
+                    </li>
+                    <li>
+                        <a href="https://docs.scipy.org/doc/scipy/" target="_blank">SciPy <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Scientific</span>
+                        <span class="annotation">Statistical tests, special functions, optimization, sparse matrices. Often the right tool when scikit-learn is too high-level and NumPy is too low.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Books with executable code</h2>
+                <p class="group-blurb">Textbooks where every figure has a Jupyter notebook behind it. Best for learning by typing along.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://d2l.ai/" target="_blank">Dive Into Deep Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">Free textbook with executable code for every concept (PyTorch / TF / JAX / MXNet). The closest thing to a comprehensive DL textbook with runnable examples. Updated regularly.</span>
+                    </li>
+                    <li>
+                        <a href="https://github.com/ageron/handson-ml3" target="_blank">Hands-On ML — Aurélien Géron <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Paid</span> <span class="res-meta">Book</span>
+                        <span class="annotation">"Hands-On Machine Learning with Scikit-Learn, Keras &amp; TensorFlow", 3rd ed. The notebooks are free even if you don't buy the book; the most-recommended practical ML book.</span>
+                    </li>
+                    <li>
+                        <a href="https://github.com/probml/pyprobml" target="_blank">Murphy — PML notebooks <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Notebooks</span>
+                        <span class="annotation">Companion code to Murphy's "Probabilistic ML" textbooks. Hundreds of notebooks covering Bayesian methods, generative models, and more.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Code-along tutorials</h2>
+                <p class="group-blurb">Where you watch (or read) someone build a model from scratch and follow along. The fastest way to internalize a technique.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://github.com/karpathy/nn-zero-to-hero" target="_blank">Karpathy — Neural Networks: Zero to Hero <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Video + code</span>
+                        <span class="annotation">Andrej Karpathy's full video course building from scratch: micrograd → makemore → GPT. The single best resource for understanding modern transformers at the implementation level.</span>
+                    </li>
+                    <li>
+                        <a href="https://github.com/karpathy/nanoGPT" target="_blank">nanoGPT <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Repo</span>
+                        <span class="annotation">Karpathy's ~300-line GPT implementation. Trains real models. Read the file top-to-bottom — every line teaches something about transformer training.</span>
+                    </li>
+                    <li>
+                        <a href="https://github.com/labmlai/annotated_deep_learning_paper_implementations" target="_blank">Annotated Deep Learning Paper Implementations <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Repo</span>
+                        <span class="annotation">~150 paper implementations with side-by-side annotations. Best when you've read a paper and want to see exactly how the math becomes code.</span>
+                    </li>
+                    <li>
+                        <a href="https://nlp.seas.harvard.edu/2018/04/03/attention.html" target="_blank">The Annotated Transformer <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Article</span>
+                        <span class="annotation">Harvard NLP's annotated re-implementation of "Attention Is All You Need" — every equation in the paper paired with the PyTorch line that implements it.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Worked examples</h2>
+                <p class="group-blurb">Example-by-example reference code. Best for "I want to do X — show me the canonical way".</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://scikit-learn.org/stable/auto_examples/index.html" target="_blank">scikit-learn examples gallery <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Gallery</span>
+                        <span class="annotation">Hundreds of small worked examples with plots. Filter by topic. Excellent for finding the right tool for a specific problem.</span>
+                    </li>
+                    <li>
+                        <a href="https://github.com/pytorch/examples" target="_blank">pytorch/examples <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Repo</span>
+                        <span class="annotation">Official PyTorch example repository — MNIST, ImageNet, RL, language modelling, GAN. Reference for idiomatic PyTorch patterns.</span>
+                    </li>
+                    <li>
+                        <a href="https://keras.io/examples/" target="_blank">Keras code examples <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Gallery</span>
+                        <span class="annotation">Curated, self-contained Keras / TF examples across every modality (vision, audio, NLP, RL, generative). Each is short and runnable end-to-end.</span>
+                    </li>
+                    <li>
+                        <a href="https://github.com/huggingface/transformers/tree/main/examples" target="_blank">Hugging Face examples <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Repo</span>
+                        <span class="annotation">Official scripts for every transformer task — classification, QA, summarisation, translation, generation. The starting point for any fine-tuning work.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Reading great code</h2>
+                <p class="group-blurb">Open-source projects worth reading for their own sake — not just to use, but to learn from how they're written.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://github.com/scikit-learn/scikit-learn/tree/main/sklearn" target="_blank">scikit-learn source <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Source</span>
+                        <span class="annotation">A model of careful Python: consistent API, thorough docstrings, regression tests for every estimator. Reading <em>sklearn/linear_model/_base.py</em> teaches more about API design than most tutorials.</span>
+                    </li>
+                    <li>
+                        <a href="https://github.com/huggingface/transformers/tree/main/src/transformers/models" target="_blank">transformers — model implementations <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Source</span>
+                        <span class="annotation">Every major transformer architecture (BERT, GPT, Llama, ViT, …) implemented in PyTorch with consistent structure. Reading two implementations side-by-side is the best way to learn an architecture.</span>
+                    </li>
+                    <li>
+                        <a href="https://github.com/google/flax" target="_blank">Flax — JAX neural network library <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Source</span>
+                        <span class="annotation">Compact, functional JAX library. Excellent example of how to design composable neural-network APIs without classes-everywhere.</span>
+                    </li>
+                    <li>
+                        <a href="https://github.com/karpathy/llm.c" target="_blank">llm.c — Karpathy <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Source</span>
+                        <span class="annotation">GPT-2 training in pure C/CUDA. ~1000 lines. Read this when you want to see what frameworks actually compile down to.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Papers with implementations</h2>
+                <p class="group-blurb">Finding the implementation alongside the paper.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://paperswithcode.com/" target="_blank">Papers With Code <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Index</span>
+                        <span class="annotation">Papers indexed by task with linked implementations and benchmark rankings. The best single place to find a strong baseline for any benchmark.</span>
+                    </li>
+                    <li>
+                        <a href="https://github.com/labmlai/annotated_deep_learning_paper_implementations" target="_blank">Annotated DL Paper Implementations <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta">Free</span> <span class="res-meta">Repo</span>
+                        <span class="annotation">Side-by-side paper text + clean PyTorch implementation for ~150 influential papers. Listed twice because it's that useful.</span>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

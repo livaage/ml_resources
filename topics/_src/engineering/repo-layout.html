@@ -1,48 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repository Layout — ML Resources Hub</title>
-    <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <style>
-        .main-content { margin-top: 80px; }
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-brand">ML Resources Hub</div>
-        <div class="nav-links">
-            <a href="../../index.html">Home</a>
-            <a href="../../theory.html" class="">Theory</a>
-            <a href="../../practice.html" class="active">Practice</a>
-            <a href="../../resources.html" class="">Resources</a>
-        </div>
-        <div class="nav-toggle">
-            <i class="fas fa-bars"></i>
-        </div>
-    </nav>
+<!-- TOPIC META -->
+title: Repository Layout — ML Resources Hub
+eyebrow_text: ← Engineering · Project Structure
+eyebrow_href: {{root}}engineering.html
+heading: Repository Layout
+lead: Where to put your data, models, configs, and code so future-you doesn't curse past-you.
+active_nav: engineering
+next_href: configuration.html
+next_title: Configuration Management
 
-    <main class="main-content">
-        <div class="topic-layout">
 
-            <div class="topic-main">
-                <header class="page-header">
-                    <a href="../../practice.html" class="eyebrow">← Practice · Project Structure</a>
-                    <h1>Repository Layout</h1>
-                    <p class="lead">Where to put your data, models, configs, and code so future-you doesn't curse past-you.</p>
-                </header>
-
-                <div class="level-tabs" role="tablist" aria-label="Difficulty">
-                    <button class="level-tab" data-level="basic" type="button">Basic</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
-                </div>
-
-                <section class="topic-level" data-level="basic">
+<!-- TOPIC CONTENT -->
+<section class="topic-level" data-level="basic">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Separate the things that change at different rates.</strong> Code changes daily, configs change per-experiment, data and models change rarely (and live elsewhere). Put each in its own directory; never mix them.</p>
@@ -255,19 +223,9 @@ eval  = "my_project.cli:eval"
     </div>
 </section>
 
-                <nav class="topic-nav">
-                    
-                    <a href="configuration.html" class="next">
-                        <span>
-                            <span class="topic-nav-label">Next</span>
-                            <span class="topic-nav-title">Configuration Management</span>
-                        </span>
-                    </a>
-                </nav>
-            </div>
 
-            <aside class="topic-sidebar">
-                <div class="learn-more">
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
         <li>
@@ -288,35 +246,3 @@ eval  = "my_project.cli:eval"
         </li>
     </ul>
 </div>
-            </aside>
-
-        </div>
-    </main>
-
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
-            <div class="social-links">
-                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
-                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-            onload="renderMathInElement(document.body, {
-                delimiters: [
-                    { left: '$$', right: '$$', display: true },
-                    { left: '$',  right: '$',  display: false },
-                    { left: '\\[', right: '\\]', display: true },
-                    { left: '\\(', right: '\\)', display: false }
-                ],
-                throwOnError: false
-            });"></script>
-    <script src="../../js/topic-page.js"></script>
-</body>
-</html>

@@ -116,7 +116,7 @@ def render(template: str, meta: dict[str, str], content: str, sidebar: str, root
     # Set the active navbar item. Source declares `active_nav: theory|practice|resources`
     # (default theory). One of the three placeholders becomes "active", the others "".
     active = meta.get("active_nav", "theory")
-    for section in ("theory", "practice", "resources"):
+    for section in ("theory", "engineering", "resources"):
         out = out.replace(f"{{{{{section}_active}}}}",
                           "active" if section == active else "")
 

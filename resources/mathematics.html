@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematics Resources — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+
+        .subject-section { margin-bottom: 3rem; }
+        .subject-section h2 {
+            font-family: var(--font-serif);
+            font-size: 1.55rem;
+            font-weight: 500;
+            color: var(--ink);
+            margin: 0 0 0.4rem;
+        }
+        .subject-section .group-blurb {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin: 0 0 1.25rem;
+            max-width: 680px;
+        }
+        .resources-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid var(--hairline);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+        .resources-list li {
+            padding: 1rem 1.4rem;
+            border-bottom: 1px solid var(--hairline);
+        }
+        .resources-list li:last-child { border-bottom: none; }
+        .resources-list a {
+            color: var(--ink);
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.4rem;
+        }
+        .resources-list a:hover { color: var(--accent); }
+        .resources-list a i {
+            font-size: 0.72em;
+            color: var(--muted);
+            transition: color 0.2s ease;
+        }
+        .resources-list a:hover i { color: var(--accent); }
+        .resources-list .annotation {
+            display: block;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+            margin-top: 0.25rem;
+        }
+        .resources-list .res-meta {
+            display: inline-block;
+            margin-left: 0.55rem;
+            padding: 0.05rem 0.45rem;
+            background: var(--accent-soft);
+            color: var(--accent-hover);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            vertical-align: 2px;
+        }
+        .resources-list .res-meta.free { background: #e6f6ec; color: #1f6b3d; }
+        .resources-list .res-meta.paid { background: var(--accent-warm-soft); color: #8a3a1f; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html">Theory</a>
+            <a href="../engineering.html">Engineering</a>
+            <a href="../resources.html" class="active">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <header class="page-header">
+                <a href="../resources.html" class="eyebrow">← Resources</a>
+                <h1>Mathematics</h1>
+                <p class="lead">The math that actually shows up when you do ML. Organised by sub-discipline; each entry has a note on what it's uniquely good for.</p>
+            </header>
+
+            <section class="subject-section">
+                <h2>Start here</h2>
+                <p class="group-blurb">If you only read one thing.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://mml-book.github.io/" target="_blank">Mathematics for Machine Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">Deisenroth, Faisal &amp; Ong. Covers exactly the math used in ML — linear algebra, vector calculus, probability, optimisation — and nothing else. The single most-recommended starting point.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Linear Algebra</h2>
+                <p class="group-blurb">Vectors, matrices, eigendecomposition, SVD — the language every ML model speaks.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank">3Blue1Brown — Essence of Linear Algebra <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Video</span>
+                        <span class="annotation">15-video visual series. The intuition pump for "what is a matrix doing?" Watch alongside any textbook — you'll never see linalg the same way.</span>
+                    </li>
+                    <li>
+                        <a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/" target="_blank">MIT 18.06 — Gilbert Strang <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Course</span>
+                        <span class="annotation">The classic MIT linear algebra course. Strang's lectures are widely considered the best math lectures on YouTube. Pair with his book "Introduction to Linear Algebra".</span>
+                    </li>
+                    <li>
+                        <a href="https://immersivemath.com/ila/" target="_blank">Immersive Linear Algebra <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Interactive</span>
+                        <span class="annotation">Browser-based textbook with interactive 3D visualizations on every page. Best when you want to play with concepts before reading the formal definitions.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.stat.cmu.edu/~cshalizi/350/lectures/03/lecture-03.pdf" target="_blank">Matrix calculus quick reference <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Cheatsheet</span>
+                        <span class="annotation">Print and pin to your wall. Covers the matrix-calculus identities you'll keep forgetting when deriving backprop.</span>
+                    </li>
+                    <li>
+                        <a href="https://explained.ai/matrix-calculus/" target="_blank">The Matrix Calculus You Need For Deep Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Article</span>
+                        <span class="annotation">Parr &amp; Howard. Long but focused: exactly the matrix calculus identities used in neural network derivations, with examples.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Calculus &amp; Optimization</h2>
+                <p class="group-blurb">Derivatives, the chain rule, gradient descent, and convex optimization. The machinery of training.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://www.3blue1brown.com/topics/calculus" target="_blank">3Blue1Brown — Essence of Calculus <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Video</span>
+                        <span class="annotation">Same author and quality as the linalg series. The chain rule episode alone is worth more than most textbook chapters on it.</span>
+                    </li>
+                    <li>
+                        <a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank">Boyd &amp; Vandenberghe — Convex Optimization <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">The canonical text. Free PDF. Read chapters 1–5 for the foundations; the later chapters are specialist references. Beautiful, careful exposition.</span>
+                    </li>
+                    <li>
+                        <a href="https://ruder.io/optimizing-gradient-descent/" target="_blank">Ruder — Optimizing Gradient Descent <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Article</span>
+                        <span class="annotation">Comprehensive overview of SGD variants — momentum, Adagrad, RMSprop, Adam, AdamW. The single clearest reference for "which optimizer should I use".</span>
+                    </li>
+                    <li>
+                        <a href="https://distill.pub/2017/momentum/" target="_blank">Distill — Why Momentum Really Works <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Interactive</span>
+                        <span class="annotation">The best deep dive on momentum specifically. Interactive visualizations that build intuition you can't get from formulas alone.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Probability &amp; Statistics</h2>
+                <p class="group-blurb">Distributions, expectation, MLE / MAP, Bayesian inference, hypothesis testing.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://seeing-theory.brown.edu/" target="_blank">Seeing Theory <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Interactive</span>
+                        <span class="annotation">Brown University's interactive probability primer. Click, drag, see what happens. The best intuition builder for distributions, regression, and inference.</span>
+                    </li>
+                    <li>
+                        <a href="https://xcelab.net/rm/statistical-rethinking/" target="_blank">McElreath — Statistical Rethinking <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta paid">Paid</span> <span class="res-meta">Book + Lectures</span>
+                        <span class="annotation">The friendliest Bayesian textbook. Free lectures on YouTube; book is paid but worth every cent. Builds intuition through worked examples and chapter-by-chapter Stan / PyMC code.</span>
+                    </li>
+                    <li>
+                        <a href="https://greenteapress.com/wp/think-stats-2e/" target="_blank">Think Stats — Allen Downey <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">Stats taught through Python. Light on theory, heavy on the things you'll actually do. Free PDF + companion notebooks.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.stat.cmu.edu/~larry/all-of-statistics/" target="_blank">Wasserman — All of Statistics <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta paid">Paid</span> <span class="res-meta">Book</span>
+                        <span class="annotation">Compressed treatment of mathematical statistics. Goes fast, assumes mathematical maturity. The reference when you want the formal treatment in one place.</span>
+                    </li>
+                    <li>
+                        <a href="https://probml.github.io/pml-book/" target="_blank">Murphy — Probabilistic Machine Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">Two volumes, free PDF. Volume 1 (Foundations) covers ML through a probabilistic lens; volume 2 (Advanced) goes into modern Bayesian methods. Strongest single source on probabilistic ML.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Information Theory</h2>
+                <p class="group-blurb">Entropy, KL divergence, cross-entropy, mutual information. Underrated for ML — most loss functions are info-theoretic.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://www.inference.org.uk/itprnn/book.pdf" target="_blank">MacKay — Information Theory, Inference, and Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">The classic. Free PDF, hundreds of pages. Idiosyncratic but illuminating — connects info theory and Bayesian inference in a way no other book does.</span>
+                    </li>
+                    <li>
+                        <a href="https://colah.github.io/posts/2015-09-Visual-Information/" target="_blank">Olah — Visual Information Theory <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Article</span>
+                        <span class="annotation">The visual intuition for entropy and KL divergence. Read once, never look back at the formulas with confusion.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.youtube.com/playlist?list=PLE125425EC837021F" target="_blank">MacKay lectures (Cambridge) <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Video</span>
+                        <span class="annotation">David MacKay teaching the contents of his book. Lectures are excellent and free on YouTube.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Cheat sheets &amp; references</h2>
+                <p class="group-blurb">When you need a formula or identity, fast.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf" target="_blank">The Matrix Cookbook <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Reference</span>
+                        <span class="annotation">Petersen &amp; Pedersen. The definitive reference for matrix identities, derivatives, and inverses. Bookmark this; you'll come back.</span>
+                    </li>
+                    <li>
+                        <a href="https://stanford.edu/~shervine/teaching/cs-229/cheatsheet-probability" target="_blank">Stanford CS229 — Probability Cheatsheet <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Cheatsheet</span>
+                        <span class="annotation">Compact reference for distributions, expectations, common identities. Companion cheatsheets for linear algebra and the broader course also worth grabbing.</span>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

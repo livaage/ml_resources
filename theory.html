@@ -81,6 +81,30 @@
             box-shadow: 0 6px 18px -10px rgba(79, 70, 229, 0.22);
         }
 
+        /* Featured section (Model Families) — distinct visual weight */
+        .section-item.section-featured {
+            border: 1.5px solid var(--accent);
+            background: linear-gradient(135deg, var(--surface), var(--accent-soft) 200%);
+            box-shadow: 0 4px 16px -8px rgba(79, 70, 229, 0.22);
+        }
+        .section-item.section-featured .section-header {
+            font-weight: 600;
+        }
+        .section-badge {
+            display: inline-block;
+            margin-left: 0.55rem;
+            padding: 0.18rem 0.6rem;
+            background: var(--accent);
+            color: var(--white);
+            border-radius: 999px;
+            font-family: var(--font-sans);
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            vertical-align: 3px;
+        }
+
         .section-header {
             margin: 0;
             padding: 1.1rem 1.5rem;
@@ -246,7 +270,7 @@
         <div class="nav-links">
             <a href="index.html">Home</a>
             <a href="theory.html" class="active">Theory</a>
-            <a href="practice.html">Practice</a>
+            <a href="engineering.html">Engineering</a>
             <a href="resources.html">Resources</a>
         </div>
         <div class="nav-toggle">
@@ -261,49 +285,6 @@
                     <p class="lead">Short TL;DRs on each ML topic, with curated pointers to the canonical deep dives. A structured tour from mathematical foundations through model families and frontier topics.</p>
                 </header>
                 <div class="main-sections">
-
-                    <div class="section-item">
-                        <h2 class="section-header">Mathematical Foundations</h2>
-                        <div class="section-content">
-                            <div class="main-topics">
-                                <div class="main-topic">
-                                    <h3>The Math Behind ML</h3>
-                                    <div class="topic-content">
-                                        <ul class="subtopic-list">
-                                            <li>
-                                                <a href="topics/linear-algebra.html">Linear Algebra</a>
-                                                <div class="topic-description">
-                                                    Vectors, matrices, eigendecomposition, SVD — the language models speak.
-                                                    <a href="https://en.wikipedia.org/wiki/Linear_algebra" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/calculus.html">Calculus &amp; Gradients</a>
-                                                <div class="topic-description">
-                                                    Derivatives, chain rule, partial derivatives, Jacobians — the machinery of training.
-                                                    <a href="https://en.wikipedia.org/wiki/Matrix_calculus" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/statistics-probability.html">Probability &amp; Statistics</a>
-                                                <div class="topic-description">
-                                                    Distributions, expectation, MLE / MAP, hypothesis testing.
-                                                    <a href="https://en.wikipedia.org/wiki/Probability_theory" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/information-theory.html">Information Theory</a>
-                                                <div class="topic-description">
-                                                    Entropy, KL divergence, cross-entropy, mutual information.
-                                                    <a href="https://en.wikipedia.org/wiki/Information_theory" target="_blank" class="external-link">Learn more <i class="fas fa-external-link-alt"></i></a>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="section-item">
                         <h2 class="section-header">Core Concepts</h2>
@@ -486,8 +467,8 @@
                         </div>
                     </div>
 
-                    <div class="section-item">
-                        <h2 class="section-header">Model Families</h2>
+                    <div class="section-item section-featured">
+                        <h2 class="section-header"><span class="section-title-block">Model Families <span class="section-badge">main content</span></span></h2>
                         <div class="section-content">
                             <div class="main-topics">
                                 <div class="main-topic">

@@ -1,16 +1,48 @@
-<!-- TOPIC META -->
-title: Environments &amp; Dependencies — ML Resources Hub
-eyebrow_text: ← Practice · Project Structure
-eyebrow_href: {{root}}practice.html
-heading: Environments &amp; Dependencies
-lead: uv, conda, Docker — choosing the right level of isolation for your workflow.
-active_nav: practice
-prev_href: reproducibility.html
-prev_title: Reproducibility
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environments &amp; Dependencies — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="">Theory</a>
+            <a href="../../engineering.html" class="active">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
 
+    <main class="main-content">
+        <div class="topic-layout">
 
-<!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="basic">
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../engineering.html" class="eyebrow">← Engineering · Project Structure</a>
+                    <h1>Environments &amp; Dependencies</h1>
+                    <p class="lead">uv, conda, Docker — choosing the right level of isolation for your workflow.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Difficulty">
+                    <button class="level-tab" data-level="basic" type="button">Basic</button>
+                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level" data-level="basic">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Every project gets its own Python environment.</strong> Never install packages globally. Never share an environment between projects. The cost of setup is ten minutes; the cost of skipping it is six months of cryptic version conflicts.</p>
@@ -179,9 +211,19 @@ ENTRYPOINT ["python", "-m", "my_project.cli"]
     </div>
 </section>
 
+                <nav class="topic-nav">
+                    <a href="reproducibility.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Reproducibility</span>
+                        </span>
+                    </a>
+                    
+                </nav>
+            </div>
 
-<!-- TOPIC SIDEBAR -->
-<div class="learn-more">
+            <aside class="topic-sidebar">
+                <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
         <li>
@@ -206,3 +248,35 @@ ENTRYPOINT ["python", "-m", "my_project.cli"]
         </li>
     </ul>
 </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

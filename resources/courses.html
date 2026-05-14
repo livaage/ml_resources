@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+        .subject-section { margin-bottom: 3rem; }
+        .subject-section h2 {
+            font-family: var(--font-serif);
+            font-size: 1.55rem;
+            font-weight: 500;
+            color: var(--ink);
+            margin: 0 0 0.4rem;
+        }
+        .subject-section .group-blurb {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin: 0 0 1.25rem;
+            max-width: 680px;
+        }
+        .resources-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid var(--hairline);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+        .resources-list li {
+            padding: 1rem 1.4rem;
+            border-bottom: 1px solid var(--hairline);
+        }
+        .resources-list li:last-child { border-bottom: none; }
+        .resources-list a {
+            color: var(--ink);
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.4rem;
+        }
+        .resources-list a:hover { color: var(--accent); }
+        .resources-list a i {
+            font-size: 0.72em;
+            color: var(--muted);
+            transition: color 0.2s ease;
+        }
+        .resources-list a:hover i { color: var(--accent); }
+        .resources-list .annotation {
+            display: block;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+            margin-top: 0.25rem;
+        }
+        .resources-list .res-meta {
+            display: inline-block;
+            margin-left: 0.55rem;
+            padding: 0.05rem 0.45rem;
+            background: var(--accent-soft);
+            color: var(--accent-hover);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            vertical-align: 2px;
+        }
+        .resources-list .res-meta.free { background: #e6f6ec; color: #1f6b3d; }
+        .resources-list .res-meta.paid { background: var(--accent-warm-soft); color: #8a3a1f; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html">Theory</a>
+            <a href="../engineering.html">Engineering</a>
+            <a href="../resources.html" class="active">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <header class="page-header">
+                <a href="../resources.html" class="eyebrow">← Resources</a>
+                <h1>Courses</h1>
+                <p class="lead">Structured curricula if you want a path rather than browsing topics. From gentle introductions to grad-level specialty courses.</p>
+            </header>
+
+            <section class="subject-section">
+                <h2>Introductions</h2>
+                <p class="group-blurb">Start here if ML is new to you. Pick one — don't try to take them all at once.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://www.coursera.org/specializations/machine-learning-introduction" target="_blank">Andrew Ng — Machine Learning Specialization <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta paid">Paid</span> <span class="res-meta">Course</span>
+                        <span class="annotation">The canonical "first ML course". Audit free, certificate paid. Solid foundations on classical algorithms; light on deep learning.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.fast.ai/" target="_blank">fast.ai — Practical Deep Learning for Coders <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Course</span>
+                        <span class="annotation">Top-down, hands-on deep learning. You build state-of-the-art models in week 1. Best complement to a theory-first course like Andrew Ng's.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Stanford classics</h2>
+                <p class="group-blurb">The gold-standard university courses, all with public materials.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://cs229.stanford.edu/" target="_blank">CS229 — Machine Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Course</span>
+                        <span class="annotation">Stanford's flagship ML course. Lecture notes are widely considered the best concise ML textbook ever assembled.</span>
+                    </li>
+                    <li>
+                        <a href="https://cs231n.stanford.edu/" target="_blank">CS231n — CNNs for Visual Recognition <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Course</span>
+                        <span class="annotation">The gold-standard deep-vision course. Slides and assignments are public; the lecture videos cover the foundations of CNN training.</span>
+                    </li>
+                    <li>
+                        <a href="https://web.stanford.edu/class/cs224n/" target="_blank">CS224n — NLP with Deep Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Course</span>
+                        <span class="annotation">Embeddings → attention → transformers. Updated yearly. Lecture videos on YouTube; assignments are public and substantive.</span>
+                    </li>
+                    <li>
+                        <a href="https://web.stanford.edu/class/cs236/" target="_blank">CS236 — Deep Generative Models <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Course</span>
+                        <span class="annotation">Stefano Ermon's course. The structured introduction to VAEs, GANs, flows, diffusion. Public lecture notes are the best single reference for the area.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Reinforcement learning</h2>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://rail.eecs.berkeley.edu/deeprlcourse/" target="_blank">CS285 — Deep RL (Berkeley) <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Course</span>
+                        <span class="annotation">Sergey Levine's grad-level RL course. The reference for understanding modern RL algorithms — policy gradients, actor-critic, off-policy methods, model-based RL.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.davidsilver.uk/teaching/" target="_blank">David Silver — Introduction to RL <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Course</span>
+                        <span class="annotation">DeepMind's David Silver teaching the foundations. Friendlier than CS285; best paired with Sutton &amp; Barto's book.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Coming soon</h2>
+                <p class="group-blurb">Additional courses I want to add — MLOps, recommender systems, multimodal, foundation models.</p>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reference Textbooks — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+        .subject-section { margin-bottom: 3rem; }
+        .subject-section h2 {
+            font-family: var(--font-serif);
+            font-size: 1.55rem;
+            font-weight: 500;
+            color: var(--ink);
+            margin: 0 0 0.4rem;
+        }
+        .subject-section .group-blurb {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin: 0 0 1.25rem;
+            max-width: 680px;
+        }
+        .resources-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid var(--hairline);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+        .resources-list li {
+            padding: 1rem 1.4rem;
+            border-bottom: 1px solid var(--hairline);
+        }
+        .resources-list li:last-child { border-bottom: none; }
+        .resources-list a {
+            color: var(--ink);
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.4rem;
+        }
+        .resources-list a:hover { color: var(--accent); }
+        .resources-list a i {
+            font-size: 0.72em;
+            color: var(--muted);
+            transition: color 0.2s ease;
+        }
+        .resources-list a:hover i { color: var(--accent); }
+        .resources-list .annotation {
+            display: block;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+            margin-top: 0.25rem;
+        }
+        .resources-list .res-meta {
+            display: inline-block;
+            margin-left: 0.55rem;
+            padding: 0.05rem 0.45rem;
+            background: var(--accent-soft);
+            color: var(--accent-hover);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            vertical-align: 2px;
+        }
+        .resources-list .res-meta.free { background: #e6f6ec; color: #1f6b3d; }
+        .resources-list .res-meta.paid { background: var(--accent-warm-soft); color: #8a3a1f; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html">Theory</a>
+            <a href="../engineering.html">Engineering</a>
+            <a href="../resources.html" class="active">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <header class="page-header">
+                <a href="../resources.html" class="eyebrow">← Resources</a>
+                <h1>Reference Textbooks</h1>
+                <p class="lead">The canonical books for when the TL;DRs aren't enough. Many are free PDFs online.</p>
+            </header>
+
+            <section class="subject-section">
+                <h2>General ML &amp; deep learning</h2>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://www.deeplearningbook.org/" target="_blank">Goodfellow, Bengio, Courville — Deep Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">The classic deep learning text. Free HTML version. Slightly dated on modern architectures (no transformers in depth) but the foundations chapters (6–8) are still the standard reference.</span>
+                    </li>
+                    <li>
+                        <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">Hastie, Tibshirani, Friedman — Elements of Statistical Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">The classical-ML reference. Free PDF. Dense but exhaustive — every section eventually gets cited somewhere.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.statlearning.com/" target="_blank">James, Witten, Hastie, Tibshirani — Introduction to Statistical Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">Friendlier little sibling of ESL. Free PDF, with Python and R versions. Best entry point for classical ML with statistical rigor.</span>
+                    </li>
+                    <li>
+                        <a href="https://probml.github.io/pml-book/" target="_blank">Murphy — Probabilistic Machine Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">Modern, comprehensive, free. Two volumes (foundations + advanced). Strongest treatment of probabilistic methods. Vol 1 is the default modern ML textbook.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.microsoft.com/en-us/research/people/cmbishop/prml-book/" target="_blank">Bishop — Pattern Recognition and Machine Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">2006 but still relevant. Beautiful Bayesian-flavoured treatment. Free PDF. The clearest source on EM, mixture models, and variational methods.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Specialty topics</h2>
+                <ul class="resources-list">
+                    <li>
+                        <a href="http://incompleteideas.net/book/the-book.html" target="_blank">Sutton &amp; Barto — Reinforcement Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">The standard RL textbook. Free PDF. Foundational for understanding policy gradients, value functions, and the modern derivatives.</span>
+                    </li>
+                    <li>
+                        <a href="https://web.stanford.edu/~jurafsky/slp3/" target="_blank">Jurafsky &amp; Martin — Speech and Language Processing <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">3rd edition, in progress, free draft. The canonical NLP textbook. Covers everything from regex to transformers.</span>
+                    </li>
+                    <li>
+                        <a href="https://gaussianprocess.org/gpml/" target="_blank">Rasmussen &amp; Williams — Gaussian Processes for ML <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">Free PDF. The reference on GPs from regression to classification to sparse approximations.</span>
+                    </li>
+                    <li>
+                        <a href="https://christophm.github.io/interpretable-ml-book/" target="_blank">Molnar — Interpretable Machine Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">The reference for SHAP, LIME, partial dependence, counterfactual explanations. Free online book.</span>
+                    </li>
+                    <li>
+                        <a href="https://fairmlbook.org/" target="_blank">Barocas, Hardt, Narayanan — Fairness and ML <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta free">Free</span> <span class="res-meta">Book</span>
+                        <span class="annotation">The standard text on fairness, accountability, and ethical considerations in ML.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="subject-section">
+                <h2>Practitioner-oriented</h2>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://huyenchip.com/2022/02/01/designing-ml-systems.html" target="_blank">Huyen — Designing Machine Learning Systems <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta paid">Paid</span> <span class="res-meta">Book</span>
+                        <span class="annotation">Chip Huyen on the engineering of ML systems — data, deployment, monitoring, drift. The best single book on putting ML in production.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.oreilly.com/library/view/machine-learning-design/9781098115777/" target="_blank">Lakshmanan, Robinson, Munn — Machine Learning Design Patterns <i class="fas fa-external-link-alt"></i></a>
+                        <span class="res-meta paid">Paid</span> <span class="res-meta">Book</span>
+                        <span class="annotation">Patterns and anti-patterns from real production systems. Pairs well with Huyen.</span>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
