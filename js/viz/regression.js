@@ -54,8 +54,67 @@
     ]);
     let points = defaultPoints();
     let dragging = null;
+    let degree = 1;   // 1 = linear OLS; >1 = polynomial via normal equations
 
-    // ----- OLS fit -----
+    // ----- Small dense linear solver: Gauss–Jordan on [A | b] -----
+    function solve(A, b) {
+        const n = b.length;
+        const M = A.map((row, i) => [...row, b[i]]);
+        for (let i = 0; i < n; i++) {
+            // Partial pivot
+            let piv = i;
+            for (let k = i + 1; k < n; k++)
+                if (Math.abs(M[k][i]) > Math.abs(M[piv][i])) piv = k;
+            if (piv !== i) [M[i], M[piv]] = [M[piv], M[i]];
+            const d = M[i][i];
+            if (Math.abs(d) < 1e-12) return null;
+            for (let j = i; j <= n; j++) M[i][j] /= d;
+            for (let k = 0; k < n; k++) {
+                if (k === i) continue;
+                const f = M[k][i];
+                if (f === 0) continue;
+                for (let j = i; j <= n; j++) M[k][j] -= f * M[i][j];
+            }
+        }
+        return M.map(row => row[n]);
+    }
+
+    // ----- Polynomial least-squares fit: (X^T X) β = X^T y -----
+    function fitPoly(deg) {
+        const n = points.length;
+        const k = deg + 1;
+        if (n < 2) return Array(k).fill(0);
+        // Centre x to keep the normal equations well-conditioned at high degree
+        let sumX = 0;
+        for (const p of points) sumX += p.x;
+        const xC = sumX / n;
+        const A = Array.from({length: k}, () => Array(k).fill(0));
+        const b = Array(k).fill(0);
+        for (const p of points) {
+            const xs = p.x - xC;
+            const xp = Array(2 * k - 1);
+            xp[0] = 1;
+            for (let j = 1; j < 2 * k - 1; j++) xp[j] = xp[j - 1] * xs;
+            for (let i = 0; i < k; i++) {
+                for (let j = 0; j < k; j++) A[i][j] += xp[i + j];
+                b[i] += xp[i] * p.y;
+            }
+        }
+        // Tiny ridge for numerical stability at high degree
+        for (let i = 0; i < k; i++) A[i][i] += 1e-6;
+        const beta = solve(A, b);
+        if (!beta) return Array(k).fill(0);
+        return { beta, xC };
+    }
+
+    function evalPoly(model, x) {
+        const xs = x - model.xC;
+        let y = 0, p = 1;
+        for (const c of model.beta) { y += c * p; p *= xs; }
+        return y;
+    }
+
+    // ----- OLS fit (linear, returns slope/intercept/R² for the stats strip) -----
     function fit() {
         const n = points.length;
         if (n < 2) return { slope: 0, intercept: 0, r2: 0 };
@@ -123,20 +182,21 @@
         ctx.fillText('x', W - PAD + 16, H - PAD + 4);
         ctx.fillText('y', PAD - 4, PAD - 8);
 
-        // Fit line and residuals
+        // Fit (line for stats, polynomial for the drawn curve)
         const { slope, intercept, r2 } = fit();
+        let model = null;
         if (points.length >= 2) {
-            // Clip to plot area so the line doesn't escape
+            model = fitPoly(degree);
             ctx.save();
             ctx.beginPath();
             ctx.rect(PAD, PAD, W - 2 * PAD, H - 2 * PAD);
             ctx.clip();
 
-            // Residual segments (faint)
+            // Residuals (faint), using the polynomial fit
             ctx.strokeStyle = 'rgba(234, 121, 89, 0.4)';
             ctx.lineWidth = 1;
             for (const p of points) {
-                const yHat = slope * p.x + intercept;
+                const yHat = evalPoly(model, p.x);
                 const [pxA, pyA] = toPx(p.x, p.y);
                 const [pxB, pyB] = toPx(p.x, yHat);
                 ctx.beginPath();
@@ -145,16 +205,18 @@
                 ctx.stroke();
             }
 
-            // The fitted line
-            const yL = slope * MIN_X + intercept;
-            const yR = slope * MAX_X + intercept;
-            const [x1, y1] = toPx(MIN_X, yL);
-            const [x2, y2] = toPx(MAX_X, yR);
+            // The fitted curve, sampled densely
             ctx.strokeStyle = '#4f46e5';
             ctx.lineWidth = 2.5;
             ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
+            const steps = 240;
+            for (let i = 0; i <= steps; i++) {
+                const x = MIN_X + (i / steps) * (MAX_X - MIN_X);
+                const y = evalPoly(model, x);
+                const [px, py] = toPx(x, y);
+                if (i === 0) ctx.moveTo(px, py);
+                else         ctx.lineTo(px, py);
+            }
             ctx.stroke();
 
             ctx.restore();
@@ -173,13 +235,24 @@
             ctx.stroke();
         }
 
+        // Compute MSE on the actually-drawn (poly) curve for the stats strip
+        let mse = 0;
+        if (model && points.length) {
+            for (const p of points) {
+                const r = p.y - evalPoly(model, p.x);
+                mse += r * r;
+            }
+            mse /= points.length;
+        }
+
         // Stats panel
         const stats = document.getElementById('viz-regression-stats');
         if (stats) {
+            const fitLabel = degree === 1 ? 'linear OLS' : `polynomial deg ${degree}`;
             stats.innerHTML = `
-                <span><span class="label">slope β₁</span>${slope.toFixed(3)}</span>
-                <span><span class="label">intercept β₀</span>${intercept.toFixed(3)}</span>
-                <span><span class="label">R²</span>${r2.toFixed(3)}</span>
+                <span><span class="label">fit</span>${fitLabel}</span>
+                <span><span class="label">MSE</span>${mse.toFixed(3)}</span>
+                <span><span class="label">R² (linear)</span>${r2.toFixed(3)}</span>
                 <span><span class="label">n</span>${points.length}</span>
             `;
         }
@@ -262,6 +335,29 @@
         points = [];
         draw();
     });
+    document.getElementById('viz-regression-curvy')?.addEventListener('click', () => {
+        // Sine-shaped trend — linear fit struggles, degree 3+ explains it.
+        points = Array.from({ length: 16 }, (_, i) => {
+            const x = 0.4 + i * (9.2 / 15);
+            const y = 5 + 3 * Math.sin((x - 0.4) * 0.85) + (Math.random() - 0.5) * 0.6;
+            return { x, y: Math.max(MIN_Y, Math.min(MAX_Y, y)) };
+        });
+        draw();
+    });
+    const degSel = document.getElementById('viz-regression-degree');
+    if (degSel) {
+        degSel.innerHTML = `
+            <option value="1">Linear (deg 1)</option>
+            <option value="2">Polynomial (deg 2)</option>
+            <option value="3">Polynomial (deg 3)</option>
+            <option value="5">Polynomial (deg 5)</option>
+            <option value="9">Polynomial (deg 9)</option>
+        `;
+        degSel.addEventListener('change', () => {
+            degree = parseInt(degSel.value, 10);
+            draw();
+        });
+    }
 
     if (typeof ResizeObserver !== 'undefined') {
         let debounce = null;

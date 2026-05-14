@@ -54,7 +54,9 @@
             <div class="viz-embed-header">
                 <span class="viz-embed-title">Drag points · click empty space to add · <kbd>shift</kbd>+click to remove</span>
                 <div class="viz-embed-controls">
-                    <button id="viz-regression-noisy" type="button">Noisy data</button>
+                    <select id="viz-regression-degree" aria-label="fit degree"></select>
+                    <button id="viz-regression-noisy" type="button">Noisy</button>
+                    <button id="viz-regression-curvy" type="button">Sine</button>
                     <button id="viz-regression-clear" type="button">Clear</button>
                     <button id="viz-regression-reset" type="button">Reset</button>
                 </div>
@@ -64,7 +66,7 @@
         </div>
         <script src="../js/viz/regression.js"></script>
 
-        <p class="viz-intro">The OLS line minimises the sum of squared vertical distances (the faint orange lines) from each point to itself. Drag a point far from the trend and watch R² drop. Click "Noisy data" to see what a low-R² fit looks like.</p>
+        <p class="viz-intro">The fit minimises the sum of squared vertical distances (the faint orange lines). Try the <em>Sine</em> preset, then crank the degree up — degree 9 will pass through almost every point but wiggle wildly in between. That's <strong>overfitting</strong> in two clicks.</p>
 
         <div class="viz-grid">
             <a href="https://setosa.io/ev/ordinary-least-squares-regression/" target="_blank" class="viz-card viz-card-featured">
