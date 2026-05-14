@@ -48,6 +48,40 @@
         <p><strong>Find the boundary with the widest possible gap.</strong> If you can draw multiple straight lines separating two classes, the SVM picks the one that leaves the most "elbow room" on either side. The points right on the edge of the gap are the <em>support vectors</em> — they alone determine the boundary.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Toggle the kernel · slide C (linear) or γ (RBF) · watch the boundary bend and the support vectors light up</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Kernel
+                <select id="viz-svm-kernel"></select>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Data
+                <select id="viz-svm-data"></select>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                C
+                <input id="viz-svm-c" class="viz-classic-slider" type="range">
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                γ
+                <input id="viz-svm-gamma" class="viz-classic-slider" type="range">
+            </label>
+            <button id="viz-svm-reset" type="button">Re-sample</button>
+            <span class="viz-classic-badge" id="viz-svm-c-lbl">C = 1.00</span>
+            <span class="viz-classic-badge" id="viz-svm-gamma-lbl">γ = 3.0</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-svm-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-svm-caption"></div>
+    </div>
+    <script src="../js/viz/svm.js"></script>
+
+    <p class="viz-intro">In <strong>linear</strong> mode, dashed lines mark the margin at f = ±1; outlined points are the support vectors. Drop the slider for <em>C</em> and watch the margin widen — the SVM tolerates more violations in exchange for a fatter buffer. Switch to <strong>RBF</strong> on the <em>Concentric</em> dataset and the boundary bends into a circle; raise γ to make it tighter (and more prone to overfit), lower it for a smoother fit.</p>
+
     <article class="tldr-body">
         <p>Imagine two clusters of points on a 2D plane, one class on the left, one on the right. A regular classifier might draw any line between them. An SVM picks the line that's <em>maximally far</em> from both — the "fattest" possible separator. The intuition: leaving a wide margin should generalize better to new points than squeezing a line right up against the data.</p>
         <p>When the classes aren't linearly separable in the original feature space, the <strong>kernel trick</strong> lets SVMs find a separator in an implicit higher-dimensional space without ever explicitly computing the coordinates. That's how SVMs handle non-linear problems.</p>
