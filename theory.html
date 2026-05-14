@@ -81,28 +81,12 @@
             box-shadow: 0 6px 18px -10px rgba(79, 70, 229, 0.22);
         }
 
-        /* Featured section (Model Families) — distinct visual weight */
+        /* Featured section (Model Families) — subtle distinction only */
         .section-item.section-featured {
-            border: 1.5px solid var(--accent);
-            background: linear-gradient(135deg, var(--surface), var(--accent-soft) 200%);
-            box-shadow: 0 4px 16px -8px rgba(79, 70, 229, 0.22);
+            border: 1px solid var(--accent);
         }
-        .section-item.section-featured .section-header {
-            font-weight: 600;
-        }
-        .section-badge {
-            display: inline-block;
-            margin-left: 0.55rem;
-            padding: 0.18rem 0.6rem;
-            background: var(--accent);
-            color: var(--white);
-            border-radius: 999px;
-            font-family: var(--font-sans);
-            font-size: 0.62rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            vertical-align: 3px;
+        .section-item.section-featured > .section-header {
+            color: var(--accent);
         }
 
         .section-header {
@@ -156,65 +140,29 @@
 
         .main-topics {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .main-topic {
             background: var(--light-bg);
-            padding: 1.5rem;
+            padding: 1.1rem 1.25rem;
             border-radius: 8px;
-            transition: all 0.3s ease;
         }
 
         .main-topic h3 {
-            margin: 0 0 1rem 0;
-            color: var(--primary-color);
-            font-size: 1.2rem;
-        }
-
-        /* Featured main-topic card — wider, more visual weight */
-        .main-topic-featured {
-            background: linear-gradient(135deg, var(--surface), var(--accent-soft));
-            border: 1px solid rgba(79, 70, 229, 0.2);
-            box-shadow: 0 4px 14px -8px rgba(79, 70, 229, 0.18);
-        }
-        .main-topic-featured h3 {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            margin-bottom: 0.4rem;
-        }
-        .main-topic-blurb {
-            color: var(--muted);
-            font-size: 0.92rem;
-            margin: 0 0 1rem;
-            line-height: 1.5;
-        }
-        /* On wider screens the featured card spans two columns; on small it goes back to one */
-        @media (max-width: 900px) {
-            .main-topic-featured { grid-column: auto !important; }
-        }
-
-        /* Small count chip beside an h3 */
-        .topic-count {
-            display: inline-flex;
-            align-items: center;
+            margin: 0 0 0.6rem 0;
+            color: var(--ink);
             font-family: var(--font-sans);
-            font-size: 0.7rem;
+            font-size: 0.95rem;
             font-weight: 600;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.01em;
             text-transform: uppercase;
-            padding: 0.18rem 0.6rem;
-            background: var(--accent);
-            color: var(--white);
-            border-radius: 999px;
+            letter-spacing: 0.05em;
         }
 
-        .topic-content {
-            display: block;
-        }
+        .topic-content { display: block; }
 
         .subtopic-list {
             list-style: none;
@@ -223,31 +171,84 @@
         }
 
         .subtopic-list li {
-            padding: 0.75rem 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.07);
         }
 
         .subtopic-list li:last-child {
             border-bottom: none;
         }
 
-        .subtopic-list a {
-            color: var(--primary-color);
+        .subtopic-list > li > a {
+            color: var(--ink);
             text-decoration: none;
             display: block;
-            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
         }
 
-        .subtopic-list a:hover {
-            color: var(--secondary-color);
-            transform: translateX(5px);
+        .subtopic-list > li > a:hover {
+            color: var(--accent);
         }
 
         .topic-description {
-            font-size: 0.9rem;
-            color: var(--text-color);
-            margin-top: 0.5rem;
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-top: 0.15rem;
+            line-height: 1.4;
         }
+
+        /* Architectures expand inside the Neural Networks card */
+        .arch-li { padding: 0.4rem 0 0 0 !important; border: none !important; }
+        .arch-details summary {
+            cursor: pointer;
+            list-style: none;
+            font-size: 0.88rem;
+            color: var(--accent);
+            font-weight: 500;
+            padding: 0.35rem 0;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .arch-details summary::-webkit-details-marker { display: none; }
+        .arch-details summary::before {
+            content: '▸';
+            font-size: 0.7rem;
+            color: var(--accent);
+            transition: transform 0.2s ease;
+            display: inline-block;
+        }
+        .arch-details[open] summary::before { transform: rotate(90deg); }
+        .arch-details .arch-count {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.05rem 0.45rem;
+            background: var(--accent-soft);
+            color: var(--accent-hover);
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            margin-left: auto;
+        }
+        .arch-list {
+            list-style: none;
+            padding: 0.35rem 0 0.15rem 1rem;
+            margin: 0;
+            border-left: 1px solid var(--hairline);
+            margin-left: 0.4rem;
+        }
+        .arch-list li {
+            padding: 0.3rem 0;
+            border: none;
+        }
+        .arch-list a {
+            color: var(--ink-soft);
+            text-decoration: none;
+            font-size: 0.88rem;
+        }
+        .arch-list a:hover { color: var(--accent); }
 
         .external-link {
             color: var(--secondary-color);
@@ -285,6 +286,198 @@
                     <p class="lead">Short TL;DRs on each ML topic, with curated pointers to the canonical deep dives. A structured tour from mathematical foundations through model families and frontier topics.</p>
                 </header>
                 <div class="main-sections">
+
+                    <div class="section-item section-featured active">
+                        <h2 class="section-header">Model Families</h2>
+                        <div class="section-content">
+                            <div class="main-topics">
+                                <div class="main-topic">
+                                    <h3>Linear Models</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/regression.html">Linear &amp; Logistic Regression</a>
+                                                <div class="topic-description">
+                                                    Linear regression, ridge, lasso, elastic net, and logistic regression for classification.
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Kernel Methods</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/support-vector-machines.html">Support Vector Machines</a>
+                                                <div class="topic-description">
+                                                    Maximum-margin classifiers and the kernel trick.
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/gaussian-processes.html">Gaussian Processes</a>
+                                                <div class="topic-description">
+                                                    Bayesian non-parametric regression with calibrated uncertainty.
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Tree-Based &amp; Ensembles</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/decision-trees.html">Decision Trees</a>
+                                                <div class="topic-description">
+                                                    CART, splitting criteria, pruning — the building block.
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/random-forests.html">Random Forests</a>
+                                                <div class="topic-description">
+                                                    Bagging + decision trees — strong baselines with very little tuning.
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/gradient-boosting.html">Gradient Boosting (XGBoost, LightGBM)</a>
+                                                <div class="topic-description">
+                                                    Boosted trees — still the SOTA on most tabular data.
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Probabilistic Models</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/naive-bayes.html">Naive Bayes</a>
+                                                <div class="topic-description">
+                                                    Conditional independence assumptions and Bayesian classification.
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/gaussian-mixture-models.html">Gaussian Mixture Models</a>
+                                                <div class="topic-description">
+                                                    Density estimation and soft clustering via mixtures of Gaussians.
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/hidden-markov-models.html">Hidden Markov Models</a>
+                                                <div class="topic-description">
+                                                    Latent-state sequence models — the classical alternative to RNNs.
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a href="topics/bayesian-inference.html">Bayesian Inference</a>
+                                                <div class="topic-description">
+                                                    Priors, posteriors, MCMC, variational inference — modelling uncertainty itself.
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Neural Networks</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/neural-networks.html">Neural Networks</a>
+                                                <div class="topic-description">The basics — perceptrons, backpropagation, activations.</div>
+                                            </li>
+                                            <li class="arch-li">
+                                                <details class="arch-details">
+                                                    <summary>NN Architectures <span class="arch-count">8</span></summary>
+                                                    <ul class="arch-list">
+                                                        <li><a href="topics/neural-networks/dnn.html">Deep Neural Networks (DNN)</a></li>
+                                                        <li><a href="topics/neural-networks/cnn.html">Convolutional Neural Networks (CNN)</a></li>
+                                                        <li><a href="topics/neural-networks/rnn.html">Recurrent Neural Networks (RNN)</a></li>
+                                                        <li><a href="topics/neural-networks/transformer.html">Transformers</a></li>
+                                                        <li><a href="topics/neural-networks/gnn.html">Graph Neural Networks (GNN)</a></li>
+                                                        <li><a href="topics/neural-networks/autoencoder.html">Autoencoders &amp; VAEs</a></li>
+                                                        <li><a href="topics/neural-networks/gan.html">Generative Adversarial Networks (GAN)</a></li>
+                                                        <li><a href="topics/neural-networks/diffusion.html">Diffusion Models</a></li>
+                                                    </ul>
+                                                </details>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                
+
+                                <div class="main-topic">
+                                    <h3>Clustering</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/clustering.html">Clustering Algorithms</a>
+                                                <div class="topic-description">
+                                                    k-means, hierarchical, DBSCAN, spectral — grouping without labels.
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Dimensionality Reduction</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/dimensionality-reduction.html">Dimensionality Reduction</a>
+                                                <div class="topic-description">
+                                                    Compressing high-dimensional data to its informative core.
+                                                    <details class="nested-details">
+                                                        <summary>Key Methods</summary>
+                                                        <ul>
+                                                            <li>
+                                                                <a href="topics/dimensionality-reduction/pca.html">Principal Component Analysis (PCA)</a>
+                                                                <div class="topic-description">Linear dimensionality reduction via SVD.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/dimensionality-reduction/t-sne.html">t-SNE</a>
+                                                                <div class="topic-description">Non-linear embedding for visualization.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/dimensionality-reduction/umap.html">UMAP</a>
+                                                                <div class="topic-description">Faster non-linear alternative to t-SNE.</div>
+                                                            </li>
+                                                            <li>
+                                                                <a href="topics/dimensionality-reduction/ica.html">Independent Component Analysis (ICA)</a>
+                                                                <div class="topic-description">Recovering statistically independent sources.</div>
+                                                            </li>
+                                                        </ul>
+                                                    </details>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="main-topic">
+                                    <h3>Anomaly Detection</h3>
+                                    <div class="topic-content">
+                                        <ul class="subtopic-list">
+                                            <li>
+                                                <a href="topics/anomaly-detection.html">Anomaly Detection</a>
+                                                <div class="topic-description">
+                                                    Isolation forests, one-class SVMs, autoencoder reconstruction — finding the rare needles.
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <div class="section-item">
                         <h2 class="section-header">Core Concepts</h2>
@@ -466,224 +659,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="section-item section-featured">
-                        <h2 class="section-header"><span class="section-title-block">Model Families <span class="section-badge">main content</span></span></h2>
-                        <div class="section-content">
-                            <div class="main-topics">
-                                <div class="main-topic">
-                                    <h3>Linear Models</h3>
-                                    <div class="topic-content">
-                                        <ul class="subtopic-list">
-                                            <li>
-                                                <a href="topics/regression.html">Linear &amp; Logistic Regression</a>
-                                                <div class="topic-description">
-                                                    Linear regression, ridge, lasso, elastic net, and logistic regression for classification.
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="main-topic">
-                                    <h3>Kernel Methods</h3>
-                                    <div class="topic-content">
-                                        <ul class="subtopic-list">
-                                            <li>
-                                                <a href="topics/support-vector-machines.html">Support Vector Machines</a>
-                                                <div class="topic-description">
-                                                    Maximum-margin classifiers and the kernel trick.
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/gaussian-processes.html">Gaussian Processes</a>
-                                                <div class="topic-description">
-                                                    Bayesian non-parametric regression with calibrated uncertainty.
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="main-topic">
-                                    <h3>Tree-Based &amp; Ensembles</h3>
-                                    <div class="topic-content">
-                                        <ul class="subtopic-list">
-                                            <li>
-                                                <a href="topics/decision-trees.html">Decision Trees</a>
-                                                <div class="topic-description">
-                                                    CART, splitting criteria, pruning — the building block.
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/random-forests.html">Random Forests</a>
-                                                <div class="topic-description">
-                                                    Bagging + decision trees — strong baselines with very little tuning.
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/gradient-boosting.html">Gradient Boosting (XGBoost, LightGBM)</a>
-                                                <div class="topic-description">
-                                                    Boosted trees — still the SOTA on most tabular data.
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="main-topic">
-                                    <h3>Probabilistic Models</h3>
-                                    <div class="topic-content">
-                                        <ul class="subtopic-list">
-                                            <li>
-                                                <a href="topics/naive-bayes.html">Naive Bayes</a>
-                                                <div class="topic-description">
-                                                    Conditional independence assumptions and Bayesian classification.
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/gaussian-mixture-models.html">Gaussian Mixture Models</a>
-                                                <div class="topic-description">
-                                                    Density estimation and soft clustering via mixtures of Gaussians.
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/hidden-markov-models.html">Hidden Markov Models</a>
-                                                <div class="topic-description">
-                                                    Latent-state sequence models — the classical alternative to RNNs.
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/bayesian-inference.html">Bayesian Inference</a>
-                                                <div class="topic-description">
-                                                    Priors, posteriors, MCMC, variational inference — modelling uncertainty itself.
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="main-topic">
-                                    <h3>Neural Networks</h3>
-                                    <div class="topic-content">
-                                        <ul class="subtopic-list">
-                                            <li>
-                                                <a href="topics/neural-networks.html">Neural Networks</a>
-                                                <div class="topic-description">
-                                                    The basics — perceptrons, backpropagation, activation functions.
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="main-topic main-topic-featured" style="grid-column: span 2;">
-                                    <h3>NN Architectures <span class="topic-count">8 architectures</span></h3>
-                                    <p class="main-topic-blurb">The full deep-learning zoo — from the original perceptron stack to today's diffusion models.</p>
-                                    <div class="topic-content">
-                                        <ul class="subtopic-list">
-                                            <li>
-                                                <a href="topics/neural-networks/dnn.html">Deep Neural Networks (DNN)</a>
-                                                <div class="topic-description">Multi-layer perceptrons and feedforward networks.</div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/neural-networks/cnn.html">Convolutional Neural Networks (CNN)</a>
-                                                <div class="topic-description">Specialized for image processing and computer vision.</div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/neural-networks/rnn.html">Recurrent Neural Networks (RNN)</a>
-                                                <div class="topic-description">LSTM, GRU, and sequence modelling.</div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/neural-networks/transformer.html">Transformers</a>
-                                                <div class="topic-description">Attention mechanisms and modern NLP architectures.</div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/neural-networks/gnn.html">Graph Neural Networks (GNN)</a>
-                                                <div class="topic-description">Processing graph-structured data.</div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/neural-networks/autoencoder.html">Autoencoders &amp; VAEs</a>
-                                                <div class="topic-description">Self-supervised representation learning and generative latents.</div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/neural-networks/gan.html">Generative Adversarial Networks (GAN)</a>
-                                                <div class="topic-description">Generative models trained via adversarial games.</div>
-                                            </li>
-                                            <li>
-                                                <a href="topics/neural-networks/diffusion.html">Diffusion Models</a>
-                                                <div class="topic-description">The current SOTA for image generation.</div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="main-topic">
-                                    <h3>Clustering</h3>
-                                    <div class="topic-content">
-                                        <ul class="subtopic-list">
-                                            <li>
-                                                <a href="topics/clustering.html">Clustering Algorithms</a>
-                                                <div class="topic-description">
-                                                    k-means, hierarchical, DBSCAN, spectral — grouping without labels.
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="main-topic">
-                                    <h3>Dimensionality Reduction</h3>
-                                    <div class="topic-content">
-                                        <ul class="subtopic-list">
-                                            <li>
-                                                <a href="topics/dimensionality-reduction.html">Dimensionality Reduction</a>
-                                                <div class="topic-description">
-                                                    Compressing high-dimensional data to its informative core.
-                                                    <details class="nested-details">
-                                                        <summary>Key Methods</summary>
-                                                        <ul>
-                                                            <li>
-                                                                <a href="topics/dimensionality-reduction/pca.html">Principal Component Analysis (PCA)</a>
-                                                                <div class="topic-description">Linear dimensionality reduction via SVD.</div>
-                                                            </li>
-                                                            <li>
-                                                                <a href="topics/dimensionality-reduction/t-sne.html">t-SNE</a>
-                                                                <div class="topic-description">Non-linear embedding for visualization.</div>
-                                                            </li>
-                                                            <li>
-                                                                <a href="topics/dimensionality-reduction/umap.html">UMAP</a>
-                                                                <div class="topic-description">Faster non-linear alternative to t-SNE.</div>
-                                                            </li>
-                                                            <li>
-                                                                <a href="topics/dimensionality-reduction/ica.html">Independent Component Analysis (ICA)</a>
-                                                                <div class="topic-description">Recovering statistically independent sources.</div>
-                                                            </li>
-                                                        </ul>
-                                                    </details>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="main-topic">
-                                    <h3>Anomaly Detection</h3>
-                                    <div class="topic-content">
-                                        <ul class="subtopic-list">
-                                            <li>
-                                                <a href="topics/anomaly-detection.html">Anomaly Detection</a>
-                                                <div class="topic-description">
-                                                    Isolation forests, one-class SVMs, autoencoder reconstruction — finding the rare needles.
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="section-item">
                         <h2 class="section-header">Learning Paradigms</h2>
                         <div class="section-content">
