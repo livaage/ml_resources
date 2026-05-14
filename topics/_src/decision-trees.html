@@ -9,7 +9,7 @@ next_title: Random Forests
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="intuition">
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>A series of yes/no questions that funnel data to a prediction.</strong> "Is income &gt; £30k?" → "Yes" → "Is age &gt; 40?" → "Yes" → predict "high credit". The algorithm picks the questions and the order, learning them from training data.</p>
@@ -62,7 +62,7 @@ plt.show()
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Splitting criterion (Gini impurity)</span>
         <span class="formula">$$ G(S) \;=\; 1 \;-\; \sum_{k=1}^{K} p_k^2, \qquad \Delta G \;=\; G(\text{parent}) - \sum_{\text{children}} \tfrac{|S_i|}{|S|}\,G(S_i) $$</span>

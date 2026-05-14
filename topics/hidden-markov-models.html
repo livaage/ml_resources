@@ -37,12 +37,12 @@
                 </header>
 
                 <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
                     <button class="level-tab" data-level="advanced" type="button">In-depth</button>
                 </div>
 
-                <section class="topic-level" data-level="intuition">
+                <section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>A system you can't see directly, but you can see its outputs.</strong> The state changes over time according to its own rules. You only observe noisy emissions. Given the emissions, you infer the hidden states.</p>
@@ -97,7 +97,7 @@ print(f"log p(obs) = {model.score(observations):.2f}")
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The model</span>
         <span class="formula">$$ p(\mathbf{x}_{1:T}, \mathbf{z}_{1:T}) \;=\; \pi(z_1)\,\prod_{t=2}^{T} A(z_t \mid z_{t-1}) \,\prod_{t=1}^{T} B(x_t \mid z_t) $$</span>

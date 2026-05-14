@@ -37,12 +37,12 @@
                 </header>
 
                 <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
                     <button class="level-tab" data-level="advanced" type="button">In-depth</button>
                 </div>
 
-                <section class="topic-level" data-level="intuition">
+                <section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>A relay race of trees.</strong> Train a small tree, see where it makes mistakes, then train the next tree to fix those mistakes. Repeat. Sum them up. The resulting model is usually the strongest thing you can put on tabular data.</p>
@@ -91,7 +91,7 @@ print(f"Accuracy: {clf.score(X_test, y_test):.3f}")
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Key idea</span>
         <span class="formula">$$ F_m(x) \;=\; F_{m-1}(x) \;+\; \nu \cdot h_m(x), \qquad h_m \approx -\nabla_F \mathcal{L} $$</span>

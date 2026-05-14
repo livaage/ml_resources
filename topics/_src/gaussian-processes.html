@@ -9,7 +9,7 @@ prev_title: Support Vector Machines
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="intuition">
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Instead of one guess, give me a range.</strong> A Gaussian process predicts both a value <em>and</em> how confident it is about that value. Where you have lots of nearby data, it's confident; where you don't, it widens its uncertainty.</p>
@@ -61,7 +61,7 @@ y_mean, y_std = gp.predict(X_test, return_std=True)
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Key idea</span>
         <span class="formula">$$ f(\mathbf{x}) \;\sim\; \mathcal{GP}\!\left(m(\mathbf{x}),\; k(\mathbf{x}, \mathbf{x}')\right) $$</span>

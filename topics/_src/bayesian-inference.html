@@ -9,7 +9,7 @@ prev_title: Hidden Markov Models
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="intuition">
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Start with a belief, see some data, update.</strong> Classical statistics gives you a single best estimate of a parameter (and maybe a confidence interval). Bayesian inference gives you a full <em>distribution</em> over the parameter — capturing everything you know and don't know about it after seeing the data.</p>
@@ -65,7 +65,7 @@ print(f"95% credible interval: ({posterior.ppf(0.025):.3f}, {posterior.ppf(0.975
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Bayes' rule</span>
         <span class="formula">$$ \underbrace{p(\theta \mid \mathcal{D})}_{\text{posterior}} \;=\; \frac{\overbrace{p(\mathcal{D} \mid \theta)}^{\text{likelihood}} \;\overbrace{p(\theta)}^{\text{prior}}}{\underbrace{p(\mathcal{D})}_{\text{evidence}}} $$</span>

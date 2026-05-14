@@ -11,7 +11,7 @@ next_title: Hidden Markov Models
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="intuition">
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Each point belongs to multiple clusters at once.</strong> A GMM models the data as coming from several Gaussian "blobs". Each point gets a probability of belonging to each blob — not a hard assignment like k-means.</p>
@@ -67,7 +67,7 @@ log_density = gmm.score_samples(X)
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Key idea</span>
         <span class="formula">$$ p(\mathbf{x}) \;=\; \sum_{k=1}^{K} \pi_k \, \mathcal{N}(\mathbf{x} \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k) $$</span>

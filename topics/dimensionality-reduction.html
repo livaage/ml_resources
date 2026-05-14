@@ -37,12 +37,12 @@
                 </header>
 
                 <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
                     <button class="level-tab" data-level="advanced" type="button">In-depth</button>
                 </div>
 
-                <section class="topic-level" data-level="intuition">
+                <section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Most high-dim data lives on a lower-dim "shape".</strong> A photo has millions of pixels, but only a few hundred numbers can describe most of what's in it. Dimensionality reduction finds those few numbers.</p>
@@ -97,7 +97,7 @@ print(f"Cumulative:          {pca.explained_variance_ratio_.cumsum()}")
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">PCA via SVD</span>
         <span class="formula">$$ X_{\text{centered}} \;=\; U \Sigma V^\top, \qquad \text{principal components} = V_{:,1{:}k} $$</span>

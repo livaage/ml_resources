@@ -37,12 +37,12 @@
                 </header>
 
                 <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
                     <button class="level-tab" data-level="advanced" type="button">In-depth</button>
                 </div>
 
-                <section class="topic-level" data-level="intuition">
+                <section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Two networks playing against each other.</strong> A <em>generator</em> tries to make fake samples that look real. A <em>discriminator</em> tries to tell real from fake. They train together — each gets better as the other improves, like a counterfeiter and a detective sharpening each other's skills.</p>
@@ -106,7 +106,7 @@ class D(nn.Module):
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The minimax game</span>
         <span class="formula">$$ \min_G \max_D \;\; \mathbb{E}_{\mathbf{x}\sim p_{\text{data}}}[\log D(\mathbf{x})] \;+\; \mathbb{E}_{\mathbf{z}\sim p_z}[\log(1 - D(G(\mathbf{z})))] $$</span>

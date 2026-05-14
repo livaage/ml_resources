@@ -7,7 +7,7 @@ lead: Find the points that don't look like the rest — fraud, defects, intrusio
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="intuition">
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Learn what "normal" looks like; flag what doesn't.</strong> Anomaly detection is unsupervised — you usually don't have labelled anomalies, just the assumption that most of your data is normal and a few rare points are not.</p>
@@ -58,7 +58,7 @@ scores = iso.score_samples(X_test)   # lower = more anomalous
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Three strategies</span>
         <span class="formula">$$ \text{score}(x) \;\in\; \big\{\, \underbrace{-\log p(x)}_{\text{density}},\; \underbrace{d(x, \mathrm{NN}_k(x))}_{\text{distance}},\; \underbrace{\|x - \hat{x}\|}_{\text{reconstruction}} \,\big\} $$</span>

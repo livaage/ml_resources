@@ -20,8 +20,8 @@
     });
 
     function setLevel(level) {
-        // Fall back to "standard" if a saved level isn't available on this page
-        if (!availableLevels.has(level)) level = 'standard';
+        // Fall back to "intuition" if a saved level isn't available on this page
+        if (!availableLevels.has(level)) level = 'intuition';
         tabs.forEach(t => t.classList.toggle('active', t.dataset.level === level));
         levels.forEach(l => l.classList.toggle('active', l.dataset.level === level));
         localStorage.setItem(KEY, level);
@@ -38,8 +38,8 @@
         });
     });
 
-    // Initialise with saved preference, falling back to "standard"
-    setLevel(localStorage.getItem(KEY) || 'standard');
+    // Initialise with saved preference, falling back to "intuition" (the new default)
+    setLevel(localStorage.getItem(KEY) || 'intuition');
 
 
     // ----- Copy button on each code block -----

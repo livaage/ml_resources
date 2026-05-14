@@ -37,12 +37,12 @@
                 </header>
 
                 <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
                     <button class="level-tab" data-level="advanced" type="button">In-depth</button>
                 </div>
 
-                <section class="topic-level" data-level="intuition">
+                <section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Share the same small filter across the whole image.</strong> A CNN scans a tiny window over the input, looking for a particular pattern (an edge, a texture, a colour blob). Stack many such layers and the network builds up from edges, to textures, to object parts, to whole objects.</p>
@@ -127,7 +127,7 @@ model = nn.Sequential(
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">2D convolution</span>
         <span class="formula">$$ (\mathbf{x} \ast \mathbf{k})[i, j] \;=\; \sum_{m, n} \mathbf{x}[i+m,\, j+n] \cdot \mathbf{k}[m, n] $$</span>

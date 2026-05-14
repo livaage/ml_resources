@@ -37,12 +37,12 @@
                 </header>
 
                 <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
                     <button class="level-tab" data-level="advanced" type="button">In-depth</button>
                 </div>
 
-                <section class="topic-level" data-level="intuition">
+                <section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Separate the things that change at different rates.</strong> Code changes daily, configs change per-experiment, data and models change rarely (and live elsewhere). Put each in its own directory; never mix them.</p>
@@ -102,7 +102,7 @@
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p>Use <strong>src layout</strong> (your code is an importable package in <code>src/</code>) and <strong>config-driven entry points</strong> (scripts in <code>scripts/</code> read configs, never embed hyperparameters). Treat notebooks as scratch paper, not source of truth.</p>

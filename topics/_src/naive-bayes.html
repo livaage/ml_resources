@@ -9,7 +9,7 @@ next_title: Gaussian Mixture Models
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="intuition">
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Pretend each feature is independent of the others, then multiply probabilities.</strong> The assumption is almost always wrong, but the math becomes so simple — and so fast — that the model is surprisingly competitive on text and other discrete-feature problems.</p>
@@ -61,7 +61,7 @@ print("Top spam words:", vec.get_feature_names_out()[clf.feature_log_prob_[1].ar
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Key idea</span>
         <span class="formula">$$ P(y \mid \mathbf{x}) \;\propto\; P(y)\,\prod_{i=1}^{d} P(x_i \mid y) $$</span>

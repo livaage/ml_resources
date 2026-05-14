@@ -37,12 +37,12 @@
                 </header>
 
                 <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
                     <button class="level-tab" data-level="advanced" type="button">In-depth</button>
                 </div>
 
-                <section class="topic-level" data-level="intuition">
+                <section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Add noise to your data, then learn to remove it.</strong> Take a real image, blur it slightly, then more, then more, until it's pure noise. Now train a network to reverse the process — given a noisy image, predict the noise. Once trained, start from pure noise and run the denoiser many times. What pops out is a new sample.</p>
@@ -96,7 +96,7 @@ image.save("output.png")
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Forward and reverse processes</span>
         <span class="formula">$$ q(\mathbf{x}_t \mid \mathbf{x}_0) \;=\; \mathcal{N}\!\big(\sqrt{\bar\alpha_t}\,\mathbf{x}_0,\; (1 - \bar\alpha_t)\,\mathbf{I}\big), \qquad p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t) \;=\; \mathcal{N}(\boldsymbol{\mu}_\theta, \boldsymbol{\Sigma}_\theta) $$</span>

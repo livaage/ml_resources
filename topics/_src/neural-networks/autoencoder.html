@@ -11,7 +11,7 @@ next_title: Generative Adversarial Networks
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="intuition">
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Squeeze data through a narrow channel, then reconstruct it.</strong> An encoder compresses input to a small "code"; a decoder tries to reconstruct the original from just that code. The bottleneck forces the network to learn what matters.</p>
@@ -68,7 +68,7 @@ loss = ((model(x)[0] - x) ** 2).mean()
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">VAE objective (ELBO)</span>
         <span class="formula">$$ \mathcal{L}(\theta, \phi; \mathbf{x}) \;=\; \underbrace{\mathbb{E}_{q_\phi(\mathbf{z}\mid\mathbf{x})}\!\left[\log p_\theta(\mathbf{x}\mid\mathbf{z})\right]}_{\text{reconstruction}} \;-\; \underbrace{D_\text{KL}\!\big(q_\phi(\mathbf{z}\mid\mathbf{x}) \,\|\, p(\mathbf{z})\big)}_{\text{regularizer}} $$</span>

@@ -7,7 +7,7 @@ lead: The simplest, most interpretable models — and still the right answer sur
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="intuition">
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Predict the output as a weighted sum of the inputs.</strong> Linear regression does this for continuous outputs (predicting a number). Logistic regression squishes the output through an S-curve to predict probabilities (yes/no). Both are interpretable, fast, and surprisingly hard to beat on simple problems.</p>
@@ -103,7 +103,7 @@ print(f"Probabilities: {clf.predict_proba(X_test[:5])}")
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Linear regression — OLS</span>
         <span class="formula">$$ \hat{\boldsymbol{\beta}} \;=\; \arg\min_{\boldsymbol{\beta}}\; \|\mathbf{y} - X\boldsymbol{\beta}\|_2^2 \;=\; (X^\top X)^{-1} X^\top \mathbf{y} $$</span>

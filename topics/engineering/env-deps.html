@@ -37,12 +37,12 @@
                 </header>
 
                 <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
                     <button class="level-tab" data-level="advanced" type="button">In-depth</button>
                 </div>
 
-                <section class="topic-level" data-level="intuition">
+                <section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Every project gets its own Python environment.</strong> Never install packages globally. Never share an environment between projects. The cost of setup is ten minutes; the cost of skipping it is six months of cryptic version conflicts.</p>
@@ -94,7 +94,7 @@ pip install torch numpy
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p>The choice has two axes. <strong>Python-only or polyglot?</strong> (pip / uv handle Python; conda handles non-Python like CUDA, MKL.) <strong>Local development or production deployment?</strong> (Local: env manager. Production: container.)</p>

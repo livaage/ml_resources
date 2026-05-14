@@ -549,11 +549,11 @@ code:not(pre code) {
 }
 
 /* Content levels — only the active one is visible.
-   Default (no JS): "standard" is shown. */
+   Default (no JS): "intuition" is shown. */
 .topic-level { display: none; }
-.topic-level[data-level="standard"] { display: block; }
+.topic-level[data-level="intuition"] { display: block; }
 .topic-level.active { display: block; }
-.topic-level:not(.active)[data-level="standard"] { display: none; }
+.topic-level:not(.active)[data-level="intuition"] { display: none; }
 
 /* Embedded interactive viz — a canvas widget at the top of a Visual tab */
 .viz-embed {

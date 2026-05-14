@@ -11,7 +11,7 @@ next_title: Gradient Boosting
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="intuition">
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Ask a crowd of decision trees, then take the majority vote.</strong> Each tree alone is shaky and makes its own mistakes, but the trees disagree in different places — so when you average their answers, the errors cancel out and the agreement points to the truth.</p>
@@ -64,7 +64,7 @@ print(f"Accuracy: {accuracy:.2%}")
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Key idea</span>
         <span class="formula">$$ \hat{y}(x) \;=\; \frac{1}{B} \sum_{b=1}^{B} T_b(x) $$</span>

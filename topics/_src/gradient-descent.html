@@ -7,7 +7,7 @@ lead: Iteratively step in the direction that decreases the loss. The algorithm a
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="intuition">
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Step in the direction that decreases the loss. Keep stepping.</strong> You're standing on a hilly landscape in fog. You can feel which way is downhill at your feet. You step that way. Repeat until the ground is flat. The "landscape" is the loss as a function of model parameters; gradient descent is the foot-feeling-its-way algorithm.</p>
@@ -107,7 +107,7 @@ print(x)   # → ~3.0
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The update rule</span>
         <span class="formula">$$ \boldsymbol{\theta}_{t+1} \;=\; \boldsymbol{\theta}_t \;-\; \eta \,\nabla_{\!\boldsymbol{\theta}}\, \mathcal{L}(\boldsymbol{\theta}_t) $$</span>

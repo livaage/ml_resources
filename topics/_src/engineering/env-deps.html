@@ -10,7 +10,7 @@ prev_title: Reproducibility
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="intuition">
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Every project gets its own Python environment.</strong> Never install packages globally. Never share an environment between projects. The cost of setup is ten minutes; the cost of skipping it is six months of cryptic version conflicts.</p>
@@ -62,7 +62,7 @@ pip install torch numpy
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p>The choice has two axes. <strong>Python-only or polyglot?</strong> (pip / uv handle Python; conda handles non-Python like CUDA, MKL.) <strong>Local development or production deployment?</strong> (Local: env manager. Production: container.)</p>

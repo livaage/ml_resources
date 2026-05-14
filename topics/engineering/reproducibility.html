@@ -37,12 +37,12 @@
                 </header>
 
                 <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
                     <button class="level-tab" data-level="advanced" type="button">In-depth</button>
                 </div>
 
-                <section class="topic-level" data-level="intuition">
+                <section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Same code + same data + same seed should produce the same result.</strong> If it doesn't, you can't reliably tell whether your latest change improved the model or just rolled a luckier dice. Three things to control: random seeds, dependency versions, and data versions.</p>
@@ -94,7 +94,7 @@ def set_seed(seed: int = 42):
 </section>
 
 
-<section class="topic-level active" data-level="standard">
+<section class="topic-level" data-level="standard">
     <div class="key-idea">
         <span class="key-idea-label">Three pillars</span>
         <p><strong>(1) Seeds.</strong> Every PRNG seeded and the seed logged.<br>
