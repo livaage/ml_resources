@@ -48,6 +48,26 @@
         <p><strong>A system you can't see directly, but you can see its outputs.</strong> The state changes over time according to its own rules. You only observe noisy emissions. Given the emissions, you infer the hidden states.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Click an activity icon to flip it — the hidden-state posterior and Viterbi path re-shuffle to explain the new evidence</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Sequence
+                <select id="viz-hmm-preset"></select>
+            </label>
+            <button id="viz-hmm-reset" type="button">Reset</button>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-hmm-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-hmm-caption"></div>
+    </div>
+    <script src="../js/viz/hmm.js"></script>
+
+    <p class="viz-intro">The toy model has three hidden weather states (Sunny / Cloudy / Rainy) that you never observe directly — only the activity I picked that day (Walk / Shop / Clean). Each state has its own emission preference, and they tend to persist (Sunny is more likely to stay Sunny than flip straight to Rainy). The three colour-tinted rows show the forward-backward posterior: how strongly the model believes each state was active given the <em>entire</em> sequence. The dark line is the Viterbi <em>most-likely path</em> — the single best explanation rather than per-step marginals.</p>
+
     <article class="tldr-body">
         <p>Classic example: speech recognition. The "hidden state" is the phoneme being spoken; the "observation" is the audio signal. You don't see the phoneme directly, only the sound. The model captures (a) which phonemes tend to follow which (transition probabilities) and (b) what each phoneme tends to sound like (emission probabilities).</p>
         <p>HMMs have been largely replaced by RNNs and transformers in speech and NLP, but they're still the right tool when (a) the latent states have a real interpretation you care about, (b) data is small, or (c) you want exact inference rather than approximate.</p>
