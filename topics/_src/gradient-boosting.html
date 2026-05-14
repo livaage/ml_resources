@@ -15,6 +15,34 @@ prev_title: Random Forests
         <p><strong>A relay race of trees.</strong> Train a small tree, see where it makes mistakes, then train the next tree to fix those mistakes. Repeat. Sum them up. The resulting model is usually the strongest thing you can put on tabular data.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Each Step fits one depth-2 tree to the current residuals — watch the orange fit chase the dashed target</span>
+        </div>
+        <div class="viz-classic-controls">
+            <button id="viz-boost-step"  type="button">Step</button>
+            <button id="viz-boost-auto"  type="button">Auto</button>
+            <button id="viz-boost-reset" type="button">Reset</button>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Target
+                <select id="viz-boost-data"></select>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                η
+                <input id="viz-boost-lr" class="viz-classic-slider" type="range">
+            </label>
+            <span class="viz-classic-badge" id="viz-boost-lr-lbl">η = 0.40</span>
+            <span class="viz-classic-badge" id="viz-boost-counter">Tree 0</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-boost-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-boost-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/boosting.js"></script>
+
+    <p class="viz-intro">Round 0 is just the mean — the bottom panel shows every point's residual from it. Each Step fits a depth-2 tree (4 leaves) to those residuals and adds it (scaled by η) to the ensemble. After ~20 trees on the Sine target the fit is essentially perfect; the residuals shrink toward zero. The <em>Step function</em> target is a great demo of why trees are excellent on non-smooth targets — boosting nails the jumps where smooth methods would oscillate.</p>
+
     <article class="tldr-body">
         <p>Random forests train trees in parallel and average them. Gradient boosting trains them <em>in sequence</em>: tree 2 is trained on the errors tree 1 made, tree 3 is trained on the errors trees 1+2 made, and so on. Each new tree is small (just a few splits) but specifically targeted at what's still going wrong.</p>
         <p>The libraries you've heard of — <strong>XGBoost</strong>, <strong>LightGBM</strong>, <strong>CatBoost</strong> — are heavily-optimized implementations of this idea. They're still the default winning approach on Kaggle tabular competitions.</p>
