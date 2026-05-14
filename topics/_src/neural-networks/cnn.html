@@ -17,9 +17,42 @@ next_title: Recurrent Neural Networks
         <p><strong>Share the same small filter across the whole image.</strong> A CNN scans a tiny window over the input, looking for a particular pattern (an edge, a texture, a colour blob). Stack many such layers and the network builds up from edges, to textures, to object parts, to whole objects.</p>
     </div>
 
-    
+    <div class="viz-embed viz-cnn">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Drag the filter on the input · click any kernel cell to cycle its value</span>
+            <div class="viz-embed-controls">
+                <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                    Image
+                    <select id="viz-cnn-image"></select>
+                </label>
+                <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                    Kernel
+                    <select id="viz-cnn-kernel-select"></select>
+                </label>
+                <button id="viz-cnn-play" type="button">Pause</button>
+            </div>
+        </div>
+        <div class="viz-cnn-layout">
+            <div class="viz-cnn-panel">
+                <div class="viz-cnn-label">Input · 24×24</div>
+                <canvas id="viz-cnn-input"></canvas>
+            </div>
+            <div class="viz-cnn-panel">
+                <div class="viz-cnn-label">Feature map · 22×22</div>
+                <canvas id="viz-cnn-output"></canvas>
+            </div>
+            <div class="viz-cnn-bottom">
+                <div class="viz-cnn-kernel-wrap">
+                    <div class="viz-cnn-label">Kernel · 3×3</div>
+                    <canvas id="viz-cnn-kernel"></canvas>
+                </div>
+                <div class="viz-cnn-math" id="viz-cnn-math"></div>
+            </div>
+        </div>
+    </div>
+    <script src="{{root}}js/viz/cnn.js"></script>
 
-    <p class="viz-intro">CNNs are the topic where seeing beats reading. The interactive explainers below let you click through a real network's activations, modify the input, and watch every layer respond live. Better than any static text — including this page.</p>
+    <p class="viz-intro">The kernel slides across the input, computing a weighted sum at every position. Try the <strong>Sobel-x</strong> kernel — the feature map lights up at vertical edges. Try <strong>blur</strong> on the digit — high-frequency detail vanishes. Click any kernel cell to cycle its value: build your own filter and see what it detects. The polished external explainers below take this much further.</p>
 
         <div class="viz-grid">
             <a href="https://poloclub.github.io/cnn-explainer/" target="_blank" class="viz-card viz-card-featured">
