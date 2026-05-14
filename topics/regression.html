@@ -243,6 +243,48 @@ print(f"95% CI:  {logit.conf_int().values.round(3)}")
     </div>
 </section>
 
+
+<section class="topic-level" data-level="visual">
+    <div class="viz-embed">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Drag points · click empty space to add · <kbd>shift</kbd>+click to remove</span>
+            <div class="viz-embed-controls">
+                <button id="viz-regression-noisy" type="button">Noisy data</button>
+                <button id="viz-regression-clear" type="button">Clear</button>
+                <button id="viz-regression-reset" type="button">Reset</button>
+            </div>
+        </div>
+        <canvas id="viz-regression-canvas" style="aspect-ratio: 16/9;"></canvas>
+        <div class="viz-embed-stats" id="viz-regression-stats"></div>
+    </div>
+    <script src="../js/viz/regression.js"></script>
+
+    <p class="viz-intro">The OLS line minimises the sum of squared vertical distances (the faint orange lines) from each point to itself. Drag a point far from the trend and watch R² drop. Click "Noisy data" to see what a low-R² fit looks like.</p>
+
+    <div class="viz-grid">
+        <a href="https://setosa.io/ev/ordinary-least-squares-regression/" target="_blank" class="viz-card viz-card-featured">
+            <span class="viz-source">setosa.io</span>
+            <h3>Setosa — OLS Regression</h3>
+            <p>Beautiful interactive explanation of OLS from first principles. Drag points to see how each one influences the fit; explore the geometric interpretation of least squares.</p>
+            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+        </a>
+
+        <a href="https://mlu-explain.github.io/linear-regression/" target="_blank" class="viz-card">
+            <span class="viz-source">mlu-explain.github.io</span>
+            <h3>MLU-Explain — Linear Regression</h3>
+            <p>Amazon's visual walk-through. Covers residuals, R², and the assumptions behind OLS with clean animated diagrams.</p>
+            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+        </a>
+
+        <a href="https://seeing-theory.brown.edu/regression-analysis/index.html" target="_blank" class="viz-card">
+            <span class="viz-source">seeing-theory.brown.edu</span>
+            <h3>Seeing Theory — Regression</h3>
+            <p>Brown's interactive primer. Drag the regression line manually and see the loss change in real time. Best for building intuition for what OLS is optimising.</p>
+            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+        </a>
+    </div>
+</section>
+
                 <nav class="topic-nav">
                     
                     
