@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reinforcement Learning — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html" class="active">Theory</a>
+            <a href="../engineering.html" class="">Engineering</a>
+            <a href="../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../theory.html" class="eyebrow">← Theory · Learning Paradigms</a>
+                    <h1>Reinforcement Learning</h1>
+                    <p class="lead">Learn by doing — no labels, only rewards. The framework that powers game-playing agents, robotics, and RLHF.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>An agent acts in an environment; the environment gives reward.</strong> No labels. No supervised target. The agent has to figure out, from sparse and often delayed reward signals, what good behaviour looks like. The classical loop: observe state, choose action, receive reward and new state, repeat.</p>
+    </div>
+
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Watch tabular Q-learning learn a grid-world policy — Q-values flood backward from the goal as episodes accumulate</span>
+        </div>
+        <div class="viz-classic-controls">
+            <button id="viz-rl-step"  type="button">Step (1 episode)</button>
+            <button id="viz-rl-play"  type="button">Play</button>
+            <button id="viz-rl-reset" type="button">Reset</button>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                ε (exploration)
+                <input id="viz-rl-eps" class="viz-classic-slider" type="range">
+            </label>
+            <span class="viz-classic-badge" id="viz-rl-eps-lbl">ε = 0.20</span>
+            <span class="viz-classic-badge" id="viz-rl-ep-lbl">episode 0</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-rl-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-rl-caption"></div>
+    </div>
+    <script src="../js/viz/reinforcement-learning.js"></script>
+
+    <p class="viz-intro">A 5×5 grid world. The agent (indigo dot) starts top-left and gets +1 for reaching the goal (orange square) and -1 for stepping on a wall (grey). Each cell shows the max Q-value across actions — colour intensity = how good that state is. Watch the "warmth" flood backward from the goal as more episodes play out. Drop ε to greedy (almost no exploration); the agent gets stuck.</p>
+
+    <article class="tldr-body">
+        <p><strong>The RL loop.</strong> State <em>s</em> → action <em>a</em> → reward <em>r</em> → next state <em>s'</em>. Repeat. The agent learns a policy <em>π(a | s)</em> that maximises expected discounted future reward.</p>
+        <p><strong>Q-learning.</strong> Learn a value <em>Q(s, a)</em> = "expected discounted reward if I take action <em>a</em> in state <em>s</em> and act greedily afterwards." Update rule: <em>Q(s, a) ← Q(s, a) + α · (r + γ max<sub>a'</sub> Q(s', a') − Q(s, a))</em>.</p>
+        <p><strong>Exploration vs exploitation.</strong> ε-greedy: with probability ε pick a random action, otherwise pick the best Q. Too much ε → never converges. Too little → stuck in local optima.</p>
+        <p><strong>Policy gradient.</strong> Parametrize the policy directly (<em>π<sub>θ</sub>(a | s)</em>) and follow the gradient of expected reward. REINFORCE, A2C, PPO. Works when actions are continuous or the action space is huge.</p>
+        <p><strong>Modern deep RL.</strong> Replace the Q-table with a neural network → DQN. Add policy networks → A2C, PPO. Add a value-network critic + replay buffer → SAC. The pieces are old; the engineering is what makes them work.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Sequential decisions with delayed reward</li>
+                <li>Game-playing, robotics, control</li>
+                <li>RLHF — aligning models to human preferences</li>
+                <li>No labelled data, but a simulator or rollout mechanism</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Limits</h3>
+            <ul>
+                <li>Sample-inefficient — usually needs millions of rollouts</li>
+                <li>Unstable training — exploration / exploitation balance is fragile</li>
+                <li>Reward design is hard — the agent will exploit whatever you wrote</li>
+                <li>Sim-to-real gap — policies that work in simulation often fail on hardware</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import numpy as np
+import gymnasium as gym
+
+env = gym.make("FrozenLake-v1", is_slippery=False)
+Q = np.zeros((env.observation_space.n, env.action_space.n))
+alpha, gamma, eps = 0.1, 0.95, 0.2
+
+for episode in range(5000):
+    s, _ = env.reset()
+    done = False
+    while not done:
+        a = np.random.randint(4) if np.random.random() &lt; eps \
+            else Q[s].argmax()
+        s_next, r, done, *_ = env.step(a)
+        Q[s, a] += alpha * (r + gamma * Q[s_next].max() - Q[s, a])
+        s = s_next
+
+# Greedy policy
+policy = Q.argmax(axis=1)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want MDPs, Bellman equations, and actor-critic?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Bellman optimality</span>
+        <span class="formula">$$ Q^*(s, a) = \mathbb{E}_{s'}\!\left[\, R(s, a) + \gamma \max_{a'} Q^*(s', a') \,\right] $$</span>
+        <ul class="formula-legend">
+            <li><code>Q*</code>optimal action-value function</li>
+            <li><code>γ</code>discount factor (0 = myopic; 1 = far-sighted)</li>
+            <li>Q-learning bootstraps this equation iteratively</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>MDPs.</strong> States <em>S</em>, actions <em>A</em>, transitions <em>P(s' | s, a)</em>, rewards <em>R(s, a, s')</em>, discount <em>γ</em>. The agent's job is a policy <em>π</em> that maximises expected discounted return.</p>
+        <p><strong>Value functions.</strong> <em>V<sup>π</sup>(s)</em> = expected return from <em>s</em> following <em>π</em>. <em>Q<sup>π</sup>(s, a)</em> = expected return from <em>s</em>, taking action <em>a</em>, then following <em>π</em>. Both satisfy Bellman equations; both can be learned.</p>
+        <p><strong>Model-free vs model-based.</strong> Model-free: learn <em>V</em> or <em>Q</em> directly from experience (Q-learning, SARSA, DQN). Model-based: learn the transition model and plan (Dyna-Q, MuZero). Model-based is more sample-efficient when the model is accurate; less so when it isn't.</p>
+        <p><strong>Policy gradient methods.</strong> Parameterise <em>π<sub>θ</sub></em> and take steps in the gradient of expected return: <em>∇<sub>θ</sub> J = E[Σ<sub>t</sub> ∇<sub>θ</sub> log π<sub>θ</sub>(a<sub>t</sub> | s<sub>t</sub>) · A(s<sub>t</sub>, a<sub>t</sub>)]</em> where <em>A</em> is the advantage. REINFORCE is the simplest form; A2C, A3C, PPO add stability.</p>
+        <p><strong>Actor-critic.</strong> Combine policy gradient (actor) with a learned value function (critic). The critic reduces variance; the actor exploits it. Modern RL is mostly actor-critic in some form.</p>
+        <p><strong>On-policy vs off-policy.</strong> On-policy (PPO, A2C): learn from data the current policy collected. Stable but sample-inefficient. Off-policy (DQN, SAC, DDPG): learn from any data (replay buffer). More sample-efficient; trickier to make stable.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch, torch.nn as nn, torch.nn.functional as F
+
+# DQN: Q-function approximated by a neural net, replay buffer, target network
+class DQN(nn.Module):
+    def __init__(self, state_dim, n_actions):
+        super().__init__()
+        self.net = nn.Sequential(nn.Linear(state_dim, 128), nn.ReLU(),
+                                 nn.Linear(128, n_actions))
+    def forward(self, x): return self.net(x)
+
+# One training step
+def dqn_step(net, target_net, batch, gamma=0.99):
+    s, a, r, s_next, done = batch
+    q     = net(s).gather(1, a.unsqueeze(1)).squeeze(1)
+    with torch.no_grad():
+        q_next = target_net(s_next).max(dim=1).values
+        target = r + gamma * (1 - done) * q_next
+    return F.smooth_l1_loss(q, target)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want PPO, soft actor-critic, RLHF, and the exploration zoo?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">PPO clipped objective</span>
+        <span class="formula">$$ \mathcal{L}^{\text{CLIP}}(\theta) = \mathbb{E}_t \min\!\Big(r_t(\theta) \hat A_t,\; \mathrm{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat A_t\Big) $$</span>
+        <ul class="formula-legend">
+            <li><code>r<sub>t</sub>(θ)</code>importance ratio between new and old policy</li>
+            <li>Clip prevents large policy updates that destabilise training</li>
+            <li>Default actor-critic for the practical RL world</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>PPO.</strong> Schulman et al. (2017). The de facto default for continuous control. Clipped ratio objective prevents large policy updates; multiple epochs over the same rollouts; advantage estimation via GAE. Practical, simple, robust.</p>
+        <p><strong>SAC.</strong> Haarnoja et al. (2018). Off-policy actor-critic with entropy regularization — encourages exploration by maximising "expected return + policy entropy". Sample-efficient; the right choice for many continuous-action benchmarks.</p>
+        <p><strong>MuZero.</strong> Schrittwieser et al. (2020). Learn the dynamics model in a latent space and plan with Monte-Carlo tree search. Achieves AlphaGo-level play without a hand-coded simulator. Beautiful theoretical synthesis.</p>
+        <p><strong>Offline RL.</strong> Learn from a fixed dataset without environment access. Conservative Q-Learning (CQL), Implicit Q-Learning (IQL), Decision Transformer reformulate the problem as supervised sequence modelling. Hard because OOD actions can't be evaluated.</p>
+        <p><strong>RLHF.</strong> Reinforcement Learning from Human Feedback. Train a reward model from human preferences over pairs of outputs; optimise an LLM against it with PPO. Made instruction-following LLMs possible. The pretrain → SFT → RLHF pipeline is now standard for assistant-style models.</p>
+        <p><strong>Exploration.</strong> ε-greedy is the floor. Better: entropy bonuses (SAC), intrinsic motivation (curiosity-driven, ICM), Thompson sampling on the Q-distribution (Bootstrapped DQN), random network distillation (RND). The right method depends on the problem's reward sparsity.</p>
+        <p><strong>The deep-RL stability cottage industry.</strong> Modern deep RL is a list of stability tricks: target networks, replay buffers, layer normalization, clipped gradients, learning-rate annealing, normalised observations, advantage normalization, … None alone is magic; together they make things barely work.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch, torch.nn.functional as F
+
+# PPO clipped surrogate loss
+def ppo_loss(logp_new, logp_old, advantages, eps=0.2):
+    ratio = (logp_new - logp_old).exp()
+    surr1 = ratio * advantages
+    surr2 = torch.clamp(ratio, 1 - eps, 1 + eps) * advantages
+    return -torch.min(surr1, surr2).mean()
+
+# Generalised Advantage Estimation
+def gae(rewards, values, dones, gamma=0.99, lam=0.95):
+    advantages = torch.zeros_like(rewards)
+    last_gae = 0
+    for t in reversed(range(len(rewards))):
+        next_v = values[t + 1] if t + 1 &lt; len(rewards) else 0
+        delta = rewards[t] + gamma * next_v * (1 - dones[t]) - values[t]
+        last_gae = delta + gamma * lam * (1 - dones[t]) * last_gae
+        advantages[t] = last_gae
+    return advantages
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    
+                    
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="http://incompleteideas.net/book/the-book-2nd.html" target="_blank">Sutton &amp; Barto — Reinforcement Learning: An Introduction <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The reference textbook. Free PDF online. Chapters 1–6 are essential for any serious RL work.</span>
+        </li>
+        <li>
+            <a href="https://spinningup.openai.com/" target="_blank">OpenAI Spinning Up <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Practical introduction to deep RL with clean reference implementations of REINFORCE, A2C, PPO, DDPG, SAC, TRPO.</span>
+        </li>
+        <li>
+            <a href="https://lilianweng.github.io/posts/2018-04-08-policy-gradient/" target="_blank">Lilian Weng — Policy Gradients <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Tour of all the major policy-gradient methods — REINFORCE, A2C, A3C, TRPO, PPO, SAC — with the math worked out.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/1707.06347" target="_blank">Schulman et al. (2017) — PPO <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The PPO paper. Short and readable; section 3 is the canonical loss derivation.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../js/topic-page.js"></script>
+</body>
+</html>
