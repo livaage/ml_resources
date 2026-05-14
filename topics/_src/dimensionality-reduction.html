@@ -13,6 +13,32 @@ lead: Compress high-dimensional data to a smaller representation that preserves 
         <p><strong>Most high-dim data lives on a lower-dim "shape".</strong> A photo has millions of pixels, but only a few hundred numbers can describe most of what's in it. Dimensionality reduction finds those few numbers.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Slide θ to spin the projection axis — watch the 1D histogram widen and narrow; "Find PC1" snaps to the max-variance angle</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Data
+                <select id="viz-dr-data"></select>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                θ
+                <input id="viz-dr-angle" class="viz-classic-slider" type="range">
+            </label>
+            <button id="viz-dr-find" type="button">Find PC1</button>
+            <button id="viz-dr-reset" type="button">Re-sample</button>
+            <span class="viz-classic-badge" id="viz-dr-angle-lbl">θ = 0°</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-dr-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-dr-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/dimred.js"></script>
+
+    <p class="viz-intro">PCA is exactly this game played analytically: find the axis that maximises projected variance. The faint indigo cross-hairs are the principal axes the model found (PC1 and PC2); the orange axis is yours to spin. When yours matches PC1, the histogram is at its widest. The number under it is what people mean by "captured variance" — for the tilted dataset, one component recovers ~90% of the structure.</p>
+
     <article class="tldr-body">
         <p>Two reasons to do this. First, <strong>visualization</strong>: you can't plot 50 dimensions, but you can plot 2. Algorithms like t-SNE and UMAP project high-dim data into 2D in a way that preserves which points are near each other.</p>
         <p>Second, <strong>compression and denoising</strong>: removing noise dimensions can make downstream models faster and sometimes more accurate. <strong>PCA</strong> is the classical workhorse here — it finds the directions of greatest variance and projects onto them.</p>
