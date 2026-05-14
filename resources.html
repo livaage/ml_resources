@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources - ML Resources Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .main-content { margin-top: 80px; padding: 2rem; }
+
+        .resources-section { margin-bottom: 2.5rem; }
+        .resources-section h2 {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: 0.4rem;
+        }
+        .resources-section .group-blurb {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
+            max-width: 640px;
+        }
+        .resources-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid var(--hairline);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+        .resources-list li {
+            padding: 1rem 1.4rem;
+            border-bottom: 1px solid var(--hairline);
+        }
+        .resources-list li:last-child { border-bottom: none; }
+        .resources-list a {
+            color: var(--ink);
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.4rem;
+        }
+        .resources-list a:hover { color: var(--accent); }
+        .resources-list a i {
+            font-size: 0.72em;
+            color: var(--muted);
+            transition: color 0.2s ease;
+        }
+        .resources-list a:hover i { color: var(--accent); }
+        .resources-list .annotation {
+            display: block;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="theory.html">Theory</a>
+            <a href="practice.html">Practice</a>
+            <a href="resources.html" class="active">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <header class="page-header">
+                <div class="eyebrow">Curated Reading</div>
+                <h1>Resources</h1>
+                <p class="lead">External material I'd actually point students at — for the math, the code, and the deeper textbooks. Each entry has a one-line note on what it's good for.</p>
+            </header>
+
+            <section class="resources-section">
+                <h2>Mathematics</h2>
+                <p class="group-blurb">The math foundations every ML practitioner needs. Picking favourites rather than trying to teach it here.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://mml-book.github.io/" target="_blank">Mathematics for Machine Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">Free book by Deisenroth, Faisal, Ong. Covers exactly the math used in ML (linear algebra, vector calculus, probability, optimisation). Start here if you've forgotten the prerequisites.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank">3Blue1Brown — Essence of Linear Algebra <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">15-video visual series. The best intuition pump for vectors, transformations, and eigendecomposition. Watch alongside any textbook.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.3blue1brown.com/topics/calculus" target="_blank">3Blue1Brown — Essence of Calculus <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">Same author, same quality, for derivatives, integrals, and the chain rule. Essential before reading any backprop derivation.</span>
+                    </li>
+                    <li>
+                        <a href="https://seeing-theory.brown.edu/" target="_blank">Seeing Theory <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">Interactive visual introduction to probability and statistics. Click through, don't read. Great for re-grounding intuition after a stats textbook.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.inference.org.uk/itprnn/book.pdf" target="_blank">MacKay — Information Theory, Inference, and Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">Free download. The classic on information theory + Bayesian inference. Dense but rewarding when you need entropy / KL / coding intuition.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="resources-section">
+                <h2>Code &amp; implementation</h2>
+                <p class="group-blurb">Where to read well-tested implementations and learn idiomatic patterns. The site won't reinvent these — they're already excellent.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://scikit-learn.org/stable/user_guide.html" target="_blank">scikit-learn user guide <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">The gold standard for classical-ML reference code. Every algorithm has a worked example. Read the user guide, not just the API docs.</span>
+                    </li>
+                    <li>
+                        <a href="https://pytorch.org/tutorials/" target="_blank">PyTorch tutorials <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">Hands-on tutorials covering the framework most modern research uses. Start with the 60-minute blitz before going deeper.</span>
+                    </li>
+                    <li>
+                        <a href="https://huggingface.co/docs" target="_blank">Hugging Face docs <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">The default entry point for working with pretrained transformers, datasets, and serving. transformers / datasets / accelerate are all essential reading.</span>
+                    </li>
+                    <li>
+                        <a href="https://d2l.ai/" target="_blank">Dive Into Deep Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">Free textbook with executable code for every concept (PyTorch / TF / JAX). The closest thing to a comprehensive DL textbook with runnable examples.</span>
+                    </li>
+                    <li>
+                        <a href="https://paperswithcode.com/" target="_blank">Papers With Code <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">Papers indexed by task with linked implementations. Best place to find a strong baseline implementation for any benchmark.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="resources-section">
+                <h2>Courses</h2>
+                <p class="group-blurb">Full curricula if you want a structured path rather than browsing topics.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://www.coursera.org/specializations/machine-learning-introduction" target="_blank">Andrew Ng — Machine Learning Specialization <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">The canonical "first ML course". Solid foundations, classical algorithms, light on deep learning. Pair with fast.ai for breadth.</span>
+                    </li>
+                    <li>
+                        <a href="https://www.fast.ai/" target="_blank">fast.ai <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">Top-down, hands-on deep learning. You build state-of-the-art models in week 1. Best complement to a theory-first course like Andrew Ng's.</span>
+                    </li>
+                    <li>
+                        <a href="https://cs231n.stanford.edu/" target="_blank">CS231n — CNNs for Visual Recognition <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">Stanford's deep-vision course. Slides and assignments are public. The gold standard for understanding CNNs and modern computer vision.</span>
+                    </li>
+                    <li>
+                        <a href="https://web.stanford.edu/class/cs224n/" target="_blank">CS224n — NLP with Deep Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">Stanford's NLP course. Covers embeddings, attention, transformers. Lecture videos on YouTube; assignments are public.</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="resources-section">
+                <h2>Reference textbooks</h2>
+                <p class="group-blurb">When the TL;DRs aren't enough.</p>
+                <ul class="resources-list">
+                    <li>
+                        <a href="https://www.deeplearningbook.org/" target="_blank">Goodfellow, Bengio, Courville — Deep Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">The classic. Free HTML version. Slightly dated on architectures (no transformers in detail) but the foundations chapters are still the standard reference.</span>
+                    </li>
+                    <li>
+                        <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">Hastie, Tibshirani, Friedman — Elements of Statistical Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">The classical-ML reference. Free PDF. Read alongside ISLR for a friendlier introduction to the same material.</span>
+                    </li>
+                    <li>
+                        <a href="https://probml.github.io/pml-book/" target="_blank">Murphy — Probabilistic Machine Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">Modern, comprehensive, free. Two volumes (foundations + advanced). Strongest treatment of probabilistic methods.</span>
+                    </li>
+                    <li>
+                        <a href="http://incompleteideas.net/book/the-book.html" target="_blank">Sutton &amp; Barto — Reinforcement Learning <i class="fas fa-external-link-alt"></i></a>
+                        <span class="annotation">The standard RL textbook. Free PDF. Foundational for understanding policy gradients, value functions, and the modern derivatives.</span>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

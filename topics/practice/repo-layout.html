@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository Layout — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="">Theory</a>
+            <a href="../../practice.html" class="active">Practice</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../practice.html" class="eyebrow">← Practice · Project Structure</a>
+                    <h1>Repository Layout</h1>
+                    <p class="lead">Where to put your data, models, configs, and code so future-you doesn't curse past-you.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Difficulty">
+                    <button class="level-tab" data-level="basic" type="button">Basic</button>
+                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level" data-level="basic">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Separate the things that change at different rates.</strong> Code changes daily, configs change per-experiment, data and models change rarely (and live elsewhere). Put each in its own directory; never mix them.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>The single biggest predictor of an ML project becoming unmaintainable is everything-in-one-notebook. Six months in, nobody — including you — knows which version of which preprocessing belongs to which model.</p>
+        <p>A clean repo splits responsibilities. A reasonable starting layout for a research project:</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-text">my-project/
+├── README.md
+├── pyproject.toml          # dependencies + project metadata
+├── .gitignore
+├── configs/                # YAML/Hydra configs (one per experiment)
+├── data/                   # gitignored — actual data lives elsewhere
+├── notebooks/              # exploration only; no business logic
+├── src/my_project/         # the importable package
+│   ├── __init__.py
+│   ├── data.py
+│   ├── models.py
+│   ├── train.py
+│   └── eval.py
+├── scripts/                # CLI entry points
+│   └── train.py
+└── tests/
+</code></pre>
+    </div>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Stick to it when</h3>
+            <ul>
+                <li>You're starting any project meant to last more than a week</li>
+                <li>Multiple people will work on the code</li>
+                <li>You want to reproduce an experiment 3 months from now</li>
+                <li>You'll eventually package or deploy the code</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Don't over-engineer when</h3>
+            <ul>
+                <li>It's a one-off experiment that lives in a single notebook</li>
+                <li>You're prototyping for an afternoon and will throw it away</li>
+                <li>The "project" is two files of glue between two libraries</li>
+                <li>Adding structure would slow you down more than it helps</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="level-next">
+        <span>Want a concrete starter template and the reasoning behind each directory?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level active" data-level="standard">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p>Use <strong>src layout</strong> (your code is an importable package in <code>src/</code>) and <strong>config-driven entry points</strong> (scripts in <code>scripts/</code> read configs, never embed hyperparameters). Treat notebooks as scratch paper, not source of truth.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>The "src layout" puts your package one directory deeper than the project root. Why bother? It prevents you from accidentally importing your code from the project root instead of the installed version — a real bug that wastes hours when tests pass locally but fail in CI.</p>
+        <p><strong>Why scripts/ separately from src/?</strong> Things in <code>src/my_project/</code> are <em>library code</em>: importable, testable, no <code>argparse</code>. Things in <code>scripts/</code> are <em>entry points</em>: argparse / Hydra, side effects, calls into the library. This split makes the library reusable from notebooks, CLIs, and other scripts without modification.</p>
+        <p><strong>Notebooks are scratch paper.</strong> Notebooks for exploration, plotting, debugging. Anything you'd want to call again belongs in <code>src/</code>. Promote code out of notebooks aggressively — every function that survives to a second notebook should be in the package.</p>
+        <p><strong>Don't commit data.</strong> Even small data. Use <code>.gitignore</code> + a download script (<code>scripts/download_data.py</code>) or a versioned store (DVC, S3 with a config). Repos with committed CSVs are repos that go bad.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-text">my-project/
+├── pyproject.toml                 # uv / pip / poetry — pick one
+├── .python-version
+├── .gitignore
+├── README.md
+├── configs/
+│   ├── base.yaml                  # shared defaults
+│   ├── data/mnist.yaml
+│   ├── model/resnet18.yaml
+│   └── experiment/exp01.yaml
+├── data/                          # GITIGNORED
+│   ├── raw/
+│   ├── interim/
+│   └── processed/
+├── notebooks/
+│   └── 01-data-exploration.ipynb
+├── src/my_project/
+│   ├── __init__.py
+│   ├── data/                      # data loading + transforms
+│   ├── models/                    # model definitions
+│   ├── training/                  # training loop, callbacks
+│   ├── eval/                      # metrics, reports
+│   └── utils.py
+├── scripts/
+│   ├── train.py                   # python scripts/train.py +experiment=exp01
+│   ├── eval.py
+│   └── serve.py
+├── tests/
+│   ├── test_data.py
+│   ├── test_models.py
+│   └── conftest.py
+└── outputs/                       # GITIGNORED — Hydra writes runs here
+</code></pre>
+    </div>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Project is medium-sized (≥ 1 month, ≥ 1 person)</li>
+                <li>You'll run multiple experiments with different configs</li>
+                <li>You want to publish the code or share it with collaborators</li>
+                <li>You'll deploy a model from this codebase</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Lighter shape when</h3>
+            <ul>
+                <li>Quick proof-of-concept that won't survive a week</li>
+                <li>Single-file utility that wraps an existing library</li>
+                <li>Notebook-driven analysis on a single dataset</li>
+                <li>You're learning, not building</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="level-next">
+        <span>Want monorepo tradeoffs, naming conventions, and templates?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p>Beyond the basic shape, the harder decisions are about <strong>boundaries</strong> — package per concern vs. flat package, monorepo vs. polyrepo, where to draw the line between library and application code, and how to keep coupling low across teams.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Cookiecutter / templates.</strong> Don't hand-roll. <a href="https://cookiecutter-data-science.drivendata.org/" target="_blank">cookiecutter-data-science</a> is the canonical research-project template. <a href="https://github.com/ashleve/lightning-hydra-template" target="_blank">lightning-hydra-template</a> for PyTorch Lightning + Hydra. <a href="https://github.com/fpgmaas/cookiecutter-uv" target="_blank">cookiecutter-uv</a> for modern uv-based projects. Pick one, customize once, stop bikeshedding.</p>
+        <p><strong>Monorepo vs. polyrepo.</strong> ML projects often involve a data-prep service, a training service, a serving service, and a shared library. Monorepo (Bazel, Pants, uv workspaces) makes refactors across boundaries cheap but raises CI cost. Polyrepo isolates and versions independently but creates coordination overhead. For ≤ 4 services / 1 team: monorepo wins. Beyond that it depends.</p>
+        <p><strong>Library / application split.</strong> The hardest line. Anything reusable (data loaders, model definitions, metrics) is library; anything specific to one experiment (hyperparameters, paths, schedules) is application. The test: could another project consume this without modification? If yes, it's library. If no, it doesn't belong in <code>src/</code>.</p>
+        <p><strong>Versioning &amp; releases.</strong> Use <code>importlib.metadata.version</code> to surface the package version in logs and run metadata. Tag releases (git tags + semver). Log the git SHA on every training run; you'll thank yourself when "model A from June" needs reproducing in October.</p>
+        <p><strong>Naming conventions.</strong> Boring is good. Plurals for collections (<code>models/</code>, not <code>model/</code>). Verbs for action modules (<code>training.py</code>), nouns for data structures (<code>dataset.py</code>). Avoid <code>utils.py</code> if you can — it tends to become a graveyard.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Multi-service ML platform — monorepo plus shared libs</li>
+                <li>Library you intend others to depend on</li>
+                <li>Production deployment with strict release process</li>
+                <li>You're standardizing across multiple internal ML teams</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Skip it when</h3>
+            <ul>
+                <li>Research project where boundaries shift weekly</li>
+                <li>Solo dev — coordination overhead outweighs the structure</li>
+                <li>Throw-away exploration code</li>
+                <li>Strict velocity constraints prevent template setup</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-toml"># pyproject.toml — modern src-layout project (uv-friendly)
+[project]
+name = "my-project"
+version = "0.1.0"
+description = "ML research project"
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.0",
+    "hydra-core>=1.3",
+    "wandb>=0.16",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/my_project"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q"
+
+[project.scripts]
+train = "my_project.cli:train"
+eval  = "my_project.cli:eval"
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    
+                    <a href="configuration.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Configuration Management</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://cookiecutter-data-science.drivendata.org/" target="_blank">Cookiecutter Data Science <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The canonical research-project template. Read the rationale section even if you don't use the template directly.</span>
+        </li>
+        <li>
+            <a href="https://github.com/ashleve/lightning-hydra-template" target="_blank">lightning-hydra-template <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Modern PyTorch Lightning + Hydra starter. Strong opinions, sensible defaults — copy and adapt.</span>
+        </li>
+        <li>
+            <a href="https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/" target="_blank">PyPA — src vs flat layout <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Definitive comparison from the Python Packaging Authority. The "why src layout" argument in one short page.</span>
+        </li>
+        <li>
+            <a href="https://martinfowler.com/articles/monorepo.html" target="_blank">Fowler — Monorepo vs Polyrepo <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Domain-neutral but the trade-offs apply directly to ML platforms. Read before choosing.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

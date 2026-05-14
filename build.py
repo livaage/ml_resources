@@ -113,6 +113,13 @@ def render(template: str, meta: dict[str, str], content: str, sidebar: str, root
     for needle, value in substitutions.items():
         out = out.replace(needle, value)
 
+    # Set the active navbar item. Source declares `active_nav: theory|practice|resources`
+    # (default theory). One of the three placeholders becomes "active", the others "".
+    active = meta.get("active_nav", "theory")
+    for section in ("theory", "practice", "resources"):
+        out = out.replace(f"{{{{{section}_active}}}}",
+                          "active" if section == active else "")
+
     # Substitute {{root}} last so it works in both template and content.
     out = out.replace("{{root}}", root)
 

@@ -3,62 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ML Practice - ML Resources Hub</title>
+    <title>ML in Practice - ML Resources Hub</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .practice-content {
-            margin-top: 80px;
-            padding: 2rem;
-        }
+        .main-content { margin-top: 80px; }
 
-        .practice-section {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+        .main-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
         }
-
-        .practice-section h2 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
+        .section-item {
+            background: var(--surface);
+            border: 1px solid var(--hairline);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
         }
-
-        .project-card {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
+        .section-item:hover { border-color: var(--hairline-strong); }
+        .section-item.active {
+            border-color: var(--accent);
+            box-shadow: 0 6px 18px -10px rgba(79, 70, 229, 0.22);
+        }
+        .section-header {
+            margin: 0;
+            padding: 1.1rem 1.5rem;
+            background: transparent;
+            color: var(--ink);
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: color 0.2s ease, background 0.2s ease;
+        }
+        .section-header:hover {
+            color: var(--accent);
+            background: var(--accent-soft);
+        }
+        .section-header::after {
+            content: '\f107';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            color: var(--accent);
+            font-size: 1rem;
             transition: transform 0.3s ease;
         }
-
-        .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .section-item.active .section-header {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-bottom: 1px solid var(--hairline);
         }
+        .section-item.active .section-header::after { transform: rotate(180deg); }
+        .section-content {
+            display: none;
+            padding: 1.5rem;
+            background: var(--surface);
+        }
+        .section-item.active .section-content { display: block; }
 
-        .project-card h3 {
+        .main-topics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .main-topic {
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        .main-topic h3 {
+            margin: 0 0 1rem 0;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+        .subtopic-list { list-style: none; padding: 0; margin: 0; }
+        .subtopic-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .subtopic-list li:last-child { border-bottom: none; }
+        .subtopic-list a {
+            color: var(--primary-color);
+            text-decoration: none;
+            display: block;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .subtopic-list a:hover {
             color: var(--secondary-color);
-            margin-bottom: 0.5rem;
+            transform: translateX(5px);
         }
-
-        .difficulty {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 3px;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .beginner { background-color: #2ecc71; color: white; }
-        .intermediate { background-color: #f1c40f; color: black; }
-        .advanced { background-color: #e74c3c; color: white; }
-
-        .prerequisites {
+        .topic-description {
             font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            margin-top: 0.3rem;
+        }
+
+        .group-status {
+            display: inline-block;
+            margin-left: 0.6rem;
+            padding: 0.15rem 0.55rem;
+            background: var(--accent-warm-soft);
+            color: #8a3a1f;
+            border-radius: 999px;
+            font-family: var(--font-sans);
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            vertical-align: 3px;
         }
     </style>
 </head>
@@ -67,80 +125,92 @@
         <div class="nav-brand">ML Resources Hub</div>
         <div class="nav-links">
             <a href="index.html">Home</a>
-            <a href="theory.html">ML Theory</a>
-            <a href="practice.html" class="active">ML Practice</a>
-            <a href="code-examples.html">Code Examples</a>
-            <a href="best-practices.html">Best Practices</a>
+            <a href="theory.html">Theory</a>
+            <a href="practice.html" class="active">Practice</a>
+            <a href="resources.html">Resources</a>
         </div>
         <div class="nav-toggle">
             <i class="fas fa-bars"></i>
         </div>
     </nav>
 
-    <main class="practice-content">
+    <main class="main-content">
         <div class="container">
             <header class="page-header">
-                <div class="eyebrow">ML Practice</div>
-                <h1>Machine Learning <em>Practice</em></h1>
-                <p class="lead">Hands-on exercises and end-to-end projects to put the theory to work.</p>
+                <div class="eyebrow">ML in Practice</div>
+                <h1>Machine Learning <em>in Practice</em></h1>
+                <p class="lead">The engineering side of ML — how to organise a project, debug a pipeline, ship a model, and avoid the time-wasters. Short TL;DRs at three levels of depth, just like Theory.</p>
             </header>
 
-            <section class="practice-section">
-                <h2>Beginner Projects</h2>
-                <div class="project-card">
-                    <span class="difficulty beginner">Beginner</span>
-                    <h3>Iris Flower Classification</h3>
-                    <p class="prerequisites">Prerequisites: Basic Python, scikit-learn</p>
-                    <p>Build a classifier to predict iris flower species using the famous Iris dataset.</p>
-                    <a href="#" class="btn">Start Project</a>
+            <div class="main-sections">
+
+                <div class="section-item">
+                    <h2 class="section-header">Project Structure</h2>
+                    <div class="section-content">
+                        <div class="main-topics">
+                            <div class="main-topic">
+                                <h3>Setting Up a Project</h3>
+                                <div class="topic-content">
+                                    <ul class="subtopic-list">
+                                        <li>
+                                            <a href="topics/practice/repo-layout.html">Repository Layout</a>
+                                            <div class="topic-description">Where to put your data, models, configs, and code so future-you doesn't curse past-you.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/practice/configuration.html">Configuration Management</a>
+                                            <div class="topic-description">Hydra, YAML, dotenv — keeping hyperparameters and paths out of your code.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/practice/reproducibility.html">Reproducibility</a>
+                                            <div class="topic-description">Seeds, deterministic ops, locking dependencies — making "it worked on my machine" actually portable.</div>
+                                        </li>
+                                        <li>
+                                            <a href="topics/practice/env-deps.html">Environments &amp; Dependencies</a>
+                                            <div class="topic-description">uv, conda, Docker — choosing the right level of isolation for your workflow.</div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="project-card">
-                    <span class="difficulty beginner">Beginner</span>
-                    <h3>House Price Prediction</h3>
-                    <p class="prerequisites">Prerequisites: Basic Python, pandas, scikit-learn</p>
-                    <p>Create a regression model to predict house prices based on various features.</p>
-                    <a href="#" class="btn">Start Project</a>
-                </div>
-            </section>
-
-            <section class="practice-section">
-                <h2>Intermediate Projects</h2>
-                <div class="project-card">
-                    <span class="difficulty intermediate">Intermediate</span>
-                    <h3>Sentiment Analysis</h3>
-                    <p class="prerequisites">Prerequisites: NLP, Text Processing, Classification</p>
-                    <p>Build a sentiment analyzer for movie reviews using NLP techniques.</p>
-                    <a href="#" class="btn">Start Project</a>
+                <div class="section-item">
+                    <h2 class="section-header">Development Loop <span class="group-status">Coming Soon</span></h2>
+                    <div class="section-content">
+                        <p style="color: var(--muted)">Experiment tracking, hyperparameter search, testing ML code, logging &amp; debugging. Coming next.</p>
+                    </div>
                 </div>
 
-                <div class="project-card">
-                    <span class="difficulty intermediate">Intermediate</span>
-                    <h3>Image Classification with CNN</h3>
-                    <p class="prerequisites">Prerequisites: Deep Learning, Computer Vision, TensorFlow/PyTorch</p>
-                    <p>Implement a Convolutional Neural Network for image classification.</p>
-                    <a href="#" class="btn">Start Project</a>
-                </div>
-            </section>
-
-            <section class="practice-section">
-                <h2>Advanced Projects</h2>
-                <div class="project-card">
-                    <span class="difficulty advanced">Advanced</span>
-                    <h3>Object Detection System</h3>
-                    <p class="prerequisites">Prerequisites: Deep Learning, Computer Vision, YOLO/SSD</p>
-                    <p>Develop a real-time object detection system using deep learning.</p>
-                    <a href="#" class="btn">Start Project</a>
+                <div class="section-item">
+                    <h2 class="section-header">CI / CD <span class="group-status">Coming Soon</span></h2>
+                    <div class="section-content">
+                        <p style="color: var(--muted)">CI for ML (GitHub Actions), data validation, automated retraining, model registries.</p>
+                    </div>
                 </div>
 
-                <div class="project-card">
-                    <span class="difficulty advanced">Advanced</span>
-                    <h3>Recommendation System</h3>
-                    <p class="prerequisites">Prerequisites: Collaborative Filtering, Matrix Factorization</p>
-                    <p>Build a movie recommendation system using collaborative filtering.</p>
-                    <a href="#" class="btn">Start Project</a>
+                <div class="section-item">
+                    <h2 class="section-header">Debugging &amp; Profiling <span class="group-status">Coming Soon</span></h2>
+                    <div class="section-content">
+                        <p style="color: var(--muted)">Diagnosing training failures, loss-curve forensics, profiling compute &amp; memory, distributed training pitfalls.</p>
+                    </div>
                 </div>
-            </section>
+
+                <div class="section-item">
+                    <h2 class="section-header">Production <span class="group-status">Coming Soon</span></h2>
+                    <div class="section-content">
+                        <p style="color: var(--muted)">Serving (FastAPI / BentoML / Triton), monitoring drift, quantization &amp; distillation, A/B testing.</p>
+                    </div>
+                </div>
+
+                <div class="section-item">
+                    <h2 class="section-header">Time-Savers <span class="group-status">Coming Soon</span></h2>
+                    <div class="section-content">
+                        <p style="color: var(--muted)">Notebook → script patterns, reusable training-loop scaffolding, CLI patterns, useful libraries.</p>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </main>
 
@@ -155,6 +225,14 @@
         </div>
     </footer>
 
-    <script src="js/main.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.section-header').forEach(header => {
+            header.addEventListener('click', () => {
+                header.parentElement.classList.toggle('active');
+            });
+        });
+    });
+    </script>
 </body>
-</html> 
+</html>
