@@ -15,6 +15,26 @@ next_title: Gaussian Mixture Models
         <p><strong>Pretend each feature is independent of the others, then multiply probabilities.</strong> The assumption is almost always wrong, but the math becomes so simple — and so fast — that the model is surprisingly competitive on text and other discrete-feature problems.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Each ellipse is axis-aligned — that's the "naive" assumption — and the heatmap is the posterior class probability</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Data
+                <select id="viz-nb-data"></select>
+            </label>
+            <button id="viz-nb-reset" type="button">Re-sample</button>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-nb-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-nb-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/naive-bayes.js"></script>
+
+    <p class="viz-intro">Naive Bayes models each class with a diagonal-covariance Gaussian — features are assumed independent within each class. That means the ellipses are always parallel to the axes, and the decision boundary is a conic section. Try the <em>Tilted</em> dataset to see the assumption fail: the true direction of variation is diagonal, but NB can't see it. Despite that, on high-dimensional sparse data (text, bag-of-words) the simplicity often wins anyway.</p>
+
     <article class="tldr-body">
         <p>Naive Bayes asks: given the words in this email, how likely is each class (spam vs. not spam)? It computes that by pretending each word is independent of every other word — which is obviously false in real language — but then it argmaxes over classes, and the wrong probabilities often still rank the classes correctly.</p>
         <p>It's fast, trains in a single pass over the data, handles thousands of features without breaking a sweat, and is still the default baseline for many text-classification problems.</p>
