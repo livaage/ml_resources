@@ -48,6 +48,37 @@
         <p><strong>Instead of one guess, give me a range.</strong> A Gaussian process predicts both a value <em>and</em> how confident it is about that value. Where you have lots of nearby data, it's confident; where you don't, it widens its uncertainty.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Click to add observations · shift+click to remove · slide ℓ to change how far each point's influence reaches</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Kernel
+                <select id="viz-gp-kernel"></select>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                ℓ
+                <input id="viz-gp-length" class="viz-classic-slider" type="range">
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                σₙ
+                <input id="viz-gp-noise" class="viz-classic-slider" type="range">
+            </label>
+            <button id="viz-gp-resample" type="button">Re-sample</button>
+            <button id="viz-gp-clear"    type="button">Clear</button>
+            <span class="viz-classic-badge" id="viz-gp-length-lbl">ℓ = 0.25</span>
+            <span class="viz-classic-badge" id="viz-gp-noise-lbl">σₙ = 0.05</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-gp-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-gp-caption"></div>
+    </div>
+    <script src="../js/viz/gp.js"></script>
+
+    <p class="viz-intro">The bold line is the posterior mean; the shaded band is the ±2σ uncertainty. The thin lines are four sample functions drawn from the posterior — they show what kinds of functions are still consistent with your data. Clear all observations and you're seeing the <em>prior</em> — the GP's belief before any data. Add a point and watch the band collapse to it (within σₙ); the uncertainty inflates the further you go.</p>
+
     <article class="tldr-body">
         <p>Most regression models give you one number per prediction. A Gaussian process gives you a number <em>and</em> an error bar — and the error bar is data-aware: it shrinks near your training points and grows when you predict far away from anything you've seen.</p>
         <p>That uncertainty is the whole point. GPs are slow and don't scale to big data, but when you have a few hundred points and you care about <em>knowing what you don't know</em> — design of experiments, Bayesian optimization, robotics — they're the right tool.</p>
