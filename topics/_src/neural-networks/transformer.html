@@ -17,9 +17,19 @@ next_title: Graph Neural Networks
         <p><strong>Look at everything at once, weighted by relevance.</strong> Instead of processing tokens one at a time like an RNN, a transformer looks at every token in the sequence and asks: which other tokens matter for understanding this one? That's <em>attention</em>.</p>
     </div>
 
-    
+    <div class="viz-embed viz-tx">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Pick a head · click any token to make it the query</span>
+        </div>
+        <div class="viz-tx-heads" id="viz-tx-heads"></div>
+        <div class="viz-tx-canvas-wrap">
+            <canvas id="viz-tx-canvas"></canvas>
+        </div>
+        <div class="viz-tx-desc" id="viz-tx-desc"></div>
+    </div>
+    <script src="{{root}}js/viz/transformer.js"></script>
 
-    <p class="viz-intro">Transformers reward visualization more than almost any other architecture. The explainers below let you watch attention patterns form, step through token generation, and inspect what each head is doing — far better than reading the original paper cold.</p>
+    <p class="viz-intro">The four heads above show the kinds of patterns real transformers actually learn: simple positional shifts, plus richer linguistic relationships like adjective→noun and verb→subject. A real model has dozens of these per layer, all running in parallel, and the next layer can compose their outputs. That composition is most of what makes transformers work. The explainers below run real models — go deeper there.</p>
 
         <div class="viz-grid">
             <a href="https://poloclub.github.io/transformer-explainer/" target="_blank" class="viz-card viz-card-featured">

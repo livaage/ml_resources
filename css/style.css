@@ -555,6 +555,63 @@ code:not(pre code) {
 .topic-level.active { display: block; }
 .topic-level:not(.active)[data-level="intuition"] { display: none; }
 
+/* Transformer attention viz — heads as tabs, arcs above tokens, heatmap below */
+.viz-tx {
+    padding: 1.25rem 1.5rem 1.5rem;
+}
+.viz-tx-heads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+}
+.viz-tx-head {
+    padding: 0.4rem 0.85rem;
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    color: var(--ink-soft);
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+.viz-tx-head:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-hover);
+}
+.viz-tx-head.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--white);
+}
+.viz-tx-canvas-wrap {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+.viz-tx-canvas-wrap canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    cursor: pointer;
+    touch-action: none;
+}
+.viz-tx-desc {
+    background: var(--accent-soft);
+    border: 1px solid rgba(79, 70, 229, 0.16);
+    border-radius: 10px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.93rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+}
+.viz-tx-desc strong { color: var(--accent-hover); }
+
+
 /* CNN convolution viz — three-panel layout (input / kernel+math / output) */
 .viz-cnn {
     padding: 1.5rem;
