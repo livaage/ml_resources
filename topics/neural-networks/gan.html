@@ -48,6 +48,29 @@
         <p><strong>Two networks playing against each other.</strong> A <em>generator</em> tries to make fake samples that look real. A <em>discriminator</em> tries to tell real from fake. They train together — each gets better as the other improves, like a counterfeiter and a detective sharpening each other's skills.</p>
     </div>
 
+    <div class="viz-embed viz-gan">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Click Train and watch the orange (fake) particles slide toward the indigo (real) distribution as the discriminator chases them</span>
+        </div>
+        <div class="viz-gan-controls">
+            <button id="viz-gan-step"  type="button">Step</button>
+            <button id="viz-gan-train" type="button">Train</button>
+            <button id="viz-gan-reset" type="button">Reset</button>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Real distribution
+                <select id="viz-gan-dist"></select>
+            </label>
+            <span class="viz-gan-counter" id="viz-gan-counter">Step 0</span>
+        </div>
+        <div class="viz-gan-canvas-wrap">
+            <canvas id="viz-gan-canvas"></canvas>
+        </div>
+        <div class="viz-gan-caption" id="viz-gan-caption"></div>
+    </div>
+    <script src="../../js/viz/gan.js"></script>
+
+    <p class="viz-intro">The orange wash in the background shows where the discriminator currently thinks "real" samples live; the indigo wash is "fake". As D learns, the boundary tightens around the real points — and each fake particle climbs the gradient of D toward higher-orange regions. Try the <strong>Two clusters</strong> preset to see <em>mode collapse</em>, where the generator pours all its mass into a single mode.</p>
+
     <article class="tldr-body">
         <p>You give the generator a vector of random noise, and it produces an image. Initially the images are garbage. The discriminator sees real images from your dataset and fake images from the generator, and learns to tell them apart. The generator's loss is "did I fool the discriminator?" — so it updates to make better fakes. They escalate.</p>
         <p>At equilibrium (in theory), the generator produces samples indistinguishable from real data and the discriminator can only guess 50/50. In practice training is finicky, but when it works the samples are beautiful.</p>
