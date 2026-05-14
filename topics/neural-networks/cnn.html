@@ -36,20 +36,52 @@
                     <p class="lead">Translation-equivariant networks for grid-structured data — images, video, audio spectrograms.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Difficulty">
-                    <button class="level-tab" data-level="basic" type="button">Basic</button>
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab" data-level="intuition" type="button">Intuition</button>
                     <button class="level-tab active" data-level="standard" type="button">Standard</button>
                     <button class="level-tab" data-level="advanced" type="button">In-depth</button>
-                    <button class="level-tab" data-level="visual" type="button">Visual</button>
                 </div>
 
-                <section class="topic-level" data-level="basic">
+                <section class="topic-level" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Share the same small filter across the whole image.</strong> A CNN scans a tiny window over the input, looking for a particular pattern (an edge, a texture, a colour blob). Stack many such layers and the network builds up from edges, to textures, to object parts, to whole objects.</p>
     </div>
 
-    <article class="tldr-body">
+    
+
+    <p class="viz-intro">CNNs are the topic where seeing beats reading. The interactive explainers below let you click through a real network's activations, modify the input, and watch every layer respond live. Better than any static text — including this page.</p>
+
+        <div class="viz-grid">
+            <a href="https://poloclub.github.io/cnn-explainer/" target="_blank" class="viz-card viz-card-featured">
+                <span class="viz-source">poloclub.github.io</span>
+                <h3>CNN Explainer</h3>
+                <p>A real CNN running entirely in your browser. Click through every convolution, ReLU, and pooling layer to see its activations live. Hover any cell of a feature map to see where it came from. The single best resource for understanding what each layer in a CNN actually does.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://www.cs.ryerson.ca/~aharley/vis/conv/" target="_blank" class="viz-card">
+                <span class="viz-source">cs.ryerson.ca</span>
+                <h3>3D Visualization — Harley</h3>
+                <p>Adam Harley's classic 3D walkthrough of an MNIST CNN. Rotate, zoom, and inspect the volume of activations at every layer. Older but still uniquely insightful for the spatial structure.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://distill.pub/2017/feature-visualization/" target="_blank" class="viz-card">
+                <span class="viz-source">distill.pub</span>
+                <h3>Feature Visualization</h3>
+                <p>Olah, Mordvintsev, Schubert. The seminal article on understanding what individual CNN neurons "see" by synthesising images that maximally activate them. Beautiful interactive diagrams.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://playground.tensorflow.org/" target="_blank" class="viz-card">
+                <span class="viz-source">tensorflow.org</span>
+                <h3>TensorFlow Playground</h3>
+                <p>Not CNN-specific, but lets you build and train a small dense net on toy 2D problems with live decision-boundary visualization. Great for the "what does training <em>do</em>?" intuition.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+        </div>
+<article class="tldr-body">
         <p>Compare an image classifier with two designs. A fully-connected network gets one big vector — every pixel multiplied by its own weight. A million pixels means a million weights per output, and the network has to relearn "edges look like edges" everywhere in the image. A CNN reuses the same small filter (say 3×3) across all positions — much fewer parameters, and the model knows "an edge in the top left is the same kind of thing as an edge in the bottom right".</p>
         <p>That weight sharing is why CNNs work so well on images. They also use <strong>pooling</strong> layers to shrink the spatial dimensions as you go deeper, building up to a few high-level features that summarize the whole image.</p>
     </article>
@@ -225,41 +257,6 @@ class ConvNeXtBlock(nn.Module):
     <div class="level-next">
         <span>Too dense?</span>
         <button data-go-to="standard" type="button">← Back to Standard</button>
-    </div>
-</section>
-
-
-<section class="topic-level" data-level="visual">
-    <p class="viz-intro">CNNs are the topic where seeing beats reading. The interactive explainers below let you click through a real network's activations, modify the input, and watch every layer respond live. Better than any static text — including this page.</p>
-
-    <div class="viz-grid">
-        <a href="https://poloclub.github.io/cnn-explainer/" target="_blank" class="viz-card viz-card-featured">
-            <span class="viz-source">poloclub.github.io</span>
-            <h3>CNN Explainer</h3>
-            <p>A real CNN running entirely in your browser. Click through every convolution, ReLU, and pooling layer to see its activations live. Hover any cell of a feature map to see where it came from. The single best resource for understanding what each layer in a CNN actually does.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="https://www.cs.ryerson.ca/~aharley/vis/conv/" target="_blank" class="viz-card">
-            <span class="viz-source">cs.ryerson.ca</span>
-            <h3>3D Visualization — Harley</h3>
-            <p>Adam Harley's classic 3D walkthrough of an MNIST CNN. Rotate, zoom, and inspect the volume of activations at every layer. Older but still uniquely insightful for the spatial structure.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="https://distill.pub/2017/feature-visualization/" target="_blank" class="viz-card">
-            <span class="viz-source">distill.pub</span>
-            <h3>Feature Visualization</h3>
-            <p>Olah, Mordvintsev, Schubert. The seminal article on understanding what individual CNN neurons "see" by synthesising images that maximally activate them. Beautiful interactive diagrams.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="https://playground.tensorflow.org/" target="_blank" class="viz-card">
-            <span class="viz-source">tensorflow.org</span>
-            <h3>TensorFlow Playground</h3>
-            <p>Not CNN-specific, but lets you build and train a small dense net on toy 2D problems with live decision-boundary visualization. Great for the "what does training <em>do</em>?" intuition.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
     </div>
 </section>
 

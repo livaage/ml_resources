@@ -7,13 +7,53 @@ lead: The simplest, most interpretable models — and still the right answer sur
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="basic">
+<section class="topic-level" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Predict the output as a weighted sum of the inputs.</strong> Linear regression does this for continuous outputs (predicting a number). Logistic regression squishes the output through an S-curve to predict probabilities (yes/no). Both are interpretable, fast, and surprisingly hard to beat on simple problems.</p>
     </div>
 
-    <article class="tldr-body">
+    
+
+    <div class="viz-embed">
+            <div class="viz-embed-header">
+                <span class="viz-embed-title">Drag points · click empty space to add · <kbd>shift</kbd>+click to remove</span>
+                <div class="viz-embed-controls">
+                    <button id="viz-regression-noisy" type="button">Noisy data</button>
+                    <button id="viz-regression-clear" type="button">Clear</button>
+                    <button id="viz-regression-reset" type="button">Reset</button>
+                </div>
+            </div>
+            <canvas id="viz-regression-canvas"></canvas>
+            <div class="viz-embed-stats" id="viz-regression-stats"></div>
+        </div>
+        <script src="{{root}}js/viz/regression.js"></script>
+
+        <p class="viz-intro">The OLS line minimises the sum of squared vertical distances (the faint orange lines) from each point to itself. Drag a point far from the trend and watch R² drop. Click "Noisy data" to see what a low-R² fit looks like.</p>
+
+        <div class="viz-grid">
+            <a href="https://setosa.io/ev/ordinary-least-squares-regression/" target="_blank" class="viz-card viz-card-featured">
+                <span class="viz-source">setosa.io</span>
+                <h3>Setosa — OLS Regression</h3>
+                <p>Beautiful interactive explanation of OLS from first principles. Drag points to see how each one influences the fit; explore the geometric interpretation of least squares.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://mlu-explain.github.io/linear-regression/" target="_blank" class="viz-card">
+                <span class="viz-source">mlu-explain.github.io</span>
+                <h3>MLU-Explain — Linear Regression</h3>
+                <p>Amazon's visual walk-through. Covers residuals, R², and the assumptions behind OLS with clean animated diagrams.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://seeing-theory.brown.edu/regression-analysis/index.html" target="_blank" class="viz-card">
+                <span class="viz-source">seeing-theory.brown.edu</span>
+                <h3>Seeing Theory — Regression</h3>
+                <p>Brown's interactive primer. Drag the regression line manually and see the loss change in real time. Best for building intuition for what OLS is optimising.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+        </div>
+<article class="tldr-body">
         <p>Linear regression: <em>ŷ = β₀ + β₁·x₁ + β₂·x₂ + …</em>. The coefficients <em>β<sub>i</sub></em> tell you how much each feature changes the prediction. Big positive coefficient on "square footage" means more square footage → higher predicted price. Negative on "age" means older → lower price.</p>
         <p>Logistic regression is the same idea but for classification. Take the same weighted sum, then squash it through a sigmoid (S-shaped function) to get a probability between 0 and 1. The coefficients now tell you how much each feature moves the predicted log-odds.</p>
         <p>Both are the workhorse baselines you should try before anything fancier. If a linear model gets 90% accuracy, a deep neural net adding 1% probably isn't worth it.</p>
@@ -204,48 +244,6 @@ print(f"95% CI:  {logit.conf_int().values.round(3)}")
     <div class="level-next">
         <span>Too dense?</span>
         <button data-go-to="standard" type="button">← Back to Standard</button>
-    </div>
-</section>
-
-
-<section class="topic-level" data-level="visual">
-    <div class="viz-embed">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Drag points · click empty space to add · <kbd>shift</kbd>+click to remove</span>
-            <div class="viz-embed-controls">
-                <button id="viz-regression-noisy" type="button">Noisy data</button>
-                <button id="viz-regression-clear" type="button">Clear</button>
-                <button id="viz-regression-reset" type="button">Reset</button>
-            </div>
-        </div>
-        <canvas id="viz-regression-canvas"></canvas>
-        <div class="viz-embed-stats" id="viz-regression-stats"></div>
-    </div>
-    <script src="{{root}}js/viz/regression.js"></script>
-
-    <p class="viz-intro">The OLS line minimises the sum of squared vertical distances (the faint orange lines) from each point to itself. Drag a point far from the trend and watch R² drop. Click "Noisy data" to see what a low-R² fit looks like.</p>
-
-    <div class="viz-grid">
-        <a href="https://setosa.io/ev/ordinary-least-squares-regression/" target="_blank" class="viz-card viz-card-featured">
-            <span class="viz-source">setosa.io</span>
-            <h3>Setosa — OLS Regression</h3>
-            <p>Beautiful interactive explanation of OLS from first principles. Drag points to see how each one influences the fit; explore the geometric interpretation of least squares.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="https://mlu-explain.github.io/linear-regression/" target="_blank" class="viz-card">
-            <span class="viz-source">mlu-explain.github.io</span>
-            <h3>MLU-Explain — Linear Regression</h3>
-            <p>Amazon's visual walk-through. Covers residuals, R², and the assumptions behind OLS with clean animated diagrams.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="https://seeing-theory.brown.edu/regression-analysis/index.html" target="_blank" class="viz-card">
-            <span class="viz-source">seeing-theory.brown.edu</span>
-            <h3>Seeing Theory — Regression</h3>
-            <p>Brown's interactive primer. Drag the regression line manually and see the loss change in real time. Best for building intuition for what OLS is optimising.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
     </div>
 </section>
 

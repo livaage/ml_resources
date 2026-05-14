@@ -7,13 +7,62 @@ lead: Iteratively step in the direction that decreases the loss. The algorithm a
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="basic">
+<section class="topic-level" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Step in the direction that decreases the loss. Keep stepping.</strong> You're standing on a hilly landscape in fog. You can feel which way is downhill at your feet. You step that way. Repeat until the ground is flat. The "landscape" is the loss as a function of model parameters; gradient descent is the foot-feeling-its-way algorithm.</p>
     </div>
 
-    <article class="tldr-body">
+    
+
+    <div class="viz-embed">
+            <div class="viz-embed-header">
+                <span class="viz-embed-title">Click anywhere on the surface to start a new descent · adjust <kbd>η</kbd> to change step size</span>
+                <div class="viz-embed-controls">
+                    <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.85rem;">
+                        η <input type="range" id="viz-gd-lr" min="0" max="100" value="40" style="width: 100px;">
+                    </label>
+                    <button id="viz-gd-play" type="button">Pause</button>
+                    <button id="viz-gd-reset" type="button">Reset</button>
+                </div>
+            </div>
+            <canvas id="viz-gd-canvas"></canvas>
+            <div class="viz-embed-stats" id="viz-gd-stats"></div>
+        </div>
+        <script src="{{root}}js/viz/gradient-descent.js"></script>
+
+        <p class="viz-intro">The surface above is a scaled <em>Rosenbrock</em> function — minimum at the white marker at (1, 1), inside a curved banana-shaped valley. Try clicking different starting points: the path along the valley floor is slow even at well-chosen step sizes. Crank η up: the trajectory starts oscillating or diverges. This is exactly why momentum and adaptive optimisers exist.</p>
+
+        <div class="viz-grid">
+            <a href="https://distill.pub/2017/momentum/" target="_blank" class="viz-card viz-card-featured">
+                <span class="viz-source">distill.pub</span>
+                <h3>Why Momentum Really Works</h3>
+                <p>The single best deep dive on momentum, with interactive 2D loss surfaces. Drag points, change β, watch how momentum reshapes the trajectory. Read once and you'll never use vanilla SGD again.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://www.benfrederickson.com/numerical-optimization/" target="_blank" class="viz-card">
+                <span class="viz-source">benfrederickson.com</span>
+                <h3>An Interactive Tutorial on Numerical Optimization</h3>
+                <p>Side-by-side comparison of gradient descent, momentum, Adagrad, Adam — all running live on the same loss surface. Best for seeing the relative behaviour of different optimisers.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://ruder.io/optimizing-gradient-descent/" target="_blank" class="viz-card">
+                <span class="viz-source">ruder.io</span>
+                <h3>Ruder — Optimizing Gradient Descent</h3>
+                <p>Comprehensive written overview of every SGD variant — momentum, Adagrad, RMSprop, Adam, AdamW. Static but the clearest single reference for "which optimiser should I use".</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://playground.tensorflow.org/" target="_blank" class="viz-card">
+                <span class="viz-source">tensorflow.org</span>
+                <h3>TensorFlow Playground</h3>
+                <p>Train a small neural network in your browser. Watch the loss curve drop while you tweak learning rate, batch size, and activations. Best for seeing GD work on a real classification problem.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+        </div>
+<article class="tldr-body">
         <p>Every weight in a neural network — billions of them in modern models — is tuned by gradient descent. So is logistic regression's β, linear regression's β (it has a closed form too, but GD also works), SVM's <em>w</em> via SGD, and almost every other "trainable" model.</p>
         <p>The recipe is short: compute the gradient (how loss changes if you nudge each parameter), subtract a small fraction of it from each parameter, repeat. The "small fraction" is the <strong>learning rate</strong> — too small and you'll be there forever; too large and you'll bounce around or diverge.</p>
     </article>
@@ -200,57 +249,6 @@ for step, (xb, yb) in enumerate(loader):
     <div class="level-next">
         <span>Too dense?</span>
         <button data-go-to="standard" type="button">← Back to Standard</button>
-    </div>
-</section>
-
-
-<section class="topic-level" data-level="visual">
-    <div class="viz-embed">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Click anywhere on the surface to start a new descent · adjust <kbd>η</kbd> to change step size</span>
-            <div class="viz-embed-controls">
-                <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.85rem;">
-                    η <input type="range" id="viz-gd-lr" min="0" max="100" value="40" style="width: 100px;">
-                </label>
-                <button id="viz-gd-play" type="button">Pause</button>
-                <button id="viz-gd-reset" type="button">Reset</button>
-            </div>
-        </div>
-        <canvas id="viz-gd-canvas"></canvas>
-        <div class="viz-embed-stats" id="viz-gd-stats"></div>
-    </div>
-    <script src="{{root}}js/viz/gradient-descent.js"></script>
-
-    <p class="viz-intro">The surface above is a scaled <em>Rosenbrock</em> function — minimum at the white marker at (1, 1), inside a curved banana-shaped valley. Try clicking different starting points: the path along the valley floor is slow even at well-chosen step sizes. Crank η up: the trajectory starts oscillating or diverges. This is exactly why momentum and adaptive optimisers exist.</p>
-
-    <div class="viz-grid">
-        <a href="https://distill.pub/2017/momentum/" target="_blank" class="viz-card viz-card-featured">
-            <span class="viz-source">distill.pub</span>
-            <h3>Why Momentum Really Works</h3>
-            <p>The single best deep dive on momentum, with interactive 2D loss surfaces. Drag points, change β, watch how momentum reshapes the trajectory. Read once and you'll never use vanilla SGD again.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="https://www.benfrederickson.com/numerical-optimization/" target="_blank" class="viz-card">
-            <span class="viz-source">benfrederickson.com</span>
-            <h3>An Interactive Tutorial on Numerical Optimization</h3>
-            <p>Side-by-side comparison of gradient descent, momentum, Adagrad, Adam — all running live on the same loss surface. Best for seeing the relative behaviour of different optimisers.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="https://ruder.io/optimizing-gradient-descent/" target="_blank" class="viz-card">
-            <span class="viz-source">ruder.io</span>
-            <h3>Ruder — Optimizing Gradient Descent</h3>
-            <p>Comprehensive written overview of every SGD variant — momentum, Adagrad, RMSprop, Adam, AdamW. Static but the clearest single reference for "which optimiser should I use".</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="https://playground.tensorflow.org/" target="_blank" class="viz-card">
-            <span class="viz-source">tensorflow.org</span>
-            <h3>TensorFlow Playground</h3>
-            <p>Train a small neural network in your browser. Watch the loss curve drop while you tweak learning rate, batch size, and activations. Best for seeing GD work on a real classification problem.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
     </div>
 </section>
 

@@ -36,14 +36,13 @@
                     <p class="lead">A surprisingly effective classifier built on a deliberately naive independence assumption.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Difficulty">
-                    <button class="level-tab" data-level="basic" type="button">Basic</button>
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab" data-level="intuition" type="button">Intuition</button>
                     <button class="level-tab active" data-level="standard" type="button">Standard</button>
                     <button class="level-tab" data-level="advanced" type="button">In-depth</button>
-                    <button class="level-tab" data-level="visual" type="button">Visual</button>
                 </div>
 
-                <section class="topic-level" data-level="basic">
+                <section class="topic-level" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Pretend each feature is independent of the others, then multiply probabilities.</strong> The assumption is almost always wrong, but the math becomes so simple — and so fast — that the model is surprisingly competitive on text and other discrete-feature problems.</p>

@@ -11,13 +11,46 @@ next_title: Graph Neural Networks
 
 
 <!-- TOPIC CONTENT -->
-<section class="topic-level" data-level="basic">
+<section class="topic-level" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Look at everything at once, weighted by relevance.</strong> Instead of processing tokens one at a time like an RNN, a transformer looks at every token in the sequence and asks: which other tokens matter for understanding this one? That's <em>attention</em>.</p>
     </div>
 
-    <article class="tldr-body">
+    
+
+    <p class="viz-intro">Transformers reward visualization more than almost any other architecture. The explainers below let you watch attention patterns form, step through token generation, and inspect what each head is doing — far better than reading the original paper cold.</p>
+
+        <div class="viz-grid">
+            <a href="https://poloclub.github.io/transformer-explainer/" target="_blank" class="viz-card viz-card-featured">
+                <span class="viz-source">poloclub.github.io</span>
+                <h3>Transformer Explainer</h3>
+                <p>A real GPT-2 running in your browser. Type a prompt and watch every step — token embedding, positional encoding, multi-head attention (with every head visible separately), layer norms, the final softmax. The clearest visualisation of a working transformer ever made.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://bbycroft.net/llm" target="_blank" class="viz-card">
+                <span class="viz-source">bbycroft.net</span>
+                <h3>LLM Visualization — Brendan Bycroft</h3>
+                <p>Stunning 3D walkthrough of a tiny GPT, frame by frame. Walks you through every matrix multiplication, attention computation, and softmax in the entire forward pass. Best for understanding the dataflow at the tensor level.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://jalammar.github.io/illustrated-transformer/" target="_blank" class="viz-card">
+                <span class="viz-source">jalammar.github.io</span>
+                <h3>The Illustrated Transformer</h3>
+                <p>Jay Alammar's classic article. Static but unbeatable diagrams of every transformer component: Q/K/V projections, scaled dot-product attention, multi-head, encoder-decoder attention. Read this <em>before</em> attempting the original paper.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://transformer-circuits.pub/2021/framework/index.html" target="_blank" class="viz-card">
+                <span class="viz-source">transformer-circuits.pub</span>
+                <h3>Mathematical Framework — Anthropic</h3>
+                <p>Not interactive but visually rich. For understanding what attention heads <em>actually</em> compute mechanistically — induction heads, copy circuits, position-tracking. Read after you understand the basics; rewards multiple re-reads.</p>
+                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+            </a>
+        </div>
+<article class="tldr-body">
         <p>If an RNN is reading a book one word at a time and trying to remember the relevant parts, a transformer is photocopying every page and laying them out on a table — every word can directly look at every other word. This is slower per token (you can't shortcut) but much better at understanding long-range relationships.</p>
         <p>The "Transformer" came from a 2017 paper called <em>"Attention is All You Need"</em>. Every modern LLM (GPT, Claude, Gemini, Llama) is a transformer. So are most modern vision models (ViT, DiT), speech models, and code models.</p>
     </article>
@@ -211,41 +244,6 @@ class CausalSelfAttention(nn.Module):
     <div class="level-next">
         <span>Too dense?</span>
         <button data-go-to="standard" type="button">← Back to Standard</button>
-    </div>
-</section>
-
-
-<section class="topic-level" data-level="visual">
-    <p class="viz-intro">Transformers reward visualization more than almost any other architecture. The explainers below let you watch attention patterns form, step through token generation, and inspect what each head is doing — far better than reading the original paper cold.</p>
-
-    <div class="viz-grid">
-        <a href="https://poloclub.github.io/transformer-explainer/" target="_blank" class="viz-card viz-card-featured">
-            <span class="viz-source">poloclub.github.io</span>
-            <h3>Transformer Explainer</h3>
-            <p>A real GPT-2 running in your browser. Type a prompt and watch every step — token embedding, positional encoding, multi-head attention (with every head visible separately), layer norms, the final softmax. The clearest visualisation of a working transformer ever made.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="https://bbycroft.net/llm" target="_blank" class="viz-card">
-            <span class="viz-source">bbycroft.net</span>
-            <h3>LLM Visualization — Brendan Bycroft</h3>
-            <p>Stunning 3D walkthrough of a tiny GPT, frame by frame. Walks you through every matrix multiplication, attention computation, and softmax in the entire forward pass. Best for understanding the dataflow at the tensor level.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="https://jalammar.github.io/illustrated-transformer/" target="_blank" class="viz-card">
-            <span class="viz-source">jalammar.github.io</span>
-            <h3>The Illustrated Transformer</h3>
-            <p>Jay Alammar's classic article. Static but unbeatable diagrams of every transformer component: Q/K/V projections, scaled dot-product attention, multi-head, encoder-decoder attention. Read this <em>before</em> attempting the original paper.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="https://transformer-circuits.pub/2021/framework/index.html" target="_blank" class="viz-card">
-            <span class="viz-source">transformer-circuits.pub</span>
-            <h3>Mathematical Framework — Anthropic</h3>
-            <p>Not interactive but visually rich. For understanding what attention heads <em>actually</em> compute mechanistically — induction heads, copy circuits, position-tracking. Read after you understand the basics; rewards multiple re-reads.</p>
-            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-        </a>
     </div>
 </section>
 
