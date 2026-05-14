@@ -1,49 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support Vector Machines — ML Resources Hub</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <style>
-        .main-content { margin-top: 80px; }
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-brand">ML Resources Hub</div>
-        <div class="nav-links">
-            <a href="../index.html">Home</a>
-            <a href="../theory.html" class="active">Theory</a>
-            <a href="../engineering.html" class="">Engineering</a>
-            <a href="../resources.html" class="">Resources</a>
-        </div>
-        <div class="nav-toggle">
-            <i class="fas fa-bars"></i>
-        </div>
-    </nav>
+<!-- TOPIC META -->
+title: Support Vector Machines — ML Resources Hub
+eyebrow_text: ← Theory · Kernel Methods
+eyebrow_href: {{root}}theory.html
+heading: Support Vector Machines
+lead: Find the line (or curve) that splits two classes with the widest margin possible.
+next_href: gaussian-processes.html
+next_title: Gaussian Processes
 
-    <main class="main-content">
-        <div class="topic-layout">
 
-            <div class="topic-main">
-                <header class="page-header">
-                    <a href="../theory.html" class="eyebrow">← Theory · Kernel Methods</a>
-                    <h1>Support Vector Machines</h1>
-                    <p class="lead">Find the line (or curve) that splits two classes with the widest margin possible.</p>
-                </header>
-
-                <div class="level-tabs" role="tablist" aria-label="Difficulty">
-                    <button class="level-tab" data-level="basic" type="button">Basic</button>
-                    <button class="level-tab active" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
-                    <button class="level-tab" data-level="visual" type="button">Visual</button>
-                </div>
-
-                <section class="topic-level" data-level="basic">
+<!-- TOPIC CONTENT -->
+<section class="topic-level" data-level="basic">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Find the boundary with the widest possible gap.</strong> If you can draw multiple straight lines separating two classes, the SVM picks the one that leaves the most "elbow room" on either side. The points right on the edge of the gap are the <em>support vectors</em> — they alone determine the boundary.</p>
@@ -241,19 +207,9 @@ print(f"Test acc: {big_svm.score(X_test, y_test):.3f}")
     </div>
 </section>
 
-                <nav class="topic-nav">
-                    
-                    <a href="gaussian-processes.html" class="next">
-                        <span>
-                            <span class="topic-nav-label">Next</span>
-                            <span class="topic-nav-title">Gaussian Processes</span>
-                        </span>
-                    </a>
-                </nav>
-            </div>
 
-            <aside class="topic-sidebar">
-                <div class="learn-more">
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
         <li>
@@ -274,35 +230,3 @@ print(f"Test acc: {big_svm.score(X_test, y_test):.3f}")
         </li>
     </ul>
 </div>
-            </aside>
-
-        </div>
-    </main>
-
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2024 ML Resources Hub. All rights reserved.</p>
-            <div class="social-links">
-                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
-                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-            onload="renderMathInElement(document.body, {
-                delimiters: [
-                    { left: '$$', right: '$$', display: true },
-                    { left: '$',  right: '$',  display: false },
-                    { left: '\\[', right: '\\]', display: true },
-                    { left: '\\(', right: '\\)', display: false }
-                ],
-                throwOnError: false
-            });"></script>
-    <script src="../js/topic-page.js"></script>
-</body>
-</html>

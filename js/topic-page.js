@@ -7,7 +7,21 @@
     const levels = document.querySelectorAll('.topic-level');
     const KEY    = 'ml-hub-topic-level';
 
+    // Hide tabs whose content section doesn't exist on this page.
+    // This lets sources opt into the "Visual" tab (or any future one)
+    // without forcing every topic to define it.
+    const availableLevels = new Set(
+        Array.from(levels).map(l => l.dataset.level)
+    );
+    tabs.forEach(t => {
+        if (!availableLevels.has(t.dataset.level)) {
+            t.style.display = 'none';
+        }
+    });
+
     function setLevel(level) {
+        // Fall back to "standard" if a saved level isn't available on this page
+        if (!availableLevels.has(level)) level = 'standard';
         tabs.forEach(t => t.classList.toggle('active', t.dataset.level === level));
         levels.forEach(l => l.classList.toggle('active', l.dataset.level === level));
         localStorage.setItem(KEY, level);

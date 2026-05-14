@@ -555,6 +555,77 @@ code:not(pre code) {
 .topic-level.active { display: block; }
 .topic-level:not(.active)[data-level="standard"] { display: none; }
 
+/* Visual-intuition level — grid of curated interactive explainers */
+.viz-intro {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+    max-width: 660px;
+}
+.viz-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+.viz-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--ink);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+.viz-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 24px -12px rgba(79, 70, 229, 0.22);
+}
+.viz-card.viz-card-featured {
+    background: linear-gradient(135deg, var(--surface), var(--accent-soft));
+    border-color: rgba(79, 70, 229, 0.22);
+}
+.viz-card .viz-source {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.02em;
+}
+.viz-card h3 {
+    font-family: var(--font-serif);
+    font-size: 1.18rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0 0 0.6rem;
+}
+.viz-card p {
+    color: var(--ink-soft);
+    font-size: 0.93rem;
+    line-height: 1.55;
+    margin: 0 0 0.85rem;
+    flex-grow: 1;
+}
+.viz-card .viz-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--accent);
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: gap 0.2s ease;
+}
+.viz-card:hover .viz-cta { gap: 0.6rem; }
+.viz-card .viz-cta i { font-size: 0.78em; }
+
+
 /* Footer callout per level: suggest the next level up (or down) */
 .level-next {
     margin: 2.5rem 0 0;
