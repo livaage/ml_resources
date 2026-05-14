@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Leakage — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html" class="active">Theory</a>
+            <a href="../engineering.html" class="">Engineering</a>
+            <a href="../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../theory.html" class="eyebrow">← Theory · Data &amp; Features</a>
+                    <h1>Data Leakage</h1>
+                    <p class="lead">The silent killer — when the model "knows" something it couldn't possibly know at deployment.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>If your validation score is suspiciously good, something probably leaked.</strong> Data leakage is when information from outside the training set sneaks into training — the test set's mean used in preprocessing, a feature only available <em>after</em> the prediction time, a near-duplicate of the target. The model learns to exploit it; deployment fails silently.</p>
+    </div>
+
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Compare two pipelines doing the "same" thing — one leaks the test statistics through the scaler</span>
+        </div>
+        <div class="viz-classic-controls">
+            <button id="viz-leak-wrong" type="button" class="active">Naive pipeline (leaks)</button>
+            <button id="viz-leak-right" type="button">Pipeline-correct (no leak)</button>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-leak-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-leak-caption"></div>
+    </div>
+    <script src="../js/viz/leakage.js"></script>
+
+    <p class="viz-intro">Both panels run the same operations: fit a scaler, fit a model, predict on a held-out set. The <strong>naive</strong> pipeline fits the scaler on <em>all</em> the data before splitting — so the test set's mean and std are baked into training. The <strong>correct</strong> pipeline fits the scaler only on train. The reported test accuracy differs by several percentage points; in real deployment the naive number is fiction.</p>
+
+    <article class="tldr-body">
+        <p><strong>Preprocessing on the full dataset.</strong> The most common leak. Fitting <code>StandardScaler</code>, <code>SimpleImputer</code>, <code>PCA</code>, or any encoder on the full dataset (including val/test) before splitting leaks statistics. Always fit on train only; use scikit-learn <code>Pipeline</code> to enforce it.</p>
+        <p><strong>Target leakage.</strong> A feature that's a near-duplicate of the target. Often subtle — "was the loan paid off?" as a feature when predicting whether the loan is good. The model gets perfect train and val scores, then the feature is unavailable in production.</p>
+        <p><strong>Temporal leakage.</strong> Random splits on time-series data put the future in train. The model "learns" to use future information. Always use time-based splits for any data with a time dimension.</p>
+        <p><strong>Group leakage.</strong> Multiple records per entity (patient, user, session) split across train and val. The model memorises entity-specific quirks and reports good val performance — but a new entity at deployment is fundamentally unseen.</p>
+        <p><strong>Hyperparameter leakage.</strong> Tuning extensively on the test set. After enough trials, you've selected for performance on that test set; the number is no longer an unbiased estimate of true performance.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Common sources of leakage</h3>
+            <ul>
+                <li>Scaler / imputer / encoder fit on full dataset</li>
+                <li>Target encoding without CV</li>
+                <li>Rolling aggregates that include the prediction time</li>
+                <li>"Did the customer churn this month?" as a feature for predicting churn next month</li>
+                <li>Random splits on time-series</li>
+                <li>De-duplication that misses near-duplicates across train/test</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Defences</h3>
+            <ul>
+                <li>Use scikit-learn <code>Pipeline</code> + <code>ColumnTransformer</code></li>
+                <li>Time-based splits for any temporal data</li>
+                <li>GroupKFold for non-iid records</li>
+                <li>Audit features for "information unavailable at prediction time"</li>
+                <li>Look at top features by importance — anything suspicious?</li>
+                <li>Try a "shuffled-labels" sanity check — should give ~baseline performance</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score, GroupKFold
+
+# WRONG — scaler sees test data
+X_scaled = StandardScaler().fit_transform(X)            # leak!
+X_train, X_test, ... = train_test_split(X_scaled, y, ...)
+
+# RIGHT — pipeline fits inside each CV fold
+pipe = Pipeline([
+    ("scaler", StandardScaler()),
+    ("clf",    LogisticRegression()),
+])
+scores = cross_val_score(pipe, X, y, cv=5)
+
+# RIGHT — group split for non-iid data
+gkf = GroupKFold(n_splits=5)
+cross_val_score(pipe, X, y, groups=groups, cv=gkf)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want target leakage detection, temporal joins, and adversarial validation?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Information-available-at-prediction-time</span>
+        <span class="formula">$$ x_i^{(t)} \;\text{is valid iff}\; x_i^{(t)} \in \mathcal{F}_{t^-} $$</span>
+        <ul class="formula-legend">
+            <li>A feature is valid only if it's measurable in the σ-algebra of past information</li>
+            <li>Every "rolling 30-day average" feature must end strictly before the target window starts</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Temporal leakage in joins.</strong> When joining tables, every aggregation must use only data available <em>before</em> the target event. "Total spend per user" computed once on the full dataset leaks future transactions. Point-in-time correctness — every feature has a timestamp, every join respects it.</p>
+        <p><strong>Target encoding done right.</strong> Replace each category with its mean target value, but compute the mean <em>inside CV folds</em>. Without that, the encoding for the validation rows includes the validation rows' own targets.</p>
+        <p><strong>Adversarial validation.</strong> Train a binary classifier to distinguish train rows from test rows. If accuracy is much above 0.5, your train and test are systematically different (distribution shift). Look at which features the classifier uses — those are the leaks or the shifts.</p>
+        <p><strong>Near-duplicates.</strong> Two rows that are very close in feature space but assigned to train and test will inflate accuracy. Common in scraped web data, image datasets, and any dataset with multiple records per entity. De-duplicate carefully (perceptual hashes for images, fuzzy matching for text).</p>
+        <p><strong>Leakage detection.</strong> Inspect top features by importance. If one is suspiciously informative ("status field" predicts "did the application succeed"), that's a leak. Permute the suspect feature — if performance crashes, the model relies on it; check whether it's available at prediction time.</p>
+        <p><strong>Shuffled-label baselines.</strong> Train a model on shuffled labels. If performance is meaningfully above the base rate, your features carry information they shouldn't (data leakage or a bug in the shuffling).</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+import numpy as np
+
+# Adversarial validation — train vs test as a binary classifier
+combined = np.r_[X_train, X_test]
+is_test  = np.r_[np.zeros(len(X_train)), np.ones(len(X_test))]
+auc = cross_val_score(RandomForestClassifier(), combined, is_test,
+                       scoring="roc_auc", cv=5).mean()
+print(f"Train-vs-test AUC: {auc:.3f}")
+# &gt; 0.6 ⇒ distribution shift / leakage worth investigating
+
+# Shuffled-label sanity check — should be at chance
+import numpy as np
+y_shuf = np.random.permutation(y_train)
+print(f"Shuffled: {cross_val_score(model, X_train, y_shuf, cv=5).mean():.3f}")
+# Above base rate ⇒ leakage somewhere
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want competitions, post-mortems, and production leakage?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Leakage detection via permutation importance</span>
+        <span class="formula">$$ I(x_j) = \text{err}(\text{shuffle}_j(X), y) - \text{err}(X, y) $$</span>
+        <ul class="formula-legend">
+            <li>Shuffle feature <em>j</em>; if the error spikes, the model depends heavily on it</li>
+            <li>Combined with a "should this feature even be here" check, finds many leaks</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Famous competition leaks.</strong> Heritage Provider Network: zip code leaked hospital outcomes. KDD Cup 2008: medical-record metadata had identifiers correlating with diagnosis. The pattern is the same — a benign-looking feature carries information that wouldn't exist at deployment.</p>
+        <p><strong>Production leakage.</strong> Train-serve skew is essentially distributional leakage at deploy time. A feature pipeline that worked on the offline join can fail to be replicated online — features get computed differently. Feature stores (Feast, Tecton) exist to enforce consistency.</p>
+        <p><strong>Pre-training leakage.</strong> Foundation models pre-trained on huge corpora can have seen benchmark test sets during pre-training. Reported zero-shot or few-shot scores on those benchmarks may be inflated. Decontamination procedures (matching benchmark items against pre-training data and removing them) are increasingly standard but imperfect.</p>
+        <p><strong>Differential privacy as a defence.</strong> If your training loss is differentially private (bounded influence of any single example), it's bounded leakage by construction. Comes at an accuracy cost; practical for some sensitive domains.</p>
+        <p><strong>Leakage vs. concept drift.</strong> Both cause "validated model performs worse in production". Distinguish them: leakage gives inflated <em>validation</em> performance (impossible to detect from validation alone); drift gives valid validation but degraded production. Different remedies.</p>
+        <p><strong>Auditing for hidden labels.</strong> When you suspect a leak, ablate each feature in turn and see which ones, when removed, fix the suspiciously-high score. Combined with domain knowledge ("could this feature be observed at decision time?"), this isolates the leak.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.inspection import permutation_importance
+from sklearn.ensemble import RandomForestClassifier
+
+model = RandomForestClassifier(random_state=0).fit(X_train, y_train)
+result = permutation_importance(model, X_val, y_val, n_repeats=10, random_state=0)
+for i in result.importances_mean.argsort()[::-1][:10]:
+    print(f"{X_val.columns[i]:40s} {result.importances_mean[i]:.3f}"
+          f" ± {result.importances_std[i]:.3f}")
+# Inspect top features: which ones could not exist at prediction time?
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    
+                    
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://www.kaggle.com/code/dansbecker/data-leakage" target="_blank">Becker — Data Leakage Mini-Course (Kaggle) <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Compact, practical introduction with real competition examples. Excellent first read.</span>
+        </li>
+        <li>
+            <a href="https://machinelearningmastery.com/data-leakage-machine-learning/" target="_blank">Brownlee — Data Leakage in Machine Learning <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Cookbook-style article covering the common leakage patterns and detection strategies.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/2210.01437" target="_blank">Kapoor &amp; Narayanan — Leakage and the Reproducibility Crisis in ML <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Large-scale empirical study showing how widespread leakage is in published ML research across many fields.</span>
+        </li>
+        <li>
+            <a href="https://www.feast.dev/" target="_blank">Feast — Feature Store <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Reference open-source feature store. Point-in-time correctness is a first-class feature — eliminates a whole class of production leakage.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../js/topic-page.js"></script>
+</body>
+</html>

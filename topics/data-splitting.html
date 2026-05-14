@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splits &amp; Cross-Validation — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html" class="active">Theory</a>
+            <a href="../engineering.html" class="">Engineering</a>
+            <a href="../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../theory.html" class="eyebrow">← Theory · Data &amp; Features</a>
+                    <h1>Splits &amp; Cross-Validation</h1>
+                    <p class="lead">Train / val / test — the discipline of evaluating on data your model hasn't seen.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>You can't measure generalization on data you trained on.</strong> Split the dataset into three roles: <em>train</em> (fit the model), <em>validation</em> (pick hyperparameters and compare models), and <em>test</em> (one number at the end). Touching the test set in any way during model development invalidates it.</p>
+    </div>
+
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">See how different splitting strategies divide your dataset — and which ones leak when the data isn't iid</span>
+        </div>
+        <div class="viz-classic-controls">
+            <button id="viz-ds-random" type="button" class="active">Random</button>
+            <button id="viz-ds-strat"  type="button">Stratified</button>
+            <button id="viz-ds-time"   type="button">Time-based</button>
+            <button id="viz-ds-group"  type="button">Group</button>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-ds-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-ds-caption"></div>
+    </div>
+    <script src="../js/viz/data-splitting.js"></script>
+
+    <p class="viz-intro">Above: 60 examples coloured by class (imbalanced 80/20) and grouped (every 3 share a group ID). <strong>Random</strong> splitting can put almost no class-1 examples in val; <strong>stratified</strong> preserves the class ratio. <strong>Time-based</strong> always puts the future in val (no peeking). <strong>Group</strong> keeps all members of a group on one side — required when independence assumptions break (patient ID, household ID, session ID).</p>
+
+    <article class="tldr-body">
+        <p><strong>The three roles.</strong> Train, validation, test. Train fits. Validation chooses. Test reports. The test set is touched <em>once</em>, at the end. Multiple test set evaluations during development invalidate the test as an estimate of true performance.</p>
+        <p><strong>Random split.</strong> Default for iid data. Typically 60/20/20 or 70/15/15. Doesn't preserve class balance — use stratified if classes are imbalanced.</p>
+        <p><strong>Stratified split.</strong> Same class proportions in each split. Critical for imbalanced classification; standard for any classification task with k &gt; 2 classes.</p>
+        <p><strong>Time-based split.</strong> Train on the past, validate / test on the future. The only correct split for sequential data. Random splits leak the future into training and overstate performance.</p>
+        <p><strong>Group split.</strong> When examples are not independent — multiple records per patient, per user, per session — keep all examples from a group on one side of the split. Otherwise you measure within-group memorisation, not generalization.</p>
+    </article>
+
+    <div class="use-cases neutral">
+        <div class="yes">
+            <h3>Pick stratified / group / time when</h3>
+            <ul>
+                <li>Classes are imbalanced → stratified</li>
+                <li>Multiple examples per entity → group</li>
+                <li>Sequential / time-series → time-based</li>
+                <li>Geographic / spatial — try spatial blocks</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Pitfalls to avoid</h3>
+            <ul>
+                <li>Random splitting time-series — leaks the future</li>
+                <li>Random splitting grouped data — leaks the group</li>
+                <li>Refitting preprocessing on val/test — leaks statistics</li>
+                <li>Touching the test set during model selection</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.model_selection import (
+    train_test_split, StratifiedShuffleSplit,
+    GroupShuffleSplit, TimeSeriesSplit,
+)
+
+# Standard 60/20/20 with stratification
+X_dev, X_test, y_dev, y_test = train_test_split(
+    X, y, test_size=0.20, random_state=0, stratify=y)
+X_train, X_val, y_train, y_val = train_test_split(
+    X_dev, y_dev, test_size=0.25, random_state=1, stratify=y_dev)
+
+# Group split — never put two examples from the same patient in different folds
+splitter = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=0)
+train_idx, test_idx = next(splitter.split(X, y, groups))
+
+# Time series — always train on the past
+tscv = TimeSeriesSplit(n_splits=5)
+for tr, val in tscv.split(X):
+    fit(X[tr], y[tr]); evaluate(X[val], y[val])
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want nested CV, distribution shift checks, and probing splits?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Generalisation error decomposition</span>
+        <span class="formula">$$ \text{err}_{\text{test}} = \text{err}_{\text{train}} + \underbrace{\text{generalization gap}}_{\text{model-dependent}} + \underbrace{\text{distribution shift}}_{\text{often the killer}} $$</span>
+        <ul class="formula-legend">
+            <li>CV estimates the generalization gap on data drawn from the same distribution</li>
+            <li>Distribution shift is what kills production models — your CV told you nothing about it</li>
+            <li>Always reserve an out-of-distribution test set if you can</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Nested CV.</strong> Outer loop estimates generalization; inner loop chooses hyperparameters. Without it, tuning on the same folds you report from gives optimistic results. Expensive — typical setup is 5 outer × 3 inner — but the right thing for small datasets.</p>
+        <p><strong>Holdout vs CV.</strong> For large datasets a single 80/20 split is fine and much cheaper. CV pays off when data is small (the variance of any single split is too high). Rule of thumb: CV below ~50k examples, single holdout above.</p>
+        <p><strong>Distribution-shift tests.</strong> A common pattern: train on data from 2020–2023, test on data from 2024. Reveals whether your model relies on features that change over time. Same for geographic shift (train on Europe, test on Asia), demographic shift, etc.</p>
+        <p><strong>Probe / adversarial splits.</strong> Construct a test set deliberately different from the training distribution — long-tail classes, distribution shift, adversarial perturbations. Forces you to find weaknesses before deployment does.</p>
+        <p><strong>The split-it-back-together trick.</strong> When your dataset is too small for both validation and test, use nested CV — the outer fold's test is the inner fold's "held-out" validation; you cycle through. Doubles your effective data with care.</p>
+        <p><strong>Repeated random splits.</strong> Report mean ± std over multiple random splits. Surprisingly informative on small data: a difference of 1 std isn't a real improvement.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.model_selection import cross_val_score, GroupKFold
+import numpy as np
+
+# Repeated stratified CV with confidence interval
+from sklearn.model_selection import RepeatedStratifiedKFold
+cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=5, random_state=0)
+scores = cross_val_score(pipe, X, y, cv=cv, scoring="roc_auc")
+print(f"{scores.mean():.3f} ± {scores.std():.3f}  n={len(scores)}")
+
+# Group K-Fold — keep all examples from a group on one side
+gkf = GroupKFold(n_splits=5)
+for tr, te in gkf.split(X, y, groups):
+    # Train on tr, evaluate on te
+    pass
+
+# Distribution-shift split: use a different time period as test
+mask_train = df["year"] &lt;= 2023
+mask_test  = df["year"] == 2024
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want bootstrap, conformal prediction, and OOD detection?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Bootstrap estimator</span>
+        <span class="formula">$$ \hat{\theta}_\text{boot} = \frac{1}{B} \sum_{b=1}^{B} \hat{\theta}\!\big(D_b^*\big), \quad D_b^* \sim D \text{ with replacement} $$</span>
+        <ul class="formula-legend">
+            <li>Resample <em>B</em> times to estimate the distribution of any statistic</li>
+            <li>Out-of-bag examples (~37% per draw) act as a held-out validation set for free</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Bootstrap vs CV.</strong> Bootstrap resamples with replacement; CV partitions. Bootstrap gives confidence intervals on metrics; CV gives a point estimate. Use both — bootstrap to report uncertainty, CV to pick the best model. Out-of-bag estimation in random forests uses the bootstrap by construction.</p>
+        <p><strong>Conformal prediction.</strong> Use a held-out calibration fold to construct prediction intervals with finite-sample coverage guarantees. Distribution-free, model-agnostic. Increasingly the right answer for production deployment of regression and classification.</p>
+        <p><strong>OOD detection.</strong> Many production systems combine an in-distribution model with an OOD detector that flags inputs the model hasn't seen anything like before. Methods include Mahalanobis distance in feature space, Energy-based scores, Outlier exposure, conformal anomaly detection.</p>
+        <p><strong>The "validation set rot" trap.</strong> Repeatedly tuning on the same validation set selects for performance on that set specifically — eventually your "best" model is overfit to validation. Hold out a final test set, rotate validation sets, or use nested CV.</p>
+        <p><strong>Adaptive data analysis.</strong> Dwork et al. (2015) showed that interactive data analysis can produce arbitrarily inflated performance estimates if you're not careful — even with held-out validation. Differential-privacy-based mechanisms (thresholdout, gauss-out) give bounds; in practice, treat each new analysis as eating into a budget.</p>
+        <p><strong>Time-series with non-stationarity.</strong> The classical TimeSeriesSplit assumes a fixed underlying process. When the world genuinely changes, error grows with the gap between train and test ends. Walk-forward validation with re-training, exponentially-weighted features, and model monitoring all matter.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import numpy as np
+from sklearn.utils import resample
+
+# Bootstrap a metric with confidence interval
+def bootstrap_ci(y_true, y_pred, metric, B=1000, alpha=0.05):
+    rng = np.random.default_rng(0)
+    n = len(y_true)
+    vals = []
+    for _ in range(B):
+        idx = rng.choice(n, n, replace=True)
+        vals.append(metric(y_true[idx], y_pred[idx]))
+    lo, hi = np.percentile(vals, [100 * alpha / 2, 100 * (1 - alpha / 2)])
+    return np.mean(vals), lo, hi
+
+# Walk-forward CV for non-stationary time series
+def walk_forward(X, y, n_splits=5, min_train=500):
+    n = len(X); step = (n - min_train) // n_splits
+    for i in range(n_splits):
+        tr_end = min_train + i * step
+        yield slice(0, tr_end), slice(tr_end, tr_end + step)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    
+                    
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">scikit-learn — Cross-Validation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Practical guide with diagrams of every split type. Best place to look up which API to use for which kind of data.</span>
+        </li>
+        <li>
+            <a href="https://datasciencebook.ca/" target="_blank">Timbers et al. — Data Science: A First Introduction <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Free textbook with an excellent intuitive chapter on train/val/test discipline and the pitfalls of touching the test set.</span>
+        </li>
+        <li>
+            <a href="https://otexts.com/fpp3/tscv.html" target="_blank">Hyndman &amp; Athanasopoulos — Time-Series CV <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The canonical reference for sequential data evaluation. Walk-forward, expanding window, blocked CV.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/2107.07511" target="_blank">Angelopoulos &amp; Bates — Conformal Prediction Tutorial <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Distribution-free prediction intervals with finite-sample coverage. Increasingly the answer for production-grade uncertainty.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../js/topic-page.js"></script>
+</body>
+</html>
