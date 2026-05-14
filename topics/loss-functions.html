@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loss Functions — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html" class="active">Theory</a>
+            <a href="../engineering.html" class="">Engineering</a>
+            <a href="../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../theory.html" class="eyebrow">← Theory · Core Concepts</a>
+                    <h1>Loss Functions</h1>
+                    <p class="lead">What you ask the model to minimise — and why the answer changes the model.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>The loss is the question you're asking.</strong> "How wrong was that prediction?" has many possible answers — squared error, absolute error, cross-entropy, hinge. Each answer pulls the model in a different direction. Choosing the loss is choosing what mistakes you care about.</p>
+    </div>
+
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Hover the chart to read the loss at each point · toggle Regression / Classification · slide the outlier to see its weight</span>
+        </div>
+        <div class="viz-classic-controls">
+            <button id="viz-loss-reg"   type="button" class="active">Regression</button>
+            <button id="viz-loss-cls"   type="button">Classification</button>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Huber δ
+                <input id="viz-loss-delta" class="viz-classic-slider" type="range">
+            </label>
+            <span class="viz-classic-badge" id="viz-loss-delta-lbl">δ = 0.5</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-loss-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-loss-caption"></div>
+    </div>
+    <script src="../js/viz/losses.js"></script>
+
+    <p class="viz-intro">In <strong>regression</strong> mode the x-axis is the residual <em>y − ŷ</em>: MSE punishes big errors quadratically (sensitive to outliers); MAE punishes linearly (robust); Huber blends them, quadratic near zero and linear far away. In <strong>classification</strong> mode the x-axis is the margin <em>y·f(x)</em>: cross-entropy keeps penalising even confident-correct predictions a little, hinge stops at margin 1, and the 0/1 loss is what you really want but can't optimise (it's flat almost everywhere).</p>
+
+    <article class="tldr-body">
+        <p><strong>For regression.</strong> The default is mean squared error — it's smooth, differentiable everywhere, and Bayes-optimal for predicting the mean under Gaussian noise. Mean absolute error is more robust to outliers (it predicts the median instead). Huber loss splits the difference: quadratic for small errors, linear for big ones.</p>
+        <p><strong>For classification.</strong> The default is cross-entropy (also called log-loss) — it pairs with softmax, has well-behaved gradients, and corresponds to maximum-likelihood for a categorical model. Hinge loss is the SVM choice — it stops penalising once you're past the margin. Focal loss down-weights easy examples and is useful for highly imbalanced data.</p>
+        <p>The loss you pick changes what the model learns to do: minimise MSE and you predict means; minimise MAE and you predict medians; minimise cross-entropy and you predict calibrated probabilities (in the limit).</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Common defaults</h3>
+            <ul>
+                <li><strong>Regression</strong>: MSE if noise is Gaussian-ish, Huber if there are outliers</li>
+                <li><strong>Binary classification</strong>: binary cross-entropy with sigmoid</li>
+                <li><strong>Multi-class</strong>: categorical cross-entropy with softmax</li>
+                <li><strong>Ranking</strong>: pairwise / listwise (NDCG, ListNet)</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Worth a closer look when</h3>
+            <ul>
+                <li>Heavy class imbalance — try focal loss</li>
+                <li>Heavy outliers — try Huber or quantile losses</li>
+                <li>You care about a custom business metric — write a custom loss</li>
+                <li>The mean / median isn't the right summary — try quantile regression</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+import torch.nn.functional as F
+
+# Regression
+mse   = F.mse_loss(y_pred, y_true)                          # default
+mae   = F.l1_loss(y_pred, y_true)                           # robust to outliers
+huber = F.smooth_l1_loss(y_pred, y_true, beta=1.0)          # blend
+
+# Binary classification
+bce   = F.binary_cross_entropy_with_logits(logits, y_true)   # numerically stable
+
+# Multi-class
+ce    = F.cross_entropy(logits, y_true)                      # logits, NOT softmax-ed
+
+# Class-imbalanced — focal loss
+def focal(logits, y, gamma=2.0):
+    bce = F.binary_cross_entropy_with_logits(logits, y, reduction='none')
+    p   = torch.sigmoid(logits)
+    pt  = y * p + (1 - y) * (1 - p)
+    return ((1 - pt).pow(gamma) * bce).mean()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the probabilistic story and proper scoring rules?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Loss as negative log-likelihood</span>
+        <span class="formula">$$ \mathcal{L}(\theta) = -\frac{1}{N}\sum_{i=1}^{N} \log p_\theta(y_i \mid x_i) $$</span>
+        <ul class="formula-legend">
+            <li>For Gaussian <code>p(y|x)</code> with fixed variance, this is MSE up to a constant</li>
+            <li>For Bernoulli <code>p(y|x)</code>, this is binary cross-entropy</li>
+            <li>For categorical <code>p(y|x)</code>, this is multi-class cross-entropy</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Every "standard" loss is really a likelihood.</strong> MSE = Gaussian negative log-likelihood. Binary cross-entropy = Bernoulli NLL. Multi-class cross-entropy = categorical NLL. Picking a loss is implicitly picking a noise model — and that's clarifying. Heavy-tailed errors? Use a Laplace likelihood (gives MAE) or Student-t. Counts? Poisson. Multiple outputs with correlation? A multivariate Gaussian with a learned covariance.</p>
+        <p><strong>Proper scoring rules.</strong> A loss is "proper" if its minimum is at the true distribution — log-loss and Brier score are proper for probabilistic classification, accuracy isn't. Using a proper loss is what makes calibrated probabilities come out of training.</p>
+        <p><strong>Gradient behaviour matters.</strong> MSE's gradient grows with error (large mistakes pull harder); MAE's gradient is constant (steady push regardless of magnitude); cross-entropy's gradient has the nice "logit − target" form. These shape what training looks like — MAE is harder for gradient descent because the gradient is non-zero at the minimum from one side.</p>
+        <p><strong>Loss vs. metric.</strong> The loss is what you optimise (must be differentiable); the metric is what you report. They're often different — you optimise log-loss but evaluate accuracy or F1. Misalignment is fine when the loss is a good proxy, but worth watching: a model with great log-loss can still be poorly calibrated, etc.</p>
+        <p><strong>Custom losses.</strong> When the off-the-shelf options don't match your business problem, write one. Common patterns: weighted losses (per-class or per-sample), penalised losses (add a regularizer), quantile losses (predict any quantile, not just the mean).</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch, torch.nn.functional as F
+
+# Quantile regression — predict the τ-th quantile, not the mean
+def quantile_loss(y_pred, y_true, tau=0.5):
+    e = y_true - y_pred
+    return torch.maximum(tau * e, (tau - 1) * e).mean()
+
+# Train three models at τ = 0.1, 0.5, 0.9 and you get prediction intervals.
+
+# Per-class weighted cross-entropy for class imbalance
+weights = torch.tensor([1.0, 3.0, 1.0])      # class 1 is rare
+loss    = F.cross_entropy(logits, y, weight=weights)
+
+# Brier score — proper, well-calibrated, good for early stopping
+def brier(probs, y_onehot):
+    return ((probs - y_onehot) ** 2).sum(dim=-1).mean()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want robust losses, MAML inner losses, and adversarial losses?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Influence function</span>
+        <span class="formula">$$ \mathcal{I}(z; \theta) = -H_\theta^{-1} \, \nabla_\theta \ell(z; \theta) $$</span>
+        <ul class="formula-legend">
+            <li><code>H</code>Hessian of the average loss at the trained parameters</li>
+            <li>How much does the trained parameter change if we up-weight training point <em>z</em>?</li>
+            <li>A measurable consequence of the loss's gradient shape near the optimum</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Robust statistics.</strong> The influence function quantifies how much a single training point can move the trained parameter. MSE's quadratic shape gives <em>unbounded</em> influence — one extreme point can swing the fit arbitrarily. MAE's bounded influence is what makes it robust. Huber, Tukey's biweight, and other M-estimators sit on this spectrum, trading efficiency at the Gaussian model for robustness against contamination.</p>
+        <p><strong>Focal loss.</strong> Lin et al. (2017) introduced <em>FL(p) = −(1 − p)<sup>γ</sup> log p</em> for object detection's extreme class imbalance. The <em>(1 − p)<sup>γ</sup></em> factor down-weights easy examples (where the model is already confident), letting the gradient focus on the hard ones. γ = 2 is a strong default.</p>
+        <p><strong>Adversarial losses.</strong> The generator's objective in a GAN is a function of another model's output — the loss landscape becomes a moving target. WGAN, hinge loss, and least-squares GAN are all attempts to give the generator stable gradients. The lesson generalises: any loss whose target depends on another learned thing gets the same difficulty.</p>
+        <p><strong>Surrogate losses.</strong> Hinge, log-loss, exponential, etc. are all <em>surrogates</em> for the 0/1 loss you actually want for classification. Bartlett, Jordan &amp; McAuliffe (2006) characterised which surrogates are "calibrated" — their minimiser agrees with the Bayes classifier. Bad surrogates can converge to the wrong thing even with infinite data.</p>
+        <p><strong>Auxiliary and contrastive losses.</strong> Modern self-supervised learning is built on auxiliary losses — InfoNCE, triplet, supervised contrastive, all encode different ideas of "similar" and "different". The form of the contrastive loss determines what representation emerges (alignment, uniformity, dimensional collapse).</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch, torch.nn.functional as F
+
+# InfoNCE — the canonical contrastive loss
+def info_nce(query, positives, temperature=0.07):
+    # query: (B, d). positives: (B, d) — same indexing.
+    # negatives are everyone else in the batch.
+    logits = (query @ positives.t()) / temperature       # (B, B)
+    labels = torch.arange(len(query), device=query.device)
+    return F.cross_entropy(logits, labels)
+
+# Triplet loss — anchor, positive, negative
+def triplet(anchor, pos, neg, margin=0.2):
+    d_p = (anchor - pos).norm(dim=-1)
+    d_n = (anchor - neg).norm(dim=-1)
+    return F.relu(d_p - d_n + margin).mean()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    
+                    
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://www.deeplearningbook.org/contents/ml.html" target="_blank">Deep Learning Book — Ch. 5 <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Goodfellow, Bengio &amp; Courville's chapter on ML fundamentals lays out losses as negative log-likelihoods cleanly.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/1708.02002" target="_blank">Lin et al. (2017) — Focal Loss <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The focal-loss paper, with a clean motivation for why down-weighting easy examples helps when classes are extremely imbalanced.</span>
+        </li>
+        <li>
+            <a href="https://www.jmlr.org/papers/v18/16-365.html" target="_blank">Bartlett, Jordan, McAuliffe — Convexity, Classification, &amp; Risk Bounds <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The reference paper on which surrogate losses for classification are "calibrated" — i.e. don't converge to the wrong thing.</span>
+        </li>
+        <li>
+            <a href="https://lilianweng.github.io/posts/2021-05-31-contrastive/" target="_blank">Lilian Weng — Contrastive Representation Learning <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">A tour of contrastive losses (InfoNCE, SimCLR, triplet) with intuition for what each one buys you.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../js/topic-page.js"></script>
+</body>
+</html>

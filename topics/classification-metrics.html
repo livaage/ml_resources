@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classification Metrics — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html" class="active">Theory</a>
+            <a href="../engineering.html" class="">Engineering</a>
+            <a href="../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../theory.html" class="eyebrow">← Theory · Core Concepts</a>
+                    <h1>Classification Metrics</h1>
+                    <p class="lead">Accuracy, precision, recall, F1, ROC, AUC — when each one is the right thing to report.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Accuracy alone hides too much.</strong> On a 95% / 5% imbalanced dataset, a model that predicts the majority class always is 95% accurate — and useless. You need at least two numbers: precision (when I say positive, am I right?) and recall (of all the positives, how many did I find?). Threshold matters too: slide it and every metric moves.</p>
+    </div>
+
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Slide the threshold — confusion matrix, precision, recall, F1, and the operating point on the ROC all move together</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                threshold
+                <input id="viz-clm-threshold" class="viz-classic-slider" type="range">
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Imbalance
+                <select id="viz-clm-imbalance"></select>
+            </label>
+            <button id="viz-clm-reset" type="button">Re-sample</button>
+            <span class="viz-classic-badge" id="viz-clm-thr-lbl">τ = 0.50</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-clm-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-clm-caption"></div>
+    </div>
+    <script src="../js/viz/classification-metrics.js"></script>
+
+    <p class="viz-intro">Left: predicted score distributions for the two classes. The vertical line is the threshold — everything to its right is predicted positive. Top-right: the confusion matrix. Bottom-right: the ROC curve with the current operating point marked. Slide τ and watch everything move — drop τ to catch more positives (higher recall, lower precision); raise τ for the opposite. Try the <em>10% imbalance</em> preset and notice how the optimal F1 threshold drifts away from 0.5.</p>
+
+    <article class="tldr-body">
+        <p><strong>Accuracy</strong> = (TP + TN) / total. Useful when classes are balanced and costs are equal. Often misleading otherwise.</p>
+        <p><strong>Precision</strong> = TP / (TP + FP). "When I predict positive, how often am I right?" Care when false positives are expensive (spam → important email in junk).</p>
+        <p><strong>Recall</strong> (sensitivity) = TP / (TP + FN). "Of all the actual positives, how many did I find?" Care when false negatives are expensive (cancer screening, fraud).</p>
+        <p><strong>F1</strong> = harmonic mean of precision and recall. Single number; punishes the worse of the two. Default for imbalanced classification reports.</p>
+        <p><strong>ROC-AUC</strong> = probability that a random positive is scored higher than a random negative. Threshold-independent; useful for ranking and overall discriminative power. Use PR-AUC for highly imbalanced data — ROC-AUC can stay high even when the model is useless on the minority class.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li><strong>Accuracy</strong>: balanced classes, equal costs</li>
+                <li><strong>Precision / Recall</strong>: care about FP vs FN asymmetry</li>
+                <li><strong>F1</strong>: imbalanced classes, single-number summary</li>
+                <li><strong>ROC-AUC</strong>: ranking quality, threshold not fixed</li>
+                <li><strong>PR-AUC</strong>: highly imbalanced classes (1% positives)</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Watch out when</h3>
+            <ul>
+                <li>Accuracy on imbalanced data is misleading</li>
+                <li>ROC-AUC on very imbalanced data is misleading</li>
+                <li>F1 gives equal weight to precision and recall — use Fβ if you don't</li>
+                <li>Macro vs micro vs weighted matters for multi-class</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score,
+    roc_auc_score, average_precision_score, classification_report,
+    confusion_matrix,
+)
+
+# One-number summaries
+acc = accuracy_score(y_true, y_pred)
+p   = precision_score(y_true, y_pred)
+r   = recall_score(y_true, y_pred)
+f1  = f1_score(y_true, y_pred)
+
+# Threshold-independent (need probabilities, not labels)
+auc      = roc_auc_score(y_true, y_prob)
+ap       = average_precision_score(y_true, y_prob)   # PR-AUC; better for imbalance
+
+# The big picture
+print(classification_report(y_true, y_pred))
+print(confusion_matrix(y_true, y_pred))
+
+# Multi-class: macro vs micro vs weighted
+f1_macro    = f1_score(y_true, y_pred, average="macro")     # mean of per-class F1
+f1_micro    = f1_score(y_true, y_pred, average="micro")     # = accuracy for multiclass
+f1_weighted = f1_score(y_true, y_pred, average="weighted")  # by support
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want PR-curves, cost-sensitive thresholds, and multi-class metrics?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Fβ score</span>
+        <span class="formula">$$ F_\beta = (1 + \beta^2) \cdot \frac{\text{precision} \cdot \text{recall}}{\beta^2 \cdot \text{precision} + \text{recall}} $$</span>
+        <ul class="formula-legend">
+            <li><code>β = 1</code>standard F1 — equal weight</li>
+            <li><code>β &gt; 1</code>weights recall more (e.g. F2)</li>
+            <li><code>β &lt; 1</code>weights precision more (e.g. F0.5)</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Picking the right threshold.</strong> The model outputs a probability; you choose where to cut it. 0.5 is rarely optimal — pick the threshold that maximises F1 (or Fβ for asymmetric costs) on a validation set. For deployment, freeze that threshold and report performance at it.</p>
+        <p><strong>Cost-sensitive thresholds.</strong> If FP costs <em>c<sub>FP</sub></em> and FN costs <em>c<sub>FN</sub></em>, the optimal threshold (under a Bayes-decision argument) is τ* = c<sub>FP</sub> / (c<sub>FP</sub> + c<sub>FN</sub>). For cancer screening (FN is catastrophic), τ shifts way below 0.5.</p>
+        <p><strong>PR vs ROC.</strong> ROC plots TPR vs FPR; PR plots precision vs recall. Both span the same threshold range. On heavily imbalanced data, ROC can be deceptive — a high AUC can hide poor minority-class performance. PR-AUC is the right summary there.</p>
+        <p><strong>Multi-class.</strong>
+            <em>Macro</em>-averaged F1 = mean of per-class F1 — treats every class equally.
+            <em>Micro</em>-averaged F1 = aggregate TP/FP/FN across classes first — dominated by big classes.
+            <em>Weighted</em> = macro but weighted by class support.
+            Pick macro if you care equally about every class (rare-class performance matters); micro if you don't (mass matters).
+        </p>
+        <p><strong>Multi-label vs multi-class.</strong> Multi-class: one label per example, K options. Multi-label: any subset of K. Metrics generalise differently — Hamming loss, subset accuracy, per-label F1.</p>
+        <p><strong>Top-k accuracy.</strong> Was the right class in the top k predictions? Standard for ImageNet (top-5). Useful when there's structural ambiguity ("dog breed" could be any of several reasonable guesses).</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import numpy as np
+from sklearn.metrics import precision_recall_curve, roc_curve
+
+# Find the threshold that maximises F1 on validation
+p, r, thresholds = precision_recall_curve(y_val, p_val)
+f1_arr           = 2 * p * r / (p + r + 1e-12)
+best_idx         = np.argmax(f1_arr)
+tau_best         = thresholds[best_idx]
+print(f"Best τ = {tau_best:.2f}  F1 = {f1_arr[best_idx]:.3f}")
+
+# Cost-sensitive choice — FN costs 10x FP
+c_fp, c_fn = 1, 10
+tau_cost   = c_fp / (c_fp + c_fn)             # → 0.09
+y_hat_cost = (p_test &gt;= tau_cost).astype(int)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want expected calibration, Brier decomposition, &amp; proper scoring?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Brier score decomposition</span>
+        <span class="formula">$$ \text{Brier} = \underbrace{\text{Reliability}}_{\text{miscalibration}} - \underbrace{\text{Resolution}}_{\text{discrimination}} + \underbrace{\text{Uncertainty}}_{\text{class entropy}} $$</span>
+        <ul class="formula-legend">
+            <li>Lower Brier score is better</li>
+            <li>Reliability ↓ if predicted probabilities match observed frequencies</li>
+            <li>Resolution ↑ if the model assigns different probabilities to different cases</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Brier score &amp; proper scoring.</strong> Brier = mean squared error between predicted probabilities and labels (one-hot). A "proper" scoring rule is one whose expected value is minimised by the true probability — Brier and log-loss are both proper; accuracy isn't. Always optimise a proper scoring rule.</p>
+        <p><strong>Expected calibration error (ECE).</strong> Bin predictions by predicted probability; in each bin compare the average predicted probability to the fraction actually positive. Average the gap. Useful — but its dependence on binning makes it brittle; alternatives include MCE (max calibration error), and calibration-aware scoring rules.</p>
+        <p><strong>Calibration vs discrimination.</strong> A model can have great AUC but terrible calibration (good ranking but wrong probabilities) and vice versa. They're orthogonal. Post-hoc calibration (Platt scaling, isotonic regression) fixes calibration without changing the model's discrimination — useful for deploying a model whose scores you want to interpret.</p>
+        <p><strong>Class-conditional metrics.</strong> For very imbalanced problems, look at per-class precision / recall / F1 separately. The overall macro-F1 hides cases where one class is great and another is awful.</p>
+        <p><strong>Threshold-independent metrics under shift.</strong> AUC and AP are invariant to monotone score transformations — useful for comparing models that score differently. But neither is invariant to base-rate shift. If the production prior changes from training, post-hoc re-calibration is required.</p>
+        <p><strong>Cohen's κ and MCC.</strong> Cohen's kappa adjusts accuracy for the chance level. Matthews Correlation Coefficient is a balanced metric on the confusion matrix; symmetric, robust to imbalance. Both are sometimes preferred for biological / medical applications.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import numpy as np
+from sklearn.metrics import brier_score_loss, matthews_corrcoef
+
+# Brier score — lower is better, proper, sensitive to calibration
+brier = brier_score_loss(y_true, p_pred)
+
+# Matthews correlation coefficient — balanced, robust to imbalance
+mcc = matthews_corrcoef(y_true, y_pred)
+
+# Expected calibration error (ECE) — quick implementation
+def ece(y_true, p_pred, n_bins=15):
+    bins = np.linspace(0, 1, n_bins + 1)
+    e = 0.0
+    for lo, hi in zip(bins[:-1], bins[1:]):
+        mask = (p_pred &gt;= lo) &amp; (p_pred &lt; hi)
+        if mask.sum() == 0: continue
+        conf = p_pred[mask].mean()                 # average predicted prob
+        acc  = (y_true[mask] == 1).mean()          # observed positive rate
+        e += (mask.sum() / len(y_true)) * abs(conf - acc)
+    return e
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    
+                    
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://scikit-learn.org/stable/modules/model_evaluation.html" target="_blank">scikit-learn — Model Evaluation Guide <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Best practical reference for which metric to use when. Has well-chosen examples and pitfalls.</span>
+        </li>
+        <li>
+            <a href="https://www.kaggle.com/code/grfiv4/plot-a-confusion-matrix" target="_blank">Kaggle — Plotting a Confusion Matrix <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Pragmatic primer with multi-class examples — useful for teaching new colleagues.</span>
+        </li>
+        <li>
+            <a href="https://www.fharrell.com/post/classification/" target="_blank">Frank Harrell — Classification vs Prediction <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Opinionated argument that we should report calibrated probabilities, not thresholded classifications. Worth reading even (especially) if you disagree.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/1706.04599" target="_blank">Guo et al. (2017) — Calibration of Modern Neural Nets <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Showed modern networks are miscalibrated despite high accuracy, and recommended temperature scaling as a fix.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../js/topic-page.js"></script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inductive Bias &amp; Hypothesis Spaces — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html" class="active">Theory</a>
+            <a href="../engineering.html" class="">Engineering</a>
+            <a href="../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../theory.html" class="eyebrow">← Theory · Core Concepts</a>
+                    <h1>Inductive Bias &amp; Hypothesis Spaces</h1>
+                    <p class="lead">The assumptions baked into a model — what it can express, and what it can't.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Every model is a guess about how the world is shaped.</strong> A linear model guesses "straight lines"; a tree guesses "axis-aligned splits"; a neural network with ReLUs guesses "piecewise-linear regions". You can't learn without making these guesses — that's the <em>no free lunch</em> theorem. The art is choosing assumptions that match the world you're modelling.</p>
+    </div>
+
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Same data, four model families — each draws a wildly different boundary because of its built-in assumptions</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Data
+                <select id="viz-ib-data"></select>
+            </label>
+            <button id="viz-ib-reset" type="button">Re-sample</button>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-ib-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-ib-caption"></div>
+    </div>
+    <script src="../js/viz/inductive-bias.js"></script>
+
+    <p class="viz-intro">The same dataset shown to four different model families. Each draws its decision boundary in a characteristic shape — a <strong>linear</strong> model can only draw straight lines; a <strong>tree</strong> only axis-aligned rectangles; <strong>k-NN</strong> draws jagged regions reflecting local neighbours; <strong>RBF / kernel</strong> methods draw smooth curves. None of these is "correct" — each has assumed something different about how the world is shaped. Try the XOR dataset and watch which models can express it.</p>
+
+    <article class="tldr-body">
+        <p>A model's <strong>hypothesis space</strong> is the set of functions it can possibly represent. Linear regression's hypothesis space is "all straight lines"; a polynomial of degree 5's is "all degree-5 polynomials"; a deep network's is "all piecewise-linear functions of a certain depth and width". The hypothesis space is the model's <em>capacity</em>.</p>
+        <p>Within a hypothesis space, the <strong>inductive bias</strong> is the preferences the learning algorithm uses to pick a specific function when many fit the data. Linear regression prefers the line minimising squared error. k-NN prefers the function that matches its neighbours. Without an inductive bias, infinitely many functions fit any finite dataset — you need a tie-breaker.</p>
+    </article>
+
+    <div class="use-cases neutral">
+        <div class="yes">
+            <h3>Choose a strong inductive bias when</h3>
+            <ul>
+                <li>You have little data — strong assumptions compensate</li>
+                <li>You know the underlying structure (linearity, smoothness, periodicity)</li>
+                <li>You need interpretability</li>
+                <li>You need fast inference</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Choose a weak inductive bias when</h3>
+            <ul>
+                <li>You have lots of data — the data can lead</li>
+                <li>The underlying structure is unknown or highly nonlinear</li>
+                <li>Highest accuracy matters more than understanding</li>
+                <li>You can afford the compute</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># Same data, different inductive biases — wildly different generalization
+from sklearn.linear_model    import LogisticRegression
+from sklearn.tree            import DecisionTreeClassifier
+from sklearn.neighbors       import KNeighborsClassifier
+from sklearn.svm             import SVC
+
+models = {
+    "linear":    LogisticRegression(),
+    "tree":      DecisionTreeClassifier(max_depth=4),
+    "k-NN":      KNeighborsClassifier(n_neighbors=5),
+    "RBF kernel": SVC(kernel="rbf", gamma=1.5),
+}
+for name, m in models.items():
+    m.fit(X, y)
+    print(f"{name:12s} train={m.score(X, y):.3f}  test={m.score(X_t, y_t):.3f}")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the no-free-lunch theorem and capacity bounds?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">PAC learning bound</span>
+        <span class="formula">$$ P\!\left[\, \text{err}_{\text{true}}(h) \leq \text{err}_{\text{train}}(h) + \sqrt{\tfrac{\ln |\mathcal{H}| + \ln(1/\delta)}{2n}}\, \right] \geq 1 - \delta $$</span>
+        <ul class="formula-legend">
+            <li><code>|ℋ|</code>size of the hypothesis space (its <em>complexity</em>)</li>
+            <li><code>n</code>training-set size</li>
+            <li>Larger ℋ ⇒ more flexibility, but a worse generalization bound</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>No free lunch.</strong> Wolpert (1996) showed that averaged over all possible target functions, every learning algorithm has the same expected performance. A model only beats random because its inductive bias matches the structure of the problems we actually care about. Don't expect a single model to win everywhere.</p>
+        <p><strong>Common inductive biases in ML.</strong>
+            <em>Smoothness</em> (nearby inputs → nearby outputs) is assumed by k-NN, kernel methods, and most regularized models.
+            <em>Compositionality</em> (complex functions built from simple ones) is assumed by deep networks.
+            <em>Translation equivariance</em> is assumed by CNNs.
+            <em>Permutation invariance</em> is assumed by set / graph networks.
+            <em>Sparsity</em> (few active features) is assumed by L1-regularized models.
+        </p>
+        <p><strong>Capacity, complexity, generalization.</strong> Larger hypothesis spaces fit the training set better but generalize worse — that's the bias-variance trade-off seen through the lens of capacity. Classical bounds (VC dimension, Rademacher complexity) make this rigorous; the strange thing is that modern over-parameterized deep nets seem to violate them, which has become an active research area (double descent, benign overfitting).</p>
+        <p><strong>Choosing inductive biases is feature engineering.</strong> Coordinates, kernels, network architectures, augmentations, and even loss functions all encode assumptions. Choosing them well is the under-appreciated half of doing ML.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># Inductive biases as feature engineering
+import numpy as np
+
+# Periodic signal: encode it as sin/cos features → linear model can fit
+def periodic_features(t, periods=(1, 7, 30)):
+    feats = []
+    for p in periods:
+        feats.append(np.sin(2 * np.pi * t / p))
+        feats.append(np.cos(2 * np.pi * t / p))
+    return np.stack(feats, axis=-1)
+
+# Translation equivariance: a CNN encodes "the same pattern at any location"
+# Without it, you'd need exponentially more data to see every shift.
+
+# Permutation invariance: for sets, use a model like  Σ φ(x_i)
+# A vanilla MLP would have to learn the same thing for every permutation.
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want PAC-learnability, VC dim, and double descent?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">VC dimension</span>
+        <span class="formula">$$ \mathrm{VC}(\mathcal{H}) = \max\{\,n : \exists\, \text{points } x_1, \ldots, x_n \text{ shattered by } \mathcal{H}\,\} $$</span>
+        <ul class="formula-legend">
+            <li>"Shattered" = ℋ can realise every possible labelling of those <em>n</em> points</li>
+            <li>The largest such <em>n</em> is the VC dimension — a measure of effective capacity</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>PAC learnability.</strong> A hypothesis class is PAC-learnable if there's an algorithm that, for any ε and δ, produces a hypothesis with error ≤ ε with probability ≥ 1 − δ from polynomially many samples in 1/ε, 1/δ, and the problem's complexity. Finite VC dimension is sufficient for PAC learnability under realizability assumptions; the modern view is broader (e.g., margin-based bounds, online learning).</p>
+        <p><strong>VC and Rademacher complexity.</strong> VC dimension bounds how complex a binary classifier can be: linear classifiers in <em>d</em> dimensions have VC dim <em>d</em> + 1; a depth-<em>L</em> neural net with <em>p</em> parameters has VC dim roughly <em>O(pL)</em>. Rademacher complexity is data-dependent and tighter in practice — it measures how well ℋ correlates with random labels on your specific dataset.</p>
+        <p><strong>Double descent.</strong> Belkin et al. (2019) showed test error in modern models has a <em>second descent</em> beyond the classical interpolation threshold: as you increase capacity past the point where the training set is fit exactly, test error <em>drops again</em>. Inductive biases of SGD and over-parameterization (the network implicitly chooses the "simplest" of the many zero-loss solutions) seem to drive this.</p>
+        <p><strong>Implicit regularization.</strong> SGD on an over-parameterized model doesn't pick any zero-training-loss solution — it picks one with specific structure (often, the minimum-norm one). Architectures, optimizers, and even data augmentations all bias the search through hypothesis space; the explicit regularizer in the loss is only part of the story.</p>
+        <p><strong>Neural Tangent Kernel.</strong> In the infinite-width limit, neural networks trained by gradient descent behave like kernel regression with a specific kernel (the NTK). This connects deep learning to classical generalization theory — but the connection isn't tight at finite width, where feature learning kicks in.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python"># Implicit regularization: SGD on a deeply over-parameterized network often
+# picks a minimum-norm-ish solution. Empirically: increase width and watch
+# test error drop *past* the interpolation point — that's double descent.
+
+import torch, torch.nn as nn
+
+def make_net(width):
+    return nn.Sequential(
+        nn.Linear(d_in, width), nn.ReLU(),
+        nn.Linear(width, width), nn.ReLU(),
+        nn.Linear(width, d_out),
+    )
+
+# Sweep widths past the "param count = data count" line
+for w in [16, 32, 64, 128, 256, 512, 1024, 2048]:
+    net = make_net(w)
+    # train to (near-)zero training loss …
+    print(w, evaluate(net, X_test, y_test))
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    
+                    
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://www.cs.princeton.edu/courses/archive/spring08/cos511/scribe_notes/0204.pdf" target="_blank">Schapire — Notes on No Free Lunch <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Short, readable proof of the no-free-lunch theorem with examples. The original Wolpert paper is also classic but harder going.</span>
+        </li>
+        <li>
+            <a href="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/" target="_blank">Shalev-Shwartz &amp; Ben-David — Understanding ML <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Free textbook with the cleanest modern presentation of PAC learning, VC dim, and generalization bounds. Chapters 2–6 are essential.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/1812.11118" target="_blank">Belkin et al. (2019) — Double Descent <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">"Reconciling modern ML practice and the bias-variance trade-off". The paper that brought the double-descent picture into the mainstream.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/1806.07572" target="_blank">Jacot, Gabriel &amp; Hongler (2018) — NTK <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The Neural Tangent Kernel paper. Shows how infinite-width networks become kernel methods — connects deep learning to classical generalization theory.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../js/topic-page.js"></script>
+</body>
+</html>

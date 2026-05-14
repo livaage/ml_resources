@@ -1,48 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learning Paradigms — ML Resources Hub</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <style>
-        .main-content { margin-top: 80px; }
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-brand">ML Resources Hub</div>
-        <div class="nav-links">
-            <a href="../index.html">Home</a>
-            <a href="../theory.html" class="active">Theory</a>
-            <a href="../engineering.html" class="">Engineering</a>
-            <a href="../resources.html" class="">Resources</a>
-        </div>
-        <div class="nav-toggle">
-            <i class="fas fa-bars"></i>
-        </div>
-    </nav>
+<!-- TOPIC META -->
+title: Learning Paradigms — ML Resources Hub
+eyebrow_text: ← Theory · Core Concepts
+eyebrow_href: ../theory.html
+heading: Learning Paradigms
+lead: Supervised, unsupervised, self-supervised, reinforcement — what each one "sees" during training, and when each one is the right framing.
 
-    <main class="main-content">
-        <div class="topic-layout">
 
-            <div class="topic-main">
-                <header class="page-header">
-                    <a href="../theory.html" class="eyebrow">← Theory · Core Concepts</a>
-                    <h1>Learning Paradigms</h1>
-                    <p class="lead">Supervised, unsupervised, self-supervised, reinforcement — what each one "sees" during training, and when each one is the right framing.</p>
-                </header>
-
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
-                </div>
-
-                <section class="topic-level active" data-level="intuition">
+<!-- TOPIC CONTENT -->
+<section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>The paradigm is defined by what the model gets to see.</strong> Supervised has (x, y) pairs. Unsupervised has just x. Self-supervised invents y from x. Reinforcement learning only sees a reward signal. Each tells a model "here's the kind of feedback you'll get" — and that shapes everything else.</p>
@@ -64,7 +29,7 @@
         </div>
         <div class="viz-classic-caption" id="viz-lt-caption"></div>
     </div>
-    <script src="../js/viz/learning-types.js"></script>
+    <script src="{{root}}js/viz/learning-types.js"></script>
 
     <p class="viz-intro">The same underlying dataset is presented five ways. Notice how much is "given" to the learner under each paradigm — full labels, partial labels, structure that lets you make up labels (predict the right half from the left half), nothing but the points themselves, or only a numerical reward for an action.</p>
 
@@ -236,14 +201,9 @@ def majority_vote(lf_outputs):
     </div>
 </section>
 
-                <nav class="topic-nav">
-                    
-                    
-                </nav>
-            </div>
 
-            <aside class="topic-sidebar">
-                <div class="learn-more">
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
         <li>
@@ -264,35 +224,3 @@ def majority_vote(lf_outputs):
         </li>
     </ul>
 </div>
-            </aside>
-
-        </div>
-    </main>
-
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2024 ML Resources Hub. <a href="../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
-            <div class="social-links">
-                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
-                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-            onload="renderMathInElement(document.body, {
-                delimiters: [
-                    { left: '$$', right: '$$', display: true },
-                    { left: '$',  right: '$',  display: false },
-                    { left: '\\[', right: '\\]', display: true },
-                    { left: '\\(', right: '\\)', display: false }
-                ],
-                throwOnError: false
-            });"></script>
-    <script src="../js/topic-page.js"></script>
-</body>
-</html>
