@@ -15,6 +15,35 @@ prev_title: Hidden Markov Models
         <p><strong>Start with a belief, see some data, update.</strong> Classical statistics gives you a single best estimate of a parameter (and maybe a confidence interval). Bayesian inference gives you a full <em>distribution</em> over the parameter — capturing everything you know and don't know about it after seeing the data.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Flip coins · adjust the prior · watch the posterior emerge as prior × likelihood (normalised)</span>
+        </div>
+        <div class="viz-classic-controls">
+            <button id="viz-bayes-flip-h"  type="button">Flip H</button>
+            <button id="viz-bayes-flip-t"  type="button">Flip T</button>
+            <button id="viz-bayes-flip-10" type="button">+10 flips</button>
+            <button id="viz-bayes-reset"   type="button">Reset</button>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                α₀
+                <input id="viz-bayes-alpha" class="viz-classic-slider" type="range">
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                β₀
+                <input id="viz-bayes-beta" class="viz-classic-slider" type="range">
+            </label>
+            <span class="viz-classic-badge" id="viz-bayes-alpha-lbl">α₀ = 2.0</span>
+            <span class="viz-classic-badge" id="viz-bayes-beta-lbl">β₀ = 2.0</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-bayes-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-bayes-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/bayes.js"></script>
+
+    <p class="viz-intro">The dashed indigo curve is your prior — Beta(α₀, β₀). Each "Flip H" / "Flip T" click adds an observation. The bold orange curve is the posterior; it's literally <em>prior × likelihood</em> normalised. With no data the posterior is the prior; with a lot of data the posterior is dominated by the likelihood (the prior is "swamped"). The dashed grey curve in the middle is the likelihood at the current data, plotted to scale.</p>
+
     <article class="tldr-body">
         <p>Suppose you want to know a coin's bias. After 10 flips you saw 7 heads. A classical estimate is 0.7 — period. A Bayesian says: "Before flipping, I believed the bias was probably around 0.5 (the <em>prior</em>). Now I've updated to a distribution centered slightly above 0.5 but with a lot of spread (the <em>posterior</em>) — I'm not very sure yet."</p>
         <p>That distribution is the answer. Want a point estimate? Take its mean. Want uncertainty? Read off the credible interval. Want to predict? Average predictions over the posterior. The framework gives you principled answers to all of these.</p>
