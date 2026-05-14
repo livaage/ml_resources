@@ -1,0 +1,233 @@
+<!-- TOPIC META -->
+title: Fairness, Bias &amp; Ethics — ML Resources Hub
+eyebrow_text: ← Theory · Frontier
+eyebrow_href: ../theory.html
+heading: Fairness, Bias &amp; Ethics
+lead: Different subgroups can get different model performance — and that matters. Definitions, metrics, mitigations, and the inherent trade-offs.
+
+
+<!-- TOPIC CONTENT -->
+<section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>"Accurate on average" hides who pays the error cost.</strong> A model can be 90% accurate overall, 95% on one group, 70% on another. There are several incompatible definitions of "fair" — demographic parity, equal opportunity, equalised odds, calibration — and you generally can't satisfy them all simultaneously. Pick a definition that matches the deployment's actual harms.</p>
+    </div>
+
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Same model, two groups — slide the threshold and watch each fairness metric shift in different directions</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                τ
+                <input id="viz-fair-threshold" class="viz-classic-slider" type="range">
+            </label>
+            <button id="viz-fair-resample" type="button">Re-sample</button>
+            <span class="viz-classic-badge" id="viz-fair-thr-lbl">τ = 0.50</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-fair-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-fair-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/fairness.js"></script>
+
+    <p class="viz-intro">Two groups, A and B, with different score distributions but the <em>same</em> classifier and threshold. Slide the threshold and watch how each fairness metric shifts: <strong>demographic parity</strong> (equal positive rate), <strong>equal opportunity</strong> (equal TPR), and <strong>predictive parity</strong> (equal precision). You can match one at a time — almost never all three.</p>
+
+    <article class="tldr-body">
+        <p><strong>Demographic parity / statistical parity.</strong> Each group has the same rate of positive predictions. Useful when the base rate <em>shouldn't</em> differ across groups (e.g., advertising), problematic when the base rate genuinely does.</p>
+        <p><strong>Equal opportunity.</strong> Each group has the same true positive rate (recall). Useful for "everyone qualified gets a chance" framing — loans, jobs.</p>
+        <p><strong>Equalised odds.</strong> Both TPR and FPR are equal across groups. Stricter than equal opportunity.</p>
+        <p><strong>Predictive parity.</strong> Each group has the same precision — if the model says positive, the probability of being correct is the same. Useful when downstream consequences are tied to the prediction itself.</p>
+        <p><strong>Calibration within groups.</strong> Predicted probabilities mean the same thing for each group — 0.7 means 70% positive rate within each group. A common starting point that's often in tension with the rate-based fairness metrics.</p>
+    </article>
+
+    <div class="use-cases neutral">
+        <div class="yes">
+            <h3>Pick the metric that matches the harm</h3>
+            <ul>
+                <li>"Equal access" → demographic parity</li>
+                <li>"Equal chance for qualified people" → equal opportunity</li>
+                <li>"Same precision for everyone" → predictive parity</li>
+                <li>"Probabilities mean the same thing" → calibration</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>The impossibility theorems</h3>
+            <ul>
+                <li>Chouldechova (2017): predictive parity + equal FPR + base rate differences → impossible</li>
+                <li>Kleinberg, Mullainathan, Raghavan (2017): calibration + balance for FP/FN → impossible (except in trivial cases)</li>
+                <li>Translation: you have to choose which fairness criterion you violate</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import numpy as np
+
+def demographic_parity(y_pred, group):
+    return {g: y_pred[group == g].mean() for g in np.unique(group)}
+
+def equal_opportunity(y_true, y_pred, group):
+    # TPR = TP / (TP + FN), computed per group
+    out = {}
+    for g in np.unique(group):
+        m = (group == g) &amp; (y_true == 1)
+        out[g] = y_pred[m].mean() if m.any() else np.nan
+    return out
+
+def predictive_parity(y_true, y_pred, group):
+    # Precision = TP / (TP + FP), computed per group
+    out = {}
+    for g in np.unique(group):
+        m = (group == g) &amp; (y_pred == 1)
+        out[g] = y_true[m].mean() if m.any() else np.nan
+    return out
+
+# A common mitigation: per-group thresholds tuned to satisfy a fairness criterion
+def per_group_threshold(scores, group, target_tpr=0.8, y_true=None):
+    thresholds = {}
+    for g in np.unique(group):
+        m = (group == g) &amp; (y_true == 1)
+        thresholds[g] = np.quantile(scores[m], 1 - target_tpr)
+    return thresholds
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want individual fairness, causal frameworks, &amp; mitigations?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Equalised odds</span>
+        <span class="formula">$$ P(\hat Y = 1 \mid Y = y, A = a) = P(\hat Y = 1 \mid Y = y, A = a'),\quad \forall y, a, a' $$</span>
+        <ul class="formula-legend">
+            <li><em>Â</em> protected attribute, <em>Y</em> true label, <em>Ŷ</em> prediction</li>
+            <li>Both TPR and FPR equal across groups</li>
+            <li>Stricter than equal opportunity (which only requires TPR equality)</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Individual fairness.</strong> Similar individuals should get similar predictions. Dwork et al. (2012). Requires a domain-specific similarity metric; rarely deployed in practice but a useful normative anchor.</p>
+        <p><strong>Causal fairness.</strong> Define fairness in a structural causal model: counterfactual fairness (would this prediction change if I changed protected attribute, all else equal?), path-specific fairness (some paths through the DAG should be eliminated). Requires explicit causal modelling.</p>
+        <p><strong>Mitigation strategies.</strong> <em>Pre-processing</em>: re-weight, re-sample, learn fair representations (Zemel et al. 2013). <em>In-processing</em>: add fairness constraints to the loss (e.g., adversarial debiasing). <em>Post-processing</em>: adjust the threshold per group (Hardt et al. 2016). Each has different trade-offs.</p>
+        <p><strong>Bias sources.</strong> Historical bias (data reflects historical inequities); representation bias (some groups undersampled); measurement bias (proxy labels are unequally accurate); aggregation bias (one model for heterogeneous populations); evaluation bias (test sets that miss specific groups).</p>
+        <p><strong>"Fair by construction" representations.</strong> Train an encoder so that the protected attribute is unpredictable from the embedding. Risk: overfit to the in-distribution adversary; correlated proxies (e.g., ZIP code, surname) still leak group membership.</p>
+        <p><strong>Audit ≠ certify.</strong> Even careful fairness audits can miss failure modes. Subgroup analysis (intersectionality), distribution shift, deployment monitoring. Fairness is an ongoing practice, not a one-time check.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from fairlearn.metrics import (
+    MetricFrame, demographic_parity_difference,
+    equalized_odds_difference, selection_rate,
+)
+from sklearn.metrics import accuracy_score, recall_score
+
+# Group-aware metrics
+frame = MetricFrame(
+    metrics={"acc": accuracy_score, "tpr": recall_score, "sel_rate": selection_rate},
+    y_true=y_true,
+    y_pred=y_pred,
+    sensitive_features=group,
+)
+print(frame.by_group)
+print("Demographic parity diff:", demographic_parity_difference(y_true, y_pred, sensitive_features=group))
+print("Equalised odds diff   :",  equalized_odds_difference(y_true, y_pred, sensitive_features=group))
+
+# Post-processing: threshold each group to equalise TPR
+from fairlearn.postprocessing import ThresholdOptimizer
+to = ThresholdOptimizer(estimator=base, constraints="equalized_odds")
+to.fit(X_train, y_train, sensitive_features=group_train)
+y_hat = to.predict(X_test, sensitive_features=group_test)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want counterfactual fairness, mech-interp for bias, &amp; LLM alignment ethics?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Counterfactual fairness</span>
+        <span class="formula">$$ P(\hat Y_{A \leftarrow a}(U) = y \mid X = x, A = a) = P(\hat Y_{A \leftarrow a'}(U) = y \mid X = x, A = a), \forall y, a' $$</span>
+        <ul class="formula-legend">
+            <li>The prediction shouldn't change in the counterfactual world where the protected attribute was different</li>
+            <li>Requires a structural causal model of the data-generating process</li>
+            <li>Strong assumption; weak observation guarantees</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Causal frameworks.</strong> Kusner et al. (2017) — counterfactual fairness via SCMs. Define which causal paths from the protected attribute to the outcome are "fair" (e.g., job-relevant skills) vs "unfair" (e.g., discriminatory hiring). Block the unfair paths while preserving the fair ones. Strong assumptions; controversial.</p>
+        <p><strong>Foundation-model bias.</strong> LLMs absorb biases from training data — gender stereotypes, racial associations, geographic skew. Mitigations: filtered pre-training data, instruction tuning ("don't say things like this"), RLHF reward models that penalise biased outputs, post-hoc safety filters. None fully solve it; the surface area is enormous.</p>
+        <p><strong>Allocation vs representation harms.</strong> Allocation: who gets the loan / job / treatment? Representation: how are different groups depicted in generated content? Different metrics, different mitigations.</p>
+        <p><strong>Mech-interp for bias.</strong> Identify circuits in a network that produce biased outputs; intervene on them. Early work — most interpretability methods aren't precise enough yet, but the conceptual approach is promising.</p>
+        <p><strong>Algorithmic harms beyond accuracy.</strong> Privacy, surveillance, agency, opacity. Even a perfectly calibrated, fair-by-every-metric system can cause harm if its mere existence creates a chilling effect or removes meaningful human review. Most production ethics work is structural, not algorithmic.</p>
+        <p><strong>The political dimension.</strong> Fairness is normative. Different stakeholders prefer different metrics. The choice between equal opportunity and demographic parity is a policy choice, not a technical one. ML practitioners need to surface these trade-offs to decision-makers, not bury them.</p>
+        <p><strong>Audit reports.</strong> Document training data sources, metrics across subgroups, known limitations, monitoring plans. Increasingly required by regulation (EU AI Act, NYC AEDT law). "Model cards" (Mitchell et al. 2019) and "datasheets for datasets" (Gebru et al. 2018) are useful templates.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch, torch.nn.functional as F
+
+# Adversarial debiasing — train an adversary to predict the protected attribute
+# from the model's hidden state; gradient-reverse so the model becomes invariant
+class GradReverse(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, x, lam):
+        ctx.lam = lam; return x.clone()
+    @staticmethod
+    def backward(ctx, grad):
+        return -ctx.lam * grad, None
+
+def grad_reverse(x, lam=1.0): return GradReverse.apply(x, lam)
+
+# Training loop
+y_hat = model(x)                # main prediction
+h = model.hidden(x)             # hidden representation
+attr_hat = adv(grad_reverse(h, 1.0))   # adversary predicts the protected attr
+loss = F.cross_entropy(y_hat, y) + F.cross_entropy(attr_hat, sensitive_attr)
+loss.backward()
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+
+<!-- TOPIC SIDEBAR -->
+<div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://fairmlbook.org/" target="_blank">Barocas, Hardt &amp; Narayanan — Fairness and Machine Learning <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The reference textbook. Free online. Comprehensive treatment of fairness definitions, metrics, and trade-offs.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/1610.02413" target="_blank">Hardt, Price &amp; Srebro (2016) — Equal Opportunity <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The post-processing-for-fair-thresholds paper. Foundational; readable.</span>
+        </li>
+        <li>
+            <a href="https://fairlearn.org/" target="_blank">Fairlearn <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Microsoft's open-source fairness toolkit. Metrics, mitigations, dashboards.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/1810.03993" target="_blank">Mitchell et al. (2019) — Model Cards <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The Google paper proposing standardised model documentation. Now widely adopted by HuggingFace, OpenAI, Anthropic.</span>
+        </li>
+    </ul>
+</div>

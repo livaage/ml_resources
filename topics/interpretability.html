@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interpretability &amp; Explainability — ML Resources Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../theory.html" class="active">Theory</a>
+            <a href="../engineering.html" class="">Engineering</a>
+            <a href="../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../theory.html" class="eyebrow">← Theory · Frontier</a>
+                    <h1>Interpretability &amp; Explainability</h1>
+                    <p class="lead">Open the black box — feature importance, attribution, mechanistic interpretability, and the limits of "why did the model do that?"</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Two flavours. Per-prediction explanation: "why did this input get this answer?". Model-wide understanding: "what does this model actually compute?".</strong> The first is feature-attribution (SHAP, LIME, Integrated Gradients). The second is mechanistic interpretability (probing, circuits, sparse autoencoders). Both have real successes and real limits.</p>
+    </div>
+
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">SHAP-style local explanation — which features pushed this prediction up, which pushed it down?</span>
+        </div>
+        <div class="viz-classic-controls">
+            <button id="viz-int-resample" type="button">Re-sample input</button>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-int-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-int-caption"></div>
+    </div>
+    <script src="../js/viz/interpretability.js"></script>
+
+    <p class="viz-intro">A single tabular prediction with per-feature SHAP-style contributions. Each bar shows how much that feature pushed the prediction up (orange) or down (indigo) relative to the average. Sum them all up + the model's average prediction = this specific prediction. SHAP values guarantee this additivity by construction.</p>
+
+    <article class="tldr-body">
+        <p><strong>Feature importance (model-wide).</strong> Permutation importance: shuffle a feature; how much does the score drop? Tree importance: how often a feature appears in splits, weighted by gain. Both are simple and useful but can be misled by correlated features.</p>
+        <p><strong>SHAP &amp; LIME (per-prediction).</strong> SHAP (Lundberg &amp; Lee, 2017) — game-theoretic Shapley values, additivity by construction, slow but principled. LIME — fit a local linear surrogate around a single prediction, fast but unstable. Both give "this feature contributed +X to this prediction".</p>
+        <p><strong>Saliency maps for images.</strong> Where in the image did the model "look"? Gradient × input, Integrated Gradients, GradCAM, SmoothGrad. All are easy to compute, but easy to mislead — a saliency map can highlight the right region for the wrong reason.</p>
+        <p><strong>Attention as explanation?</strong> Tempting but controversial. Attention weights don't directly correspond to feature importance, even in transformers. Use as a starting hypothesis, not an explanation. Jain &amp; Wallace (2019): "Attention is not Explanation".</p>
+        <p><strong>Mechanistic interpretability.</strong> Find specific circuits inside a neural network that implement a specific behaviour. Anthropic's induction heads, OpenAI's sparse autoencoders. Still early — the field is producing real results but on toy models.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Regulated domain (finance, healthcare, insurance) — explanations are mandatory</li>
+                <li>Debugging — why is this prediction wrong?</li>
+                <li>Audit — does the model rely on a feature it shouldn't?</li>
+                <li>Trust — communicating model behaviour to non-ML stakeholders</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Real limits</h3>
+            <ul>
+                <li>Explanations can mislead — humans accept plausible-but-wrong narratives</li>
+                <li>Correlated features confound most attribution methods</li>
+                <li>"Why" questions presume a causal model that the attribution doesn't have</li>
+                <li>Mechanistic understanding is hard work and rarely complete</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import shap
+import xgboost as xgb
+
+# Train and explain with SHAP
+model = xgb.XGBClassifier().fit(X_train, y_train)
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X_test)
+
+# Force plot — one prediction's attributions
+shap.force_plot(explainer.expected_value, shap_values[0], X_test.iloc[0])
+
+# Summary plot — global feature importance with direction
+shap.summary_plot(shap_values, X_test)
+
+# Permutation importance — model-agnostic
+from sklearn.inspection import permutation_importance
+result = permutation_importance(model, X_val, y_val, n_repeats=10, random_state=0)
+for i in result.importances_mean.argsort()[::-1][:5]:
+    print(f"{X_val.columns[i]:30s}  {result.importances_mean[i]:.3f}")
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want global vs local, axiomatic guarantees, &amp; mechanistic methods?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Shapley value</span>
+        <span class="formula">$$ \phi_i(f, x) = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|!\,(|F| - |S| - 1)!}{|F|!} \big[\, f(S \cup \{i\}) - f(S)\,\big] $$</span>
+        <ul class="formula-legend">
+            <li>Marginal contribution of feature <em>i</em>, averaged over all subsets</li>
+            <li>Unique attribution method satisfying efficiency, symmetry, dummy, additivity</li>
+            <li>Exact computation is exponential — SHAP uses tractable approximations</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Axiomatic attribution.</strong> SHAP, Integrated Gradients, and LIME each obey specific axioms — efficiency, sensitivity, implementation invariance. The choice of axioms determines the method. There's no "right" axiom set; pick what matches your need.</p>
+        <p><strong>Local vs global explanations.</strong> Local: "why this specific prediction?" — SHAP-per-instance, IG, LIME. Global: "what does the model rely on overall?" — permutation importance, mean |SHAP|, partial dependence plots. Both are useful for different questions.</p>
+        <p><strong>Partial dependence plots (PDP) and ICE.</strong> PDP: average the model's prediction over the training distribution, varying one feature. ICE: do the same per-instance. Useful for visualising the marginal effect of one feature on the model's prediction.</p>
+        <p><strong>Counterfactual explanations.</strong> "What's the smallest change to the input that flips the prediction?" Useful for actionable explanations: "to get the loan, raise income by $5k". Tools: DiCE, Alibi, scikit-learn-compat libraries.</p>
+        <p><strong>Probing classifiers.</strong> Train a small linear classifier on a model's internal representations to predict some property. Reveals what information is linearly decodable from the model's intermediate states. Used heavily in interpretability of language models.</p>
+        <p><strong>Concept-based methods.</strong> TCAV (Kim et al. 2018) — measure how sensitive a prediction is to a high-level concept (defined by examples). Useful for "does the model use this concept?" rather than "this raw feature?".</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch
+from captum.attr import IntegratedGradients, LayerGradCam
+
+# Integrated Gradients — axiomatic attribution for neural networks
+ig = IntegratedGradients(model)
+attributions, delta = ig.attribute(input, baselines=baseline, return_convergence_delta=True)
+
+# GradCAM — class-discriminative heatmap from convolutional layers
+cam = LayerGradCam(model, model.layer4[-1])
+heat = cam.attribute(input, target=pred_class)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want mechanistic interpretability, circuits, &amp; sparse autoencoders?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Sparse autoencoder objective</span>
+        <span class="formula">$$ \mathcal{L} = \big\lVert x - \hat x \big\rVert^2 + \lambda\,\lVert z \rVert_1, \quad z = \sigma(W_\text{enc} x + b) $$</span>
+        <ul class="formula-legend">
+            <li>Learn a sparse code <em>z</em> over the network's hidden state</li>
+            <li>Activations of single <em>z</em>-dimensions tend to correspond to interpretable features</li>
+            <li>Anthropic / DeepMind's flagship mech-interp tool</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Mechanistic interpretability.</strong> Aim: understand a neural network the way you'd understand a compiled program — find the algorithms it implements. Olah et al.'s Circuits work (Distill 2020+), Anthropic's induction heads (2022), Nanda's modular arithmetic (2023). Real progress on toy and small-real models.</p>
+        <p><strong>Probing &amp; representational similarity.</strong> Probe with a small classifier; representational similarity analysis (RSA); centered kernel alignment (CKA). All are ways of asking "what information is in this layer?" without intervening on the model.</p>
+        <p><strong>Causal interpretability.</strong> Patch activations between forward passes; ablate specific neurons or attention heads; measure the effect. Activation patching (Meng et al. 2022), path patching (Goldowsky-Dill 2023). The most rigorous way to attribute behaviour to components.</p>
+        <p><strong>Sparse autoencoders for feature discovery.</strong> Train a sparse autoencoder on a model's hidden states. The sparse codes' dimensions tend to correspond to interpretable features ("this neuron fires for fruit"). Bricken et al. 2023 (Anthropic), Cunningham et al. 2023.</p>
+        <p><strong>Why "attention is not explanation" matters.</strong> Attention weights are <em>part of</em> the computation but they don't tell you what the model is computing. Two attention distributions can lead to the same output; high attention to a token doesn't mean the model needs that token. Use attention as a hypothesis generator, not an answer.</p>
+        <p><strong>Limits and dangers of explanations.</strong> Even faithful explanations can mislead — humans confabulate. "Right answer for the wrong reason" is hard to detect. Adversarial explanations exist (Slack et al. 2020 — fool LIME / SHAP). Treat explanation as a debugging tool, not as truth.</p>
+        <p><strong>Mechanistic for LLMs.</strong> The frontier — induction heads, name mover heads, indirect object identification, modular arithmetic circuits, the "in-context learning" mechanism. Anthropic and OpenAI have dedicated interpretability teams; results are technical and incremental.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import torch, torch.nn as nn
+
+# Sparse autoencoder over a transformer's hidden states
+class SAE(nn.Module):
+    def __init__(self, d_model, d_dict, lam=1e-3):
+        super().__init__()
+        self.W_enc = nn.Linear(d_model, d_dict)
+        self.W_dec = nn.Linear(d_dict, d_model, bias=False)
+        self.lam = lam
+
+    def forward(self, x):
+        z = torch.relu(self.W_enc(x))
+        x_hat = self.W_dec(z)
+        loss = (x - x_hat).pow(2).mean() + self.lam * z.abs().mean()
+        return x_hat, z, loss
+
+# Train on hidden activations harvested from a transformer pass
+hidden = transformer(text).hidden_states[layer]
+x_hat, z, loss = sae(hidden)
+# z has thousands of dimensions, most of which are zero at any given input.
+# Look at what each non-zero feature fires on across many examples.
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    
+                    
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://christophm.github.io/interpretable-ml-book/" target="_blank">Molnar — Interpretable Machine Learning <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Free, comprehensive textbook on practical interpretability. SHAP, LIME, PDP, ICE, counterfactuals — all worked examples.</span>
+        </li>
+        <li>
+            <a href="https://distill.pub/2020/circuits/" target="_blank">Distill — Circuits Thread <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Olah et al.'s series on mechanistic interpretability of convolutional networks. The visual style still sets the standard.</span>
+        </li>
+        <li>
+            <a href="https://transformer-circuits.pub/" target="_blank">Anthropic — Transformer Circuits <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Anthropic's mech-interp blog. Induction heads, sparse autoencoders, and superposition. The frontier of "what's inside transformers".</span>
+        </li>
+        <li>
+            <a href="https://shap.readthedocs.io/" target="_blank">SHAP — Documentation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The reference SHAP library. Practical tutorials for trees, deep models, kernels.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../js/topic-page.js"></script>
+</body>
+</html>
