@@ -48,6 +48,30 @@
         <p><strong>The same little network applied at every step, carrying a memory of what it saw before.</strong> Read one token, update memory, move on. Read another token, update memory again. After the whole sequence, the memory summarizes everything you've seen.</p>
     </div>
 
+    <div class="viz-embed viz-rnn">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Watch the hidden state evolve as each token is read · click any step to inspect it</span>
+        </div>
+        <div class="viz-rnn-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.85rem;">
+                Sequence
+                <select id="viz-rnn-seq"></select>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.85rem;">
+                Cell
+                <select id="viz-rnn-cell"></select>
+            </label>
+            <button id="viz-rnn-play" type="button">Pause</button>
+        </div>
+        <div class="viz-rnn-canvas-wrap">
+            <canvas id="viz-rnn-canvas"></canvas>
+        </div>
+        <div class="viz-rnn-formula" id="viz-rnn-formula"></div>
+    </div>
+    <script src="../../js/viz/rnn.js"></script>
+
+    <p class="viz-intro">The same RNN cell runs at every timestep — note the "same weights" label on the first cell. The horizontal arrows are the hidden state being passed forward. Try the "<em>long sequence</em>" with <em>Vanilla RNN</em>: by the time we reach "was", the early hidden state has decayed nearly to zero — the classic <strong>vanishing gradient</strong> problem. Switch to <em>LSTM-like</em> and the memory survives much further.</p>
+
     <article class="tldr-body">
         <p>RNNs were the default for sequences (language, speech, time series) for a decade until transformers came along. They have one key trick: the network's output at step <em>t</em> depends on a "hidden state" that was computed at step <em>t</em>−1. The hidden state is the model's memory.</p>
         <p>Vanilla RNNs are simple but forget quickly. <strong>LSTMs</strong> and <strong>GRUs</strong> add gating mechanisms — small networks that decide what to remember and what to forget — and can carry information across hundreds of timesteps.</p>
