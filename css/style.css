@@ -934,6 +934,79 @@ code:not(pre code) {
 .viz-diff-caption strong { color: var(--accent-hover); }
 
 
+/* Shared "non-NN" viz shell — k-means, trees, SVM, GMM, GP, etc. */
+.viz-classic { padding: 1.25rem 1.5rem 1.5rem; }
+.viz-classic-controls {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 0.85rem;
+}
+.viz-classic-controls button,
+.viz-classic-controls select {
+    padding: 0.35rem 0.85rem;
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.viz-classic-controls button:hover,
+.viz-classic-controls select:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-hover);
+}
+.viz-classic-controls button.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-hover);
+}
+.viz-classic-badge {
+    margin-left: auto;
+    padding: 0.25rem 0.7rem;
+    background: var(--accent-soft);
+    color: var(--accent-hover);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+.viz-classic-slider {
+    flex: 0 1 180px;
+    min-width: 120px;
+    accent-color: var(--accent-warm);
+    cursor: pointer;
+}
+.viz-classic-canvas-wrap {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+.viz-classic-canvas-wrap canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+}
+.viz-classic-caption {
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+}
+.viz-classic-caption strong { color: var(--accent-hover); }
+
+
 /* Transformer attention viz — heads as tabs, arcs above tokens, heatmap below */
 .viz-tx {
     padding: 1.25rem 1.5rem 1.5rem;

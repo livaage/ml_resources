@@ -13,6 +13,30 @@ lead: Group similar items together without labels — k-means, DBSCAN, hierarchi
         <p><strong>Find natural groups in your data without telling the algorithm what to look for.</strong> No labels, no target variable. The algorithm decides what "similar" means based on a distance metric you provide.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Step through Lloyd's algorithm — assign points, move centroids, repeat — and watch where k-means fails</span>
+        </div>
+        <div class="viz-classic-controls">
+            <button id="viz-cluster-step"  type="button">Step</button>
+            <button id="viz-cluster-auto"  type="button">Auto</button>
+            <button id="viz-cluster-reset" type="button">Reset</button>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Dataset
+                <select id="viz-cluster-data"></select>
+            </label>
+            <select id="viz-cluster-k" aria-label="number of clusters"></select>
+            <span class="viz-classic-badge" id="viz-cluster-phase">iter 0</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-cluster-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-cluster-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/clustering.js"></script>
+
+    <p class="viz-intro">Lloyd's algorithm alternates two steps: <strong>assign</strong> each point to its nearest centroid, then <strong>move</strong> each centroid to the mean of its assigned points. Step through and watch the centroids settle. Try the <em>Two moons</em> dataset to see why k-means is a poor fit for non-convex clusters — it slices the moons clean in half because it only ever draws straight Voronoi boundaries.</p>
+
     <article class="tldr-body">
         <p>The most famous algorithm is <strong>k-means</strong>: pick <em>k</em> in advance, then iteratively assign each point to the nearest cluster center and move each center to the average of its assigned points. Simple, fast, but biased toward equal-size spherical clusters.</p>
         <p>Other approaches: <strong>DBSCAN</strong> finds clusters of arbitrary shape based on local density (and labels sparse regions as noise). <strong>Hierarchical clustering</strong> builds a tree of clusters at every scale, letting you pick the granularity afterward.</p>
