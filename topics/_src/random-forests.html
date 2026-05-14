@@ -17,6 +17,32 @@ next_title: Gradient Boosting
         <p><strong>Ask a crowd of decision trees, then take the majority vote.</strong> Each tree alone is shaky and makes its own mistakes, but the trees disagree in different places — so when you average their answers, the errors cancel out and the agreement points to the truth.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Slide N up — watch the ensemble boundary smooth out compared to the brittle individual trees below</span>
+        </div>
+        <div class="viz-classic-controls">
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Data
+                <select id="viz-rf-data"></select>
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Trees
+                <input id="viz-rf-n" class="viz-classic-slider" type="range">
+            </label>
+            <select id="viz-rf-depth" aria-label="depth"></select>
+            <button id="viz-rf-reset" type="button">Re-sample</button>
+            <span class="viz-classic-badge" id="viz-rf-n-lbl">N = 20</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-rf-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-rf-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/random-forests.js"></script>
+
+    <p class="viz-intro">Each tree below was trained on a different bootstrap sample of the data with a random feature subset at every split — so they're all biased, all brittle, all wrong in different ways. But the big panel up top is the <em>average</em> of their votes. The wrongness cancels; the agreement reinforces. Slide N from 1 to 80 and watch the boundary go from jagged-and-overconfident to smooth-and-stable.</p>
+
     <article class="tldr-body">
         <p>A <strong>decision tree</strong> is a flowchart of yes/no questions ("Is age &gt; 30?" → "Is income &gt; 50k?" → …) that ends in a prediction. It's intuitive, but it's also brittle: small changes in your training data can produce a wildly different tree.</p>
         <p>A <strong>random forest</strong> builds many such trees, each on a slightly different sample of your data, and lets them vote. It's a bit like asking 100 doctors for a second opinion instead of trusting one — the consensus is more reliable than any individual.</p>
