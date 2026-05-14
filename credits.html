@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credits - ML Resources Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+
+        .credits-intro {
+            background: var(--accent-warm-soft);
+            border: 1px solid rgba(234, 121, 89, 0.35);
+            border-left: 4px solid var(--accent-warm);
+            border-radius: 10px;
+            padding: 1.1rem 1.4rem;
+            margin: 1.5rem 0 2.5rem;
+            color: var(--ink-soft);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .credits-intro strong { color: var(--ink); }
+
+        .credits-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0 2.5rem;
+            background: var(--surface);
+            border: 1px solid var(--hairline);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .credits-table th,
+        .credits-table td {
+            padding: 0.85rem 1.1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--hairline);
+            vertical-align: top;
+        }
+        .credits-table tr:last-child td { border-bottom: none; }
+        .credits-table th {
+            background: var(--light-bg);
+            font-family: var(--font-sans);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .credits-table .viz-name {
+            font-family: var(--font-sans);
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--ink);
+            width: 22%;
+            white-space: nowrap;
+        }
+        .credits-table .viz-source {
+            font-size: 0.9rem;
+            line-height: 1.55;
+            color: var(--ink-soft);
+        }
+        .credits-table .viz-source a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            border-bottom: 1px dotted rgba(79, 70, 229, 0.35);
+        }
+        .credits-table .viz-source a:hover {
+            color: var(--accent-hover);
+            border-bottom-color: var(--accent-hover);
+        }
+
+        .credit-section-title {
+            font-family: var(--font-serif);
+            font-size: 1.55rem;
+            font-weight: 500;
+            color: var(--ink);
+            margin: 2.5rem 0 0.4rem;
+            letter-spacing: -0.01em;
+        }
+        .credit-section-lead {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.55;
+            margin: 0 0 1rem;
+        }
+
+        .credit-general {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0 2.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .credit-general li {
+            background: var(--surface);
+            border: 1px solid var(--hairline);
+            border-radius: 10px;
+            padding: 1rem 1.2rem;
+        }
+        .credit-general h4 {
+            font-family: var(--font-sans);
+            font-size: 0.92rem;
+            font-weight: 600;
+            margin: 0 0 0.35rem;
+            color: var(--ink);
+        }
+        .credit-general h4 a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .credit-general h4 a:hover { color: var(--accent-hover); }
+        .credit-general p {
+            color: var(--muted);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .credit-footnote {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--hairline);
+            color: var(--muted);
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+        .credit-footnote a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .credit-footnote a:hover { color: var(--accent-hover); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="theory.html">Theory</a>
+            <a href="engineering.html">Engineering</a>
+            <a href="resources.html">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <header class="page-header">
+                <div class="eyebrow">Acknowledgements</div>
+                <h1>Credits &amp; Inspirations</h1>
+                <p class="lead">The interactive visualisations on this site are not original research. They're personal study tools, built to capture concepts I wanted to understand better. The patterns and aesthetics come from a small set of canonical interactive ML visualisations — the work below deserves the credit. If you found a viz here useful, the originals are almost always better, and you should read them.</p>
+            </header>
+
+            <div class="credits-intro">
+                <strong>How to read this page.</strong> The table lists each topic's most direct inspiration — the work whose layout, interaction, or visual idiom I leaned on. The bottom section lists broader influences whose aesthetic shows up across the site.
+            </div>
+
+            <h2 class="credit-section-title">Per-topic inspirations</h2>
+            <p class="credit-section-lead">For each topic, the source whose visual pattern is most visibly present in our viz.</p>
+
+            <table class="credits-table">
+                <thead>
+                    <tr><th>Viz</th><th>Closest prior art</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="viz-name">CNN</td>
+                        <td class="viz-source"><a href="https://poloclub.github.io/cnn-explainer/" target="_blank">CNN Explainer</a> (Wang et al., Georgia Tech) — kernel cells, sliding receptive field, mini-heatmap output panel.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Transformer</td>
+                        <td class="viz-source"><a href="https://github.com/jessevig/bertviz" target="_blank">BertViz</a> (Vig) for arcs-over-tokens; <a href="https://poloclub.github.io/transformer-explainer/" target="_blank">Transformer Explainer</a> (Cho et al.) for layout; <a href="https://jalammar.github.io/illustrated-transformer/" target="_blank">The Illustrated Transformer</a> (Alammar) for the head-tab presentation.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">RNN</td>
+                        <td class="viz-source"><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank">Understanding LSTM Networks</a> (Olah) — the unrolled-timesteps diagram with shared cell is essentially his.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">GNN</td>
+                        <td class="viz-source"><a href="https://distill.pub/2021/gnn-intro/" target="_blank">A Gentle Introduction to Graph Neural Networks</a> (Sanchez-Lengeling et al., Distill) — click-a-node propagation is straight from theirs.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Autoencoder / VAE</td>
+                        <td class="viz-source">Influenced by interactive latent-walk demos in <a href="https://lilianweng.github.io/posts/2018-08-12-vae/" target="_blank">Lilian Weng's tour of VAEs</a> and the broader genre of "decoder slider" toys that's accumulated across many blog posts.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">GAN</td>
+                        <td class="viz-source"><a href="https://poloclub.github.io/ganlab/" target="_blank">GAN Lab</a> (Kahng, Thorat, Chau, Wei) — the particle generator vs. discriminator decision-surface + loss curves layout is essentially GAN Lab simplified.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Diffusion</td>
+                        <td class="viz-source">The forward formula <em>x<sub>t</sub> = √α̅·x<sub>0</sub> + √(1-α̅)·ε</em> is from <a href="https://arxiv.org/abs/2006.11239" target="_blank">DDPM</a> (Ho, Jain, Abbeel). The cosine schedule is from <a href="https://arxiv.org/abs/2102.09672" target="_blank">Improved Denoising Diffusion</a> (Nichol &amp; Dhariwal). The thumbnail-strip-over-time visual style is common across diffusion blog posts.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">DNN</td>
+                        <td class="viz-source">Aesthetic borrows from <a href="https://playground.tensorflow.org/" target="_blank">TensorFlow Playground</a> (Smilkov &amp; Carter) — small-network forward pass with per-neuron heatmaps.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Regression</td>
+                        <td class="viz-source"><a href="https://setosa.io/ev/ordinary-least-squares-regression/" target="_blank">Setosa.io — OLS Regression</a> (Powell &amp; Lehe) — drag-points-watch-line interaction.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">k-means</td>
+                        <td class="viz-source"><a href="https://www.naftaliharris.com/blog/visualizing-k-means-clustering/" target="_blank">Visualizing K-Means Clustering</a> (Harris) — the step-through-Lloyd's interaction with the assignment / update split.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Decision Trees</td>
+                        <td class="viz-source"><a href="http://www.r2d3.us/visual-intro-to-machine-learning-part-1/" target="_blank">R2D3 — A Visual Introduction to Machine Learning</a> (Yee &amp; Chu) and scikit-learn's <a href="https://scikit-learn.org/stable/auto_examples/tree/plot_iris_dtc.html" target="_blank">decision-boundary plot examples</a>.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Random Forests</td>
+                        <td class="viz-source"><a href="http://www.r2d3.us/visual-intro-to-machine-learning-part-1/" target="_blank">R2D3</a> Part 1's tree-ensemble illustrations, plus scikit-learn's <a href="https://scikit-learn.org/stable/auto_examples/ensemble/plot_forest_iris.html" target="_blank">forest-vs-tree</a> comparison plots.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">SVM</td>
+                        <td class="viz-source"><a href="https://setosa.io/ev/" target="_blank">Setosa.io's</a> approach to interactive 2D classifier viz; scikit-learn's <a href="https://scikit-learn.org/stable/auto_examples/svm/plot_separating_hyperplane.html" target="_blank">SVM example plots</a> for the linear-margin layout.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Gradient Boosting</td>
+                        <td class="viz-source">Various blog posts walking through residual-fitting visually; the data + target + fit + residuals layout is in <a href="https://explained.ai/gradient-boosting/" target="_blank">explained.ai's gradient boosting tutorial</a> (Parr &amp; Howard).</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">GMM</td>
+                        <td class="viz-source">scikit-learn's <a href="https://scikit-learn.org/stable/auto_examples/mixture/plot_gmm.html" target="_blank">GMM ellipse plots</a> set the canonical visual idiom — full-covariance components drawn as 1σ ellipses with points coloured by responsibility.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Gaussian Processes</td>
+                        <td class="viz-source"><a href="https://distill.pub/2019/visual-exploration-gaussian-processes/" target="_blank">A Visual Exploration of Gaussian Processes</a> (Görtler, Kehlbeck, Deussen — Distill) — the canonical "click to add observations, watch the band collapse, draw samples from the posterior" interaction.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">HMM</td>
+                        <td class="viz-source">The activity-as-emoji + state-posterior-as-heatmap presentation is influenced by Stanford CS228's lecture notes on HMMs; the Viterbi-as-line overlay is a long-standing textbook idiom going back to <a href="https://www.cs.cmu.edu/~aberger/pdf/rabiner.pdf" target="_blank">Rabiner's 1989 tutorial</a>.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Naive Bayes</td>
+                        <td class="viz-source">scikit-learn's <a href="https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html" target="_blank">classifier-comparison gallery</a>; per-class diagonal Gaussian + axis-aligned ellipse + class-mix heatmap is its standard visual.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Dim Reduction (PCA)</td>
+                        <td class="viz-source"><a href="https://setosa.io/ev/principal-component-analysis/" target="_blank">Setosa.io — Principal Component Analysis</a> (Powell &amp; Lehe) — the "rotate the projection axis, watch the histogram widen, find the variance-maximising angle" interaction is theirs.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Bayesian Inference</td>
+                        <td class="viz-source"><a href="https://setosa.io/conditional/" target="_blank">Setosa.io — Conditional Probability</a> for interaction style. The Beta-Binomial coin-flip demonstration is in every Bayesian textbook (Sivia, BDA3, Kruschke), going back to <a href="https://en.wikipedia.org/wiki/Conjugate_prior" target="_blank">classical conjugate-prior worked examples</a>.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Anomaly Detection</td>
+                        <td class="viz-source">scikit-learn's <a href="https://scikit-learn.org/stable/auto_examples/neighbors/plot_lof_outlier_detection.html" target="_blank">outlier-detection example</a> set the colour conventions (low-density background + flagged points with markers).</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Bias-Variance</td>
+                        <td class="viz-source">The "many fits on resampled training sets + U-curve of bias² and variance against complexity" is Figure 7.1 of <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">The Elements of Statistical Learning</a> (Hastie, Tibshirani &amp; Friedman) made interactive.</td>
+                    </tr>
+                    <tr>
+                        <td class="viz-name">Gradient Descent</td>
+                        <td class="viz-source"><a href="https://distill.pub/2017/momentum/" target="_blank">Why Momentum Really Works</a> (Goh, Distill) for the loss-surface aesthetic; <a href="https://playground.tensorflow.org/" target="_blank">TensorFlow Playground</a> for the live-trace style.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2 class="credit-section-title">Broader influences</h2>
+            <p class="credit-section-lead">Sources whose aesthetic, vocabulary, or pedagogical approach shows up across many of the visualisations rather than being tied to one topic.</p>
+
+            <ul class="credit-general">
+                <li>
+                    <h4><a href="https://distill.pub/" target="_blank">Distill.pub</a></h4>
+                    <p>The journal that set the modern bar for interactive ML explanation. Their type, palette, and "exploration as scrollytelling" influence is everywhere on this site.</p>
+                </li>
+                <li>
+                    <h4><a href="https://poloclub.github.io/" target="_blank">Polo Club of Data Science</a></h4>
+                    <p>Georgia Tech's visualisation group. CNN Explainer, GAN Lab, Transformer Explainer, Diffusion Explainer — all directly shaped how I built mine.</p>
+                </li>
+                <li>
+                    <h4><a href="https://setosa.io/ev/" target="_blank">Setosa.io / Explained Visually</a></h4>
+                    <p>Powell &amp; Lehe's collection of statistical visualisations. The clean, single-purpose, "play with one slider" aesthetic permeates this site's classical-ML viz.</p>
+                </li>
+                <li>
+                    <h4><a href="https://colah.github.io/" target="_blank">Christopher Olah</a></h4>
+                    <p>Pioneered the modern "deep learning concept as gentle visual essay" form. The RNN viz here is almost a direct homage.</p>
+                </li>
+                <li>
+                    <h4><a href="https://jalammar.github.io/" target="_blank">Jay Alammar</a></h4>
+                    <p>The Illustrated Transformer / BERT / GPT — the visual vocabulary for explaining attention layered into how the transformer viz here is presented.</p>
+                </li>
+                <li>
+                    <h4><a href="http://www.r2d3.us/" target="_blank">R2D3</a></h4>
+                    <p>Yee &amp; Chu's interactive ML intro. Set the standard for decision-boundary scrollytelling in classical ML.</p>
+                </li>
+                <li>
+                    <h4><a href="https://scikit-learn.org/stable/auto_examples/" target="_blank">scikit-learn examples</a></h4>
+                    <p>The baseline visual reference for nearly every classical algorithm here — particularly for decision boundaries, GMM ellipses, and classifier comparisons.</p>
+                </li>
+                <li>
+                    <h4><a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">Elements of Statistical Learning</a></h4>
+                    <p>Hastie, Tibshirani &amp; Friedman. Many of the static figures in ESL anchor how we picture these methods; the bias-variance viz is the most direct lift.</p>
+                </li>
+            </ul>
+
+            <div class="credit-footnote">
+                <p>If you're an author of one of the works above and want a different attribution (or want yours removed), email me at <a href="mailto:liv.helen.vage@cern.ch">liv.helen.vage@cern.ch</a>. The intent here is to make the lineage visible, not to claim credit.</p>
+                <p>The code for the visualisations on this site is original implementation in vanilla JavaScript / Canvas, but it would be dishonest to pretend the <em>ideas</em> are. They aren't.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
