@@ -721,6 +721,88 @@ code:not(pre code) {
 .viz-rnn-formula .sum { color: var(--accent); font-weight: 600; }
 
 
+/* Autoencoder viz — input image, encoder neck, 2D latent, decoder neck, output */
+.viz-ae { padding: 1.25rem 1.5rem 1.5rem; }
+.viz-ae-controls {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 0.85rem;
+}
+.viz-ae-presets {
+    display: inline-flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+.viz-ae-chip {
+    padding: 0.32rem 0.78rem;
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.viz-ae-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent-hover);
+}
+.viz-ae-chip.active {
+    background: var(--accent-warm);
+    border-color: var(--accent-warm);
+    color: #ffffff;
+}
+.viz-ae-controls button:not(.viz-ae-chip) {
+    padding: 0.32rem 0.78rem;
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.viz-ae-controls button:not(.viz-ae-chip):hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-hover);
+}
+.viz-ae-controls button.active:not(.viz-ae-chip) {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-hover);
+}
+.viz-ae-canvas-wrap {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+.viz-ae-canvas-wrap canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    cursor: crosshair;
+    touch-action: none;
+}
+.viz-ae-caption {
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+}
+.viz-ae-caption strong { color: var(--accent-hover); }
+
+
 /* Transformer attention viz — heads as tabs, arcs above tokens, heatmap below */
 .viz-tx {
     padding: 1.25rem 1.5rem 1.5rem;

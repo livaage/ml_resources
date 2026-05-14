@@ -48,6 +48,25 @@
         <p><strong>Squeeze data through a narrow channel, then reconstruct it.</strong> An encoder compresses input to a small "code"; a decoder tries to reconstruct the original from just that code. The bottleneck forces the network to learn what matters.</p>
     </div>
 
+    <div class="viz-embed viz-ae">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Click a preset to encode it · drag the orange dot to roam the latent space · toggle VAE mode for stochastic codes</span>
+        </div>
+        <div class="viz-ae-controls">
+            <span style="font-size: 0.78rem; color: var(--muted); margin-right: 0.2rem;">Input:</span>
+            <span class="viz-ae-presets" id="viz-ae-presets"></span>
+            <button id="viz-ae-vae"   type="button">VAE mode: off</button>
+            <button id="viz-ae-reset" type="button">Reset</button>
+        </div>
+        <div class="viz-ae-canvas-wrap">
+            <canvas id="viz-ae-canvas"></canvas>
+        </div>
+        <div class="viz-ae-caption" id="viz-ae-caption"></div>
+    </div>
+    <script src="../../js/viz/ae.js"></script>
+
+    <p class="viz-intro">The 12×12 image on the left is encoded into just <em>two</em> numbers — that's what the orange dot's position represents. The decoder takes those two numbers and tries to reconstruct the image on the right. Because the latent space is continuous, points <em>between</em> prototypes give blends — that's why a VAE can generate "new" faces by walking around in latent space.</p>
+
     <article class="tldr-body">
         <p>Picture an image being shrunk to a tiny vector of, say, 32 numbers, then expanded back to a full image. The reconstruction won't be perfect — but if you train the encoder and decoder together to minimize reconstruction error, the 32 numbers end up capturing the most important features.</p>
         <p>That compressed "code" is useful: as a learned embedding for downstream tasks, for dimensionality reduction (like a non-linear PCA), and — with the right twist — as a starting point for a <strong>VAE</strong> that can <em>generate</em> new images by sampling new codes.</p>
