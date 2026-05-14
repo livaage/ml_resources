@@ -17,6 +17,30 @@ next_title: Hidden Markov Models
         <p><strong>Each point belongs to multiple clusters at once.</strong> A GMM models the data as coming from several Gaussian "blobs". Each point gets a probability of belonging to each blob — not a hard assignment like k-means.</p>
     </div>
 
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Step through EM — ellipses rotate and stretch to fit the data, where k-means' spherical regions can't</span>
+        </div>
+        <div class="viz-classic-controls">
+            <button id="viz-gmm-step"  type="button">Step</button>
+            <button id="viz-gmm-auto"  type="button">Auto</button>
+            <button id="viz-gmm-reset" type="button">Reset</button>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+                Data
+                <select id="viz-gmm-data"></select>
+            </label>
+            <select id="viz-gmm-k" aria-label="components"></select>
+            <span class="viz-classic-badge" id="viz-gmm-counter">iter 0</span>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-gmm-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-gmm-caption"></div>
+    </div>
+    <script src="{{root}}js/viz/gmm.js"></script>
+
+    <p class="viz-intro">Each Step runs one EM iteration — first an <em>E step</em> assigns soft responsibilities <em>γ<sub>ik</sub></em> to every (point, component) pair, then an <em>M step</em> re-estimates each component's mean, covariance, and weight from those responsibilities. Watch the ellipses rotate and stretch — that's full-covariance Gaussians earning their keep. Switch to the <em>Tilted ellipses</em> dataset and notice how a GMM fits the diagonal stretch that k-means would slice straight through.</p>
+
     <article class="tldr-body">
         <p>K-means says: "this point is in cluster 3, period." A GMM says: "this point is 80% in cluster 3, 20% in cluster 1." That uncertainty is useful when clusters overlap or have very different shapes and sizes — k-means struggles with both.</p>
         <p>GMMs are also a <em>density estimator</em>. Once fit, you can ask "how likely is this point under my model?" — useful for anomaly detection (low-likelihood points are anomalies) or for generating new samples from the learned distribution.</p>
