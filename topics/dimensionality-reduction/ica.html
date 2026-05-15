@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Independent Component Analysis (ICA) — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="active">Theory</a>
+            <a href="../../engineering.html" class="">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../theory.html" class="eyebrow">← Theory · Dimensionality Reduction</a>
+                    <h1>Independent Component Analysis (ICA)</h1>
+                    <p class="lead">Recover statistically-independent sources from their mixtures — the cocktail-party algorithm.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>"Two microphones recorded two speakers. Which speaker said what?"</strong> If you observe linear mixtures of statistically-independent sources, ICA can recover the sources — without ever hearing them in isolation. PCA finds uncorrelated directions; ICA finds <em>independent</em> ones. Independence is a much stronger condition than uncorrelation, and it's what makes ICA work.</p>
+    </div>
+
+    <div class="viz-embed viz-classic">
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Cocktail party — two sources, two mixed observations, two ICA-recovered signals</span>
+        </div>
+        <div class="viz-classic-controls">
+            <button id="viz-ica-sources" type="button" class="active">Sources</button>
+            <button id="viz-ica-mixed"   type="button">Mixed (observed)</button>
+            <button id="viz-ica-pca"     type="button">PCA recovery</button>
+            <button id="viz-ica-ica"     type="button">ICA recovery</button>
+        </div>
+        <div class="viz-classic-canvas-wrap">
+            <canvas id="viz-ica-canvas"></canvas>
+        </div>
+        <div class="viz-classic-caption" id="viz-ica-caption"></div>
+    </div>
+    <script src="../../js/viz/ica.js"></script>
+
+    <p class="viz-intro">Two ground-truth sources — a sine wave (speaker A) and a sawtooth (speaker B). Each microphone hears a different linear combination. PCA decorrelates them but doesn't separate them. ICA gets the original sources back up to sign and scale.</p>
+
+    <article class="tldr-body">
+        <p><strong>The model.</strong> <em>x = As</em>, where <em>s</em> are independent sources, <em>A</em> is an unknown mixing matrix, <em>x</em> is what you observe. ICA finds an unmixing matrix <em>W</em> such that <em>Wx ≈ s</em> (up to permutation, sign, scale).</p>
+        <p><strong>Why it works.</strong> Linear combinations of independent non-Gaussian sources are "more Gaussian" than the sources themselves (Central Limit Theorem). ICA maximises the non-Gaussianity of the recovered components — kurtosis, negentropy, log-cosh. Demixing increases non-Gaussianity → reveals the original sources.</p>
+        <p><strong>The Gaussian impossibility.</strong> If the sources are themselves Gaussian, ICA can't tell them apart — every rotation of a multivariate Gaussian is also Gaussian. Two requirements: at most one source is Gaussian, and the sources are independent.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Reach for it when</h3>
+            <ul>
+                <li>Audio source separation (cocktail party)</li>
+                <li>EEG / MEG artefact removal (eye blinks, muscle noise)</li>
+                <li>fMRI component analysis</li>
+                <li>Removing baseline drift from signals</li>
+                <li>You need <em>independent</em> features, not just decorrelated ones</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Doesn't help when</h3>
+            <ul>
+                <li>Sources are themselves Gaussian (no information in higher moments)</li>
+                <li>Mixing is non-linear</li>
+                <li>You only need visualisation (PCA, t-SNE, UMAP fit better)</li>
+                <li>You need predictive features (use the original data + regularisation)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.decomposition import FastICA, PCA
+import numpy as np
+
+# Toy cocktail party
+t = np.linspace(0, 8, 2000)
+s1 = np.sin(2 * t)                                       # speaker A
+s2 = np.sign(np.sin(3 * t))                              # speaker B (square)
+S  = np.column_stack([s1, s2])
+A  = np.array([[1.0, 0.5], [0.5, 2.0]])                  # mixing matrix
+X  = S @ A.T                                              # observed mixtures
+
+# Recover with FastICA
+ica = FastICA(n_components=2, random_state=0)
+S_hat = ica.fit_transform(X)                              # recovered sources
+
+# Compare with PCA — same dimensions, different result
+S_pca = PCA(n_components=2).fit_transform(X)              # decorrelated but not independent
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the FastICA algorithm, negentropy, and applications?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Maximising non-Gaussianity</span>
+        <span class="formula">$$ \max_w \; J(w^\top x) \;\;\text{s.t.}\;\; \mathbb{E}[(w^\top x)^2] = 1 $$</span>
+        <ul class="formula-legend">
+            <li><code>J</code>non-Gaussianity measure — kurtosis, negentropy, or log-cosh contrast</li>
+            <li>Constraint keeps the solution unique (otherwise just scale <em>w</em>)</li>
+            <li>One <em>w</em> per source; deflate to find subsequent ones</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Pre-whitening.</strong> Centre and decorrelate (PCA) the data first. After whitening, the unmixing matrix <em>W</em> is orthogonal — a rotation. ICA then just searches for the right rotation that makes the components maximally non-Gaussian. Two-step: whiten, then rotate.</p>
+        <p><strong>FastICA.</strong> Hyvärinen (1999). Approximate Newton method that's fast and reliable. Each component recovered via a fixed-point iteration. The default ICA algorithm in scikit-learn and Matlab.</p>
+        <p><strong>Maximum likelihood ICA.</strong> Equivalent formulation: maximise the joint likelihood of the recovered components under an assumed non-Gaussian prior. log-cosh prior is common (heavy-tailed); flexible priors give InfoMax, JADE, Extended InfoMax.</p>
+        <p><strong>Indeterminacies.</strong> ICA can't recover (a) the order of sources, (b) their scale, or (c) their sign. The unmixing matrix is right up to a permutation and a diagonal sign-and-scale matrix. Usually you can resolve order/scale by post-hoc convention.</p>
+        <p><strong>Number of components.</strong> ICA usually requires components = observations (square mixing matrix). For overcomplete cases (more sources than mics), use overcomplete ICA or related sparse methods.</p>
+        <p><strong>Non-Gaussianity measures.</strong> Kurtosis is simple but sensitive to outliers. Negentropy is the principled choice but expensive. The log-cosh non-linearity is a smooth proxy for negentropy — what FastICA uses by default.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">from sklearn.decomposition import FastICA
+import numpy as np
+
+# Different non-linearities for different source distributions
+ica_logcosh = FastICA(n_components=2, fun="logcosh")        # default — heavy-tailed sources
+ica_exp     = FastICA(n_components=2, fun="exp")            # very heavy tails
+ica_cube    = FastICA(n_components=2, fun="cube")           # sub-Gaussian sources
+
+# The mixing matrix is recoverable too
+S_hat = ica_logcosh.fit_transform(X)
+A_hat = ica_logcosh.mixing_              # estimate of A; columns are sources in input space
+
+# Verify: A_hat @ S_hat.T should reproduce X (up to permutation and sign)
+assert np.allclose(X, S_hat @ A_hat.T + ica_logcosh.mean_, atol=1e-6)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want InfoMax, JADE, non-linear ICA, and applications to neuroscience?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">Negentropy</span>
+        <span class="formula">$$ J(y) = H(y_\text{gauss}) - H(y) \;\;\geq\;\; 0 $$</span>
+        <ul class="formula-legend">
+            <li><code>H(y)</code>differential entropy of <em>y</em></li>
+            <li><code>y<sub>gauss</sub></code>Gaussian with the same variance</li>
+            <li>Always non-negative; zero iff <em>y</em> is Gaussian</li>
+            <li>Hard to compute exactly — approximated by polynomial cumulants or contrast functions</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>InfoMax.</strong> Bell &amp; Sejnowski (1995). Maximise the mutual information between input and a non-linearly-transformed output. Equivalent to ICA under specific non-linearities. Foundational; the FastICA approach is a more efficient cousin.</p>
+        <p><strong>JADE.</strong> Cardoso (1993). Joint approximate diagonalisation of eigen-matrices. Uses fourth-order cumulants directly. Slower than FastICA but better-conditioned in some cases. Standard in MATLAB's EEGLAB toolbox.</p>
+        <p><strong>Non-linear ICA.</strong> The mixing <em>x = f(s)</em> is non-linear. Hard: without assumptions, the recovery is fundamentally ambiguous. Hyvärinen et al. recent work uses auxiliary variables (time, group labels) to make non-linear ICA identifiable — Time-Contrastive Learning, Permutation-Contrastive Learning.</p>
+        <p><strong>Applications in neuroscience.</strong> EEG / MEG: separate eye-blink and muscle-noise components from neural sources. fMRI: identify spatially-independent brain networks. Now standard pre-processing in most analysis pipelines.</p>
+        <p><strong>ICA vs sparse coding.</strong> Both find a sparse / non-Gaussian basis. ICA forces statistical independence; sparse coding only forces sparsity. Sparse coding is more flexible but has more local optima.</p>
+        <p><strong>Identifiability.</strong> Comon (1994) proved that linear ICA is identifiable up to permutation and sign/scale when at most one source is Gaussian. Stronger identifiability theorems exist for time-dependent sources and for some forms of non-linear ICA. The frontier of modern ICA theory.</p>
+        <p><strong>Variational autoencoders as non-linear ICA?</strong> Khemakhem et al. (2020) showed that under specific conditions, identifiable non-linear ICA falls out of VAEs with auxiliary variables. Connects two seemingly unrelated communities (signal processing, deep generative modelling).</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import mne                    # mne-python — neuroscience-grade EEG / MEG
+import numpy as np
+
+# Classical EEG artefact removal with ICA
+ica = mne.preprocessing.ICA(n_components=20, random_state=0)
+ica.fit(raw_eeg)
+
+# Find components that look like blinks via correlation with EOG channel
+eog_idx, _ = ica.find_bads_eog(raw_eeg)
+ica.exclude = eog_idx
+raw_clean = ica.apply(raw_eeg.copy())
+
+# Or use scikit-learn's FastICA programmatically
+from sklearn.decomposition import FastICA
+ica_sk = FastICA(n_components=20, max_iter=500, tol=1e-4, random_state=0)
+S_hat = ica_sk.fit_transform(raw_eeg.get_data().T)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="umap.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">UMAP</span>
+                        </span>
+                    </a>
+                    
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://www.cs.helsinki.fi/u/ahyvarin/papers/NN00new.pdf" target="_blank">Hyvärinen &amp; Oja (2000) — ICA Tutorial <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The canonical ICA tutorial. Readable, comprehensive, covers FastICA, InfoMax, and the underlying theory.</span>
+        </li>
+        <li>
+            <a href="https://scikit-learn.org/stable/auto_examples/decomposition/plot_ica_blind_source_separation.html" target="_blank">scikit-learn — Blind Source Separation Example <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The classic cocktail-party example with code. The quickest hands-on intro to ICA.</span>
+        </li>
+        <li>
+            <a href="https://mne.tools/stable/auto_tutorials/preprocessing/40_artifact_correction_ica.html" target="_blank">MNE — ICA for EEG / MEG <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The neuroscience-grade reference for ICA in practice. Worked examples on real EEG data with blink / muscle component identification.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/2010.12148" target="_blank">Khemakhem et al. (2020) — iVAE / Identifiable ICA <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The bridge between classical ICA and modern deep generative models. Identifiable non-linear ICA via VAEs with auxiliary variables.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMAP — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="active">Theory</a>
+            <a href="../../engineering.html" class="">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../theory.html" class="eyebrow">← Theory · Dimensionality Reduction</a>
+                    <h1>UMAP</h1>
+                    <p class="lead">Like t-SNE but faster, more global structure preserved, and the embedding works on new points.</p>
+                </header>
+
+                <div class="level-tabs" role="tablist" aria-label="Depth">
+                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                    <button class="level-tab" data-level="standard" type="button">Standard</button>
+                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+    <div class="key-idea">
+        <span class="key-idea-label">Key idea</span>
+        <p><strong>Build a weighted k-NN graph in the original space; lay it out in 2D so the graph topology is preserved.</strong> Same goal as t-SNE — visualise clusters — but a different objective and a different optimisation. Faster, more reproducible, and the resulting embedding model can transform new points without re-fitting.</p>
+    </div>
+
+    <article class="tldr-body">
+        <p>The interactive on the <a href="t-sne.html">t-SNE page</a> shows the broadly-similar dynamics — local attractions, long-range repulsions, clusters coalescing. UMAP's force balance is slightly different (it preserves <em>more</em> global structure) and the algorithm is faster, but the visual story is the same.</p>
+        <p><strong>Practical differences.</strong> UMAP usually runs 2–10× faster than t-SNE. The embeddings often have more meaningful global structure — cluster <em>positions</em> sometimes mean something (unlike t-SNE). UMAP can <code>transform</code> new points after fitting; t-SNE can't (without parametric variants).</p>
+        <p><strong>The two main knobs.</strong> <code>n_neighbors</code> (default 15) — small for tight local structure, large for global structure. <code>min_dist</code> (default 0.1) — small for tight clusters, large for spread.</p>
+    </article>
+
+    <div class="use-cases">
+        <div class="yes">
+            <h3>Pick UMAP over t-SNE when</h3>
+            <ul>
+                <li>You have &gt; 50k examples — it'll be much faster</li>
+                <li>You need to embed new examples after fitting</li>
+                <li>Global cluster positions might matter for your interpretation</li>
+                <li>You want a more reproducible embedding</li>
+            </ul>
+        </div>
+        <div class="no">
+            <h3>Stick with t-SNE when</h3>
+            <ul>
+                <li>You're following a paper / convention that uses t-SNE</li>
+                <li>The dataset is small (&lt; 10k); the speed difference is negligible</li>
+                <li>You want to compare against published t-SNE plots</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import umap
+import matplotlib.pyplot as plt
+
+# Standard 2D embedding for visualisation
+reducer = umap.UMAP(
+    n_components=2,
+    n_neighbors=15,     # local ↔ global structure trade-off
+    min_dist=0.1,       # tight clusters ↔ spread points
+    metric="euclidean", # cosine often better for embeddings
+    random_state=0,
+)
+X_2d = reducer.fit_transform(X_high_d)
+plt.scatter(X_2d[:, 0], X_2d[:, 1], c=labels, cmap="tab10", s=4)
+
+# Embed new points without re-fitting
+X_test_2d = reducer.transform(X_test_high_d)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want the topological story, the cross-entropy objective, &amp; parametric UMAP?</span>
+        <button data-go-to="standard" type="button">Switch to Standard →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="standard">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">UMAP objective</span>
+        <span class="formula">$$ \min_y \;\; \mathrm{CE}\!\left(\,\nu_{\text{high}}\,\|\, \nu_{\text{low}}\right) = -\sum_{ij} \nu_{ij}^h \log \nu_{ij}^l + (1 - \nu_{ij}^h) \log (1 - \nu_{ij}^l) $$</span>
+        <ul class="formula-legend">
+            <li><code>ν<sup>h</sup></code>fuzzy-set membership in the high-D k-NN graph</li>
+            <li><code>ν<sup>l</sup></code>fuzzy-set membership in the 2D embedding</li>
+            <li>Cross-entropy instead of t-SNE's KL — keeps both attractive and repulsive terms balanced</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>The topological framing.</strong> McInnes et al. (2018). Build a "fuzzy simplicial complex" — a weighted graph where edges are k-NN neighbours with weights for how strongly connected they are. Find a 2D layout whose own fuzzy complex matches the high-D one as closely as possible (cross-entropy). The categorical-theory motivation is intimidating; the implementation is approachable.</p>
+        <p><strong>Symmetrisation.</strong> The high-D graph is asymmetric (k-NN is). UMAP symmetrises via a t-conorm: <em>ν<sub>ij</sub> = ν<sub>i|j</sub> + ν<sub>j|i</sub> − ν<sub>i|j</sub> ν<sub>j|i</sub></em>. Avoids the "neighbour of, but not neighbour back" inconsistency.</p>
+        <p><strong>Optimisation.</strong> Stochastic gradient descent on a subsample of pairs each step. Negative sampling for the repulsive term — sample non-neighbours rather than summing over all. Both make UMAP much faster than naive t-SNE.</p>
+        <p><strong>n_neighbors.</strong> Effective local scale. Small (≤ 5) emphasises very local structure — clumps that are close together get pulled apart aggressively. Large (≥ 50) preserves more global structure — the relative positions of clusters become more meaningful.</p>
+        <p><strong>min_dist.</strong> Minimum distance between points in the output. Small (0.0–0.1) gives tight clusters with hard boundaries. Large (0.5+) gives spread-out, "blobby" clusters. Affects appearance more than information content.</p>
+        <p><strong>Parametric UMAP.</strong> Train a neural net to produce the embedding. Now you can transform new points exactly (rather than approximating). Used heavily in semi-supervised settings where the embedding is half the model.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import umap
+
+# Different parameters for different goals
+local  = umap.UMAP(n_neighbors=5,  min_dist=0.0).fit_transform(X)   # tight clusters
+global_ = umap.UMAP(n_neighbors=100, min_dist=0.5).fit_transform(X)  # global picture
+balanced = umap.UMAP(n_neighbors=15, min_dist=0.1).fit_transform(X) # default
+
+# Supervised UMAP — use labels to guide the embedding
+sup = umap.UMAP(n_neighbors=15, n_components=2).fit_transform(X, y=labels)
+
+# Parametric UMAP for embedding new points exactly
+from umap.parametric_umap import ParametricUMAP
+p_umap = ParametricUMAP().fit(X_train)
+X_test_2d = p_umap.transform(X_test)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Want supervised UMAP, manifold theory, &amp; comparisons to PaCMAP, TriMap, MDE?</span>
+        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+    </div>
+</section>
+
+
+<section class="topic-level" data-level="advanced">
+    <div class="key-idea formula-block">
+        <span class="key-idea-label">The attractive-repulsive force balance</span>
+        <span class="formula">$$ F_{\text{attr}}(d) \propto \frac{-2ab\, d^{2b-1}}{1 + a d^{2b}}, \quad F_{\text{rep}}(d) \propto \frac{2b}{(0.001 + d^2)(1 + a d^{2b})} $$</span>
+        <ul class="formula-legend">
+            <li><code>a, b</code>parameters fit to make the output similarity curve match the chosen <em>min_dist</em></li>
+            <li>Same idea as t-SNE's force law but with different "long-range push" dynamics</li>
+            <li>More balanced — preserves more global structure</li>
+        </ul>
+    </div>
+
+    <article class="tldr-body">
+        <p><strong>Supervised UMAP.</strong> Pass <code>y</code> to <code>fit</code> — UMAP incorporates label information by weighting same-class pairs more strongly. The resulting embedding separates classes more cleanly. Useful for classification visualisation; risk of "the plot looks great but doesn't reflect the data" if you over-rely on it.</p>
+        <p><strong>Aligned UMAP.</strong> Embed multiple datasets into the <em>same</em> coordinate system. Useful for batch correction (single-cell RNA across labs), or for "before/after" comparisons of model training. <code>umap.AlignedUMAP</code>.</p>
+        <p><strong>Density-preserving (densMAP).</strong> Most UMAP / t-SNE embeddings squash low-density and high-density regions into similar-sized blobs. densMAP adds a local-density-preserving term so the visual reflects density. <code>umap.UMAP(densmap=True)</code>.</p>
+        <p><strong>Manifold assumption.</strong> UMAP (and t-SNE, and LLE, and …) assume the data lives on or near a low-dimensional manifold. When this is true (images of faces, MNIST digits) they work beautifully. When the data is genuinely high-D (sparse text features, random embeddings) they impose structure that isn't there.</p>
+        <p><strong>UMAP vs PaCMAP vs TriMap vs MDE.</strong> The family of modern manifold-learning algorithms keeps growing. PaCMAP claims better balance of local + global; TriMap uses triplets (anchor, near, far); MDE is a flexible optimiser-based framework. UMAP is still the most widely adopted; the others are worth knowing for specific properties.</p>
+        <p><strong>The "embedding hyperparameter sweep" trap.</strong> Trying enough <code>n_neighbors</code> × <code>min_dist</code> combinations will eventually produce a plot that "looks right". This is overfitting to your intuition rather than to the data. Pick parameters by an external criterion (downstream classification accuracy, expert agreement); report your defaults.</p>
+        <p><strong>Reproducibility.</strong> UMAP is more reproducible than t-SNE (lower variance across seeds) but still seed-dependent. Always set <code>random_state</code>; consider averaging across seeds.</p>
+    </article>
+
+    <div class="code-snippet">
+        <button class="copy-btn" type="button">Copy</button>
+<pre><code class="language-python">import umap
+from umap.umap_ import nearest_neighbors
+
+# Aligned UMAP — embed two datasets in the same space
+aligned = umap.AlignedUMAP(n_neighbors=15)
+relations = [{i: i for i in range(min(len(X_a), len(X_b)))}]  # anchor pairs
+embeddings = aligned.fit_transform([X_a, X_b], relations=relations)
+X_a_2d, X_b_2d = embeddings
+
+# Density-preserving UMAP
+dens = umap.UMAP(densmap=True, n_neighbors=15).fit_transform(X)
+
+# Pre-compute k-NN to share across hyperparameter sweeps
+nn = nearest_neighbors(X, n_neighbors=30, metric="euclidean",
+                       metric_kwds={}, angular=False, random_state=0)
+for nn_count in [5, 15, 30]:
+    emb = umap.UMAP(n_neighbors=nn_count, precomputed_knn=nn).fit_transform(X)
+</code></pre>
+    </div>
+
+    <div class="level-next">
+        <span>Too dense?</span>
+        <button data-go-to="standard" type="button">← Back to Standard</button>
+    </div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="t-sne.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">t-SNE</span>
+                        </span>
+                    </a>
+                    <a href="ica.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">ICA</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+    <h3>Where to learn more</h3>
+    <ul>
+        <li>
+            <a href="https://umap-learn.readthedocs.io/" target="_blank">UMAP Documentation <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The reference implementation. McInnes &amp; Healy's docs are unusually good — they explain the algorithm thoroughly with worked examples.</span>
+        </li>
+        <li>
+            <a href="https://arxiv.org/abs/1802.03426" target="_blank">McInnes, Healy &amp; Melville (2018) — UMAP <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The original UMAP paper. The math is intimidating; the practical recipe is the last few sections.</span>
+        </li>
+        <li>
+            <a href="https://pair-code.github.io/understanding-umap/" target="_blank">Coenen &amp; Pearce — Understanding UMAP <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Google's interactive companion to UMAP, in the spirit of the t-SNE Distill piece. Hands-on tour of the hyperparameters.</span>
+        </li>
+        <li>
+            <a href="https://distill.pub/2019/visual-exploration-gaussian-processes/" target="_blank">Distill — Various manifold methods <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Distill has multiple essays on related projection methods (t-SNE, UMAP, MDS, Isomap). The visual style is the modern standard.</span>
+        </li>
+    </ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>
