@@ -78,20 +78,37 @@ def health(): return {"status": "ok"}
 
     <div class="level-next">
         <span>Want dynamic batching, ONNX, &amp; the LLM serving stack?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Latency budget decomposition</span>
-        <span class="formula">$$ T_{\text{request}} = T_{\text{net}} + T_{\text{preprocess}} + T_{\text{queue}} + T_{\text{forward}} + T_{\text{postprocess}} $$</span>
-        <ul class="formula-legend">
-            <li>Profile each piece — the bottleneck is rarely where you think</li>
-            <li>Pre/post-processing often dominates small-model latency</li>
-            <li>Queue time is what dynamic batching trades against</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ T_{\text{request}} = T_{\text{net}} + T_{\text{preprocess}} + T_{\text{queue}} + T_{\text{forward}} + T_{\text{postprocess}} $$</span>
+            <ul class="formula-legend">
+                <li>Profile each piece — the bottleneck is rarely where you think</li>
+                <li>Pre/post-processing often dominates small-model latency</li>
+                <li>Queue time is what dynamic batching trades against</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{total request time} \;=\; \text{network} + \text{preprocess} + \text{queue wait} + \text{model forward pass} + \text{postprocess} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A served prediction's total latency is the sum of several stages. <code>T</code> (with various subscripts) just stands for "time spent in this stage". Network time is round-trip on the wire; preprocess is turning JSON into a tensor; queue time is waiting in line behind other requests; the forward pass is the actual model call; postprocess turns the model's output back into a response. Each one is independently measurable; the bottleneck is almost never the one you guess first.
+            </p>
+            <ul class="formula-legend">
+                <li><code>network</code>time to send request and response across the wire</li>
+                <li><code>preprocess</code>parsing input, validating, converting to tensor</li>
+                <li><code>queue wait</code>time spent waiting behind other requests</li>
+                <li><code>model forward pass</code>the actual neural-network compute</li>
+                <li><code>postprocess</code>converting model output back into a response</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -135,20 +152,36 @@ class CreditRiskService:
 
     <div class="level-next">
         <span>Want LLM serving deep-dive, autoscaling, &amp; SLA engineering?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">LLM serving throughput</span>
-        <span class="formula">$$ \text{tok/s} \approx \frac{\text{compute capacity}}{\text{KV cache pressure} + \text{prefill cost}} $$</span>
-        <ul class="formula-legend">
-            <li>KV cache dominates memory for long contexts</li>
-            <li>Continuous batching mixes prefill and decode → big throughput gain</li>
-            <li>PagedAttention frees fragmented KV memory blocks</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{tok/s} \approx \frac{\text{compute capacity}}{\text{KV cache pressure} + \text{prefill cost}} $$</span>
+            <ul class="formula-legend">
+                <li>KV cache dominates memory for long contexts</li>
+                <li>Continuous batching mixes prefill and decode → big throughput gain</li>
+                <li>PagedAttention frees fragmented KV memory blocks</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{tokens per second} \;\approx\; \frac{\text{available GPU compute}}{\text{memory tied up in KV cache} + \text{cost of processing the prompt}} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> LLM throughput (tokens generated per second across all requests) is roughly compute divided by overhead. The <code>≈</code> says this is approximate. The KV cache is per-request memory that grows with context length — every active request consumes some, leaving less compute for new ones. Prefill is the initial pass over the prompt, which is compute-heavy and competes with the per-token decoding work. Throughput rises when you reduce both — paged KV memory and continuous batching are the two big wins.
+            </p>
+            <ul class="formula-legend">
+                <li><code>tokens per second</code>throughput across all concurrent requests</li>
+                <li><code>available GPU compute</code>raw matrix-multiply capacity</li>
+                <li><code>KV cache</code>per-request attention keys/values, kept around so each new token only computes new K/V</li>
+                <li><code>prefill cost</code>the one-time pass to encode the prompt before generation begins</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -186,7 +219,7 @@ print(outputs[0].outputs[0].text)
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -195,19 +228,19 @@ print(outputs[0].outputs[0].text)
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://docs.vllm.ai/" target="_blank">vLLM Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference open-source LLM serving stack. PagedAttention, continuous batching, OpenAI-compatible API.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://docs.bentoml.com/" target="_blank">BentoML Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Excellent practical framework for packaging and deploying any ML model. Multi-framework support, dynamic batching, Yatai for production.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://docs.nvidia.com/deeplearning/triton-inference-server/" target="_blank">NVIDIA Triton Inference Server <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">NVIDIA's production-grade serving framework. Multi-framework, multi-model, dynamic batching, ensemble pipelines.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://onnxruntime.ai/" target="_blank">ONNX Runtime <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Cross-platform model runtime. The standard answer for "deploy this model somewhere other than where it was trained".</span>
         </li>

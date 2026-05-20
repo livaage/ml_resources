@@ -74,22 +74,40 @@ for step in range(num_steps):
 
     <div class="level-next">
         <span>Want anomaly detection, NaN sources, &amp; debugging recipes?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The first-five-things-to-check checklist</span>
-        <span class="formula">$$ \text{loss} \xrightarrow{?} \text{NaN/diverge} \;\Rightarrow\; \text{lr}, \;\text{init}, \;\text{numerical stability}, \;\text{data}, \;\text{precision} $$</span>
-        <ul class="formula-legend">
-            <li>Drop the lr by 10×: does the divergence go away?</li>
-            <li>Re-init: bad initialisation? deeper-net pathology?</li>
-            <li>Add eps to denominators, clip gradients</li>
-            <li>Check the data: outliers, label encoding, NaNs upstream</li>
-            <li>Try fp32: an fp16 underflow / overflow is masking the problem</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{loss} \xrightarrow{?} \text{NaN/diverge} \;\Rightarrow\; \text{lr}, \;\text{init}, \;\text{numerical stability}, \;\text{data}, \;\text{precision} $$</span>
+            <ul class="formula-legend">
+                <li>Drop the lr by 10×: does the divergence go away?</li>
+                <li>Re-init: bad initialisation? deeper-net pathology?</li>
+                <li>Add eps to denominators, clip gradients</li>
+                <li>Check the data: outliers, label encoding, NaNs upstream</li>
+                <li>Try fp32: an fp16 underflow / overflow is masking the problem</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{loss goes NaN or diverges} \;\Rightarrow\; \text{check: learning rate, initialisation, numerical stability, data, precision} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> When training blows up — loss becomes NaN, or shoots to infinity — there are five usual suspects, in roughly this order of frequency. The <code>⇒</code> ("implies") in the math means "if the left side happens, investigate the right". <strong>Learning rate</strong> too high is by far the most common; try dropping it 10×. <strong>Initialisation</strong> issues cause deep networks to explode at step 0. <strong>Numerical stability</strong> covers things like log(0) or division by very small numbers. <strong>Data</strong> issues (NaN in inputs, outliers, wrong label encoding) are subtle. <strong>Precision</strong> (fp16 underflow) is increasingly common with mixed-precision training.
+            </p>
+            <ul class="formula-legend">
+                <li><code>NaN/diverge</code>loss becomes "not a number" or grows unboundedly</li>
+                <li><code>lr</code>learning rate — try cutting by 10×</li>
+                <li><code>init</code>weight initialisation scheme</li>
+                <li><code>numerical stability</code>add ε to denominators, log(x+ε), clip gradients</li>
+                <li><code>data</code>NaN / outliers / bad labels upstream</li>
+                <li><code>precision</code>fp16 / bf16 underflow or overflow — try fp32</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -132,19 +150,36 @@ def activation_summary(model, x):
 
     <div class="level-next">
         <span>Want anomaly detection at scale, distributed debugging, &amp; OOM forensics?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Loss curve patterns</span>
-        <span class="formula">$$ \text{divergence}, \;\text{plateau}, \;\text{cliff}, \;\text{oscillation}, \;\text{step decay} \;\to\; \text{each implies a specific bug class} $$</span>
-        <ul class="formula-legend">
-            <li>Each pattern has a small set of likely causes</li>
-            <li>Documented troubleshooting tree → much faster than guessing</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{divergence}, \;\text{plateau}, \;\text{cliff}, \;\text{oscillation}, \;\text{step decay} \;\to\; \text{each implies a specific bug class} $$</span>
+            <ul class="formula-legend">
+                <li>Each pattern has a small set of likely causes</li>
+                <li>Documented troubleshooting tree → much faster than guessing</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \{\text{divergence},\; \text{plateau},\; \text{cliff},\; \text{oscillation},\; \text{step decay}\} \;\to\; \text{each pattern maps to a specific class of bug} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Loss curves come in a small zoo of recognisable shapes, and each shape narrows the search for what's wrong. <strong>Divergence</strong> (shooting up) usually means lr is too high or there's a numerical issue. <strong>Plateau</strong> from step 0 means gradients aren't flowing — something's detached or frozen. <strong>Cliff</strong> (sudden drop) is usually a schedule kick or finally finding the right answer. <strong>Oscillation</strong> means lr is too high or batch size is too small. <strong>Step decay</strong> is normal — just confirms your scheduler is working. The arrow <code>→</code> means "implies"; recognising the pattern compresses hours of debugging into minutes.
+            </p>
+            <ul class="formula-legend">
+                <li><code>divergence</code>loss shoots upward — usually lr or numerical issue</li>
+                <li><code>plateau</code>flat from start — gradient flow broken</li>
+                <li><code>cliff</code>sudden drop — schedule change or breakthrough</li>
+                <li><code>oscillation</code>noisy ups and downs — lr too high or batch too small</li>
+                <li><code>step decay</code>discrete drops matching the LR schedule — usually fine</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -185,7 +220,7 @@ def biggest_tensors(top_k=10):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -194,19 +229,19 @@ def biggest_tensors(top_k=10):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://karpathy.github.io/2019/04/25/recipe/" target="_blank">Karpathy — A Recipe for Training Neural Networks <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The canonical reference for debugging neural net training. Every section is worth re-reading.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/Delgan/loguru" target="_blank">loguru <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Modern Python logging that "just works". Zero-config, structured, rotating, colourful by default.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch.org/tutorials/recipes/recipes/profiler_recipe.html" target="_blank">PyTorch Profiler Recipe <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Official walkthrough on the PyTorch profiler — first stop when training is slow.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/lebrice/SimpleParsing/blob/master/docs/troubleshooting.md" target="_blank">SimpleParsing — Troubleshooting <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Many of the same patterns transfer to ML codebases — including configuration debugging.</span>
         </li>

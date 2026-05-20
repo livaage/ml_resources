@@ -63,20 +63,37 @@ torch.save(qmodel.state_dict(), "quantized.pt")
 
     <div class="level-next">
         <span>Want PTQ vs QAT, distillation losses, &amp; the LLM quantization stack?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Distillation loss</span>
-        <span class="formula">$$ \mathcal{L} = \alpha \cdot \mathrm{CE}(y_{\text{hard}}, p_S) + (1-\alpha) \cdot T^2 \cdot \mathrm{KL}\!\big(p_T / T \;\|\; p_S / T\big) $$</span>
-        <ul class="formula-legend">
-            <li><em>T</em> = temperature (typically 2–10) — softens both distributions</li>
-            <li><em>α</em> mixes hard-label loss with soft-distribution-matching loss</li>
-            <li>Hinton et al. (2015) — the original knowledge distillation recipe</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L} = \alpha \cdot \mathrm{CE}(y_{\text{hard}}, p_S) + (1-\alpha) \cdot T^2 \cdot \mathrm{KL}\!\big(p_T / T \;\|\; p_S / T\big) $$</span>
+            <ul class="formula-legend">
+                <li><em>T</em> = temperature (typically 2–10) — softens both distributions</li>
+                <li><em>α</em> mixes hard-label loss with soft-distribution-matching loss</li>
+                <li>Hinton et al. (2015) — the original knowledge distillation recipe</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{student loss} = \alpha \cdot (\text{normal label loss}) + (1-\alpha) \cdot T^2 \cdot (\text{difference from teacher's softened probabilities}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The student model is trained on two losses at once. The first piece is standard cross-entropy against the hard label <code>y</code>. The second piece (the "distillation" part) measures how far the student's softened probability distribution is from the teacher's — <code>KL</code> stands for Kullback-Leibler divergence, just a distance between two probability distributions. <code>T</code> (temperature) is a Greek letter that softens both distributions when bigger than 1 — small differences in logits become more visible, so the student learns from the teacher's relative uncertainty rather than just its top pick. <code>α</code> (alpha) is a knob between 0 and 1 that mixes how much you care about each loss.
+            </p>
+            <ul class="formula-legend">
+                <li><code>normal label loss</code>cross-entropy between student's prediction and the true label</li>
+                <li><code>difference from teacher</code>KL divergence between teacher and student probability distributions</li>
+                <li><code>T</code>temperature — bigger softens probabilities so the student sees the teacher's subtle preferences</li>
+                <li><code>α</code>mix factor between hard-label loss and teacher-matching loss</li>
+                <li>Hinton et al. (2015) — the original knowledge distillation recipe</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -112,20 +129,36 @@ model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3-8B-Instruct",
 
     <div class="level-next">
         <span>Want SmoothQuant, GPTQ, AWQ, &amp; modern LLM compression?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Per-channel quantization scale</span>
-        <span class="formula">$$ q_i = \mathrm{round}\!\left(\frac{w_i}{s_c}\right) \cdot s_c, \quad s_c = \frac{\max_i |w_{i,c}|}{127} $$</span>
-        <ul class="formula-legend">
-            <li>Each output channel <em>c</em> gets its own scale</li>
-            <li>Mitigates the loss from outlier channels</li>
-            <li>Per-tensor is the alternative — cheaper, more loss</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ q_i = \mathrm{round}\!\left(\frac{w_i}{s_c}\right) \cdot s_c, \quad s_c = \frac{\max_i |w_{i,c}|}{127} $$</span>
+            <ul class="formula-legend">
+                <li>Each output channel <em>c</em> gets its own scale</li>
+                <li>Mitigates the loss from outlier channels</li>
+                <li>Per-tensor is the alternative — cheaper, more loss</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{quantized weight} = \mathrm{round}\!\left(\frac{\text{weight}}{\text{channel scale}}\right) \cdot \text{channel scale}, \quad \text{channel scale} = \frac{\text{biggest abs weight in that channel}}{127} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> To squash a float weight into int8 (which represents −127 to +127), divide by a scale, round to the nearest integer, then multiply back. The trick is picking the scale: a per-channel scale uses the biggest absolute value <em>within</em> that output channel, so a noisy outlier in one channel doesn't blow up the scale for every other channel. The 127 in the denominator is the max magnitude of int8. <code>round(...)</code> just snaps the result to the nearest representable integer.
+            </p>
+            <ul class="formula-legend">
+                <li><code>weight</code>an original floating-point parameter value</li>
+                <li><code>channel scale</code>the divisor chosen per output channel</li>
+                <li><code>biggest abs weight in that channel</code>the largest magnitude in that channel</li>
+                <li>Per-tensor is the alternative — one scale for everything, cheaper but loses more</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -162,7 +195,7 @@ model.print_trainable_parameters()
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -171,19 +204,19 @@ model.print_trainable_parameters()
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch.org/docs/stable/quantization.html" target="_blank">PyTorch Quantization Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Official guide. PTQ, QAT, the new <code>torch.ao</code> API.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/1503.02531" target="_blank">Hinton et al. (2015) — Knowledge Distillation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original distillation paper. Still readable; the temperature trick is the heart of the recipe.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2305.14314" target="_blank">Dettmers et al. (2023) — QLoRA <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Fine-tune giant models on a single GPU via 4-bit base + LoRA. Practical revolution for LLM customisation.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://github.com/casper-hansen/AutoAWQ" target="_blank">AutoAWQ <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Reference implementation of AWQ for LLM weight quantization. Plays nicely with HuggingFace transformers.</span>
         </li>

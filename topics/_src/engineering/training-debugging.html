@@ -75,19 +75,35 @@ def diagnose_training(model, x, y, loss_fn, opt, n_steps=200):
 
     <div class="level-next">
         <span>Want NaN forensics, gradient hooks, &amp; mixed-precision pitfalls?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Why training diverges</span>
-        <span class="formula">$$ \Delta\theta = -\eta \nabla L \;\Rightarrow\; |\nabla L| \gg \tfrac{1}{\eta} \;\Rightarrow\; \text{overshoot} \;\Rightarrow\; \text{larger gradient} \;\Rightarrow\; \text{NaN} $$</span>
-        <ul class="formula-legend">
-            <li>Positive feedback loop between gradient magnitude and loss</li>
-            <li>Cutoff (clipping) breaks the loop; lower lr makes it less likely</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \Delta\theta = -\eta \nabla L \;\Rightarrow\; |\nabla L| \gg \tfrac{1}{\eta} \;\Rightarrow\; \text{overshoot} \;\Rightarrow\; \text{larger gradient} \;\Rightarrow\; \text{NaN} $$</span>
+            <ul class="formula-legend">
+                <li>Positive feedback loop between gradient magnitude and loss</li>
+                <li>Cutoff (clipping) breaks the loop; lower lr makes it less likely</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{step} = -\eta \times \text{slope} \;\Rightarrow\; \text{huge slope} \;\Rightarrow\; \text{overshoot} \;\Rightarrow\; \text{even huger slope} \;\Rightarrow\; \text{NaN} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A divergence chain reaction. Each <code>⇒</code> reads as "leads to". The weight change <code>Δθ</code> ("delta theta") is just the learning rate <code>η</code> (eta) times the negative slope of the loss <code>∇L</code> ("nabla L" = gradient of L). When the slope gets so big that <code>η × slope</code> overshoots the valley, the new position is worse, which has an even bigger slope, and so on — gradients explode and eventually overflow to NaN (not-a-number). Two ways out: cap the gradient magnitude (clipping), or shrink <code>η</code> so each step is smaller.
+            </p>
+            <ul class="formula-legend">
+                <li><code>step</code>change in weights this iteration (<code>Δθ</code>)</li>
+                <li><code>η</code>learning rate — how big each step is</li>
+                <li><code>slope</code>gradient of the loss with respect to the weights (<code>∇L</code>)</li>
+                <li>Positive feedback loop between gradient magnitude and loss</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -132,19 +148,34 @@ for x, y in loader:
 
     <div class="level-next">
         <span>Want distributed debugging, OOM forensics, &amp; subtle correctness bugs?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Distributed mismatch</span>
-        <span class="formula">$$ \text{rank}_i.\theta_{t+1} \neq \text{rank}_j.\theta_{t+1} \;\Rightarrow\; \text{drift, divergence, or NaN} $$</span>
-        <ul class="formula-legend">
-            <li>Parameter sync is what keeps ranks consistent</li>
-            <li>Any source of asymmetry — different seeds, different batch ordering, different num steps — causes drift</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{rank}_i.\theta_{t+1} \neq \text{rank}_j.\theta_{t+1} \;\Rightarrow\; \text{drift, divergence, or NaN} $$</span>
+            <ul class="formula-legend">
+                <li>Parameter sync is what keeps ranks consistent</li>
+                <li>Any source of asymmetry — different seeds, different batch ordering, different num steps — causes drift</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{(weights on GPU } i\text{)} \neq \text{(weights on GPU } j\text{)} \;\Rightarrow\; \text{ranks drift, training breaks} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> In distributed training, every GPU (called a "rank") is supposed to hold the same weights after each step. The subscripts <code>i</code> and <code>j</code> refer to two different ranks; <code>θ<sub>t+1</sub></code> is "weights after step t+1". The <code>≠</code> means "not equal" — when ranks diverge, you get noisy gradients, slow convergence, or eventually NaN. The cure is the all-reduce sync after every backward pass; the failure modes come from anything that breaks symmetry (different per-rank seeds, dropped DDP wrapper, hand-rolled gradient hooks that don't all-reduce).
+            </p>
+            <ul class="formula-legend">
+                <li><code>weights on GPU i / j</code>parameters held by different ranks in the distributed cluster</li>
+                <li><code>⇒</code>leads to (the divergence in weights causes the symptoms)</li>
+                <li>Parameter sync is what keeps ranks consistent</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -179,7 +210,7 @@ def check_loss_equal(loss):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -188,19 +219,19 @@ def check_loss_equal(loss):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://karpathy.github.io/2019/04/25/recipe/" target="_blank">Karpathy — A Recipe for Training Neural Networks <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Still the best single source on debugging training. Read once a year.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch.org/docs/stable/notes/numerical_accuracy.html" target="_blank">PyTorch — Numerical Accuracy Notes <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Official guide on fp16 / bf16 / fp32 trade-offs and the deterministic-ops flags.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch.org/docs/stable/notes/autograd.html#anomaly-detection" target="_blank">PyTorch — Autograd Anomaly Detection <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference docs for <code>set_detect_anomaly</code> — your friend when chasing NaNs in backward.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/pytorch/pytorch/wiki/PyTorch-Common-Pitfalls" target="_blank">PyTorch Common Pitfalls <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Community-maintained list of the bugs that bite everyone. Long and worth skimming.</span>
         </li>

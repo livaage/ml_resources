@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Networks that process graph-structured data — molecules, social networks, knowledge graphs, code.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -116,21 +126,37 @@ class GCN(nn.Module):
 
     <div class="level-next">
         <span>Want the message-passing math?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Message passing</span>
-        <span class="formula">$$ \mathbf{h}_v^{(\ell+1)} \;=\; \phi\!\left(\mathbf{h}_v^{(\ell)},\; \bigoplus_{u \in \mathcal{N}(v)} \psi(\mathbf{h}_u^{(\ell)}, \mathbf{h}_v^{(\ell)}, \mathbf{e}_{uv})\right) $$</span>
-        <ul class="formula-legend">
-            <li><code>h<sub>v</sub><sup>(ℓ)</sup></code>feature vector of node <em>v</em> at layer <em>ℓ</em></li>
-            <li><code>𝒩(v)</code>neighbours of node <em>v</em></li>
-            <li><code>ψ, φ</code>learned message and update functions</li>
-            <li><code>⊕</code>permutation-invariant aggregation (sum, mean, max)</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathbf{h}_v^{(\ell+1)} \;=\; \phi\!\left(\mathbf{h}_v^{(\ell)},\; \bigoplus_{u \in \mathcal{N}(v)} \psi(\mathbf{h}_u^{(\ell)}, \mathbf{h}_v^{(\ell)}, \mathbf{e}_{uv})\right) $$</span>
+            <ul class="formula-legend">
+                <li><code>h<sub>v</sub><sup>(ℓ)</sup></code>feature vector of node <em>v</em> at layer <em>ℓ</em></li>
+                <li><code>𝒩(v)</code>neighbours of node <em>v</em></li>
+                <li><code>ψ, φ</code>learned message and update functions</li>
+                <li><code>⊕</code>permutation-invariant aggregation (sum, mean, max)</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{new features of node } v \;=\; \text{update}\!\left(\text{old features of } v,\; \text{aggregate over neighbours of }\!\big[\,\text{message}(\text{neighbour}, v, \text{edge})\,\big]\right) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Every node has a feature vector. To update node <em>v</em> for the next layer, you do three things. First, for each <strong>neighbour</strong> <em>u</em>, compute a <strong>message</strong> (a small learned function of <em>u</em>'s features, <em>v</em>'s features, and the edge between them). Second, <strong>aggregate</strong> all those messages with a permutation-invariant operation — usually sum, mean, or max — so the result doesn't depend on the order of neighbours. Third, combine that aggregate with <em>v</em>'s own previous features using another learned function (the <strong>update</strong>). Stack this for a few rounds and information ripples through the graph. The funny <code>⊕</code> symbol is just an abstract placeholder for whatever order-free aggregation you pick.
+            </p>
+            <ul class="formula-legend">
+                <li><code>old / new features of v</code>v's feature vector before and after this round</li>
+                <li><code>neighbours of v</code>nodes connected to v by an edge</li>
+                <li><code>message, update</code>two small learned functions (usually MLPs)</li>
+                <li><code>aggregate</code>order-independent combiner — sum, mean, or max</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -187,19 +213,35 @@ class MolPropertyGNN(torch.nn.Module):
 
     <div class="level-next">
         <span>Want the Weisfeiler-Leman story and graph transformers?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">WL-1 expressiveness ceiling</span>
-        <span class="formula">$$ \text{Standard GNNs} \;\preceq\; \text{1-WL test}\;<\; \text{graph isomorphism} $$</span>
-        <ul class="formula-legend">
-            <li>Standard message-passing GNNs can only distinguish graphs that the 1-dimensional Weisfeiler-Leman colour-refinement test can distinguish</li>
-            <li>Some non-isomorphic graphs share WL-1 colourings — no standard GNN can tell them apart</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{Standard GNNs} \;\preceq\; \text{1-WL test}\;<\; \text{graph isomorphism} $$</span>
+            <ul class="formula-legend">
+                <li>Standard message-passing GNNs can only distinguish graphs that the 1-dimensional Weisfeiler-Leman colour-refinement test can distinguish</li>
+                <li>Some non-isomorphic graphs share WL-1 colourings — no standard GNN can tell them apart</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{power of standard GNNs} \;\le\; \text{power of the 1-WL test} \;<\; \text{telling all non-identical graphs apart} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> There's a classical algorithm called the <strong>1-WL test</strong> (1-dimensional Weisfeiler-Leman) that iteratively recolours each node based on the multiset of its neighbours' colours. It's a fast heuristic for telling whether two graphs are the same up to relabelling ("isomorphic"). Xu et al. (2019) proved that <em>any</em> standard message-passing GNN is at most as discriminative as this test — and the test itself fails on some genuinely different graph pairs (e.g. two regular graphs with the same degree sequence). So there are graphs no plain GNN can ever tell apart, no matter how deep or wide. The <code>≼</code> symbol just means "no more powerful than".
+            </p>
+            <ul class="formula-legend">
+                <li><code>1-WL test</code>classical graph-coloring algorithm that recolours nodes based on neighbours</li>
+                <li><code>standard GNNs</code>any architecture in the message-passing family (GCN, GraphSAGE, GAT, GIN)</li>
+                <li><code>graph isomorphism</code>ideal task of telling whether two graphs are the same up to relabelling</li>
+                <li>To exceed this ceiling you need higher-order GNNs, subgraph methods, or graph transformers</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -258,7 +300,7 @@ class GINLayer(nn.Module):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -282,19 +324,19 @@ class GINLayer(nn.Module):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="intuition">
             <a href="https://distill.pub/2021/gnn-intro/" target="_blank">Distill — A Gentle Introduction to GNNs <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Best visual introduction to graph networks. Interactive demos for every concept.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://web.stanford.edu/class/cs224w/" target="_blank">CS224W — Machine Learning with Graphs <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Stanford's comprehensive course on graph ML. Slides and lectures are freely available.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch-geometric.readthedocs.io/" target="_blank">PyTorch Geometric <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The most-used GNN library. Excellent docs with built-in datasets and reference implementations of every major architecture.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1810.00826" target="_blank">Xu et al. (2019) — GIN paper <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">"How Powerful are Graph Neural Networks?" — the paper that established the WL-1 ceiling and the GIN construction. Required reading for anyone designing GNN architectures.</span>
         </li>

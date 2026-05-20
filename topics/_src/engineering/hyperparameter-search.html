@@ -97,20 +97,36 @@ print(study.best_params, study.best_value)
 
     <div class="level-next">
         <span>Want the math behind Bayesian optimisation, &amp; ASHA scheduling?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Expected Improvement</span>
-        <span class="formula">$$ \mathrm{EI}(x) = \mathbb{E}\!\left[\max(0,\, f^* - f(x))\right] $$</span>
-        <ul class="formula-legend">
-            <li><code>f*</code>best value seen so far</li>
-            <li>Expectation over the surrogate's posterior — high for promising unexplored regions</li>
-            <li>Acquisition function that drives Bayesian optimisation</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathrm{EI}(x) = \mathbb{E}\!\left[\max(0,\, f^* - f(x))\right] $$</span>
+            <ul class="formula-legend">
+                <li><code>f*</code>best value seen so far</li>
+                <li>Expectation over the surrogate's posterior — high for promising unexplored regions</li>
+                <li>Acquisition function that drives Bayesian optimisation</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{expected improvement at } x \;=\; \text{average of }\max(0,\; \text{best so far} - f(x)) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> An <em>acquisition function</em> that tells Bayesian optimisation which hyperparameter point to try next. The <code>𝔼[·]</code> in the math is an <em>expected value</em> — averaged over the surrogate model's uncertainty about <code>f(x)</code> (e.g., a Gaussian process posterior). For each candidate <code>x</code>, you ask: "if I were to evaluate it, how much could it beat my best score so far?" The <code>max(0, …)</code> means you only count <em>improvements</em>, never penalising regions where the model thinks <code>x</code> is worse. Points with high EI are either predicted to be better, or have lots of uncertainty (so there's a chance they're great).
+            </p>
+            <ul class="formula-legend">
+                <li><code>x</code>a candidate hyperparameter configuration</li>
+                <li><code>f(x)</code>predicted score (uncertain — from the surrogate model)</li>
+                <li><code>best so far</code>the best score seen across all trials evaluated</li>
+                <li><code>max(0, …)</code>only count improvements; ignore "would be worse"</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -150,20 +166,37 @@ study.optimize(objective, n_trials=200, n_jobs=4)
 
     <div class="level-next">
         <span>Want PBT, neural architecture search, &amp; multi-objective?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Population-Based Training</span>
-        <span class="formula">$$ \theta_i^{(t+1)} \leftarrow \begin{cases} \theta_j^{(t)} \;\text{(copy)} &amp; \text{if rank}(i) &lt; \text{bottom k} \\ \theta_i^{(t)} \;\text{(continue)} &amp; \text{otherwise} \end{cases} $$</span>
-        <ul class="formula-legend">
-            <li>Bottom performers copy top performers' weights</li>
-            <li>… then perturb the hyperparameters</li>
-            <li>Adapts hyperparameters during training — useful when the optimal LR schedule isn't known a priori</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \theta_i^{(t+1)} \leftarrow \begin{cases} \theta_j^{(t)} \;\text{(copy)} &amp; \text{if rank}(i) &lt; \text{bottom k} \\ \theta_i^{(t)} \;\text{(continue)} &amp; \text{otherwise} \end{cases} $$</span>
+            <ul class="formula-legend">
+                <li>Bottom performers copy top performers' weights</li>
+                <li>… then perturb the hyperparameters</li>
+                <li>Adapts hyperparameters during training — useful when the optimal LR schedule isn't known a priori</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{agent $i$ next step} \;=\; \begin{cases} \text{copy weights from a top agent} &amp; \text{if agent $i$ is in the bottom } k \\ \text{keep current weights} &amp; \text{otherwise} \end{cases} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Run many training runs ("agents") in parallel, each with different hyperparameters. <code>θ</code> (theta) denotes the model weights; the subscript <code>i</code> is the agent index and superscript <code>t</code> is the training step. Periodically, rank agents by validation score: the bottom <code>k</code> copy the weights of a top performer, then <em>perturb</em> their hyperparameters (e.g., multiply LR by 1.2 or 0.8). High performers continue unchanged. Over time, the surviving hyperparameter <em>trajectory</em> becomes an evolved schedule — possibly better than any fixed schedule a human would pick.
+            </p>
+            <ul class="formula-legend">
+                <li><code>θ</code>model weights (parameters)</li>
+                <li><code>i</code>agent index (which run in the population)</li>
+                <li><code>t</code>training step / generation</li>
+                <li><code>bottom k</code>the worst-performing fraction at this checkpoint</li>
+                <li><code>copy</code>literally copy the weights from a randomly chosen top agent</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -201,7 +234,7 @@ for trial in study.best_trials:
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -210,19 +243,19 @@ for trial in study.best_trials:
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://optuna.org/" target="_blank">Optuna — Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference Python hyperparameter optimisation library. TPE, Hyperband pruner, multi-objective, sklearn / Lightning / huggingface integrations.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.jmlr.org/papers/v13/bergstra12a.html" target="_blank">Bergstra &amp; Bengio (2012) — Random Search <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The empirical paper showing random search beats grid search in high dimensions. Short, readable, foundational.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1810.05934" target="_blank">Li et al. (2020) — ASHA <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Asynchronous Successive Halving — the basis of modern multi-fidelity tuning.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1711.09846" target="_blank">Jaderberg et al. (2017) — PBT <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">DeepMind's Population-Based Training paper. Hyperparameters as a learned schedule, not a fixed value.</span>
         </li>

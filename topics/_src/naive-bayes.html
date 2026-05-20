@@ -76,20 +76,37 @@ print("Top spam words:", vec.get_feature_names_out()[clf.feature_log_prob_[1].ar
 
     <div class="level-next">
         <span>Want the actual Bayes' rule?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Key idea</span>
-        <span class="formula">$$ P(y \mid \mathbf{x}) \;\propto\; P(y)\,\prod_{i=1}^{d} P(x_i \mid y) $$</span>
-        <ul class="formula-legend">
-            <li><code>P(y)</code>class prior — proportion of each class in training data</li>
-            <li><code>P(x<sub>i</sub>|y)</code>per-feature likelihood, modelled by a simple distribution</li>
-            <li>The "naive" part is the product — features assumed independent given <em>y</em></li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ P(y \mid \mathbf{x}) \;\propto\; P(y)\,\prod_{i=1}^{d} P(x_i \mid y) $$</span>
+            <ul class="formula-legend">
+                <li><code>P(y)</code>class prior — proportion of each class in training data</li>
+                <li><code>P(x<sub>i</sub>|y)</code>per-feature likelihood, modelled by a simple distribution</li>
+                <li>The "naive" part is the product — features assumed independent given <em>y</em></li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{score}(y) \;=\; P(y) \;\times\; P(\text{feature}_1 \mid y) \;\times\; P(\text{feature}_2 \mid y) \;\times\; \cdots \;\times\; P(\text{feature}_d \mid y) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> To classify a new example, compute a score for each candidate class <code>y</code> and pick the biggest. The score is the class's <em>prior</em> probability (how common that class is) multiplied by the probability of each feature value <em>given</em> that class. The big product <code>∏</code> just means "multiply the feature likelihoods together across all features 1 through <em>d</em>" — the "naive" trick is that we pretend the features don't depend on each other once you fix the class. The <code>∝</code> sign means "proportional to": we've dropped the denominator from Bayes' rule because it's the same for every class and doesn't affect which class wins.
+            </p>
+            <ul class="formula-legend">
+                <li><code>score(y)</code>unnormalised posterior for class <em>y</em> — argmax over this gives the prediction</li>
+                <li><code>P(y)</code>class prior — fraction of training examples in class <em>y</em></li>
+                <li><code>P(feature<sub>i</sub> | y)</code>likelihood of feature <em>i</em>'s value, fit independently per class</li>
+                <li>Multiply all feature likelihoods together — that's the "naive" independence assumption</li>
+            </ul>
+        </div>
+
         <p style="margin-top:0.75rem">Bayes' rule plus the conditional-independence assumption. The denominator <code>P(x)</code> doesn't depend on <em>y</em>, so it drops out when comparing classes.</p>
     </div>
 
@@ -140,19 +157,35 @@ print(classification_report(y_test, y_pred))
 
     <div class="level-next">
         <span>Want the connection to logistic regression and the failure modes?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Log-posterior (linear in features)</span>
-        <span class="formula">$$ \log P(y \mid \mathbf{x}) \;=\; \log P(y) \;+\; \sum_{i=1}^{d} \log P(x_i \mid y) \;+\; \text{const} $$</span>
-        <ul class="formula-legend">
-            <li>The log-posterior is <strong>linear</strong> in the features (for many likelihood families)</li>
-            <li>Naive Bayes is therefore a linear classifier in disguise</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \log P(y \mid \mathbf{x}) \;=\; \log P(y) \;+\; \sum_{i=1}^{d} \log P(x_i \mid y) \;+\; \text{const} $$</span>
+            <ul class="formula-legend">
+                <li>The log-posterior is <strong>linear</strong> in the features (for many likelihood families)</li>
+                <li>Naive Bayes is therefore a linear classifier in disguise</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \log(\text{score}(y)) \;=\; \log P(y) \;+\; \big[\log P(\text{feat}_1 \mid y) + \log P(\text{feat}_2 \mid y) + \cdots\big] \;+\; \text{const} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Take the logarithm of both sides of the Fundamentals formula and the product turns into a <em>sum</em> — the <code>Σ</code> symbol just means "add up across every feature <em>i</em>." That's a huge practical convenience: multiplying lots of tiny probabilities underflows to zero on a computer, but adding their logs is numerically stable. The "const" is just <code>log P(x)</code>, which is the same for every class and so doesn't affect argmax. The deeper point: this expression is <em>linear</em> in the (logged) feature counts — exactly the shape of a linear classifier like logistic regression.
+            </p>
+            <ul class="formula-legend">
+                <li><code>log score(y)</code>log of the unnormalised posterior — bigger means more likely</li>
+                <li><code>log P(y)</code>log of the class prior — a per-class bias</li>
+                <li><code>log P(feat<sub>i</sub> | y)</code>log-likelihood of feature <em>i</em> under class <em>y</em> — a per-feature weight</li>
+                <li>Linear in the features → naive Bayes is a linear classifier in disguise</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -204,7 +237,7 @@ clf.fit(X_train, y_train)
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -213,19 +246,19 @@ clf.fit(X_train, y_train)
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/naive_bayes.html" target="_blank">scikit-learn user guide <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical comparison of all four NB variants (Gaussian / Multinomial / Complement / Bernoulli).</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://web.stanford.edu/~jurafsky/slp3/4.pdf" target="_blank">Jurafsky &amp; Martin, ch. 4 <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">NB applied to text classification with worked examples — the clearest intro for NLP context.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://ai.stanford.edu/~ang/papers/nips01-discriminativegenerative.pdf" target="_blank">Ng &amp; Jordan (2001) <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">"On Discriminative vs. Generative Classifiers" — when does NB beat logistic regression? Short and clear.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://www.aaai.org/Papers/ICML/2003/ICML03-081.pdf" target="_blank">Rennie et al. (2003) <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">"Tackling the Poor Assumptions of Naive Bayes" — introduces Complement NB and explains practical failure modes.</span>
         </li>

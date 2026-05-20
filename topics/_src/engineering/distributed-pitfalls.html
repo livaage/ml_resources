@@ -84,20 +84,37 @@ def train(rank):
 
     <div class="level-next">
         <span>Want FSDP, checkpoint sharding, &amp; gradient communication optimisations?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">FSDP memory savings</span>
-        <span class="formula">$$ \text{memory per GPU} \approx \frac{P + G + O}{W} + A $$</span>
-        <ul class="formula-legend">
-            <li><em>P</em> parameters, <em>G</em> gradients, <em>O</em> optimizer state, <em>W</em> world size, <em>A</em> activations</li>
-            <li>Vanilla DDP: <em>P + G + O + A</em> per GPU</li>
-            <li>FSDP: divides the first three by <em>W</em></li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{memory per GPU} \approx \frac{P + G + O}{W} + A $$</span>
+            <ul class="formula-legend">
+                <li><em>P</em> parameters, <em>G</em> gradients, <em>O</em> optimizer state, <em>W</em> world size, <em>A</em> activations</li>
+                <li>Vanilla DDP: <em>P + G + O + A</em> per GPU</li>
+                <li>FSDP: divides the first three by <em>W</em></li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{memory per GPU} \;\approx\; \frac{\text{params} + \text{gradients} + \text{optimizer state}}{\text{number of GPUs}} \;+\; \text{activations} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A back-of-the-envelope for how much GPU memory FSDP saves. There are four big consumers: the model parameters <code>P</code>, their gradients <code>G</code>, the optimizer state <code>O</code> (for Adam, this is roughly 2× the parameter count), and the activations <code>A</code> kept for backprop. Vanilla DDP keeps full copies of <em>all four</em> on every GPU. FSDP shards the first three across <code>W</code> GPUs (the "world size"), so each GPU only holds a fraction. Activations are not sharded by FSDP — they're per-sample, so each GPU still has its own based on its mini-batch.
+            </p>
+            <ul class="formula-legend">
+                <li><code>params</code>P — the model weights</li>
+                <li><code>gradients</code>G — same shape as params, one per backward pass</li>
+                <li><code>optimizer state</code>O — Adam's momentum + variance (~2× params)</li>
+                <li><code>number of GPUs</code>W — total GPUs across the cluster ("world size")</li>
+                <li><code>activations</code>A — intermediate tensors kept for backward; not sharded</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -140,20 +157,36 @@ with FSDP.state_dict_type(model, StateDictType.SHARDED_STATE_DICT):
 
     <div class="level-next">
         <span>Want tensor / pipeline parallelism, NCCL tuning, &amp; multi-node debugging?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">3D parallelism</span>
-        <span class="formula">$$ \text{world} = \text{tensor} \times \text{pipeline} \times \text{data} $$</span>
-        <ul class="formula-legend">
-            <li>Three orthogonal axes of parallelism</li>
-            <li>Total GPUs = product of the three</li>
-            <li>The standard recipe at LLM-training scale</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{world} = \text{tensor} \times \text{pipeline} \times \text{data} $$</span>
+            <ul class="formula-legend">
+                <li>Three orthogonal axes of parallelism</li>
+                <li>Total GPUs = product of the three</li>
+                <li>The standard recipe at LLM-training scale</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{total GPUs} \;=\; (\text{tensor-parallel size}) \;\times\; (\text{pipeline-parallel size}) \;\times\; (\text{data-parallel size}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> At LLM-training scale, you split the work along three orthogonal axes simultaneously. <strong>Tensor parallel</strong> shards individual layers across a few GPUs in a node (NVLink). <strong>Pipeline parallel</strong> puts different layers on different nodes, streaming micro-batches through. <strong>Data parallel</strong> replicates the whole stack on multiple groups, with different data per replica. The cluster's total GPU count factorises into the product of the three group sizes — and the right factorisation depends on the model's shape, the interconnect topology, and what fits where.
+            </p>
+            <ul class="formula-legend">
+                <li><code>tensor-parallel size</code>GPUs cooperating on a single layer's weights</li>
+                <li><code>pipeline-parallel size</code>stages of the pipeline (each holds some layers)</li>
+                <li><code>data-parallel size</code>independent replicas processing different batches</li>
+                <li><code>total GPUs</code>product of all three — your full cluster</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -191,7 +224,7 @@ class ColumnParallelLinear(nn.Module):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -200,19 +233,19 @@ class ColumnParallelLinear(nn.Module):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch.org/docs/stable/distributed.html" target="_blank">PyTorch Distributed Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference for DDP, FSDP, RPC, and the lower-level c10d primitives. Long; bookmark the parts you actually use.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://huggingface.co/docs/transformers/perf_train_gpu_many" target="_blank">HuggingFace — Efficient Training on Many GPUs <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical recipes for distributed training, FSDP / DeepSpeed integration, and "which approach do I pick" decision trees.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1909.08053" target="_blank">Shoeybi et al. (2019) — Megatron-LM <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Tensor parallelism for transformers. Foundational for understanding modern LLM training.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://www.deepspeed.ai/" target="_blank">DeepSpeed <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Microsoft's distributed-training toolkit. ZeRO, pipeline, 3D parallelism, and inference optimisations.</span>
         </li>

@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">A non-linear projection that preserves local neighbourhoods — the visualisation tool for high-D clusters.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -115,20 +125,37 @@ plt.scatter(X_2d[:, 0], X_2d[:, 1], c=labels, cmap="tab10", s=4)
 
     <div class="level-next">
         <span>Want the KL math, Barnes-Hut, and the "don't read distances" rule?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">t-SNE objective</span>
-        <span class="formula">$$ \min_y \; \mathrm{KL}(P \;\|\; Q) = \sum_{i \neq j} p_{ij} \log \frac{p_{ij}}{q_{ij}} $$</span>
-        <ul class="formula-legend">
-            <li><code>p<sub>ij</sub></code>symmetrised Gaussian similarities in the input space</li>
-            <li><code>q<sub>ij</sub></code>Student-t similarities in the 2D embedding</li>
-            <li>Asymmetric KL — heavily penalises "close in P but far in Q"</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \min_y \; \mathrm{KL}(P \;\|\; Q) = \sum_{i \neq j} p_{ij} \log \frac{p_{ij}}{q_{ij}} $$</span>
+            <ul class="formula-legend">
+                <li><code>p<sub>ij</sub></code>symmetrised Gaussian similarities in the input space</li>
+                <li><code>q<sub>ij</sub></code>Student-t similarities in the 2D embedding</li>
+                <li>Asymmetric KL — heavily penalises "close in P but far in Q"</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \min_y \;\; \sum_{i \neq j} \;\; \text{high-D similarity} \times \log\!\left(\frac{\text{high-D similarity}}{\text{low-D similarity}}\right) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> For every pair of points <em>i</em> and <em>j</em>, you have two numbers: how close they are in the original high-D space (<code>p_ij</code>) and how close they are in your 2D layout (<code>q_ij</code>). t-SNE moves the 2D points to make these two numbers agree. The <code>log(p/q)</code> term punishes pairs that are close in the input but far in the layout — much more than the opposite mismatch (this is what "asymmetric KL" means). KL divergence is a standard "distance" between two probability distributions; the <code>Σ</code> means "sum across every pair of points". The fact that big <code>p</code> matters more than big <code>q</code> is exactly why t-SNE preserves local neighbourhoods but distorts global distances.
+            </p>
+            <ul class="formula-legend">
+                <li><code>high-D similarity (p_ij)</code>how close points <em>i</em> and <em>j</em> are in input space (Gaussian)</li>
+                <li><code>low-D similarity (q_ij)</code>how close they are in the 2D layout (Student-t)</li>
+                <li><code>Σ across pairs</code>add up across every pair of points</li>
+                <li><code>log ratio</code>punishes "close in input but far in layout" much more than vice versa</li>
+                <li>Net effect: local neighbourhoods preserved, global distances distorted</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -167,19 +194,35 @@ for p in [5, 30, 100]:
 
     <div class="level-next">
         <span>Want the gradient derivation, parametric t-SNE, and modern alternatives?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">t-SNE gradient</span>
-        <span class="formula">$$ \frac{\partial \mathrm{KL}}{\partial y_i} = 4 \sum_j (p_{ij} - q_{ij}) (y_i - y_j) (1 + \|y_i - y_j\|^2)^{-1} $$</span>
-        <ul class="formula-legend">
-            <li>Attractive force when <em>p<sub>ij</sub> &gt; q<sub>ij</sub></em>, repulsive when <em>p<sub>ij</sub> &lt; q<sub>ij</sub></em></li>
-            <li>The <em>(1 + ‖y<sub>i</sub> − y<sub>j</sub>‖²)<sup>−1</sup></em> term gives long-range repulsion → spreads clusters</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \frac{\partial \mathrm{KL}}{\partial y_i} = 4 \sum_j (p_{ij} - q_{ij}) (y_i - y_j) (1 + \|y_i - y_j\|^2)^{-1} $$</span>
+            <ul class="formula-legend">
+                <li>Attractive force when <em>p<sub>ij</sub> &gt; q<sub>ij</sub></em>, repulsive when <em>p<sub>ij</sub> &lt; q<sub>ij</sub></em></li>
+                <li>The <em>(1 + ‖y<sub>i</sub> − y<sub>j</sub>‖²)<sup>−1</sup></em> term gives long-range repulsion → spreads clusters</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{force on point } i \;=\; 4 \sum_j \text{(similarity mismatch)} \times \text{(direction from } i \text{ to } j) \times \frac{1}{1 + \text{distance}^2} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Each 2D point moves under a sum of pairwise forces from every other point. The "similarity mismatch" <code>(p_ij − q_ij)</code> says how wrong the current layout is for this pair: positive means "they should be closer", negative means "they should be further apart". The vector <code>y_i − y_j</code> gives the direction between them. The denominator <code>1 + distance²</code> shrinks the force as points get farther apart — but only slowly, so points that are <em>too</em> close repel each other hard, and points that are far don't pull in too strongly. This balance is what spreads clusters out without crushing them.
+            </p>
+            <ul class="formula-legend">
+                <li><code>force on point i</code>how the gradient says to move the 2D position of point <em>i</em></li>
+                <li><code>similarity mismatch</code>positive → attractive force, negative → repulsive</li>
+                <li><code>direction</code>vector from <em>i</em> to <em>j</em></li>
+                <li><code>1 / (1 + distance²)</code>shrinks slowly with distance — gives long-range repulsion that spreads clusters</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -216,7 +259,7 @@ for col, seed in enumerate(seeds):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -240,19 +283,19 @@ for col, seed in enumerate(seeds):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="intuition">
             <a href="https://distill.pub/2016/misread-tsne/" target="_blank">Wattenberg et al. (2016) — How to Use t-SNE Effectively <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The Distill piece. Interactive examples of every common t-SNE misreading. Required reading before drawing conclusions from any t-SNE plot.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf" target="_blank">van der Maaten &amp; Hinton (2008) — t-SNE <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original t-SNE paper. The gradient and optimisation tricks are all here.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://opentsne.readthedocs.io/" target="_blank">openTSNE <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The fastest modern Python t-SNE implementation. Parametric, parallel, with all the modern tricks.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html" target="_blank">scikit-learn — TSNE <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The standard reference. Defaults updated in 0.22 (PCA init) and 1.2 (learning_rate="auto") to match best practice.</span>
         </li>

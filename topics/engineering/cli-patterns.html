@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">argparse, click, typer, fire — and how to wire a config file into the command line without losing your mind.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -111,20 +121,36 @@ if __name__ == "__main__":
 
     <div class="level-next">
         <span>Want Hydra, multi-command apps, &amp; clean help-text patterns?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Config + CLI interaction</span>
-        <span class="formula">$$ \text{values} \;=\; \text{defaults} \;\triangleleft\; \text{config file} \;\triangleleft\; \text{env vars} \;\triangleleft\; \text{CLI flags} $$</span>
-        <ul class="formula-legend">
-            <li><em>◁</em> = "overridden by"</li>
-            <li>Each layer wins over the previous</li>
-            <li>Standard precedence; matches what users expect</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{values} \;=\; \text{defaults} \;\triangleleft\; \text{config file} \;\triangleleft\; \text{env vars} \;\triangleleft\; \text{CLI flags} $$</span>
+            <ul class="formula-legend">
+                <li><em>◁</em> = "overridden by"</li>
+                <li>Each layer wins over the previous</li>
+                <li>Standard precedence; matches what users expect</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{final values} \;=\; \text{defaults} \;\;\text{overridden by}\;\; \text{config} \;\;\text{overridden by}\;\; \text{env vars} \;\;\text{overridden by}\;\; \text{CLI flags} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Configuration values come from multiple places, and you need a clear rule for who wins. The standard chain — read left to right, with each later source <em>overriding</em> any earlier one. So baked-in defaults are the weakest; the config file overrides those; environment variables override the config; and CLI flags override everything. This matches the principle "the more local / explicit the source, the higher its priority". The <code>◁</code> symbol in the math version is just shorthand for "overridden by".
+            </p>
+            <ul class="formula-legend">
+                <li><code>defaults</code>fallback values written into the code</li>
+                <li><code>config file</code>YAML / TOML loaded at startup</li>
+                <li><code>env vars</code>shell environment variables (good for secrets and CI)</li>
+                <li><code>CLI flags</code>command-line arguments — highest priority</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -159,20 +185,36 @@ if __name__ == "__main__":
 
     <div class="level-next">
         <span>Want completion, plugins, &amp; long-running daemon-style CLIs?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The CLI contract</span>
-        <span class="formula">$$ \text{stdin} \to \text{exit code, stdout, stderr} $$</span>
-        <ul class="formula-legend">
-            <li>Exit code 0 on success, non-zero on failure (matters for CI / shells)</li>
-            <li>stdout for data / results; stderr for logs / progress</li>
-            <li>Pipeable, scriptable, testable</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{stdin} \to \text{exit code, stdout, stderr} $$</span>
+            <ul class="formula-legend">
+                <li>Exit code 0 on success, non-zero on failure (matters for CI / shells)</li>
+                <li>stdout for data / results; stderr for logs / progress</li>
+                <li>Pipeable, scriptable, testable</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{input stream} \;\to\; (\text{exit code},\; \text{output stream},\; \text{error stream}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The Unix contract every well-behaved CLI honours. You read from <code>stdin</code> (standard input) and produce three outputs: a numeric <strong>exit code</strong> (0 means success, anything else means failure — shells and CI key off this), <code>stdout</code> (standard output — where actual results go), and <code>stderr</code> (standard error — where logs, warnings, and progress bars go). Keeping logs out of stdout means your output can be piped into the next command without contamination. This separation is what makes CLI tools composable.
+            </p>
+            <ul class="formula-legend">
+                <li><code>exit code</code>integer status; 0 = success, non-zero = failure</li>
+                <li><code>stdout</code>the program's "real" output — pipe target</li>
+                <li><code>stderr</code>diagnostic messages, separate from stdout</li>
+                <li><code>stdin</code>input stream (file, pipe, keyboard)</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -208,7 +250,7 @@ def test_add():
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -232,19 +274,19 @@ def test_add():
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://typer.tiangolo.com/" target="_blank">Typer Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Modern type-hint-driven CLI library. The minimum-friction way to add a CLI to a Python project today.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://click.palletsprojects.com/" target="_blank">Click Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Mature, classic, used everywhere. More boilerplate than Typer; more flexible for complex command hierarchies.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://hydra.cc/" target="_blank">Hydra Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Facebook's config framework. The right answer when you have many configurations to compose and override.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://clig.dev/" target="_blank">Command Line Interface Guidelines <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Opinionated guide to good CLI design. Not ML-specific; very applicable.</span>
         </li>

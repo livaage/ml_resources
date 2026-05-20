@@ -7,6 +7,8 @@ lead: How to keep a model from memorising its training data — L1, L2, dropout,
 
 
 <!-- TOPIC CONTENT -->
+
+
 <section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
@@ -38,8 +40,8 @@ lead: How to keep a model from memorising its training data — L1, L2, dropout,
     <p class="viz-intro">A linear model is fit to data with 12 features — only 4 are actually informative, the rest are noise. The bars show each coefficient's value. Slide λ from 0 to high under <strong>L1</strong> and watch noise features snap to zero (sparsity). Under <strong>L2</strong> every coefficient shrinks smoothly (no exact zeros, just smaller). Elastic Net does some of both — most useful when correlated features collapse into one under pure L1.</p>
 
     <article class="tldr-body">
-        <p><strong>L2 (Ridge / weight decay).</strong> Add <em>λ·||w||²</em> to the loss. Every coefficient gets pulled toward zero, smoothly. No coefficient ever becomes <em>exactly</em> zero, but they all get smaller in proportion to λ. The default for neural networks (often called "weight decay") and the safest general-purpose regularizer.</p>
-        <p><strong>L1 (LASSO).</strong> Add <em>λ·||w||₁</em>. The non-differentiability at zero makes coefficients <em>exactly</em> zero — the model does feature selection while it fits. Useful when you suspect most features are irrelevant.</p>
+        <p><strong>L2 (Ridge / weight decay).</strong> Add a penalty proportional to the sum of squared weights. Every coefficient gets pulled toward zero, smoothly. No coefficient ever becomes <em>exactly</em> zero, but they all get smaller in proportion to the penalty strength. The default for neural networks (often called "weight decay") and the safest general-purpose regularizer.</p>
+        <p><strong>L1 (LASSO).</strong> Add a penalty proportional to the sum of absolute weights. This makes some coefficients <em>exactly</em> zero — the model does feature selection while it fits. Useful when you suspect most features are irrelevant.</p>
         <p><strong>Dropout.</strong> Randomly drop a fraction of neurons at each training step. Forces the network not to over-rely on any single unit. The original "neural network regularization" trick, still useful for MLPs and some Transformers.</p>
         <p><strong>Early stopping.</strong> Stop training when validation loss stops decreasing. Effectively limits how far the optimizer can wander; equivalent to a particular form of L2 for deep networks under some assumptions.</p>
     </article>
@@ -88,28 +90,46 @@ net = torch.nn.Sequential(
     </div>
 
     <div class="level-next">
-        <span>Want the Bayesian interpretation and dropout as approximate inference?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <span>Want the underlying maths?</span>
+        <button data-go-to="fundamentals" type="button">Switch to Fundamentals →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Regularised loss</span>
-        <span class="formula">$$ \mathcal{L}_\text{reg}(\theta) = \mathcal{L}(\theta) + \lambda\, \Omega(\theta) $$</span>
-        <ul class="formula-legend">
-            <li><code>Ω(θ) = ‖θ‖₂²</code>ridge / L2 / weight decay</li>
-            <li><code>Ω(θ) = ‖θ‖₁</code>LASSO / L1 — induces sparsity</li>
-            <li><code>Ω(θ) = ½‖θ‖₂² + α‖θ‖₁</code>elastic net</li>
-            <li>The <em>regularization path</em> is the solution as <em>λ</em> sweeps from 0 to ∞</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L}_\text{reg}(\theta) \;=\; \mathcal{L}(\theta) \;+\; \lambda\, \Omega(\theta) $$</span>
+            <ul class="formula-legend">
+                <li><code>L(θ)</code>the usual training loss (e.g. squared error, cross-entropy)</li>
+                <li><code>Ω(θ)</code>penalty on the parameters</li>
+                <li><code>λ</code>regularization strength — bigger λ shrinks the parameters harder</li>
+                <li><code>‖θ‖₂²</code>L2 / ridge: sum of each parameter squared</li>
+                <li><code>‖θ‖₁</code>L1 / LASSO: sum of absolute values — induces sparsity</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{regularised loss} \;=\; \text{training loss} \;+\; \lambda \times \text{penalty}(\text{weights}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Instead of just minimising the training loss, you minimise the training loss <em>plus</em> a penalty for using big weights. <code>λ</code> (lambda, a Greek letter conventionally used for "regularization strength") sets how harshly that penalty bites: at <code>λ = 0</code> you ignore the penalty entirely; the bigger λ gets, the more the optimiser is pushed toward small weights even if that hurts the fit a little. The art is tuning λ — usually by trying a few values and picking the one that gives the best validation score.
+            </p>
+            <ul class="formula-legend">
+                <li><code>training loss</code>the usual error you're minimising (e.g. squared error)</li>
+                <li><code>penalty</code>some measure of how big the weights are</li>
+                <li><code>λ</code>regularization strength — bigger λ shrinks the weights harder</li>
+                <li><code>L2 penalty</code>add up (each weight)² across all weights — pulls every weight toward zero smoothly</li>
+                <li><code>L1 penalty</code>add up |each weight| — drives some weights exactly to zero</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
-        <p><strong>Bayesian interpretation.</strong> L2 regularization is equivalent to a Gaussian prior on the weights centred at zero (MAP estimation under that prior matches ridge regression). L1 is equivalent to a Laplace prior — heavier tails toward zero, which is why it produces sparsity. This framing makes "choose λ" the same as "choose your prior precision".</p>
-        <p><strong>Why L1 gives exact zeros.</strong> The L1 ball has corners on the axes; the L2 ball is round. A quadratic loss-contour touching the L1 ball is most likely to touch at a corner (where some coordinates are zero). That geometric argument is the reason LASSO does feature selection while ridge doesn't.</p>
-        <p><strong>Weight decay in deep learning.</strong> Adding L2 to the loss <em>and</em> using Adam is subtly wrong — Adam's scaling makes the effective decay rate parameter-dependent. AdamW (Loshchilov &amp; Hutter, 2019) decouples weight decay from the gradient: instead of adding λ·w to the gradient, it multiplies w by (1 − η·λ) directly. The fix matters; transformer recipes assume AdamW.</p>
+        <p><strong>Bayesian interpretation.</strong> L2 regularization is equivalent to assuming the weights are drawn from a bell-curve centred at zero — finding the most-likely weights under that assumption gives you ridge regression. L1 corresponds to a sharper distribution with heavier tails, which is why it produces sparsity. This framing makes "choose λ" the same as "choose how confidently you believe the weights are near zero".</p>
+        <p><strong>Why L1 gives exact zeros.</strong> Draw the constraint regions: the L1 ball has corners on the axes; the L2 ball is round. A quadratic loss contour touching the L1 ball is most likely to touch at a corner (where some coordinates are zero). That geometric argument is the reason LASSO does feature selection while ridge doesn't.</p>
+        <p><strong>Weight decay in deep learning.</strong> Adding an L2 term to the loss <em>and</em> using Adam is subtly wrong — Adam's per-parameter scaling makes the effective decay rate uneven across parameters. AdamW (Loshchilov &amp; Hutter, 2019) decouples weight decay from the gradient: instead of adding λ·w to the gradient, it multiplies w by (1 − η·λ) directly. The fix matters; transformer recipes assume AdamW.</p>
         <p><strong>Dropout as ensembling.</strong> At inference time, dropout is off and the network uses all neurons — but the training behaviour is equivalent to averaging exponentially many sub-networks. This is one of several reasons dropout works.</p>
         <p><strong>Batch / layer norm as implicit regularization.</strong> Normalization layers don't penalise weight magnitude, but they make the loss less sensitive to weight magnitude (because the activations are rescaled). The effect is a form of implicit regularization — and it interacts oddly with explicit weight decay. Modern transformer recipes often use very small or zero weight decay.</p>
         <p><strong>Data augmentation as regularization.</strong> Random crops, flips, mix-ups, and adversarial perturbations all impose smoothness or invariance on the function the model can express — without changing the loss. Often the highest-leverage regularization in practice, especially for vision.</p>
@@ -144,20 +164,39 @@ class StochasticDepth(nn.Module):
 
     <div class="level-next">
         <span>Want the path algorithm, MDL, and PAC-Bayes?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">PAC-Bayes generalization bound</span>
-        <span class="formula">$$ \mathbb{E}_{\theta \sim Q}\!\left[\, R(\theta)\right] \leq \mathbb{E}_{\theta \sim Q}\!\left[\, \hat R(\theta)\right] + \sqrt{\frac{D_\text{KL}(Q \| P) + \ln(1/\delta)}{2n}} $$</span>
-        <ul class="formula-legend">
-            <li><code>P</code>prior over parameters; <code>Q</code> posterior after training</li>
-            <li>Generalization gap is bounded by KL between prior and posterior</li>
-            <li>"Stay close to the prior" ⇔ "generalize well" ⇔ regularize</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathbb{E}_{\theta \sim Q}\!\left[\, R(\theta)\right] \;\leq\; \mathbb{E}_{\theta \sim Q}\!\left[\, \hat R(\theta)\right] \;+\; \sqrt{\frac{D_\text{KL}(Q \,\|\, P) + \ln(1/\delta)}{2n}} $$</span>
+            <ul class="formula-legend">
+                <li><code>R(θ)</code>true (test) risk of parameters <em>θ</em></li>
+                <li><code>R̂(θ)</code>empirical (training) risk</li>
+                <li><code>P</code>prior over parameters; <code>Q</code> posterior after training</li>
+                <li><code>D_KL</code>KL divergence — measures how far <em>Q</em> has moved from <em>P</em></li>
+                <li><code>n</code>number of training samples; <code>δ</code> confidence level</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{avg true error} \;\leq\; \text{avg training error} \;+\; \sqrt{\frac{\text{distance from prior} \;+\; \ln(1/\delta)}{2 \times n}} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> This is an <em>upper bound</em> on how bad the test error can be — the <code>≤</code> sign says the true error is at most the right-hand side. The first piece is just how well you did on the training set. The second piece — under the <code>√</code> (square root) — is a penalty that grows when your learnt weights have moved far from your starting prior, and shrinks as you collect more data (the <code>n</code> in the denominator is the number of training samples). <code>ln</code> is the natural logarithm, a number that grows very slowly with its input; <code>δ</code> is a small confidence-level number you pick.
+            </p>
+            <ul class="formula-legend">
+                <li><code>avg true error</code>average error on unseen data, averaged over the distribution of learnt weights</li>
+                <li><code>avg training error</code>average error on the training data, same averaging</li>
+                <li><code>distance from prior</code>how far the learnt weight distribution has moved from your starting assumption (the prior)</li>
+                <li><code>n</code>number of training samples; <code>δ</code> a small confidence-level number</li>
+                <li>The take-away: staying close to your prior ≈ generalizing well ≈ regularizing</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -195,8 +234,8 @@ def group_lasso_step(weights, lr, lam, groups):
     </div>
 
     <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <span>Want the picture instead?</span>
+        <button data-go-to="intuition" type="button">← Back to Intuition</button>
     </div>
 </section>
 
@@ -205,19 +244,19 @@ def group_lasso_step(weights, lr, lam, groups):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">Elements of Statistical Learning — Ch. 3 <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The classical reference for L1, L2, elastic net, and the regularization path. Geometric intuition for why L1 produces sparsity.</span>
         </li>
-        <li>
-            <a href="https://arxiv.org/abs/1711.05101" target="_blank">Loshchilov &amp; Hutter (2019) — AdamW <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Why weight decay in Adam was wrong, and how AdamW fixes it. Important for any deep-learning regularization decision.</span>
-        </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf" target="_blank">Srivastava et al. (2014) — Dropout <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original dropout paper. Still readable; gives the ensemble interpretation and many empirical examples.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
+            <a href="https://arxiv.org/abs/1711.05101" target="_blank">Loshchilov &amp; Hutter (2019) — AdamW <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Why weight decay in Adam was wrong, and how AdamW fixes it. Important for any deep-learning regularization decision.</span>
+        </li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1710.10903" target="_blank">Zhang et al. (2017) — Understanding deep learning requires rethinking generalization <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The paper showing that deep networks fit random labels perfectly — and yet still generalize well on real data. Forced the field to take implicit regularization seriously.</span>
         </li>

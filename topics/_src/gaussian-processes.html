@@ -87,19 +87,36 @@ y_mean, y_std = gp.predict(X_test, return_std=True)
 
     <div class="level-next">
         <span>Want to see what's actually happening under the hood?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Key idea</span>
-        <span class="formula">$$ f(\mathbf{x}) \;\sim\; \mathcal{GP}\!\left(m(\mathbf{x}),\; k(\mathbf{x}, \mathbf{x}')\right) $$</span>
-        <ul class="formula-legend">
-            <li><code>m(x)</code>mean function (often zero)</li>
-            <li><code>k(x,x')</code>kernel — encodes how similar outputs should be when inputs are similar</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ f(\mathbf{x}) \;\sim\; \mathcal{GP}\!\left(m(\mathbf{x}),\; k(\mathbf{x}, \mathbf{x}')\right) $$</span>
+            <ul class="formula-legend">
+                <li><code>m(x)</code>mean function (often zero)</li>
+                <li><code>k(x,x')</code>kernel — encodes how similar outputs should be when inputs are similar</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{unknown function } f \;\sim\; \text{GP}(\text{mean function},\; \text{kernel}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Read the <code>∼</code> as "is drawn from" — a Gaussian process is a probability distribution over <em>functions</em>, and <code>f</code> is a single sample from it. Two ingredients describe the distribution. The <strong>mean function</strong> <code>m(x)</code> is what the function looks like on average at input <em>x</em> (people usually set this to zero and let the data do the work). The <strong>kernel</strong> <code>k(x, x')</code> is a similarity score between two inputs: it controls how correlated the function's outputs are when the inputs are close. A smooth kernel produces smooth functions; a periodic kernel produces wavy ones. The whole machinery rests on one property — any finite set of function values you ask about is a jointly Gaussian random vector, which is exactly what makes the math close-form-tractable.
+            </p>
+            <ul class="formula-legend">
+                <li><code>f</code>the unknown function you're trying to learn — a single draw from the GP</li>
+                <li><code>mean function</code>the GP's prior expectation of <em>f(x)</em>; usually zero</li>
+                <li><code>kernel</code>a similarity function — nearby inputs → highly correlated outputs</li>
+                <li><code>∼</code>"is drawn from" — <em>f</em> is one sample from a distribution over functions</li>
+            </ul>
+        </div>
+
         <p style="margin-top:0.75rem">A GP is a distribution over functions such that any finite set of function values is jointly Gaussian. The kernel determines what kind of functions are likely — smooth, periodic, rough, etc.</p>
     </div>
 
@@ -154,20 +171,39 @@ y_mean, y_std = gp.predict(X_test, return_std=True)
 
     <div class="level-next">
         <span>Want sparse approximations and the kernel-engineering tradeoffs?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Marginal likelihood (hyperparameter learning)</span>
-        <span class="formula">$$ \log p(\mathbf{y} \mid X, \boldsymbol{\theta}) \;=\; -\tfrac{1}{2}\mathbf{y}^\top K_\theta^{-1}\mathbf{y} \;-\; \tfrac{1}{2}\log\!|K_\theta| \;-\; \tfrac{n}{2}\log 2\pi $$</span>
-        <ul class="formula-legend">
-            <li><code>K<sub>θ</sub></code>covariance matrix induced by kernel hyperparameters <em>θ</em></li>
-            <li>fit term — <code>y<sup>T</sup>K<sup>-1</sup>y</code> penalizes poor data fit</li>
-            <li>complexity term — <code>log|K|</code> penalizes overly-flexible kernels</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \log p(\mathbf{y} \mid X, \boldsymbol{\theta}) \;=\; -\tfrac{1}{2}\mathbf{y}^\top K_\theta^{-1}\mathbf{y} \;-\; \tfrac{1}{2}\log\!|K_\theta| \;-\; \tfrac{n}{2}\log 2\pi $$</span>
+            <ul class="formula-legend">
+                <li><code>K<sub>θ</sub></code>covariance matrix induced by kernel hyperparameters <em>θ</em></li>
+                <li>fit term — <code>y<sup>T</sup>K<sup>-1</sup>y</code> penalizes poor data fit</li>
+                <li>complexity term — <code>log|K|</code> penalizes overly-flexible kernels</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \log p(\text{targets} \mid \text{kernel params}) \;=\; -\tfrac{1}{2} \underbrace{\mathbf{y}^\top K^{-1} \mathbf{y}}_{\text{data fit}} \;-\; \tfrac{1}{2} \underbrace{\log |K|}_{\text{complexity}} \;-\; \tfrac{n}{2} \log 2\pi $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> This is the log-probability of the observed targets <code>y</code> under the GP, with the function <em>f</em> integrated away — leaving only the kernel hyperparameters <code>θ</code> (length scale, amplitude, noise) to tune. Three terms. The <strong>data-fit</strong> term <code>y<sup>T</sup>K<sup>−1</sup>y</code> punishes you when the targets don't lie comfortably in the kinds of functions the kernel allows — <code>K<sup>−1</sup></code> is the inverse of the <em>n × n</em> kernel matrix at the training inputs. The <strong>complexity</strong> term <code>log|K|</code> (the log-determinant) punishes overly flexible kernels — a richer kernel matches anything but spreads probability thin. The final <code>n log 2π</code> is a normalisation constant that doesn't depend on <em>θ</em>. Maximise this whole expression over <em>θ</em> and you get a built-in Occam's razor — fit vs. complexity, balanced automatically.
+            </p>
+            <ul class="formula-legend">
+                <li><code>targets</code>training labels <em>y</em></li>
+                <li><code>kernel params</code>hyperparameters <em>θ</em> like length scale, amplitude, noise</li>
+                <li><code>K</code>kernel matrix evaluated at every pair of training inputs</li>
+                <li><code>K<sup>−1</sup></code>matrix inverse — the O(N³) cost lives here</li>
+                <li><code>log |K|</code>log-determinant of <em>K</em> — the complexity penalty</li>
+                <li><code>n</code>number of training points</li>
+            </ul>
+        </div>
+
         <p style="margin-top:0.75rem">The log marginal likelihood automatically trades off fit vs. complexity — a built-in Occam's razor. Optimize it w.r.t. kernel hyperparameters to set length scales, amplitudes, and noise simultaneously.</p>
     </div>
 
@@ -228,7 +264,7 @@ for _ in range(200):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -237,19 +273,19 @@ for _ in range(200):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="intuition">
             <a href="https://distill.pub/2019/visual-exploration-gaussian-processes/" target="_blank">Distill — A Visual Exploration of GPs <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Best intuition builder. Interactive widgets for kernels, conditioning, and the posterior. Start here.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://gaussianprocess.org/gpml/" target="_blank">Rasmussen &amp; Williams — Gaussian Processes for ML <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The textbook. Free PDF. Comprehensive treatment from regression to classification to sparse approximations.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://docs.gpytorch.ai/en/stable/" target="_blank">GPyTorch documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Modern GPU-accelerated GP library, with tutorials covering sparse and deep GPs. The library most people actually use.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/gaussian_process.html" target="_blank">scikit-learn GP module <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Good for small data and prototyping. No sparse GP support, but the API is the simplest.</span>
         </li>

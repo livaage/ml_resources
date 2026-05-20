@@ -82,20 +82,37 @@ image.save("output.png")
 
     <div class="level-next">
         <span>Want the forward/reverse process math?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Forward and reverse processes</span>
-        <span class="formula">$$ q(\mathbf{x}_t \mid \mathbf{x}_0) \;=\; \mathcal{N}\!\big(\sqrt{\bar\alpha_t}\,\mathbf{x}_0,\; (1 - \bar\alpha_t)\,\mathbf{I}\big), \qquad p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t) \;=\; \mathcal{N}(\boldsymbol{\mu}_\theta, \boldsymbol{\Sigma}_\theta) $$</span>
-        <ul class="formula-legend">
-            <li><code>q(x<sub>t</sub>|x<sub>0</sub>)</code>forward process — closed-form Gaussian, no learning needed</li>
-            <li><code>p<sub>θ</sub>(x<sub>t-1</sub>|x<sub>t</sub>)</code>reverse process — learned by the model</li>
-            <li><code>ᾱ<sub>t</sub></code>cumulative noise schedule — controls how much signal remains at step <em>t</em></li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ q(\mathbf{x}_t \mid \mathbf{x}_0) \;=\; \mathcal{N}\!\big(\sqrt{\bar\alpha_t}\,\mathbf{x}_0,\; (1 - \bar\alpha_t)\,\mathbf{I}\big), \qquad p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t) \;=\; \mathcal{N}(\boldsymbol{\mu}_\theta, \boldsymbol{\Sigma}_\theta) $$</span>
+            <ul class="formula-legend">
+                <li><code>q(x<sub>t</sub>|x<sub>0</sub>)</code>forward process — closed-form Gaussian, no learning needed</li>
+                <li><code>p<sub>θ</sub>(x<sub>t-1</sub>|x<sub>t</sub>)</code>reverse process — learned by the model</li>
+                <li><code>ᾱ<sub>t</sub></code>cumulative noise schedule — controls how much signal remains at step <em>t</em></li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{forward: } x_t \;=\; \sqrt{\bar\alpha_t}\,\cdot\,\text{clean image} \;+\; \sqrt{1 - \bar\alpha_t}\,\cdot\,\text{Gaussian noise} \qquad \text{reverse: model predicts cleaner version from noisier one} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The <strong>forward process</strong> has no learnable parts: given a clean image <code>x<sub>0</sub></code>, you produce its noisy version <code>x<sub>t</sub></code> at any timestep <code>t</code> in one shot, by blending the clean image with fresh Gaussian noise. The blend is controlled by <code>ᾱ<sub>t</sub></code> (alpha-bar) — a fixed schedule that starts near 1 (mostly clean) at <code>t=0</code> and ends near 0 (mostly noise) at the final step. The <strong>reverse process</strong> is what the model learns: given the noisy <code>x<sub>t</sub></code>, predict a slightly less noisy <code>x<sub>t-1</sub></code>. The <code>𝒩(mean, variance)</code> notation just means "Gaussian distribution with this mean and variance"; <code>I</code> is the identity matrix (so noise is independent across pixels).
+            </p>
+            <ul class="formula-legend">
+                <li><code>clean image</code>the original training sample <code>x<sub>0</sub></code></li>
+                <li><code>x<sub>t</sub></code>the same image with noise added at level <em>t</em></li>
+                <li><code>ᾱ<sub>t</sub></code>cumulative noise schedule — fraction of signal left at step <em>t</em></li>
+                <li><code>Gaussian noise</code>standard normal random numbers, one per pixel</li>
+                <li>Forward is fixed math; reverse is a learned neural net</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -151,20 +168,36 @@ def diffusion_loss(model, x_0, alphas_cumprod):
 
     <div class="level-next">
         <span>Want the SDE view, score matching, and modern accelerations?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Score-based view (SDE)</span>
-        <span class="formula">$$ \mathrm{d}\mathbf{x} \;=\; \boldsymbol{f}(\mathbf{x}, t)\,\mathrm{d}t + g(t)\,\mathrm{d}\mathbf{w}, \qquad \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \approx \mathbf{s}_\theta(\mathbf{x}, t) $$</span>
-        <ul class="formula-legend">
-            <li><code>f, g</code>drift and diffusion coefficients of the noising SDE</li>
-            <li><code>s<sub>θ</sub></code>learned <em>score function</em> — gradient of log-density at time <em>t</em></li>
-            <li>Sampling = solve the reverse-time SDE, which only needs the score</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathrm{d}\mathbf{x} \;=\; \boldsymbol{f}(\mathbf{x}, t)\,\mathrm{d}t + g(t)\,\mathrm{d}\mathbf{w}, \qquad \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \approx \mathbf{s}_\theta(\mathbf{x}, t) $$</span>
+            <ul class="formula-legend">
+                <li><code>f, g</code>drift and diffusion coefficients of the noising SDE</li>
+                <li><code>s<sub>θ</sub></code>learned <em>score function</em> — gradient of log-density at time <em>t</em></li>
+                <li>Sampling = solve the reverse-time SDE, which only needs the score</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{tiny change in } x \;=\; \text{drift}(x, t)\,\text{dt} \;+\; \text{noise-strength}(t)\,\text{dW}, \qquad \text{model } s_\theta \;\approx\; \text{slope of log-density at time }t $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Step back from discrete timesteps and let time flow continuously. The forward noising can be written as a <strong>stochastic differential equation</strong> (SDE): in every infinitesimal slice <code>dt</code>, <code>x</code> drifts a little (the <strong>drift</strong> term) <em>and</em> gets bumped by random noise scaled by some <strong>noise-strength</strong> (the <code>dW</code> term — Brownian motion). What the model actually learns is the <strong>score</strong>: the gradient (slope) of <code>log p<sub>t</sub>(x)</code> — i.e. "in which direction does the data density grow most steeply at this noise level". Knowing the score is equivalent to knowing how to denoise. The <strong>reverse-time SDE</strong> uses that score as a vector field that pushes noisy samples back toward the data distribution. DDPM is one discretization of this continuous picture.
+            </p>
+            <ul class="formula-legend">
+                <li><code>drift</code>deterministic pull on <code>x</code> per unit time</li>
+                <li><code>dW</code>fresh tiny Gaussian noise — the "diffusion" part</li>
+                <li><code>score s<sub>θ</sub></code>learned gradient of log-density at time <em>t</em> — points uphill toward data</li>
+                <li>Reverse-time SDE turns score into a sampling procedure</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -226,7 +259,7 @@ def ddim_sample(model, shape, alphas_cumprod, n_steps=50, device="cuda"):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -235,23 +268,23 @@ def ddim_sample(model, shape, alphas_cumprod, n_steps=50, device="cuda"):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/" target="_blank">Lilian Weng — What are Diffusion Models? <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The clearest unified treatment of DDPM, score matching, and SDE views. The single best resource.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/2006.11239" target="_blank">Ho et al. (2020) — DDPM <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The paper that made diffusion competitive. Establishes the noise-prediction objective and the U-Net backbone.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://yang-song.net/blog/2021/score/" target="_blank">Yang Song — Generative Modeling by Estimating Gradients <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The unified SDE / score-matching view from one of the field's main authors. The right pivot for understanding the modern theory.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://huggingface.co/docs/diffusers" target="_blank">Hugging Face Diffusers <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The library most modern diffusion work runs on. Excellent tutorials, model zoo, training scripts, and schedulers.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2112.10752" target="_blank">Rombach et al. (2022) — Latent Diffusion <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Stable Diffusion's paper. Shows how decoupling perceptual compression and diffusion makes high-res generation tractable.</span>
         </li>

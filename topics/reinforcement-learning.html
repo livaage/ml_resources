@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Learn by doing — no labels, only rewards. The framework that powers game-playing agents, robotics, and RLHF.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -127,20 +137,39 @@ policy = Q.argmax(axis=1)
 
     <div class="level-next">
         <span>Want MDPs, Bellman equations, and actor-critic?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Bellman optimality</span>
-        <span class="formula">$$ Q^*(s, a) = \mathbb{E}_{s'}\!\left[\, R(s, a) + \gamma \max_{a'} Q^*(s', a') \,\right] $$</span>
-        <ul class="formula-legend">
-            <li><code>Q*</code>optimal action-value function</li>
-            <li><code>γ</code>discount factor (0 = myopic; 1 = far-sighted)</li>
-            <li>Q-learning bootstraps this equation iteratively</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ Q^*(s, a) = \mathbb{E}_{s'}\!\left[\, R(s, a) + \gamma \max_{a'} Q^*(s', a') \,\right] $$</span>
+            <ul class="formula-legend">
+                <li><code>Q*(s, a)</code>optimal action-value: best possible expected return from state <em>s</em> after taking action <em>a</em></li>
+                <li><code>R(s, a)</code>immediate reward for taking <em>a</em> in <em>s</em></li>
+                <li><code>γ</code>discount factor (0 = myopic; 1 = far-sighted)</li>
+                <li><code>E<sub>s'</sub>[·]</code>average over the next state <em>s'</em> drawn from the environment's dynamics</li>
+                <li>Q-learning bootstraps this equation iteratively</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ Q^*(\text{state}, \text{action}) \;=\; \text{avg over next states}\!\left[\, \text{reward now} \;+\; \gamma \times \max_{\text{next action}} Q^*(\text{next state}, \text{next action}) \,\right] $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The best possible value of taking an action in a state is whatever reward you collect right now, plus a discounted estimate of the best value you can achieve from <em>wherever you end up</em> next. The <code>E<sub>s'</sub></code> averages over the randomness in where you land. The <code>max</code> says you assume you'll act optimally from then on. <code>γ</code> (gamma, between 0 and 1) is the discount — it shrinks rewards that are further in the future, so the agent prefers earlier payoffs. This is a self-referential equation: <code>Q*</code> appears on both sides. Q-learning solves it by repeatedly nudging <code>Q</code> toward the right-hand side as the agent collects experience.
+            </p>
+            <ul class="formula-legend">
+                <li><code>Q*</code>optimal value of (state, action) — best expected total reward from that point on</li>
+                <li><code>reward now</code>the immediate reward signal from taking that action</li>
+                <li><code>γ</code>discount factor between 0 and 1 — higher means longer planning horizon</li>
+                <li><code>avg over next states</code>average across the random next states the environment can transition to</li>
+                <li><code>max over next action</code>assume you'll pick the best action next time, too</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -177,20 +206,39 @@ def dqn_step(net, target_net, batch, gamma=0.99):
 
     <div class="level-next">
         <span>Want PPO, soft actor-critic, RLHF, and the exploration zoo?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">PPO clipped objective</span>
-        <span class="formula">$$ \mathcal{L}^{\text{CLIP}}(\theta) = \mathbb{E}_t \min\!\Big(r_t(\theta) \hat A_t,\; \mathrm{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat A_t\Big) $$</span>
-        <ul class="formula-legend">
-            <li><code>r<sub>t</sub>(θ)</code>importance ratio between new and old policy</li>
-            <li>Clip prevents large policy updates that destabilise training</li>
-            <li>Default actor-critic for the practical RL world</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L}^{\text{CLIP}}(\theta) = \mathbb{E}_t \min\!\Big(r_t(\theta) \hat A_t,\; \mathrm{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat A_t\Big) $$</span>
+            <ul class="formula-legend">
+                <li><code>r<sub>t</sub>(θ)</code>importance ratio between new and old policy: <em>π<sub>θ</sub>(a<sub>t</sub> | s<sub>t</sub>) / π<sub>old</sub>(a<sub>t</sub> | s<sub>t</sub>)</em></li>
+                <li><code>Â<sub>t</sub></code>estimated advantage at step <em>t</em> — how much better this action was than average</li>
+                <li><code>clip(·, 1−ε, 1+ε)</code>squashes the ratio into a tight band around 1</li>
+                <li><code>ε</code>clip range, typically 0.1–0.3</li>
+                <li>Clip prevents large policy updates that destabilise training — the default actor-critic in practice</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{loss} \;=\; \text{avg}_t \min\!\Big(\text{ratio}_t \times \text{advantage}_t, \; \text{clip}(\text{ratio}_t, 1-\epsilon, 1+\epsilon) \times \text{advantage}_t\Big) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The <strong>ratio</strong> is how much more likely the new policy is to take the action than the old policy was. The <strong>advantage</strong> is how much better than average that action turned out to be. Their product is the natural "policy gradient" term — make good actions more likely, bad actions less. The trick is the <code>clip</code>: it caps the ratio inside a tight band around 1 (typically 0.8 to 1.2), and the <code>min</code> picks the more pessimistic of the two surrogate objectives. The net effect: PPO can move the policy quickly when the advantage is small, but stops cold when the policy is already very different from the data-collection policy — which is what makes it stable.
+            </p>
+            <ul class="formula-legend">
+                <li><code>ratio</code>new policy's probability of the action divided by the old policy's probability</li>
+                <li><code>advantage</code>how much better this action was than the average action at that state</li>
+                <li><code>clip(ratio, 1−ε, 1+ε)</code>force the ratio into a narrow band — prevents huge updates</li>
+                <li><code>min(·, ·)</code>pessimistic choice — caps both upside and downside of the update</li>
+                <li><code>ε</code>clip width (commonly 0.1 to 0.3)</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -229,7 +277,7 @@ def gae(rewards, values, dones, gamma=0.99, lam=0.95):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -243,19 +291,19 @@ def gae(rewards, values, dones, gamma=0.99, lam=0.95):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="http://incompleteideas.net/book/the-book-2nd.html" target="_blank">Sutton &amp; Barto — Reinforcement Learning: An Introduction <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference textbook. Free PDF online. Chapters 1–6 are essential for any serious RL work.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://spinningup.openai.com/" target="_blank">OpenAI Spinning Up <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical introduction to deep RL with clean reference implementations of REINFORCE, A2C, PPO, DDPG, SAC, TRPO.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://lilianweng.github.io/posts/2018-04-08-policy-gradient/" target="_blank">Lilian Weng — Policy Gradients <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Tour of all the major policy-gradient methods — REINFORCE, A2C, A3C, TRPO, PPO, SAC — with the math worked out.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1707.06347" target="_blank">Schulman et al. (2017) — PPO <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The PPO paper. Short and readable; section 3 is the canonical loss derivation.</span>
         </li>

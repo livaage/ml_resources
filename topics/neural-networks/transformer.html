@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Attention-based architectures — the backbone of modern LLMs, vision models, and almost everything else.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -131,21 +141,40 @@ outputs = mdl(**inputs)
     </div>
 
     <div class="level-next">
-        <span>Want self-attention math and positional encoding?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <span>Want the attention formula and architecture details?</span>
+        <button data-go-to="fundamentals" type="button">Switch to Fundamentals →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Scaled dot-product attention</span>
-        <span class="formula">$$ \text{Attention}(Q, K, V) \;=\; \mathrm{softmax}\!\left(\frac{Q K^\top}{\sqrt{d_k}}\right) V $$</span>
-        <ul class="formula-legend">
-            <li><code>Q, K, V</code>queries, keys, values — each token projected to three vectors</li>
-            <li><code>d<sub>k</sub></code>dimension of keys; the <em>√d<sub>k</sub></em> scaling prevents softmax saturation</li>
-            <li>Row <em>i</em> of the output = weighted sum of values, with weights from how much query <em>i</em> matches each key</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{Attention}(Q, K, V) \;=\; \mathrm{softmax}\!\left(\frac{Q K^\top}{\sqrt{d_k}}\right) V $$</span>
+            <ul class="formula-legend">
+                <li><code>Q, K, V</code>queries, keys, values — each token projected to three vectors</li>
+                <li><code>QKᵀ</code>matrix of how well each query matches each key (dot products)</li>
+                <li><code>√d<sub>k</sub></code>scaling — prevents the softmax from saturating when the key dimension is large</li>
+                <li><code>softmax</code>turns the match scores into weights that sum to 1 across keys</li>
+                <li>Row <em>i</em> of the output = weighted sum of values, weights from query <em>i</em>'s match to each key</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{output}_i \;=\; \sum_{j} w_{ij} \cdot \text{value}_j \quad\text{where}\quad w_{ij} \;=\; \text{softmax}_j\!\left(\frac{\text{query}_i \cdot \text{key}_j}{\sqrt{d}}\right) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> For each token <em>i</em>: see how well its <strong>query</strong> vector matches every <strong>key</strong> vector — the dot product <code>q · k</code> is a single number measuring alignment (bigger when the two vectors point in similar directions). Divide by <code>√d</code> to keep the numbers from blowing up when the vectors are long. Run those scores through <code>softmax</code>, which squashes any list of numbers into positive weights that sum to 1 (so they behave like probabilities). The <code>Σ</code> (sigma) symbol just means "add up across every <em>j</em>" — so the final output is the weighted average of all the <strong>value</strong> vectors.
+            </p>
+            <ul class="formula-legend">
+                <li><code>query, key, value</code>three vectors per token; each is the token's embedding times a learned matrix</li>
+                <li><code>q · k</code>dot product — measures how aligned the two vectors are</li>
+                <li><code>√d</code>scaling factor; <em>d</em> is the length of each query/key vector</li>
+                <li><code>softmax</code>turns a list of scores into a list of weights that sum to 1</li>
+                <li>So output for token <em>i</em> is a weighted average of all values, with weights from how well its query matches each key</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -202,21 +231,35 @@ class TransformerBlock(nn.Module):
     </div>
 
     <div class="level-next">
-        <span>Want the O(N²) tradeoffs, scaling laws, and modern variants?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <span>Want scaling laws, KV caches, and MoE?</span>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Computational cost</span>
-        <span class="formula">$$ \text{FLOPs}_{\text{attention}} \sim \mathcal{O}(N^2 \cdot d), \quad \text{FLOPs}_{\text{MLP}} \sim \mathcal{O}(N \cdot d^2) $$</span>
-        <ul class="formula-legend">
-            <li>Attention scales <strong>quadratically</strong> in sequence length <em>N</em></li>
-            <li>MLPs scale linearly in <em>N</em> but quadratically in model width <em>d</em></li>
-            <li>For long context, attention dominates; for small context with wide models, the MLP does</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{FLOPs}_{\text{attention}} \;\sim\; \mathcal{O}(N^2 \cdot d), \qquad \text{FLOPs}_{\text{MLP}} \;\sim\; \mathcal{O}(N \cdot d^2) $$</span>
+            <ul class="formula-legend">
+                <li>Attention scales <strong>quadratically</strong> in sequence length <em>N</em></li>
+                <li>MLPs scale linearly in <em>N</em> but quadratically in model width <em>d</em></li>
+                <li>For long context, attention dominates; for small context with wide models, the MLP does</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{attention cost} \;\propto\; (\text{seq length})^2 \times \text{model width}, \qquad \text{MLP cost} \;\propto\; \text{seq length} \times (\text{model width})^2 $$</span>
+            <ul class="formula-legend">
+                <li><code>seq length</code>number of tokens in the input (<em>N</em>)</li>
+                <li><code>model width</code>size of each token's embedding (<em>d</em>)</li>
+                <li>Attention grows with the <em>square</em> of sequence length — doubling tokens quadruples the work</li>
+                <li>MLP grows with the <em>square</em> of model width — doubling embedding size quadruples the work</li>
+                <li>Long context → attention dominates. Wide model on short context → MLP dominates.</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -283,8 +326,8 @@ class CausalSelfAttention(nn.Module):
     </div>
 
     <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <span>Want the picture instead?</span>
+        <button data-go-to="intuition" type="button">← Back to Intuition</button>
     </div>
 </section>
 
@@ -308,19 +351,19 @@ class CausalSelfAttention(nn.Module):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="intuition">
             <a href="https://jalammar.github.io/illustrated-transformer/" target="_blank">Alammar — The Illustrated Transformer <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Best visual walkthrough of attention. Start here before reading the paper.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/1706.03762" target="_blank">Vaswani et al. (2017) — Attention is All You Need <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original transformer paper. Surprisingly readable. Read after the Alammar walkthrough.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.youtube.com/watch?v=kCc8FmEb1nY" target="_blank">Karpathy — Let's build GPT, from scratch <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Two hours of pure value. Builds a decoder transformer in PyTorch from first principles. Watch with the code open.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://transformer-circuits.pub/2021/framework/index.html" target="_blank">Anthropic — A Mathematical Framework for Transformers <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">For going deep on what transformers <em>actually do</em> mechanistically. Dense but illuminating once you have the basics.</span>
         </li>

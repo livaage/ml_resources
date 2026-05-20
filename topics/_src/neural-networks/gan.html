@@ -93,20 +93,36 @@ class D(nn.Module):
 
     <div class="level-next">
         <span>Want the minimax game and mode collapse?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The minimax game</span>
-        <span class="formula">$$ \min_G \max_D \;\; \mathbb{E}_{\mathbf{x}\sim p_{\text{data}}}[\log D(\mathbf{x})] \;+\; \mathbb{E}_{\mathbf{z}\sim p_z}[\log(1 - D(G(\mathbf{z})))] $$</span>
-        <ul class="formula-legend">
-            <li><code>D(x)</code>discriminator's probability that <em>x</em> is real</li>
-            <li><code>G(z)</code>generator's output given noise <em>z</em></li>
-            <li><code>D</code>maximizes its accuracy; <code>G</code> minimizes <em>D</em>'s accuracy on fakes</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \min_G \max_D \;\; \mathbb{E}_{\mathbf{x}\sim p_{\text{data}}}[\log D(\mathbf{x})] \;+\; \mathbb{E}_{\mathbf{z}\sim p_z}[\log(1 - D(G(\mathbf{z})))] $$</span>
+            <ul class="formula-legend">
+                <li><code>D(x)</code>discriminator's probability that <em>x</em> is real</li>
+                <li><code>G(z)</code>generator's output given noise <em>z</em></li>
+                <li><code>D</code>maximizes its accuracy; <code>G</code> minimizes <em>D</em>'s accuracy on fakes</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \min_G \max_D \;\; \text{avg over real samples}[\log D(\text{real})] \;+\; \text{avg over noise samples}[\log(1 - D(G(\text{noise})))] $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Two players. The <strong>discriminator</strong> <code>D</code> outputs a number between 0 and 1: "how likely is this real?" Its goal is to score real samples near 1 and fakes near 0 — that's why it tries to <em>maximize</em> the expression (both terms get larger when it's right). The <strong>generator</strong> <code>G</code> turns random noise into fake samples and tries to <em>minimize</em> the same expression (which means making <code>D(G(noise))</code> close to 1, i.e. fooling D). <code>𝔼</code> just means "average over many samples". At the theoretical equilibrium, G produces samples indistinguishable from real data and D is reduced to guessing.
+            </p>
+            <ul class="formula-legend">
+                <li><code>D(real)</code>discriminator's confidence that a real sample is real</li>
+                <li><code>D(G(noise))</code>discriminator's confidence that a fake sample is real</li>
+                <li><code>min/max</code>generator wants D fooled, discriminator wants D accurate</li>
+                <li><code>avg</code>averaging is over a batch of real samples and a batch of noise samples</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -171,20 +187,36 @@ def train_step(real_x, G, D, g_opt, d_opt, z_dim=100):
 
     <div class="level-next">
         <span>Want WGAN, spectral normalization, and StyleGAN?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Wasserstein GAN objective</span>
-        <span class="formula">$$ \min_G \max_{D \in \mathcal{D}_{1\text{-Lip}}} \;\; \mathbb{E}_{\mathbf{x}\sim p_{\text{data}}}[D(\mathbf{x})] \;-\; \mathbb{E}_{\mathbf{z}\sim p_z}[D(G(\mathbf{z}))] $$</span>
-        <ul class="formula-legend">
-            <li><code>𝒟<sub>1-Lip</sub></code>1-Lipschitz functions — <em>D</em> must have bounded gradient</li>
-            <li>Approximates the Wasserstein-1 distance between real and generated distributions</li>
-            <li>Gradient doesn't vanish when distributions don't overlap (unlike JS-divergence)</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \min_G \max_{D \in \mathcal{D}_{1\text{-Lip}}} \;\; \mathbb{E}_{\mathbf{x}\sim p_{\text{data}}}[D(\mathbf{x})] \;-\; \mathbb{E}_{\mathbf{z}\sim p_z}[D(G(\mathbf{z}))] $$</span>
+            <ul class="formula-legend">
+                <li><code>𝒟<sub>1-Lip</sub></code>1-Lipschitz functions — <em>D</em> must have bounded gradient</li>
+                <li>Approximates the Wasserstein-1 distance between real and generated distributions</li>
+                <li>Gradient doesn't vanish when distributions don't overlap (unlike JS-divergence)</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \min_G \max_{D \,\text{(bounded slope)}} \;\; \text{avg over real}[\,D(\text{real})\,] \;-\; \text{avg over fake}[\,D(\text{fake})\,] $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Drop the log and the sigmoid: the discriminator now outputs a raw score (sometimes called a <em>critic</em>), and its job is to push scores up on real samples and down on fakes. The difference of the two averages approximates the <strong>Wasserstein-1 distance</strong> between the real and generated distributions — informally, "how much earth would you have to move to turn one distribution into the other." The crucial restriction is that <code>D</code> must be <strong>1-Lipschitz</strong>, meaning its slope is capped: a small change in input causes only a small change in output. This restriction is what makes the gradient flow meaningfully even when real and fake samples don't overlap, fixing the vanilla GAN's saturating-gradient problem.
+            </p>
+            <ul class="formula-legend">
+                <li><code>D(real), D(fake)</code>raw scores (no sigmoid) — higher means "looks real-er"</li>
+                <li><code>bounded slope</code>D is restricted to 1-Lipschitz functions — its gradient never exceeds 1</li>
+                <li><code>avg</code>average over a batch of real samples and a batch of generated samples</li>
+                <li>Enforced via weight clipping, gradient penalty, or spectral normalization</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -249,7 +281,7 @@ def hinge_g_loss(d_fake):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -258,19 +290,19 @@ def hinge_g_loss(d_fake):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/1406.2661" target="_blank">Goodfellow et al. (2014) — GAN <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original paper. Surprisingly readable. Sections 2–4 cover the theory of the minimax game.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://lilianweng.github.io/posts/2017-08-20-gan/" target="_blank">Lilian Weng — From GAN to WGAN <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Walks from vanilla GAN to WGAN, WGAN-GP, and beyond — with the math behind each variant.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/soumith/ganhacks" target="_blank">Soumith — How to train a GAN <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Classic compilation of empirical training tricks. Many are outdated but the principles still apply.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1812.04948" target="_blank">Karras et al. (2018) — StyleGAN <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The architecture that produced photorealistic faces and a navigable style space. Worth reading even if you're using diffusion now.</span>
         </li>

@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Open the black box — feature importance, attribution, mechanistic interpretability, and the limits of "why did the model do that?"</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -119,20 +129,37 @@ for i in result.importances_mean.argsort()[::-1][:5]:
 
     <div class="level-next">
         <span>Want global vs local, axiomatic guarantees, &amp; mechanistic methods?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Shapley value</span>
-        <span class="formula">$$ \phi_i(f, x) = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|!\,(|F| - |S| - 1)!}{|F|!} \big[\, f(S \cup \{i\}) - f(S)\,\big] $$</span>
-        <ul class="formula-legend">
-            <li>Marginal contribution of feature <em>i</em>, averaged over all subsets</li>
-            <li>Unique attribution method satisfying efficiency, symmetry, dummy, additivity</li>
-            <li>Exact computation is exponential — SHAP uses tractable approximations</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \phi_i(f, x) = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|!\,(|F| - |S| - 1)!}{|F|!} \big[\, f(S \cup \{i\}) - f(S)\,\big] $$</span>
+            <ul class="formula-legend">
+                <li>Marginal contribution of feature <em>i</em>, averaged over all subsets</li>
+                <li>Unique attribution method satisfying efficiency, symmetry, dummy, additivity</li>
+                <li>Exact computation is exponential — SHAP uses tractable approximations</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \phi_i \;=\; \text{weighted average across all feature subsets } S \text{ of}\; \big[\,\text{prediction with } i \text{ added to } S \;-\; \text{prediction with just } S\,\big] $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The Shapley value for feature <em>i</em> answers "how much did feature <em>i</em> contribute, on average, across every possible context?" For each subset <em>S</em> of the other features, you ask: "what does the prediction become if I add feature <em>i</em> to this subset?" That difference is feature <em>i</em>'s marginal contribution given context <em>S</em>. Average those marginals across every possible context, with the specific weighting in the formula (which counts each "size of context" equally), and you get the unique attribution satisfying four natural axioms (efficiency, symmetry, dummy, additivity). Computing exactly is exponential in feature count; SHAP uses clever approximations.
+            </p>
+            <ul class="formula-legend">
+                <li><code>φᵢ</code>Shapley value (attribution) for feature <em>i</em></li>
+                <li><code>S</code>a subset of features <em>not including i</em></li>
+                <li><code>f(S ∪ {i}) − f(S)</code>marginal contribution of <em>i</em> given the context <em>S</em></li>
+                <li>The factorial weights ensure each "context size" is averaged equally</li>
+                <li>Unique method satisfying efficiency, symmetry, dummy, additivity</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -161,20 +188,37 @@ heat = cam.attribute(input, target=pred_class)
 
     <div class="level-next">
         <span>Want mechanistic interpretability, circuits, &amp; sparse autoencoders?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Sparse autoencoder objective</span>
-        <span class="formula">$$ \mathcal{L} = \big\lVert x - \hat x \big\rVert^2 + \lambda\,\lVert z \rVert_1, \quad z = \sigma(W_\text{enc} x + b) $$</span>
-        <ul class="formula-legend">
-            <li>Learn a sparse code <em>z</em> over the network's hidden state</li>
-            <li>Activations of single <em>z</em>-dimensions tend to correspond to interpretable features</li>
-            <li>Anthropic / DeepMind's flagship mech-interp tool</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L} = \big\lVert x - \hat x \big\rVert^2 + \lambda\,\lVert z \rVert_1, \quad z = \sigma(W_\text{enc} x + b) $$</span>
+            <ul class="formula-legend">
+                <li>Learn a sparse code <em>z</em> over the network's hidden state</li>
+                <li>Activations of single <em>z</em>-dimensions tend to correspond to interpretable features</li>
+                <li>Anthropic / DeepMind's flagship mech-interp tool</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{loss} \;=\; \text{(squared reconstruction error)} \;+\; \lambda \times \text{(sum of absolute values of the sparse code)} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A sparse autoencoder learns to compress a network's hidden state <em>x</em> into a sparse code <em>z</em> and then reconstruct <em>x</em> from <em>z</em>. The loss has two competing terms: the first measures how badly the reconstruction <em>x̂</em> misses <em>x</em> (squared error); the second is an L1 penalty that pressures the code <em>z</em> to be mostly zero. <code>λ</code> (lambda) controls how aggressively to sparsify. After training, individual dimensions of <em>z</em> tend to light up for interpretable concepts — one for "fruit", one for "lawsuit", one for "Python code". <code>σ</code> here is a nonlinearity (typically ReLU).
+            </p>
+            <ul class="formula-legend">
+                <li><code>x</code>the original hidden state of the network</li>
+                <li><code>x̂</code>the reconstruction from the sparse code</li>
+                <li><code>z</code>the sparse code (mostly zeros after training)</li>
+                <li><code>λ</code>sparsity strength — bigger λ forces more zeros</li>
+                <li>Single <em>z</em>-dimensions tend to correspond to interpretable features</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -215,7 +259,7 @@ x_hat, z, loss = sae(hidden)
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -229,19 +273,19 @@ x_hat, z, loss = sae(hidden)
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://christophm.github.io/interpretable-ml-book/" target="_blank">Molnar — Interpretable Machine Learning <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Free, comprehensive textbook on practical interpretability. SHAP, LIME, PDP, ICE, counterfactuals — all worked examples.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://distill.pub/2020/circuits/" target="_blank">Distill — Circuits Thread <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Olah et al.'s series on mechanistic interpretability of convolutional networks. The visual style still sets the standard.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://transformer-circuits.pub/" target="_blank">Anthropic — Transformer Circuits <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Anthropic's mech-interp blog. Induction heads, sparse autoencoders, and superposition. The frontier of "what's inside transformers".</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://shap.readthedocs.io/" target="_blank">SHAP — Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference SHAP library. Practical tutorials for trees, deep models, kernels.</span>
         </li>

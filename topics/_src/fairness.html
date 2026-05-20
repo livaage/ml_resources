@@ -97,20 +97,36 @@ def per_group_threshold(scores, group, target_tpr=0.8, y_true=None):
 
     <div class="level-next">
         <span>Want individual fairness, causal frameworks, &amp; mitigations?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Equalised odds</span>
-        <span class="formula">$$ P(\hat Y = 1 \mid Y = y, A = a) = P(\hat Y = 1 \mid Y = y, A = a'),\quad \forall y, a, a' $$</span>
-        <ul class="formula-legend">
-            <li><em>Â</em> protected attribute, <em>Y</em> true label, <em>Ŷ</em> prediction</li>
-            <li>Both TPR and FPR equal across groups</li>
-            <li>Stricter than equal opportunity (which only requires TPR equality)</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ P(\hat Y = 1 \mid Y = y, A = a) = P(\hat Y = 1 \mid Y = y, A = a'),\quad \forall y, a, a' $$</span>
+            <ul class="formula-legend">
+                <li><em>Â</em> protected attribute, <em>Y</em> true label, <em>Ŷ</em> prediction</li>
+                <li>Both TPR and FPR equal across groups</li>
+                <li>Stricter than equal opportunity (which only requires TPR equality)</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{probability of "predict positive"} \;\text{given the true label and the protected group} \;\text{is the same across all groups} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Equalised odds requires that the model's behaviour on real positives and on real negatives is identical across protected groups. Specifically, the <em>true positive rate</em> (chance of being predicted positive when actually positive) and the <em>false positive rate</em> (chance of being predicted positive when actually negative) must each match across groups. <code>Y</code> is the true label, <code>Ŷ</code> is the prediction, and <code>A</code> is the protected attribute (e.g. gender, race). This is stricter than "equal opportunity", which only requires the true-positive rate to be equal.
+            </p>
+            <ul class="formula-legend">
+                <li><code>Y</code>true label (positive or negative)</li>
+                <li><code>Ŷ</code>model's prediction</li>
+                <li><code>A</code>protected attribute (e.g. group membership)</li>
+                <li>Both TPR and FPR equal across groups; stricter than equal opportunity</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -151,20 +167,36 @@ y_hat = to.predict(X_test, sensitive_features=group_test)
 
     <div class="level-next">
         <span>Want counterfactual fairness, mech-interp for bias, &amp; LLM alignment ethics?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Counterfactual fairness</span>
-        <span class="formula">$$ P(\hat Y_{A \leftarrow a}(U) = y \mid X = x, A = a) = P(\hat Y_{A \leftarrow a'}(U) = y \mid X = x, A = a), \forall y, a' $$</span>
-        <ul class="formula-legend">
-            <li>The prediction shouldn't change in the counterfactual world where the protected attribute was different</li>
-            <li>Requires a structural causal model of the data-generating process</li>
-            <li>Strong assumption; weak observation guarantees</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ P(\hat Y_{A \leftarrow a}(U) = y \mid X = x, A = a) = P(\hat Y_{A \leftarrow a'}(U) = y \mid X = x, A = a), \forall y, a' $$</span>
+            <ul class="formula-legend">
+                <li>The prediction shouldn't change in the counterfactual world where the protected attribute was different</li>
+                <li>Requires a structural causal model of the data-generating process</li>
+                <li>Strong assumption; weak observation guarantees</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{prediction in the actual world} \;=\; \text{prediction in the counterfactual world where only the protected attribute is changed} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Imagine rewinding the universe and changing <em>only</em> the protected attribute <code>A</code> (e.g. flipping gender or race) while holding everything else that makes the person who they are constant. Counterfactual fairness says the model's prediction shouldn't differ between the actual and counterfactual person. The notation <code>A ← a</code> is "do-calculus": surgically set <em>A</em> to value <em>a</em>. <code>U</code> stands for unobserved background factors. This is a strong philosophical commitment — it requires you to have written down a structural causal model of the data-generating process, which is rarely possible without strong assumptions.
+            </p>
+            <ul class="formula-legend">
+                <li><code>A ← a</code>counterfactual intervention: set the protected attribute to value <em>a</em></li>
+                <li><code>U</code>unobserved background factors of the individual</li>
+                <li><code>X</code>observed features</li>
+                <li>Strong assumption; requires a causal model — rarely deployed in practice</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -204,7 +236,7 @@ loss.backward()
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -213,19 +245,19 @@ loss.backward()
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://fairmlbook.org/" target="_blank">Barocas, Hardt &amp; Narayanan — Fairness and Machine Learning <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference textbook. Free online. Comprehensive treatment of fairness definitions, metrics, and trade-offs.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/1610.02413" target="_blank">Hardt, Price &amp; Srebro (2016) — Equal Opportunity <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The post-processing-for-fair-thresholds paper. Foundational; readable.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://fairlearn.org/" target="_blank">Fairlearn <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Microsoft's open-source fairness toolkit. Metrics, mitigations, dashboards.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1810.03993" target="_blank">Mitchell et al. (2019) — Model Cards <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The Google paper proposing standardised model documentation. Now widely adopted by HuggingFace, OpenAI, Anthropic.</span>
         </li>

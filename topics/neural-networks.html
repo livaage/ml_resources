@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">The foundation — artificial neurons, layers, and the trick that lets them learn from examples.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -98,20 +108,36 @@ for xb, yb in loader:
 
     <div class="level-next">
         <span>Want to see what's actually happening?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">One neuron</span>
-        <span class="formula">$$ y \;=\; \sigma\!\left(\sum_{i=1}^{n} w_i\, x_i \;+\; b\right) $$</span>
-        <ul class="formula-legend">
-            <li><code>x<sub>i</sub></code>inputs</li>
-            <li><code>w<sub>i</sub>, b</code>learnable weights and bias</li>
-            <li><code>σ</code>nonlinear activation — ReLU, sigmoid, tanh</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ y \;=\; \sigma\!\left(\sum_{i=1}^{n} w_i\, x_i \;+\; b\right) $$</span>
+            <ul class="formula-legend">
+                <li><code>x<sub>i</sub></code>inputs</li>
+                <li><code>w<sub>i</sub>, b</code>learnable weights and bias</li>
+                <li><code>σ</code>nonlinear activation — ReLU, sigmoid, tanh</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{output} \;=\; \sigma\!\left(\text{weight}_1 \times \text{input}_1 + \text{weight}_2 \times \text{input}_2 + \ldots + \text{bias}\right) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A neuron takes a list of <strong>inputs</strong>, multiplies each one by its own <strong>weight</strong>, adds them all up, then adds a single <strong>bias</strong> number to shift the result. The whole sum is passed through a <strong>nonlinearity</strong> <code>σ</code> (sigma — usually ReLU, which just keeps positive numbers and zeros out negatives). The <code>Σ</code> (sigma) in the math version is shorthand for "add up every term as <em>i</em> goes from 1 to <em>n</em>" — it's the weighted-sum step. Weights and bias are the only things the network learns; everything else is fixed structure.
+            </p>
+            <ul class="formula-legend">
+                <li><code>inputs</code>the numbers fed into the neuron</li>
+                <li><code>weights, bias</code>numbers the network learns by training</li>
+                <li><code>σ</code>a nonlinear "bend" applied to the sum — without it stacking neurons buys you nothing</li>
+            </ul>
+        </div>
+
         <p style="margin-top:0.75rem">A neural network is just a graph of these little computations. The "neural" metaphor is mostly decorative.</p>
     </div>
 
@@ -174,20 +200,36 @@ def train(model, loader, epochs=10, lr=1e-3):
 
     <div class="level-next">
         <span>Want universal approximation and the math behind backprop?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Backprop in one equation</span>
-        <span class="formula">$$ \frac{\partial \mathcal{L}}{\partial W^{(\ell)}} \;=\; \delta^{(\ell)} \big(\mathbf{h}^{(\ell-1)}\big)^\top, \qquad \delta^{(\ell)} \;=\; \big(W^{(\ell+1)}\big)^\top \delta^{(\ell+1)} \,\odot\, \sigma'\!\big(\mathbf{z}^{(\ell)}\big) $$</span>
-        <ul class="formula-legend">
-            <li><code>δ<sup>(ℓ)</sup></code>error signal at layer <em>ℓ</em>, propagated backward from the loss</li>
-            <li><code>h<sup>(ℓ-1)</sup></code>activations from the previous layer (the "incoming" signal)</li>
-            <li><code>z<sup>(ℓ)</sup></code>pre-activation; <em>σ'</em> is the derivative of the activation</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \frac{\partial \mathcal{L}}{\partial W^{(\ell)}} \;=\; \delta^{(\ell)} \big(\mathbf{h}^{(\ell-1)}\big)^\top, \qquad \delta^{(\ell)} \;=\; \big(W^{(\ell+1)}\big)^\top \delta^{(\ell+1)} \,\odot\, \sigma'\!\big(\mathbf{z}^{(\ell)}\big) $$</span>
+            <ul class="formula-legend">
+                <li><code>δ<sup>(ℓ)</sup></code>error signal at layer <em>ℓ</em>, propagated backward from the loss</li>
+                <li><code>h<sup>(ℓ-1)</sup></code>activations from the previous layer (the "incoming" signal)</li>
+                <li><code>z<sup>(ℓ)</sup></code>pre-activation; <em>σ'</em> is the derivative of the activation</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{weight-gradient at layer } \ell \;=\; \text{error at layer } \ell \times \text{input to that layer}, \quad \text{error at } \ell \;=\; (\text{next layer's weights} \times \text{next layer's error}) \times \sigma'(\text{pre-activation}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Backpropagation is just the chain rule run layer-by-layer from the loss back to the inputs. The <strong>error signal</strong> <code>δ</code> (delta) at the output layer is "how wrong are we", and you push it backward: multiply by the next layer's weight matrix to bring it back through that layer, then multiply by <code>σ'</code> (the slope of the nonlinearity at that layer's pre-activation) to account for the bend. Once you have the error at a layer, the gradient with respect to that layer's weights is just <code>error × input</code> to the layer (an outer product). The <code>⊙</code> symbol means element-by-element multiplication; <code>ᵀ</code> means "transpose" (flipping rows and columns). PyTorch / JAX do all of this automatically.
+            </p>
+            <ul class="formula-legend">
+                <li><code>error at layer ℓ</code>how much that layer's pre-activation needs to change to reduce the loss</li>
+                <li><code>input to layer ℓ</code>the activations from the previous layer (call them <code>h<sup>(ℓ-1)</sup></code>)</li>
+                <li><code>σ'(pre-activation)</code>slope of the nonlinearity at that layer — ReLU's slope is 1 where the input was positive, 0 where it was negative</li>
+                <li>Step backward through layers and you get a gradient for every weight in the network</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -249,7 +291,7 @@ class TinyNet(nn.Module):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -268,23 +310,23 @@ class TinyNet(nn.Module):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="intuition">
             <a href="https://www.3blue1brown.com/topics/neural-networks" target="_blank">3Blue1Brown — Neural Networks <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The best visual introduction. Four ~20-minute videos that build deep intuition for layers, training, and backprop.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="http://neuralnetworksanddeeplearning.com/" target="_blank">Nielsen — Neural Networks and Deep Learning <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Best free online book to build a network from scratch in Python and really understand the math.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.deeplearningbook.org/" target="_blank">Goodfellow, Bengio, Courville — Deep Learning <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The textbook. Chapters 6–8 give the canonical treatment of feedforward nets, optimization, and regularization.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://karpathy.github.io/2019/04/25/recipe/" target="_blank">Karpathy — A Recipe for Training NNs <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Hard-won practical advice. The single most useful debugging checklist for training networks.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch.org/tutorials/" target="_blank">PyTorch tutorials <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Hands-on with the framework most modern research uses. Run the 60-min blitz first.</span>
         </li>

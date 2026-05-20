@@ -87,20 +87,39 @@ model.fc = torch.nn.Linear(model.fc.in_features, num_classes)
 
     <div class="level-next">
         <span>Want ViTs, DETR, segmentation, &amp; vision foundation models?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Convolution</span>
-        <span class="formula">$$ (f * g)[i, j] = \sum_{m, n} f[i - m,\, j - n] \cdot g[m, n] $$</span>
-        <ul class="formula-legend">
-            <li>Local, weight-shared, translation-equivariant</li>
-            <li>The inductive bias that made deep learning work for vision</li>
-            <li>ViTs partially abandon it for self-attention</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ (f * g)[i, j] = \sum_{m, n} f[i - m,\, j - n] \cdot g[m, n] $$</span>
+            <ul class="formula-legend">
+                <li><code>f</code>input image (a grid of pixel values)</li>
+                <li><code>g</code>convolution kernel — a small learned matrix of weights</li>
+                <li><code>(f * g)</code>output feature map at position <em>(i, j)</em></li>
+                <li>Local, weight-shared, translation-equivariant</li>
+                <li>The inductive bias that made deep learning work for vision; ViTs partially abandon it for self-attention</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{output}[i, j] \;=\; \sum_{m, n} \text{image}[i - m,\, j - n] \,\times\, \text{kernel}[m, n] $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> At each output pixel <em>(i, j)</em>, you slide a small <strong>kernel</strong> (a tiny grid of learned weights, often 3×3 or 5×5) over the image, multiply matching cells, and add them up. The <code>Σ</code> (sigma) sign just means "add up across all positions <em>m, n</em> in the kernel". Because the same kernel is reused everywhere, the operation is <em>translation-equivariant</em> — shifting the image shifts the output the same way. Each layer of a CNN applies many such kernels in parallel, each learning to spot a different pattern (an edge, a texture, eventually faces or wheels).
+            </p>
+            <ul class="formula-legend">
+                <li><code>image</code>input grid of pixel values</li>
+                <li><code>kernel</code>small grid of learned weights</li>
+                <li><code>output[i, j]</code>value at position <em>(i, j)</em> after sliding the kernel and summing the products</li>
+                <li>Same kernel reused at every position — that's the "weight sharing" that makes CNNs efficient</li>
+                <li>Translation-equivariant: shifting the image shifts the output identically</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -133,20 +152,39 @@ out.loss.backward()
 
     <div class="level-next">
         <span>Want video, 3D, dense prediction, NeRF, and diffusion-based generation?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Neural Radiance Field (NeRF)</span>
-        <span class="formula">$$ C(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\, \sigma(\mathbf{r}(t))\, \mathbf{c}(\mathbf{r}(t), \mathbf{d})\, dt $$</span>
-        <ul class="formula-legend">
-            <li>Volumetric rendering integral parametrised by an MLP</li>
-            <li>Input: 3D point + view direction; output: density and emitted colour</li>
-            <li>3D reconstruction from 2D images — and the basis for many 3D-aware models</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ C(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\, \sigma(\mathbf{r}(t))\, \mathbf{c}(\mathbf{r}(t), \mathbf{d})\, dt $$</span>
+            <ul class="formula-legend">
+                <li><code>C(r)</code>colour of pixel for camera ray <em>r</em></li>
+                <li><code>σ(·)</code>density (how solid the scene is) at a 3D point</li>
+                <li><code>c(·)</code>emitted colour at a 3D point, viewed from direction <em>d</em></li>
+                <li><code>T(t)</code>transmittance — how much light still reaches the camera from depth <em>t</em></li>
+                <li>Volumetric rendering integral parametrised by an MLP — 3D reconstruction from 2D images</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{pixel colour} \;=\; \int_{\text{near}}^{\text{far}} (\text{light still reaching camera}) \,\times\, (\text{density}) \,\times\, (\text{colour at that point})\; dt $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> To work out the colour of a pixel, you shoot a ray from the camera through the pixel into the scene, and integrate ("add up continuously" — that's what <code>∫</code> means) the colour contributions along the ray. At each 3D point along the way, a small neural net predicts its <strong>density</strong> (how opaque the scene is there) and its <strong>colour</strong>. The <code>T(t)</code> factor accounts for the fact that points behind solid stuff contribute less — light is blocked. The whole integral gives you one pixel; do it for every pixel and you've rendered the scene from a new viewpoint.
+            </p>
+            <ul class="formula-legend">
+                <li><code>pixel colour</code>final RGB value for the pixel the ray passes through</li>
+                <li><code>density</code>how "solid" the scene is at a 3D point — learned by the MLP</li>
+                <li><code>colour at that point</code>view-dependent RGB emitted by that point — also from the MLP</li>
+                <li><code>light still reaching camera</code>shrinks as the ray passes through dense regions in front</li>
+                <li>3D reconstruction from 2D images — and the basis for many 3D-aware models</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -181,7 +219,7 @@ mask, scores, _ = predictor.predict(
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -190,19 +228,19 @@ mask, scores, _ = predictor.predict(
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="http://cs231n.stanford.edu/" target="_blank">Stanford CS231n — CNNs for Visual Recognition <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Karpathy's course on deep learning for vision. Notes are still the best from-scratch introduction; slides are continuously updated.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/2010.11929" target="_blank">Dosovitskiy et al. (2020) — ViT <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The vision transformer paper. Short, well-written; introduced the patch-as-token recipe that now dominates.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2304.02643" target="_blank">Kirillov et al. (2023) — Segment Anything <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Meta's SAM. The foundation-model approach to segmentation; the SA-1B dataset is itself remarkable.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch.org/vision/stable/index.html" target="_blank">torchvision <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">PyTorch's vision library — pretrained models, datasets, augmentations. Best one-stop reference for getting hands on practical vision pipelines.</span>
         </li>

@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Where is the time going — compute, memory, data loading, communication? Profile before you optimise.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -98,19 +108,35 @@ prof.export_chrome_trace("trace.json")
 
     <div class="level-next">
         <span>Want kernel fusion, memory profiling, &amp; the data-loader recipes?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Throughput formula</span>
-        <span class="formula">$$ \text{throughput} = \frac{\text{batch size} \times \text{steps/sec}}{\text{world size}} $$</span>
-        <ul class="formula-legend">
-            <li>Compare across configurations — the same compute, more throughput is the goal</li>
-            <li>Plot vs batch size: throughput plateaus when you hit the compute bound</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{throughput} = \frac{\text{batch size} \times \text{steps/sec}}{\text{world size}} $$</span>
+            <ul class="formula-legend">
+                <li>Compare across configurations — the same compute, more throughput is the goal</li>
+                <li>Plot vs batch size: throughput plateaus when you hit the compute bound</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{samples per second per GPU} = \frac{\text{batch size} \times \text{steps per second}}{\text{number of GPUs}} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Throughput is just "how many training examples does each GPU chew through per second". You compute it by multiplying the batch size (samples per step) by the step rate (steps per second), then dividing by the number of GPUs (the <em>world size</em>) to get a per-GPU number. Comparing this across configurations is the cleanest way to tell if your optimisations are doing anything; if it plateaus as you increase batch size, you've hit the compute ceiling and further gains need precision or kernel changes.
+            </p>
+            <ul class="formula-legend">
+                <li><code>batch size</code>samples processed per training step</li>
+                <li><code>steps/sec</code>how fast training steps happen</li>
+                <li><code>world size</code>number of GPUs across which work is split</li>
+                <li>Plot vs batch size: throughput plateaus when you hit the compute bound</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -153,20 +179,36 @@ opt.step()
 
     <div class="level-next">
         <span>Want kernel-level optimisation, FlashAttention, &amp; NVIDIA tools?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Roofline model</span>
-        <span class="formula">$$ \text{perf} = \min\!\big(\text{peak FLOP/s}, \;\text{arithmetic intensity} \times \text{peak bandwidth}\big) $$</span>
-        <ul class="formula-legend">
-            <li>Memory-bound ops (low arithmetic intensity) can't reach peak FLOPs</li>
-            <li>Fusing memory-bound ops shifts you toward compute-bound</li>
-            <li>Hardware vendors' roofline plots show the theoretical limits</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{perf} = \min\!\big(\text{peak FLOP/s}, \;\text{arithmetic intensity} \times \text{peak bandwidth}\big) $$</span>
+            <ul class="formula-legend">
+                <li>Memory-bound ops (low arithmetic intensity) can't reach peak FLOPs</li>
+                <li>Fusing memory-bound ops shifts you toward compute-bound</li>
+                <li>Hardware vendors' roofline plots show the theoretical limits</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{achievable speed} = \min\!\big(\text{compute ceiling},\;\text{memory ceiling}\big) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Your kernel's speed is capped by whichever resource runs out first: raw compute (FLOP/s = floating-point ops per second) or memory bandwidth (how fast you can move bytes). <code>min(...)</code> just picks the smaller of the two ceilings. <em>Arithmetic intensity</em> is "how many FLOPs you do per byte fetched" — if it's low, you're stuck on memory (the kernel spends time moving data); if it's high, you're stuck on compute. Fusing small ops into bigger ones raises arithmetic intensity and shifts you toward the compute ceiling, where peak hardware speed lives.
+            </p>
+            <ul class="formula-legend">
+                <li><code>compute ceiling</code>peak floating-point operations per second on this hardware</li>
+                <li><code>memory ceiling</code>arithmetic intensity × peak memory bandwidth</li>
+                <li><code>arithmetic intensity</code>FLOPs done per byte of memory accessed</li>
+                <li>Fusing memory-bound ops shifts you toward compute-bound</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -204,7 +246,7 @@ with torch.nn.attention.sdpa_kernel(
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -228,19 +270,19 @@ with torch.nn.attention.sdpa_kernel(
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch.org/tutorials/recipes/recipes/profiler_recipe.html" target="_blank">PyTorch Profiler Recipe <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Official walkthrough on the PyTorch profiler with Chrome-trace integration.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://horace.io/brrr_intro.html" target="_blank">Horace He — Making Deep Learning Go Brrrr <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Best single read on what actually makes ML workloads fast. Memory bandwidth, kernel fusion, the modern intuition.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2205.14135" target="_blank">Dao et al. (2022) — FlashAttention <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The paper that made long-context attention practical. Tile the computation to stay in SRAM.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://github.com/openai/triton" target="_blank">Triton <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">OpenAI's Python-flavoured CUDA. The pragmatic way to write custom kernels without going full CUDA C++.</span>
         </li>

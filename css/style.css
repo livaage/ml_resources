@@ -516,6 +516,104 @@ code:not(pre code) {
     position: sticky;
     top: 90px;
     align-self: start;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    /* Subtle scrollbar (Firefox + WebKit) */
+    scrollbar-width: thin;
+    scrollbar-color: var(--hairline) transparent;
+}
+.topic-sidebar::-webkit-scrollbar { width: 6px; }
+.topic-sidebar::-webkit-scrollbar-track { background: transparent; }
+.topic-sidebar::-webkit-scrollbar-thumb {
+    background: var(--hairline);
+    border-radius: 3px;
+}
+.topic-sidebar::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* Tier + notation controls row (replaces the bare .level-tabs block in
+   templates/topic.html). Tabs sit on the left; notation toggle on the right. */
+.tier-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 1.25rem;
+    margin: 0 0 2rem;
+}
+.tier-controls .level-tabs { margin: 0; }
+
+.notation-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+.notation-toggle .seg {
+    display: inline-flex;
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 0.2rem;
+    gap: 0.15rem;
+}
+.notation-toggle .seg button {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.notation-toggle .seg button:hover { color: var(--ink); }
+.notation-toggle .seg button.active {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Hide notation toggle on tiers without an alternate (intuition) and on
+   pages that contain no .notation-plain elements at all. */
+body[data-tier="intuition"] .notation-toggle { display: none; }
+body:not(:has(.notation-plain)) .notation-toggle { display: none; }
+
+/* Notation alternates: default = standard (math); plain mode swaps in
+   the spelled-out form. */
+.notation-plain { display: none; }
+body[data-notation="plain"] .notation-standard { display: none; }
+body[data-notation="plain"] .notation-plain { display: block; }
+
+/* Sidebar "Where to learn more" — items can be tier-tagged so the sidebar
+   matches the active tier. Items without data-tier always show (legacy pages). */
+.learn-more li[data-tier] { display: none; }
+body[data-tier="intuition"]    .learn-more li[data-tier="intuition"]    { display: block; }
+body[data-tier="fundamentals"] .learn-more li[data-tier="fundamentals"] { display: block; }
+body[data-tier="indepth"]      .learn-more li[data-tier="indepth"]      { display: block; }
+
+/* Plain-mode formula narration: short "in words" paragraph after a formula
+   that names unfamiliar notation and walks through what's being computed. */
+.formula-narration {
+    margin: 0.5rem 0 0.85rem;
+    padding: 0.6rem 0.85rem;
+    background: rgba(79, 70, 229, 0.05);
+    border-left: 2px solid rgba(79, 70, 229, 0.25);
+    border-radius: 0 4px 4px 0;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+}
+.formula-narration strong { color: var(--ink); }
+.formula-narration code {
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--accent-hover);
+    padding: 0.02rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.88em;
 }
 
 /* Difficulty selector (segmented control) */

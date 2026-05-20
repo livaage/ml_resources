@@ -88,20 +88,40 @@ loss.backward(); opt.step()
 
     <div class="level-next">
         <span>Want the contrastive math, alignment / uniformity, and BYOL's trick?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">InfoNCE loss</span>
-        <span class="formula">$$ \mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp(\mathrm{sim}(z_i, z_i^+)/\tau)}{\sum_{j} \exp(\mathrm{sim}(z_i, z_j)/\tau)} $$</span>
-        <ul class="formula-legend">
-            <li><code>z<sub>i</sub><sup>+</sup></code>positive pair of <em>z<sub>i</sub></em> (different view of same image)</li>
-            <li><code>τ</code>temperature — controls how peaked the similarity is</li>
-            <li>Lower bound on mutual information between views</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp(\mathrm{sim}(z_i, z_i^+)/\tau)}{\sum_{j} \exp(\mathrm{sim}(z_i, z_j)/\tau)} $$</span>
+            <ul class="formula-legend">
+                <li><code>z<sub>i</sub></code>embedding of the anchor view</li>
+                <li><code>z<sub>i</sub><sup>+</sup></code>positive pair of <em>z<sub>i</sub></em> (different view of same image)</li>
+                <li><code>z<sub>j</sub></code>every other embedding in the batch (positive plus all negatives)</li>
+                <li><code>sim(·, ·)</code>similarity (cosine, after L2-normalising)</li>
+                <li><code>τ</code>temperature — controls how peaked the similarity is</li>
+                <li>Lower bound on mutual information between views</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{loss} \;=\; -\log \frac{\exp(\text{similarity to positive} / \tau)}{\sum_{j} \exp(\text{similarity to view}_j / \tau)} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> For each anchor view, the loss is a softmax cross-entropy that asks: "out of all the other views in the batch, which one is your positive pair?" The numerator is the exponentiated similarity between the anchor and its known positive; the denominator adds up that quantity across every view in the batch (positive plus all the negatives). Dividing makes a probability between 0 and 1 — the probability the model assigns to picking the right partner. Taking <code>−log</code> turns that into a loss that's small when the positive is highest-similarity. <code>τ</code> (tau, the temperature) sharpens or smooths how confidently the softmax peaks: small τ → very peaked, large τ → flatter.
+            </p>
+            <ul class="formula-legend">
+                <li><code>similarity to positive</code>cosine similarity between anchor and its known positive pair</li>
+                <li><code>similarity to view<sub>j</sub></code>cosine similarity between anchor and every view in the batch</li>
+                <li><code>τ</code>temperature — small τ means the softmax is more peaked</li>
+                <li>Minimising this loss = "make the positive pair clearly the most similar"</li>
+                <li>Equivalent to a softmax classifier where the positive is the correct label and negatives are wrong labels</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -138,20 +158,39 @@ class MAE(nn.Module):
 
     <div class="level-next">
         <span>Want JEPA, DINO, multi-modal, and scaling laws?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Joint-embedding predictive architecture (JEPA)</span>
-        <span class="formula">$$ \mathcal{L} = \big\lVert \mathrm{pred}\big(s_x(\text{context})\big) - s_y(\text{target}) \big\rVert^2 $$</span>
-        <ul class="formula-legend">
-            <li>Predict the target's <em>embedding</em>, not the target itself</li>
-            <li>No pixel-level reconstruction → no wasted capacity on irrelevant detail</li>
-            <li>LeCun's preferred frame for self-supervised learning at scale</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L} = \big\lVert \mathrm{pred}\big(s_x(\text{context})\big) - s_y(\text{target}) \big\rVert^2 $$</span>
+            <ul class="formula-legend">
+                <li><code>s<sub>x</sub>, s<sub>y</sub></code>context and target encoders (often weight-shared or EMA-related)</li>
+                <li><code>pred(·)</code>predictor mapping context embedding → guessed target embedding</li>
+                <li><code>‖·‖²</code>squared Euclidean distance between predicted and actual target embedding</li>
+                <li>Predict the target's <em>embedding</em>, not the target itself</li>
+                <li>No pixel-level reconstruction → no wasted capacity on irrelevant detail; LeCun's preferred frame for SSL at scale</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{loss} \;=\; (\text{predicted target embedding} \;-\; \text{actual target embedding})^2 $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Encode the context (e.g. visible patches of an image) into an embedding, run a small <strong>predictor</strong> network on it to guess what the target patch's embedding would look like, then compare that guess to the actual embedding of the target patch (produced by a separate target encoder). The loss is the squared distance between the prediction and the real embedding. Unlike masked autoencoders, you never reconstruct raw pixels — the model only has to get the <em>features</em> right, so it doesn't waste capacity on irrelevant detail like noise or texture.
+            </p>
+            <ul class="formula-legend">
+                <li><code>context</code>visible part of the input (e.g. unmasked image patches)</li>
+                <li><code>target</code>hidden part of the input the model has to guess</li>
+                <li><code>predicted embedding</code>predictor's guess at what the target's encoded features should be</li>
+                <li><code>actual embedding</code>the target encoder's actual output on the hidden region</li>
+                <li>Operates in feature space, not pixel space — no wasted capacity on irrelevant detail</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -184,7 +223,7 @@ def update_teacher(student, teacher, m=0.996):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -193,19 +232,19 @@ def update_teacher(student, teacher, m=0.996):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://lilianweng.github.io/posts/2021-05-31-contrastive/" target="_blank">Lilian Weng — Contrastive Representation Learning <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Tour of every major contrastive method: InfoNCE, SimCLR, MoCo, BYOL, SwAV, DINO. The single best learning-tour blog post on the topic.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/2002.05709" target="_blank">Chen et al. (2020) — SimCLR <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The paper that made contrastive learning click for vision. Section 2's recipe is the canonical reference.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2111.06377" target="_blank">He et al. (2022) — Masked Autoencoders <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The MAE paper. Asymmetric encoder/decoder, 75% mask ratio, simple and effective.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://ai.meta.com/blog/self-supervised-learning-the-dark-matter-of-intelligence/" target="_blank">LeCun &amp; Misra — Self-Supervised: The Dark Matter <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Manifesto-style argument for SSL as the right frame for foundation models. Worth reading even if you disagree with the framing.</span>
         </li>

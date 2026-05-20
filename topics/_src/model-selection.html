@@ -89,20 +89,36 @@ scores = cross_val_score(model, X, y, groups=groups, cv=cv)
 
     <div class="level-next">
         <span>Want nested CV, bootstrap, and hyperparameter search strategies?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">CV estimate of generalization error</span>
-        <span class="formula">$$ \widehat{\text{err}}_{\text{CV}} = \frac{1}{K} \sum_{k=1}^{K} \frac{1}{|V_k|} \sum_{i \in V_k} \ell(y_i,\, \hat f^{(-k)}(x_i)) $$</span>
-        <ul class="formula-legend">
-            <li><code>V<sub>k</sub></code>validation fold <em>k</em></li>
-            <li><code>f<sup>(−k)</sup></code>model trained on everything <em>but</em> fold <em>k</em></li>
-            <li>Average loss over all examples, each evaluated by a model that didn't see it</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \widehat{\text{err}}_{\text{CV}} = \frac{1}{K} \sum_{k=1}^{K} \frac{1}{|V_k|} \sum_{i \in V_k} \ell(y_i,\, \hat f^{(-k)}(x_i)) $$</span>
+            <ul class="formula-legend">
+                <li><code>V<sub>k</sub></code>validation fold <em>k</em></li>
+                <li><code>f<sup>(−k)</sup></code>model trained on everything <em>but</em> fold <em>k</em></li>
+                <li>Average loss over all examples, each evaluated by a model that didn't see it</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{CV error} \;=\; \text{average across folds of (average loss on the held-out fold)} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> You split the data into <code>K</code> equal-sized chunks (folds). For each fold <em>k</em>, you train a fresh model on the other <em>K − 1</em> folds, then compute the average loss <code>ℓ</code> across all examples in fold <em>k</em>. That gives you <code>K</code> per-fold scores. Average those, and you have your CV estimate — which approximates how well the model will do on data it hasn't seen. Critically, every example serves as a "test" example exactly once, so nothing is wasted.
+            </p>
+            <ul class="formula-legend">
+                <li><code>K</code>number of folds (typically 5 or 10)</li>
+                <li><code>fold k</code>the <em>k</em>-th held-out chunk used for validation</li>
+                <li><code>loss ℓ</code>how wrong each prediction is (squared error, cross-entropy, etc.)</li>
+                <li>Each example is evaluated by a model that didn't see it during training</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -143,21 +159,39 @@ print(f"Nested CV: {np.mean(scores):.3f} ± {np.std(scores):.3f}")
 
     <div class="level-next">
         <span>Want generalization bounds, info-criteria, and conformal prediction?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Information criteria</span>
-        <span class="formula">$$ \text{AIC} = 2k - 2\,\ln L \qquad \text{BIC} = k\,\ln n - 2\,\ln L $$</span>
-        <ul class="formula-legend">
-            <li><code>L</code>maximised likelihood; <code>k</code> parameters; <code>n</code> sample size</li>
-            <li>AIC: minimum predicted Kullback-Leibler divergence from the truth</li>
-            <li>BIC: approximation to marginal log-likelihood (Bayesian model evidence)</li>
-            <li>Lower is better; pick the model that minimises</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{AIC} = 2k - 2\,\ln L \qquad \text{BIC} = k\,\ln n - 2\,\ln L $$</span>
+            <ul class="formula-legend">
+                <li><code>L</code>maximised likelihood; <code>k</code> parameters; <code>n</code> sample size</li>
+                <li>AIC: minimum predicted Kullback-Leibler divergence from the truth</li>
+                <li>BIC: approximation to marginal log-likelihood (Bayesian model evidence)</li>
+                <li>Lower is better; pick the model that minimises</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{AIC} = 2 \times \text{(parameter count)} - 2 \times \ln(\text{likelihood}) \qquad \text{BIC} = \text{(parameter count)} \times \ln(n) - 2 \times \ln(\text{likelihood}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Both scores are "model fit minus a complexity penalty". The fit piece is <code>−2 ln(likelihood)</code> — lower means the model explains the data better. The penalty piece punishes you for using more parameters: AIC charges <code>2</code> per parameter; BIC charges <code>ln(n)</code> per parameter (which is harsher once you have more than a handful of data points). <code>ln</code> is the natural logarithm. Compute either score for several candidate models and pick the smallest — same idea as cross-validation but without re-training.
+            </p>
+            <ul class="formula-legend">
+                <li><code>likelihood</code>how probable the data is under the fitted model (bigger = better fit)</li>
+                <li><code>parameter count</code>how many tunable knobs the model has</li>
+                <li><code>n</code>number of training examples</li>
+                <li>AIC: minimum predicted distance from the truth (Kullback-Leibler)</li>
+                <li>BIC: approximation to the Bayesian model evidence</li>
+                <li>Lower is better; pick the model that minimises</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -195,7 +229,7 @@ def split_conformal(model, X_train, y_train, X_calib, y_calib, X_test, alpha=0.1
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -204,19 +238,19 @@ def split_conformal(model, X_train, y_train, X_calib, y_calib, X_test, alpha=0.1
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">Elements of Statistical Learning — Ch. 7 <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference chapter on model selection, AIC/BIC, cross-validation, and the bias-variance trade-off in selection.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.jmlr.org/papers/v13/bergstra12a.html" target="_blank">Bergstra &amp; Bengio (2012) — Random Search <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The empirical paper showing random search beats grid search in high-dimensional hyperparameter spaces.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">scikit-learn — Cross-Validation Guide <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Excellent practical reference for the many CV strategies. Code-first; includes diagrams of each split type.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2107.07511" target="_blank">Angelopoulos &amp; Bates (2021) — Gentle Intro to Conformal Prediction <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Modern tutorial on conformal prediction — distribution-free prediction intervals with finite-sample coverage. Lots of code.</span>
         </li>

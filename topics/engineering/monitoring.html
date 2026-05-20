@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Watch your deployed model — for drift, for degradation, for outright failure.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -103,20 +113,36 @@ start_http_server(9000)        # /metrics endpoint for Prometheus
 
     <div class="level-next">
         <span>Want drift detectors, delayed feedback, &amp; alert tuning?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Two ways "broken" looks</span>
-        <span class="formula">$$ \underbrace{P(X) \;\text{changes}}_{\text{data drift}} \quad \text{or} \quad \underbrace{P(Y \mid X) \;\text{changes}}_{\text{concept drift}} $$</span>
-        <ul class="formula-legend">
-            <li>Data drift: inputs look different but the relationship is the same</li>
-            <li>Concept drift: same inputs, different optimal answer</li>
-            <li>Detecting them requires different signals</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \underbrace{P(X) \;\text{changes}}_{\text{data drift}} \quad \text{or} \quad \underbrace{P(Y \mid X) \;\text{changes}}_{\text{concept drift}} $$</span>
+            <ul class="formula-legend">
+                <li>Data drift: inputs look different but the relationship is the same</li>
+                <li>Concept drift: same inputs, different optimal answer</li>
+                <li>Detecting them requires different signals</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \underbrace{\text{input distribution changes}}_{\text{data drift}} \quad \text{or} \quad \underbrace{\text{right answer for each input changes}}_{\text{concept drift}} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Two distinct failure modes. <code>P(X)</code> is shorthand for "the probability distribution of inputs" — when it changes, your inputs start looking different from what you trained on (e.g. demographics shift, sensor readings drift). <code>P(Y | X)</code> is "the probability of the label given the input" — when it changes, the same input now has a different correct answer (e.g. user behaviour evolves, fashion changes). The underbraces (<code>⏟</code>) just label which piece is which. Each fails through different signals, so you need separate detectors.
+            </p>
+            <ul class="formula-legend">
+                <li><code>input distribution</code>the shape of the inputs your model receives</li>
+                <li><code>data drift</code>inputs look different but the input→answer rule is unchanged</li>
+                <li><code>concept drift</code>same inputs map to different answers than before</li>
+                <li>Detecting them requires different signals</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -151,20 +177,36 @@ if drift_share:
 
     <div class="level-next">
         <span>Want shadow models, automated retraining triggers, &amp; observability platforms?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Performance estimation without labels</span>
-        <span class="formula">$$ \text{CBPE: } \hat\mu = \frac{1}{n}\sum_i \mathbb{E}_{p(y|\hat y_i, x_i)}\!\big[\,\ell(y, \hat y_i)\big] $$</span>
-        <ul class="formula-legend">
-            <li>NannyML's "Confidence-Based Performance Estimation"</li>
-            <li>Uses the model's own calibrated probabilities to predict its error</li>
-            <li>Surprisingly accurate when calibration holds</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{CBPE: } \hat\mu = \frac{1}{n}\sum_i \mathbb{E}_{p(y|\hat y_i, x_i)}\!\big[\,\ell(y, \hat y_i)\big] $$</span>
+            <ul class="formula-legend">
+                <li>NannyML's "Confidence-Based Performance Estimation"</li>
+                <li>Uses the model's own calibrated probabilities to predict its error</li>
+                <li>Surprisingly accurate when calibration holds</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{estimated error} \;=\; \text{average over all predictions of}\; \big(\text{expected loss using the model's own probabilities}\big) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> When you don't have ground-truth labels yet, you can still estimate how your model is doing — using its own probabilities. For each prediction <code>ŷᵢ</code>, ask: "if the model says 0.8, what loss would I incur on average?" The <code>𝔼</code> (expectation, an average) is computed over the model's predicted probability distribution for that input. The <code>1/n ∑</code> just averages this expected loss across all <code>n</code> predictions. <code>ℓ</code> is the loss function (e.g. squared error, cross-entropy). Surprisingly accurate — provided the model's probabilities are calibrated (it really is wrong 20% of the time when it says 80% confidence).
+            </p>
+            <ul class="formula-legend">
+                <li><code>estimated error</code>NannyML's "Confidence-Based Performance Estimation"</li>
+                <li><code>average over predictions</code>summing then dividing by <code>n</code> (total predictions)</li>
+                <li><code>expected loss</code>weighting each possible outcome by the model's probability for it</li>
+                <li>Surprisingly accurate when calibration holds</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -204,7 +246,7 @@ drift = nml.UnivariateDriftCalculator(
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -228,19 +270,19 @@ drift = nml.UnivariateDriftCalculator(
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.evidentlyai.com/" target="_blank">Evidently AI <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Open-source drift detection and model monitoring. Generates HTML reports; easy to drop into a CI / scheduled job.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://nannyml.readthedocs.io/" target="_blank">NannyML <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Specialises in performance estimation without ground truth. The CBPE method is unique and surprisingly effective.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://whylabs.ai/whylogs" target="_blank">Whylogs <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Logging-style data profiling library. Lightweight; designed to capture statistical fingerprints of every batch your model sees.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://huyenchip.com/2022/04/27/data-distribution-shifts.html" target="_blank">Chip Huyen — Data Distribution Shifts <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Excellent overview of the kinds of shift production systems face and how to detect them.</span>
         </li>

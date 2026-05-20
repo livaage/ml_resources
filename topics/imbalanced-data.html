@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">When the rare class is the one you care about — fraud, disease, anomalies.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -127,20 +137,36 @@ tau_best = thresholds[f1.argmax()]
 
     <div class="level-next">
         <span>Want SMOTE variants, focal loss, and one-class methods?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Cost-sensitive Bayes classifier</span>
-        <span class="formula">$$ \hat y = 1 \iff p(y = 1 \mid x) &gt; \frac{c_{FP}}{c_{FP} + c_{FN}} $$</span>
-        <ul class="formula-legend">
-            <li><code>c<sub>FP</sub></code>cost of a false positive; <code>c<sub>FN</sub></code> of a false negative</li>
-            <li>If <em>c<sub>FN</sub></em> is high (catching fraud), threshold drops well below 0.5</li>
-            <li>Optimal decisions just need calibrated probabilities + costs</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \hat y = 1 \iff p(y = 1 \mid x) &gt; \frac{c_{FP}}{c_{FP} + c_{FN}} $$</span>
+            <ul class="formula-legend">
+                <li><code>c<sub>FP</sub></code>cost of a false positive; <code>c<sub>FN</sub></code> of a false negative</li>
+                <li>If <em>c<sub>FN</sub></em> is high (catching fraud), threshold drops well below 0.5</li>
+                <li>Optimal decisions just need calibrated probabilities + costs</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{predict positive when} \quad p(\text{positive} \mid x) \;&gt;\; \frac{\text{cost of false positive}}{\text{cost of false positive} \;+\; \text{cost of false negative}} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The optimal decision rule when you know how expensive each kind of mistake is. Compute the probability that the example is positive; predict positive only if that probability beats a threshold determined entirely by the cost ratio. If false negatives are much worse than false positives (e.g. cancer screening — missing a case is catastrophic), the threshold drops well below 0.5 and you catch more positives at the price of more false alarms. Calibrated probabilities and explicit costs replace ad-hoc threshold tuning.
+            </p>
+            <ul class="formula-legend">
+                <li><code>p(positive | x)</code>calibrated probability that the example is positive</li>
+                <li><code>cost of false positive</code>how bad it is to wrongly flag a negative as positive</li>
+                <li><code>cost of false negative</code>how bad it is to miss a real positive</li>
+                <li>If missing positives is costly, the threshold drops well below 0.5</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -173,20 +199,36 @@ cal.fit(X_calib, y_calib)
 
     <div class="level-next">
         <span>Want recursive sub-sampling, MWMOTE, one-class, and synthetic data?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Posterior under resampling</span>
-        <span class="formula">$$ p_{\text{true}}(y=1 \mid x) = \frac{p_{\text{resamp}}(y=1\mid x)\,\pi_{\text{true}}}{p_{\text{resamp}}(y=1\mid x)\,\pi_{\text{true}} + (1 - p_{\text{resamp}}(y=1\mid x))\,(1 - \pi_{\text{true}})} \cdot \frac{1}{\pi_{\text{resamp}}} $$</span>
-        <ul class="formula-legend">
-            <li><code>π</code>base rate (true vs resampled)</li>
-            <li>The posterior under resampling needs a Bayes correction to recover true probabilities</li>
-            <li>This is why models trained on resampled data are mis-calibrated by default</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ p_{\text{true}}(y=1 \mid x) = \frac{p_{\text{resamp}}(y=1\mid x)\,\pi_{\text{true}}}{p_{\text{resamp}}(y=1\mid x)\,\pi_{\text{true}} + (1 - p_{\text{resamp}}(y=1\mid x))\,(1 - \pi_{\text{true}})} \cdot \frac{1}{\pi_{\text{resamp}}} $$</span>
+            <ul class="formula-legend">
+                <li><code>π</code>base rate (true vs resampled)</li>
+                <li>The posterior under resampling needs a Bayes correction to recover true probabilities</li>
+                <li>This is why models trained on resampled data are mis-calibrated by default</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{true probability of positive} \;=\; \text{Bayes-corrected version of the resampled probability, using the true and resampled base rates} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> When you train on a resampled dataset (e.g. 50/50 after oversampling positives) the model learns probabilities that match the 50/50 world it saw — not the true 1/99 world your test set comes from. The formula gives the Bayes correction: combine the resampled probability with the <em>true</em> base rate <code>π_true</code> and the <em>resampled</em> base rate <code>π_resamp</code> to recover what the model would have said had it seen the real ratio. This is why models trained on resampled data are mis-calibrated by default, and why calibration on a held-out fold with the natural ratio is essential.
+            </p>
+            <ul class="formula-legend">
+                <li><code>p_resamp</code>probability the model outputs when trained on resampled data</li>
+                <li><code>π_true</code>true base rate (e.g. 1% positives in the wild)</li>
+                <li><code>π_resamp</code>base rate in the resampled training set (e.g. 50%)</li>
+                <li>Recovering the true probability requires a Bayes correction; otherwise the model is mis-calibrated</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -220,7 +262,7 @@ y_score = iforest.fit(X_neg).score_samples(X_test)
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -234,19 +276,19 @@ y_score = iforest.fit(X_neg).score_samples(X_test)
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://imbalanced-learn.org/" target="_blank">imbalanced-learn <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference Python library for resampling. SMOTE, ADASYN, NearMiss, combined methods — with sklearn-compatible API.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/1106.1813" target="_blank">Chawla et al. (2002) — SMOTE <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original SMOTE paper. Surprisingly readable, with empirical results across many datasets.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1708.02002" target="_blank">Lin et al. (2017) — Focal Loss <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Focal loss for object detection — same paper referenced from Loss Functions. The motivation chapter is the best intuition pump for class imbalance.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/" target="_blank">Brownlee — Tactics to Combat Imbalanced Classes <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical recipe-style guide that's a good first read for getting unstuck on a real problem.</span>
         </li>

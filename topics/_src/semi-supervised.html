@@ -82,19 +82,39 @@ predicted = lp.transduction_          # labels assigned to each unlabelled
 
     <div class="level-next">
         <span>Want FixMatch, MixMatch, &amp; the cluster assumption?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Consistency loss</span>
-        <span class="formula">$$ \mathcal{L}_{\text{cons}} = \mathbb{E}_{x_u}\,\big\lVert f_\theta(\alpha_1(x_u)) - f_\theta(\alpha_2(x_u)) \big\rVert^2 $$</span>
-        <ul class="formula-legend">
-            <li><code>α<sub>1</sub>, α<sub>2</sub></code>two random augmentations of unlabelled <em>x<sub>u</sub></em></li>
-            <li>Encourage the same prediction under augmentation — the cluster assumption operationalised</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L}_{\text{cons}} = \mathbb{E}_{x_u}\,\big\lVert f_\theta(\alpha_1(x_u)) - f_\theta(\alpha_2(x_u)) \big\rVert^2 $$</span>
+            <ul class="formula-legend">
+                <li><code>x<sub>u</sub></code>an unlabelled example</li>
+                <li><code>α<sub>1</sub>, α<sub>2</sub></code>two random augmentations of <em>x<sub>u</sub></em></li>
+                <li><code>f<sub>θ</sub>(·)</code>model's prediction (logits or probability)</li>
+                <li><code>‖·‖²</code>squared difference between the two predictions</li>
+                <li>Encourage the same prediction under augmentation — the cluster assumption operationalised</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{loss} \;=\; \text{avg over unlabelled}\big(\,\text{prediction on view 1} \;-\; \text{prediction on view 2}\,\big)^2 $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Take an unlabelled example, augment it two different ways (crop differently, jitter colour, etc.), and ask the model to make the <em>same prediction</em> on both versions. The loss is the squared difference between the two predictions, averaged over all unlabelled examples. You don't need a label to compute this — you only need the model to be consistent with itself under augmentation. This bakes in the assumption that small perturbations shouldn't change the class — equivalent to the cluster / smoothness assumption operationalised through random crops, flips, colour jitter, etc.
+            </p>
+            <ul class="formula-legend">
+                <li><code>unlabelled example</code>a data point with no known label</li>
+                <li><code>view 1, view 2</code>two random augmentations of the same example</li>
+                <li><code>prediction</code>the model's output (logits or probabilities) for that view</li>
+                <li>Loss is small when the model gives the same answer on both views</li>
+                <li>No label needed — the supervision is self-consistency</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -138,20 +158,40 @@ class MeanTeacher:
 
     <div class="level-next">
         <span>Want noisy student, MPL, and theoretical bounds?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Risk bound with unlabelled data</span>
-        <span class="formula">$$ R(\hat f) \leq \hat R_l(\hat f) + \Omega(\hat f; X_u) + O\!\left(\sqrt{\tfrac{\mathrm{VC}(\mathcal{H})}{n_l}}\right) $$</span>
-        <ul class="formula-legend">
-            <li><code>R̂<sub>l</sub></code>labelled empirical risk</li>
-            <li><code>Ω(f; X<sub>u</sub>)</code>complexity penalty informed by unlabelled data (cluster / smoothness)</li>
-            <li>Unlabelled data effectively shrinks the hypothesis class</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ R(\hat f) \leq \hat R_l(\hat f) + \Omega(\hat f; X_u) + O\!\left(\sqrt{\tfrac{\mathrm{VC}(\mathcal{H})}{n_l}}\right) $$</span>
+            <ul class="formula-legend">
+                <li><code>R(f̂)</code>true (test) risk of the learnt model</li>
+                <li><code>R̂<sub>l</sub></code>labelled empirical risk</li>
+                <li><code>Ω(f̂; X<sub>u</sub>)</code>complexity penalty informed by unlabelled data (cluster / smoothness)</li>
+                <li><code>VC(H)</code>VC dimension — capacity of the hypothesis class</li>
+                <li><code>n<sub>l</sub></code>number of labelled examples</li>
+                <li>Unlabelled data effectively shrinks the hypothesis class</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{true error} \;\leq\; \text{labelled training error} \;+\; \text{penalty from unlabelled} \;+\; O\!\left(\sqrt{\tfrac{\text{capacity}}{\text{number of labels}}}\right) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> This is an <em>upper bound</em> on how bad the test error can be (the <code>≤</code> means "at most"). It has three pieces: the training error on the labelled subset; a regularization term <code>Ω</code> that uses the <em>unlabelled</em> data to penalise functions that violate the cluster or smoothness assumption; and the usual statistical-learning term involving the model's <strong>capacity</strong> (how flexible the function class is) and the number of <strong>labels</strong>. The <code>O(√·)</code> just means "this term scales like the square root of the bracketed quantity". The take-away: unlabelled data narrows the effective set of plausible models, which tightens the bound.
+            </p>
+            <ul class="formula-legend">
+                <li><code>true error</code>expected loss on new, unseen labelled data</li>
+                <li><code>labelled training error</code>error you actually measured on your tiny labelled set</li>
+                <li><code>penalty from unlabelled</code>complexity penalty informed by unlabelled data (cluster / smoothness)</li>
+                <li><code>capacity</code>VC dimension or similar measure of how flexible the model family is</li>
+                <li><code>number of labels</code>how many labelled examples you have — more labels = tighter bound</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -186,7 +226,7 @@ def noisy_student(X_l, y_l, X_u, n_iter=5):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -195,19 +235,19 @@ def noisy_student(X_l, y_l, X_u, n_iter=5):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/2001.07685" target="_blank">Sohn et al. (2020) — FixMatch <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The modern reference for consistency-based semi-supervised learning. Simple recipe, strong empirical results.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1911.04252" target="_blank">Xie et al. (2020) — Noisy Student <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Iterative self-training with noise injection. Held ImageNet SOTA for a long time. Beautiful empirical study.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/semi_supervised.html" target="_blank">scikit-learn — Semi-Supervised Methods <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Self-training, label propagation, label spreading — all the classical methods with clean APIs.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://lilianweng.github.io/posts/2021-12-05-semi-supervised/" target="_blank">Lilian Weng — Learning with not enough data Pt I <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Excellent survey of semi-supervised methods circa 2022 — pseudo-labelling, consistency, mean teacher, FixMatch, and more.</span>
         </li>

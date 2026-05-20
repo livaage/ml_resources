@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Recover statistically-independent sources from their mixtures — the cocktail-party algorithm.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -119,20 +129,37 @@ S_pca = PCA(n_components=2).fit_transform(X)              # decorrelated but not
 
     <div class="level-next">
         <span>Want the FastICA algorithm, negentropy, and applications?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Maximising non-Gaussianity</span>
-        <span class="formula">$$ \max_w \; J(w^\top x) \;\;\text{s.t.}\;\; \mathbb{E}[(w^\top x)^2] = 1 $$</span>
-        <ul class="formula-legend">
-            <li><code>J</code>non-Gaussianity measure — kurtosis, negentropy, or log-cosh contrast</li>
-            <li>Constraint keeps the solution unique (otherwise just scale <em>w</em>)</li>
-            <li>One <em>w</em> per source; deflate to find subsequent ones</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \max_w \; J(w^\top x) \;\;\text{s.t.}\;\; \mathbb{E}[(w^\top x)^2] = 1 $$</span>
+            <ul class="formula-legend">
+                <li><code>J</code>non-Gaussianity measure — kurtosis, negentropy, or log-cosh contrast</li>
+                <li>Constraint keeps the solution unique (otherwise just scale <em>w</em>)</li>
+                <li>One <em>w</em> per source; deflate to find subsequent ones</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \max_w \;\; \text{non-Gaussianity of (combination of observations)} \;\;\text{such that}\;\; \text{average squared combination} \;=\; 1 $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> ICA searches for a weight vector <code>w</code> such that the linear combination <code>w · x</code> (a dot product of weights with each observation) looks as un-Gaussian as possible. The Central Limit Theorem says mixtures of independent sources drift towards Gaussian — so undoing the mixing means heading <em>away</em> from Gaussian. <code>J</code> is just whatever score you use to measure non-Gaussianity: kurtosis (how heavy the tails are), negentropy, or a smoother contrast like log-cosh. The "s.t." constraint says the recovered signal must have unit variance — otherwise the optimiser would cheat by simply scaling <em>w</em>.
+            </p>
+            <ul class="formula-legend">
+                <li><code>w</code>unmixing weights — one per source</li>
+                <li><code>w · x</code>weighted combination of the observations (one candidate recovered source)</li>
+                <li><code>non-Gaussianity (J)</code>how far the combination's distribution is from a bell curve</li>
+                <li><code>average squared = 1</code>unit-variance constraint that makes the answer unique</li>
+                <li>One <em>w</em> for each source; deflate to find the next</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -165,21 +192,38 @@ assert np.allclose(X, S_hat @ A_hat.T + ica_logcosh.mean_, atol=1e-6)
 
     <div class="level-next">
         <span>Want InfoMax, JADE, non-linear ICA, and applications to neuroscience?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Negentropy</span>
-        <span class="formula">$$ J(y) = H(y_\text{gauss}) - H(y) \;\;\geq\;\; 0 $$</span>
-        <ul class="formula-legend">
-            <li><code>H(y)</code>differential entropy of <em>y</em></li>
-            <li><code>y<sub>gauss</sub></code>Gaussian with the same variance</li>
-            <li>Always non-negative; zero iff <em>y</em> is Gaussian</li>
-            <li>Hard to compute exactly — approximated by polynomial cumulants or contrast functions</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ J(y) = H(y_\text{gauss}) - H(y) \;\;\geq\;\; 0 $$</span>
+            <ul class="formula-legend">
+                <li><code>H(y)</code>differential entropy of <em>y</em></li>
+                <li><code>y<sub>gauss</sub></code>Gaussian with the same variance</li>
+                <li>Always non-negative; zero iff <em>y</em> is Gaussian</li>
+                <li>Hard to compute exactly — approximated by polynomial cumulants or contrast functions</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{non-Gaussianity score} \;=\; \text{entropy of matched Gaussian} \;-\; \text{entropy of signal} \;\;\geq\;\; 0 $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Negentropy is a principled way to measure how far a signal is from a Gaussian. <code>H</code> stands for "entropy" — a measure of how unpredictable a distribution is. The Gaussian is the most unpredictable distribution for a given variance, so its entropy is the maximum. Subtracting the actual signal's entropy from that maximum gives a non-negative score that's zero only when the signal itself is Gaussian — and bigger the further the signal is from Gaussian. Computing the entropy exactly is hard, so practical ICA uses cheap approximations (kurtosis, log-cosh).
+            </p>
+            <ul class="formula-legend">
+                <li><code>non-Gaussianity score (J)</code>how far the signal is from a bell curve</li>
+                <li><code>entropy (H)</code>measure of unpredictability of a distribution</li>
+                <li><code>matched Gaussian</code>a Gaussian with the same variance as the signal</li>
+                <li>Always non-negative; equals zero iff the signal itself is Gaussian</li>
+                <li>Approximated in practice by kurtosis or log-cosh contrast</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -215,7 +259,7 @@ S_hat = ica_sk.fit_transform(raw_eeg.get_data().T)
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -234,19 +278,19 @@ S_hat = ica_sk.fit_transform(raw_eeg.get_data().T)
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.cs.helsinki.fi/u/ahyvarin/papers/NN00new.pdf" target="_blank">Hyvärinen &amp; Oja (2000) — ICA Tutorial <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The canonical ICA tutorial. Readable, comprehensive, covers FastICA, InfoMax, and the underlying theory.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://scikit-learn.org/stable/auto_examples/decomposition/plot_ica_blind_source_separation.html" target="_blank">scikit-learn — Blind Source Separation Example <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The classic cocktail-party example with code. The quickest hands-on intro to ICA.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://mne.tools/stable/auto_tutorials/preprocessing/40_artifact_correction_ica.html" target="_blank">MNE — ICA for EEG / MEG <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The neuroscience-grade reference for ICA in practice. Worked examples on real EEG data with blink / muscle component identification.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2010.12148" target="_blank">Khemakhem et al. (2020) — iVAE / Identifiable ICA <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The bridge between classical ICA and modern deep generative models. Identifiable non-linear ICA via VAEs with auxiliary variables.</span>
         </li>

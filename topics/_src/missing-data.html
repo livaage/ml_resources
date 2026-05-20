@@ -87,21 +87,41 @@ xgb.XGBClassifier().fit(X, y)         # NaNs OK
 
     <div class="level-next">
         <span>Want MAR/MCAR/MNAR theory and multiple imputation?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The Little &amp; Rubin taxonomy</span>
-        <span class="formula">$$ \text{MCAR: } P(M\mid X, Y) = P(M)\quad\text{MAR: } P(M\mid X, Y) = P(M\mid X)\quad\text{MNAR: depends on } Y $$</span>
-        <ul class="formula-legend">
-            <li><code>M</code>indicator of missingness</li>
-            <li>MCAR — completely random (rare in practice)</li>
-            <li>MAR — depends only on observed values (most assumed)</li>
-            <li>MNAR — depends on the missing value itself (the hard case)</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{MCAR: } P(M\mid X, Y) = P(M)\quad\text{MAR: } P(M\mid X, Y) = P(M\mid X)\quad\text{MNAR: depends on } Y $$</span>
+            <ul class="formula-legend">
+                <li><code>M</code>indicator of missingness</li>
+                <li>MCAR — completely random (rare in practice)</li>
+                <li>MAR — depends only on observed values (most assumed)</li>
+                <li>MNAR — depends on the missing value itself (the hard case)</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \begin{aligned}
+\text{MCAR:} &amp;\;\;\text{P(missing)} \;=\; \text{constant} \\
+\text{MAR:} &amp;\;\;\text{P(missing)} \;=\; \text{depends on observed features only} \\
+\text{MNAR:} &amp;\;\;\text{P(missing)} \;=\; \text{depends on the unobserved value itself}
+\end{aligned} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Three regimes for <em>why</em> data is missing. <code>M</code> is just a 0/1 indicator that says "this cell is missing"; <code>P(M | ...)</code> means "probability of missing given everything else". MCAR (missing completely at random) says the probability doesn't depend on anything — pure coincidence. MAR (missing at random) says it depends only on stuff you <em>can</em> see — so smart imputation using the other columns can recover the missing values without bias. MNAR (missing not at random) says it depends on the value you <em>can't</em> see (e.g. high earners refuse to report income) — no purely observational fix is unbiased here, you need a model of <em>why</em> it's missing.
+            </p>
+            <ul class="formula-legend">
+                <li><code>P(missing)</code>chance that a cell is missing</li>
+                <li><code>observed features</code>the values you do have for that row</li>
+                <li><code>unobserved value</code>the value of the cell that's actually missing</li>
+                <li>MCAR rare in practice; MAR is the assumption behind most imputation; MNAR needs domain knowledge</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -131,20 +151,37 @@ final = np.mean(preds, axis=0)            # variance across runs = uncertainty
 
     <div class="level-next">
         <span>Want missingness as a feature, MNAR models, and selection-bias correction?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Imputation with the observed likelihood</span>
-        <span class="formula">$$ \hat\theta = \arg\max_\theta \int p(X_\text{obs}, X_\text{miss} \mid \theta)\, dX_\text{miss} $$</span>
-        <ul class="formula-legend">
-            <li>EM is the canonical algorithm for missing-data MLE</li>
-            <li>Treats imputation and parameter estimation as joint optimisation</li>
-            <li>Requires a (correct) model for both the data and the missingness</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \hat\theta = \arg\max_\theta \int p(X_\text{obs}, X_\text{miss} \mid \theta)\, dX_\text{miss} $$</span>
+            <ul class="formula-legend">
+                <li>EM is the canonical algorithm for missing-data MLE</li>
+                <li>Treats imputation and parameter estimation as joint optimisation</li>
+                <li>Requires a (correct) model for both the data and the missingness</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{best parameters} \;=\; \arg\max_\theta \;\; \text{average likelihood of observed data, averaging over possible missing values} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> If you don't see all the data, the right thing to do is pick the model parameters that make the data you <em>did</em> see as likely as possible — while averaging over every possible value the missing cells could have been. The <code>∫ ... dX_miss</code> is an integral that does exactly that averaging (marginalising out the unknowns). <code>θ̂</code> ("theta hat") is the estimate you end up with; <code>arg max</code> means "the <em>θ</em> that maximises". This integral is hard to compute directly — that's why EM (Expectation-Maximisation) exists: it alternates between filling in the missing values from the current model and re-estimating the model parameters.
+            </p>
+            <ul class="formula-legend">
+                <li><code>best parameters (θ̂)</code>the parameter estimates that explain the observed data best</li>
+                <li><code>arg max</code>"the value of <em>θ</em> that maximises the expression"</li>
+                <li><code>observed data</code>the cells you actually have</li>
+                <li><code>missing values</code>the cells you don't — averaged over, not pretended to be known</li>
+                <li>EM is the standard algorithm for actually computing <em>θ̂</em></li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -182,7 +219,7 @@ out  = sm.OLS(income[disclosed], np.c_[X_out[disclosed], imr[disclosed]]).fit()
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -191,19 +228,19 @@ out  = sm.OLS(income[disclosed], np.c_[X_out[disclosed], imr[disclosed]]).fit()
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://stefvanbuuren.name/fimd/" target="_blank">van Buuren — Flexible Imputation of Missing Data <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Free online textbook by the inventor of MICE. The reference book for both theory and practical recipes.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/impute.html" target="_blank">scikit-learn — Imputation Guide <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical reference for SimpleImputer, KNNImputer, IterativeImputer with worked examples.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.statisticalhorizons.com/wp-content/uploads/MissingDataByML.pdf" target="_blank">Allison — Missing Data <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Concise and well-written intro to MAR / MCAR / MNAR taxonomy with worked statistical examples.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1806.02920" target="_blank">Yoon et al. (2018) — GAIN <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Generative-adversarial imputation — strong on heterogeneous tabular data, useful when MICE struggles.</span>
         </li>

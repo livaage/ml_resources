@@ -65,19 +65,33 @@ attn = einsum(q, k, "b h n d, b h m d -&gt; b h n m")
 
     <div class="level-next">
         <span>Want experiment tooling, dev quality of life, &amp; the production stack?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The "always reach for" set</span>
-        <span class="formula">$$ \text{uv}, \text{ruff}, \text{pre-commit}, \text{loguru}, \text{rich}, \text{pytest} $$</span>
-        <ul class="formula-legend">
-            <li>These six are the "every project, no excuse" baseline</li>
-            <li>Together: dependency mgmt, lint, hooks, logging, pretty output, tests</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{uv}, \text{ruff}, \text{pre-commit}, \text{loguru}, \text{rich}, \text{pytest} $$</span>
+            <ul class="formula-legend">
+                <li>These six are the "every project, no excuse" baseline</li>
+                <li>Together: dependency mgmt, lint, hooks, logging, pretty output, tests</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{uv} + \text{ruff} + \text{pre-commit} + \text{loguru} + \text{rich} + \text{pytest} \;=\; \text{every-project baseline} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Not a real equation — just a checklist. These six tools cover the six things every Python project needs: <code>uv</code> for dependencies, <code>ruff</code> for linting and formatting, <code>pre-commit</code> for git hooks that run them automatically, <code>loguru</code> for logging, <code>rich</code> for pretty terminal output, and <code>pytest</code> for tests. Install all six at project setup and you've eliminated a dozen ad-hoc decisions.
+            </p>
+            <ul class="formula-legend">
+                <li>These six are the "every project, no excuse" baseline</li>
+                <li>Together: dependency mgmt, lint, hooks, logging, pretty output, tests</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -121,19 +135,33 @@ console.print(f"[bold green]Done![/]")
 
     <div class="level-next">
         <span>Want the niche-but-saves-a-day libraries?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">"I wish I'd known about that"</span>
-        <span class="formula">$$ \text{specialised library} \;\gg\; \text{your hand-rolled version} $$</span>
-        <ul class="formula-legend">
-            <li>Niche libraries usually beat hand-rolled code by 5–50×</li>
-            <li>Maintainers have already hit the edge cases you'll hit later</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{specialised library} \;\gg\; \text{your hand-rolled version} $$</span>
+            <ul class="formula-legend">
+                <li>Niche libraries usually beat hand-rolled code by 5–50×</li>
+                <li>Maintainers have already hit the edge cases you'll hit later</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{specialised library} \;\;\gg\;\; \text{your hand-rolled version} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The double-greater <code>≫</code> is mathematician shorthand for "much, much greater than". The point is a research-engineering principle: when a focused library exists for the niche problem you're solving, it's almost always faster, more correct, and better-tested than a quick implementation you'd write yourself. The maintainer has already hit the edge cases you haven't even imagined. Pay the 30-minute cost of learning the API and pocket the 5–50× speed-up.
+            </p>
+            <ul class="formula-legend">
+                <li>Niche libraries usually beat hand-rolled code by 5–50×</li>
+                <li>Maintainers have already hit the edge cases you'll hit later</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -176,7 +204,7 @@ def gpu_memory_summary():
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -185,19 +213,19 @@ def gpu_memory_summary():
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://docs.astral.sh/uv/" target="_blank">uv — Python Package Manager <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Astral's pip / venv / poetry replacement. 10–100× faster. The new default.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://einops.rocks/" target="_blank">einops <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Tensor operations with named axes. Replaces <code>view</code> / <code>permute</code> with code your reviewer can read. Worth learning thoroughly.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.pola.rs/" target="_blank">Polars <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The pandas successor. Faster, more memory-efficient, lazy execution. Reads / writes everything pandas does.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/vinta/awesome-python" target="_blank">awesome-python <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Curated list of useful Python libraries by category. Not ML-specific; still useful for the broader Python tools.</span>
         </li>

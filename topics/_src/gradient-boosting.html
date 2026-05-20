@@ -81,20 +81,37 @@ print(f"Accuracy: {clf.score(X_test, y_test):.3f}")
 
     <div class="level-next">
         <span>Want to see how the gradients work?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Key idea</span>
-        <span class="formula">$$ F_m(x) \;=\; F_{m-1}(x) \;+\; \nu \cdot h_m(x), \qquad h_m \approx -\nabla_F \mathcal{L} $$</span>
-        <ul class="formula-legend">
-            <li><code>F<sub>m</sub></code>the ensemble after <em>m</em> trees</li>
-            <li><code>h<sub>m</sub></code>the new tree at step <em>m</em>, fit to the negative gradient of the loss</li>
-            <li><code>ν</code>learning rate (shrinkage), typically 0.01–0.1</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ F_m(x) \;=\; F_{m-1}(x) \;+\; \nu \cdot h_m(x), \qquad h_m \approx -\nabla_F \mathcal{L} $$</span>
+            <ul class="formula-legend">
+                <li><code>F<sub>m</sub></code>the ensemble after <em>m</em> trees</li>
+                <li><code>h<sub>m</sub></code>the new tree at step <em>m</em>, fit to the negative gradient of the loss</li>
+                <li><code>ν</code>learning rate (shrinkage), typically 0.01–0.1</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{new ensemble} \;=\; \text{old ensemble} \;+\; \nu \times \text{new tree fit to residuals} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Start with whatever ensemble you have so far (initially: just the mean). Compute its residuals — for squared loss, that's literally <em>actual − predicted</em>; for other losses it's the negative gradient of the loss, sometimes called the "pseudo-residual". Fit one small tree to those residuals so the tree predicts what's still missing, then add that tree to the ensemble after multiplying by a small learning rate <code>ν</code> (nu, the Greek letter for "shrinkage", typically 0.01–0.1). Smaller <code>ν</code> means slower learning but better generalisation. Repeat until validation error stops improving.
+            </p>
+            <ul class="formula-legend">
+                <li><code>old ensemble</code>sum of all the trees you've added so far</li>
+                <li><code>new tree</code>a small tree (a few splits) trained on the current residuals</li>
+                <li><code>residuals</code>what the current ensemble is still getting wrong — the negative gradient of the loss</li>
+                <li><code>ν</code>learning rate (shrinkage) — small ν trades training speed for generalisation</li>
+            </ul>
+        </div>
+
         <p style="margin-top:0.75rem">At each step, fit a small tree to the pseudo-residuals (negative gradient of the loss w.r.t. current predictions). Add it to the ensemble with a small learning rate. Repeat.</p>
     </div>
 
@@ -151,20 +168,38 @@ model = lgb.train(
 
     <div class="level-next">
         <span>Want the functional-gradient view and the XGBoost regularizer?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Regularized objective (XGBoost)</span>
-        <span class="formula">$$ \mathcal{L}^{(m)} \;=\; \sum_{i} \ell\!\left(y_i, F_{m-1}(x_i) + h_m(x_i)\right) \;+\; \Omega(h_m), \quad \Omega(h) = \gamma\,T + \tfrac{1}{2}\lambda \|w\|^2 $$</span>
-        <ul class="formula-legend">
-            <li><code>T</code>number of leaves in the tree</li>
-            <li><code>w</code>vector of leaf weights</li>
-            <li><code>γ, λ</code>regularization strengths on leaf count and leaf magnitude</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L}^{(m)} \;=\; \sum_{i} \ell\!\left(y_i, F_{m-1}(x_i) + h_m(x_i)\right) \;+\; \Omega(h_m), \quad \Omega(h) = \gamma\,T + \tfrac{1}{2}\lambda \|w\|^2 $$</span>
+            <ul class="formula-legend">
+                <li><code>T</code>number of leaves in the tree</li>
+                <li><code>w</code>vector of leaf weights</li>
+                <li><code>γ, λ</code>regularization strengths on leaf count and leaf magnitude</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{step } m \text{ objective} \;=\; \text{loss after adding new tree} \;+\; \text{tree complexity penalty}, \quad \text{penalty} = \gamma \times (\text{leaves}) + \tfrac{1}{2}\lambda \times \text{(sum of squared leaf weights)} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> When choosing the next tree, don't just minimise training loss — also charge the tree for being complex. The first term sums the per-point loss after adding the new tree's prediction to the current ensemble. The second term, the <code>complexity penalty</code>, has two pieces: <code>γ</code> (gamma) charges per leaf — making trees prefer fewer leaves; and <code>λ</code> (lambda) penalises the squared magnitude of each leaf's output value — keeping leaf predictions modest. Together they let you grow only the splits whose loss reduction outweighs their complexity cost.
+            </p>
+            <ul class="formula-legend">
+                <li><code>loss after adding new tree</code>training error once the new tree's predictions are added to the running ensemble</li>
+                <li><code>tree complexity penalty</code>extra cost for big or splashy trees — discourages overfitting</li>
+                <li><code>γ</code>price per leaf — bigger γ means fewer splits</li>
+                <li><code>λ</code>penalty on leaf magnitudes — bigger λ shrinks each leaf's predicted value</li>
+                <li><code>leaf weights</code>the value each leaf predicts; the penalty sums their squares</li>
+            </ul>
+        </div>
+
         <p style="margin-top:0.75rem">Gradient boosting can be viewed as <strong>functional gradient descent in function space</strong>: at each step, move <em>F</em> in the direction that most decreases the loss, where the "direction" is parameterized as a regression tree. XGBoost adds explicit regularization on tree complexity.</p>
     </div>
 
@@ -228,7 +263,7 @@ print(f"Best AUC: {booster.best_score:.4f} at round {booster.best_iteration}")
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -237,19 +272,19 @@ print(f"Best AUC: {booster.best_score:.4f} at round {booster.best_iteration}")
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://xgboost.readthedocs.io/en/stable/tutorials/model.html" target="_blank">XGBoost docs — introduction <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Walks through the second-order Taylor expansion and the split-gain formula. Best concise derivation.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://jerryfriedman.su.domains/ftp/trebst.pdf" target="_blank">Friedman (2001) <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original "Greedy Function Approximation" paper. Where the functional-gradient view comes from.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://lightgbm.readthedocs.io/en/latest/Features.html" target="_blank">LightGBM features <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Histogram binning, leaf-wise growth, GOSS sampling — the tricks that make LightGBM fast.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">ESL, chapter 10 <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Full chapter on boosting from a statistical perspective.</span>
         </li>

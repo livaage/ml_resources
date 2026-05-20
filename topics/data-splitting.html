@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Train / val / test — the discipline of evaluating on data your model hasn't seen.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -122,20 +132,36 @@ for tr, val in tscv.split(X):
 
     <div class="level-next">
         <span>Want nested CV, distribution shift checks, and probing splits?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Generalisation error decomposition</span>
-        <span class="formula">$$ \text{err}_{\text{test}} = \text{err}_{\text{train}} + \underbrace{\text{generalization gap}}_{\text{model-dependent}} + \underbrace{\text{distribution shift}}_{\text{often the killer}} $$</span>
-        <ul class="formula-legend">
-            <li>CV estimates the generalization gap on data drawn from the same distribution</li>
-            <li>Distribution shift is what kills production models — your CV told you nothing about it</li>
-            <li>Always reserve an out-of-distribution test set if you can</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{err}_{\text{test}} = \text{err}_{\text{train}} + \underbrace{\text{generalization gap}}_{\text{model-dependent}} + \underbrace{\text{distribution shift}}_{\text{often the killer}} $$</span>
+            <ul class="formula-legend">
+                <li>CV estimates the generalization gap on data drawn from the same distribution</li>
+                <li>Distribution shift is what kills production models — your CV told you nothing about it</li>
+                <li>Always reserve an out-of-distribution test set if you can</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{test error} \;=\; \text{training error} \;+\; \text{generalization gap} \;+\; \text{distribution shift} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The error you'll see at deployment breaks into three pieces. The first is just how well you fit the training data. The second, the <em>generalization gap</em>, is the extra error you pay because your model has memorised quirks of the training set — this is what cross-validation estimates. The third, <em>distribution shift</em>, is extra error because the real world doesn't look quite like your dataset (different time period, different region, different users). The third piece is invisible to CV and is usually what hurts you most in production.
+            </p>
+            <ul class="formula-legend">
+                <li><code>training error</code>how badly the model does on the data it learned from</li>
+                <li><code>generalization gap</code>extra error from fitting noise / quirks of the training set</li>
+                <li><code>distribution shift</code>extra error because the deployment data differs from the training data</li>
+                <li>CV estimates the generalization gap; distribution shift requires a separate OOD test</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -172,19 +198,35 @@ mask_test  = df["year"] == 2024
 
     <div class="level-next">
         <span>Want bootstrap, conformal prediction, and OOD detection?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Bootstrap estimator</span>
-        <span class="formula">$$ \hat{\theta}_\text{boot} = \frac{1}{B} \sum_{b=1}^{B} \hat{\theta}\!\big(D_b^*\big), \quad D_b^* \sim D \text{ with replacement} $$</span>
-        <ul class="formula-legend">
-            <li>Resample <em>B</em> times to estimate the distribution of any statistic</li>
-            <li>Out-of-bag examples (~37% per draw) act as a held-out validation set for free</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \hat{\theta}_\text{boot} = \frac{1}{B} \sum_{b=1}^{B} \hat{\theta}\!\big(D_b^*\big), \quad D_b^* \sim D \text{ with replacement} $$</span>
+            <ul class="formula-legend">
+                <li>Resample <em>B</em> times to estimate the distribution of any statistic</li>
+                <li>Out-of-bag examples (~37% per draw) act as a held-out validation set for free</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{bootstrap estimate} \;=\; \text{average across } B \text{ resamples of the statistic computed on each resample} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The bootstrap pretends your dataset is the population. Draw <code>B</code> new datasets of the same size by sampling <em>with replacement</em> from the original — meaning some examples appear multiple times and others not at all. Compute your statistic (mean, AUC, anything) on each of those <code>B</code> resamples. The spread of those <code>B</code> values approximates the sampling distribution of the statistic, giving you confidence intervals essentially for free. Around 37% of the original points get left out of any given resample — those "out-of-bag" examples can serve as a held-out test set.
+            </p>
+            <ul class="formula-legend">
+                <li><code>B</code>number of bootstrap resamples (typically 200–1000)</li>
+                <li><code>resample</code>a dataset of the same size drawn with replacement from the original</li>
+                <li><code>statistic</code>any quantity computed from a dataset (mean, accuracy, AUC, etc.)</li>
+                <li>Out-of-bag examples (~37% per draw) act as a held-out validation set for free</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -223,7 +265,7 @@ def walk_forward(X, y, n_splits=5, min_train=500):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -237,19 +279,19 @@ def walk_forward(X, y, n_splits=5, min_train=500):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">scikit-learn — Cross-Validation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical guide with diagrams of every split type. Best place to look up which API to use for which kind of data.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://datasciencebook.ca/" target="_blank">Timbers et al. — Data Science: A First Introduction <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Free textbook with an excellent intuitive chapter on train/val/test discipline and the pitfalls of touching the test set.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://otexts.com/fpp3/tscv.html" target="_blank">Hyndman &amp; Athanasopoulos — Time-Series CV <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The canonical reference for sequential data evaluation. Walk-forward, expanding window, blocked CV.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2107.07511" target="_blank">Angelopoulos &amp; Bates — Conformal Prediction Tutorial <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Distribution-free prediction intervals with finite-sample coverage. Increasingly the answer for production-grade uncertainty.</span>
         </li>

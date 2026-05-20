@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Big transformers, trained on most of the internet, that you fine-tune or just prompt for everything.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -130,20 +140,39 @@ print(resp.content[0].text)
 
     <div class="level-next">
         <span>Want scaling laws, RLHF, MoE, &amp; the modern stack?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Chinchilla scaling law</span>
-        <span class="formula">$$ L(N, D) = E + \frac{A}{N^\alpha} + \frac{B}{D^\beta} $$</span>
-        <ul class="formula-legend">
-            <li><code>N</code>parameters, <code>D</code> training tokens</li>
-            <li>Hoffmann et al. (2022): optimal <em>N</em> and <em>D</em> grow together</li>
-            <li>~20 tokens per parameter is the canonical "Chinchilla optimal" ratio</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ L(N, D) = E + \frac{A}{N^\alpha} + \frac{B}{D^\beta} $$</span>
+            <ul class="formula-legend">
+                <li><code>L(N, D)</code>achievable test loss given model size <em>N</em> and dataset size <em>D</em></li>
+                <li><code>N</code>parameters, <code>D</code> training tokens</li>
+                <li><code>E</code>irreducible-error floor — the lowest possible loss</li>
+                <li><code>A, B, α, β</code>fit constants from empirical sweep</li>
+                <li>Hoffmann et al. (2022): optimal <em>N</em> and <em>D</em> grow together — ~20 tokens per parameter</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{loss} \;=\; \text{floor} \;+\; \frac{A}{(\text{params})^\alpha} \;+\; \frac{B}{(\text{tokens})^\beta} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The model's loss has three parts: an irreducible <strong>floor</strong> you can never get below (truly random structure in language), a piece that shrinks as you add more <strong>parameters</strong>, and a piece that shrinks as you train on more <strong>tokens</strong>. The exponents <code>α</code> and <code>β</code> (alpha, beta — fitted constants) are both around 0.3, so doubling params or doubling tokens each cuts the corresponding piece by roughly the same factor. The practical upshot: when you have a fixed compute budget, the loss is lowest when you grow params and tokens <em>together</em> — roughly 20 training tokens per parameter.
+            </p>
+            <ul class="formula-legend">
+                <li><code>loss</code>cross-entropy loss the model achieves on held-out text</li>
+                <li><code>floor</code>the minimum possible loss — irreducible noise in language</li>
+                <li><code>params</code>number of model weights; <code>tokens</code> number of training tokens</li>
+                <li><code>α, β</code>scaling exponents — both ≈ 0.3 in practice</li>
+                <li>Take-away: scale model and data together; ~20 tokens per parameter is the Chinchilla-optimal ratio</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -183,20 +212,40 @@ print(tok.decode(out[0], skip_special_tokens=True))
 
     <div class="level-next">
         <span>Want alignment, MoE routing, long context, and agentic systems?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">DPO objective</span>
-        <span class="formula">$$ \mathcal{L}_{\text{DPO}} = -\mathbb{E}\!\left[\log \sigma\!\big(\beta \log \tfrac{\pi_\theta(y_w | x)}{\pi_\text{ref}(y_w | x)} - \beta \log \tfrac{\pi_\theta(y_l | x)}{\pi_\text{ref}(y_l | x)}\big)\right] $$</span>
-        <ul class="formula-legend">
-            <li><code>y<sub>w</sub>, y<sub>l</sub></code>"winning" and "losing" responses from human preference data</li>
-            <li>No separate reward model, no RL — closed-form preference optimisation</li>
-            <li>Simpler, more stable than RLHF for many applications</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L}_{\text{DPO}} = -\mathbb{E}\!\left[\log \sigma\!\big(\beta \log \tfrac{\pi_\theta(y_w | x)}{\pi_\text{ref}(y_w | x)} - \beta \log \tfrac{\pi_\theta(y_l | x)}{\pi_\text{ref}(y_l | x)}\big)\right] $$</span>
+            <ul class="formula-legend">
+                <li><code>x</code>prompt; <code>y<sub>w</sub>, y<sub>l</sub></code> "winning" and "losing" responses from human preference data</li>
+                <li><code>π<sub>θ</sub></code>current policy (the model being trained)</li>
+                <li><code>π<sub>ref</sub></code>frozen reference policy (usually the SFT model)</li>
+                <li><code>σ(·)</code>sigmoid function</li>
+                <li><code>β</code>temperature controlling how aggressively to depart from the reference</li>
+                <li>No separate reward model, no RL — closed-form preference optimisation</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{loss} \;=\; -\,\text{avg}\!\left[\log \sigma\!\big(\beta \times \big[\log\tfrac{\text{policy(winner)}}{\text{ref(winner)}} \;-\; \log\tfrac{\text{policy(loser)}}{\text{ref(loser)}}\big]\big)\right] $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> For each human-labelled pair of responses (one preferred, one rejected), the loss pushes the model to put more probability on the <strong>winner</strong> and less on the <strong>loser</strong>, relative to a frozen reference model. The log-ratio <code>log(policy/ref)</code> measures how much each response's probability has shifted away from the reference. The <code>σ</code> (sigmoid) squashes the difference between the two shifts into a probability between 0 and 1; <code>β</code> (beta) controls how strongly to depart from the reference. Maximising <code>log σ(·)</code> is the same as maximising the probability that the model "agrees" with the human ranking — without needing a separate reward model or RL training loop.
+            </p>
+            <ul class="formula-legend">
+                <li><code>winner / loser</code>the preferred and rejected response in a human-labelled pair</li>
+                <li><code>policy</code>the model being trained; <code>ref</code> a frozen copy (usually the SFT model before preferences)</li>
+                <li><code>β</code>temperature — bigger β means more confident departures from the reference</li>
+                <li><code>σ</code>sigmoid — maps a real number to a probability between 0 and 1</li>
+                <li>Simpler and more stable than RLHF for many applications</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -235,7 +284,7 @@ def speculative_generate(draft_model, target_model, prompt, n_draft=4):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -249,19 +298,19 @@ def speculative_generate(draft_model, target_model, prompt, n_draft=4):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/2203.15556" target="_blank">Hoffmann et al. (2022) — Chinchilla <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The paper that corrected GPT-3's compute optimal scaling. The ~20-tokens-per-parameter rule of thumb. Required reading.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/2203.02155" target="_blank">Ouyang et al. (2022) — InstructGPT <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The RLHF paper that turned GPT-3 into something users would actually want to talk to.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2305.18290" target="_blank">Rafailov et al. (2023) — DPO <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Direct Preference Optimisation — preference learning without RL. Simpler than RLHF; comparable results.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://karpathy.ai/zero-to-hero.html" target="_blank">Karpathy — Zero to Hero <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Karpathy's videos building GPT from scratch. The best hands-on introduction to LLM internals.</span>
         </li>

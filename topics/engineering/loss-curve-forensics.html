@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Reading a loss plot like a doctor reads an X-ray — each pattern points to a specific failure.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -102,21 +112,37 @@
 
     <div class="level-next">
         <span>Want subgroup diagnostics &amp; eval-time forensics?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The 4 forensic plots</span>
-        <span class="formula">$$ \text{loss curve}, \;\text{gradient norm}, \;\text{per-class val acc}, \;\text{calibration} $$</span>
-        <ul class="formula-legend">
-            <li>Loss: smooth or not</li>
-            <li>Gradient norm: stable, growing, or vanishing</li>
-            <li>Per-class: catches "great on average, awful on class 7"</li>
-            <li>Calibration: are the probabilities trustworthy?</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{loss curve}, \;\text{gradient norm}, \;\text{per-class val acc}, \;\text{calibration} $$</span>
+            <ul class="formula-legend">
+                <li>Loss: smooth or not</li>
+                <li>Gradient norm: stable, growing, or vanishing</li>
+                <li>Per-class: catches "great on average, awful on class 7"</li>
+                <li>Calibration: are the probabilities trustworthy?</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \{\text{loss curve},\; \text{gradient norm},\; \text{per-class val accuracy},\; \text{calibration}\} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Four plots that, together, expose the vast majority of training pathologies. <strong>Loss curve</strong> shows aggregate health and convergence shape. <strong>Gradient norm</strong> reveals exploding (growing exponentially) or vanishing (decaying toward zero) gradients before they wreck the loss. <strong>Per-class validation accuracy</strong> catches the case where average accuracy looks fine but one class is collapsing. <strong>Calibration</strong> (reliability diagram or expected calibration error) tells you whether predicted probabilities can be trusted as confidences. Put all four on one dashboard and most problems become visible within the first 100 steps.
+            </p>
+            <ul class="formula-legend">
+                <li><code>loss curve</code>train and val loss vs step</li>
+                <li><code>gradient norm</code>total L2 norm of gradients per step</li>
+                <li><code>per-class val accuracy</code>one line per class, side-by-side</li>
+                <li><code>calibration</code>reliability diagram or expected calibration error</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -155,19 +181,35 @@ class EarlyStop:
 
     <div class="level-next">
         <span>Want curvature signs, double descent, &amp; the modern "loss spike" literature?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Adam's bias correction effect</span>
-        <span class="formula">$$ \hat m = \frac{m_t}{1 - \beta_1^t}, \quad \hat v = \frac{v_t}{1 - \beta_2^t} $$</span>
-        <ul class="formula-legend">
-            <li>Near <em>t = 0</em>, denominators are tiny → effective step size is huge</li>
-            <li>Why warm-up is essential for transformers + Adam / AdamW</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \hat m = \frac{m_t}{1 - \beta_1^t}, \quad \hat v = \frac{v_t}{1 - \beta_2^t} $$</span>
+            <ul class="formula-legend">
+                <li>Near <em>t = 0</em>, denominators are tiny → effective step size is huge</li>
+                <li>Why warm-up is essential for transformers + Adam / AdamW</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{bias-corrected momentum} \;=\; \frac{\text{raw momentum at step }t}{1 - (\text{decay rate})^t} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Adam keeps running averages (called "momentum" <code>m</code> and "variance" <code>v</code>) of past gradients, weighted by the decay rates <code>β₁</code> and <code>β₂</code> (both close to 1). Because those averages start at zero, they're biased toward zero in early steps — so Adam divides them by <code>1 − β^t</code> to "correct" the bias. The problem: at <code>t = 1</code>, that denominator is also tiny, so the corrected estimates are huge and unstable. The effective step size at the start of training is enormous, which is why transformers reliably explode without a learning-rate warm-up. The hats (<code>m̂</code>, <code>v̂</code>) just mean "bias-corrected version of m and v".
+            </p>
+            <ul class="formula-legend">
+                <li><code>raw momentum</code>m<sub>t</sub> — exponential moving average of gradients</li>
+                <li><code>decay rate</code>β₁ for momentum, β₂ for variance — typically 0.9 and 0.999</li>
+                <li><code>t</code>training step (starts at 1)</li>
+                <li><code>1 − β^t</code>correction factor — very small for small t, approaches 1 as t grows</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -203,7 +245,7 @@ def top_hessian_eig(loss_fn, params, num_iters=20):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -227,19 +269,19 @@ def top_hessian_eig(loss_fn, params, num_iters=20):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://karpathy.github.io/2019/04/25/recipe/" target="_blank">Karpathy — A Recipe for Training Neural Networks <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Same recipe linked elsewhere. The "overfit a tiny batch" section is the heart of the debugging methodology.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://lilianweng.github.io/posts/2018-06-24-attention/" target="_blank">Lilian Weng — Attention &amp; Transformer notes <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Walks through the warm-up requirement and what goes wrong without it. Useful context for transformer-specific debugging.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2201.02177" target="_blank">Power et al. (2022) — Grokking <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The grokking paper. Small toy problems with the "plateau then cliff" curves that reverse-engineered themselves into a mechanistic story.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://github.com/amirgholami/PyHessian" target="_blank">PyHessian <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Hessian eigenvalue spectrum tools for PyTorch. Useful when you want to understand the local geometry around your trained model.</span>
         </li>

@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Scaling, encoding, normalising — making the data match what the model can actually digest.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -122,20 +132,37 @@ pipe.predict(X_test)                    # scaler applied to TEST
 
     <div class="level-next">
         <span>Want target encoding, robust scalers, and quantile transforms?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Why scaling matters for optimization</span>
-        <span class="formula">$$ \nabla_w \mathcal{L} = X^\top (Xw - y), \quad \|\nabla_w \mathcal{L}\| \propto \sigma_{\max}(X) $$</span>
-        <ul class="formula-legend">
-            <li>Gradient magnitude scales with feature magnitudes</li>
-            <li>Features on very different scales ⇒ ill-conditioned gradient ⇒ slow / unstable convergence</li>
-            <li>Standardising puts all features at <em>σ ≈ 1</em>, dramatically improving conditioning</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \nabla_w \mathcal{L} = X^\top (Xw - y), \quad \|\nabla_w \mathcal{L}\| \propto \sigma_{\max}(X) $$</span>
+            <ul class="formula-legend">
+                <li>Gradient magnitude scales with feature magnitudes</li>
+                <li>Features on very different scales ⇒ ill-conditioned gradient ⇒ slow / unstable convergence</li>
+                <li>Standardising puts all features at <em>σ ≈ 1</em>, dramatically improving conditioning</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{slope of loss} \;=\; \text{(features)}^\top \times \text{(residuals)}, \quad \text{size of slope} \;\propto\; \text{largest feature scale} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The gradient (slope of the loss with respect to the weights) is just the feature matrix times the residuals — so its size grows with whatever the largest feature scale is. <code>σ_max</code> (sigma-max) is the biggest "stretch" of the feature matrix; it dominates the step size each weight gets. When one feature is in the thousands and another in the tenths, the optimiser is essentially taking giant steps for the big-scale weight and tiny steps for the small-scale one — slow, unstable, or both. Standardising every feature to roughly the same scale fixes the imbalance.
+            </p>
+            <ul class="formula-legend">
+                <li><code>slope of loss</code>gradient with respect to the weights</li>
+                <li><code>features</code>the design matrix <em>X</em></li>
+                <li><code>residuals</code>predictions minus targets (<em>Xw − y</em>)</li>
+                <li><code>largest feature scale</code>biggest singular value of <em>X</em> — dominates step size</li>
+                <li>Standardising → every feature near scale 1 → balanced step sizes → fast convergence</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -170,20 +197,36 @@ X_te = te.fit_transform(X_train[["zip"]], y_train)
 
     <div class="level-next">
         <span>Want feature stores, online preprocessing, and lookup tables?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Pre-processing as a learned function</span>
-        <span class="formula">$$ \mathbf{x}_{\text{enc}} = f_\phi(\mathbf{x}_{\text{raw}}) \quad \text{(differentiable, jointly trained)} $$</span>
-        <ul class="formula-legend">
-            <li>Embeddings, BatchNorm, LayerNorm — preprocessing as part of the model</li>
-            <li>Updated jointly with the rest of the parameters</li>
-            <li>Generalises classical scalers — but harder to enforce no-leakage by construction</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathbf{x}_{\text{enc}} = f_\phi(\mathbf{x}_{\text{raw}}) \quad \text{(differentiable, jointly trained)} $$</span>
+            <ul class="formula-legend">
+                <li>Embeddings, BatchNorm, LayerNorm — preprocessing as part of the model</li>
+                <li>Updated jointly with the rest of the parameters</li>
+                <li>Generalises classical scalers — but harder to enforce no-leakage by construction</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{encoded input} \;=\; \text{learned transform}(\text{raw input}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Instead of hand-picking a scaler before training, treat the preprocessing step as part of the model itself. <code>f_φ</code> is just "a function with learnable parameters <em>φ</em>" — an embedding lookup, a batch-norm layer, a small MLP. Because it's differentiable and trained jointly with the rest of the network, its parameters tune themselves to make the downstream task work better. The catch: the line between "preprocessing" and "model" blurs, so you have to be careful nothing about the validation set leaks into the encoder's parameters.
+            </p>
+            <ul class="formula-legend">
+                <li><code>encoded input</code>the cleaned-up version that the rest of the model sees</li>
+                <li><code>raw input</code>the original feature vector</li>
+                <li><code>learned transform</code>any differentiable function with parameters (<em>φ</em>) trained jointly with the model</li>
+                <li>Examples: learned embeddings, batch / layer norm, learned tokenisers</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -225,7 +268,7 @@ class RunningStats:
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -239,19 +282,19 @@ class RunningStats:
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/preprocessing.html" target="_blank">scikit-learn — Preprocessing Guide <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical reference for every scaler / encoder / transformer with worked examples and code.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://www.feast.dev/" target="_blank">Feast — Open-source Feature Store <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Reference implementation for a production feature store. Docs walk through training / serving consistency for tabular ML.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://contrib.scikit-learn.org/category_encoders/" target="_blank">category_encoders <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Library of categorical encoders beyond what sklearn ships — target, hash, James-Stein, GLMM and more. Side-by-side benchmarks.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://www.kaggle.com/competitions/feature-engineering-tips" target="_blank">Kaggle — Feature Engineering Wisdom <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Community-collected practical tips that often beat fancy models. Lots of preprocessing tricks here.</span>
         </li>

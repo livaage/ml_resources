@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Don't start from scratch — take a pre-trained model and specialise it. The trick that made modern ML scale.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -126,20 +136,39 @@ opt = torch.optim.AdamW([
 
     <div class="level-next">
         <span>Want LoRA, adapters, prompt tuning, and catastrophic forgetting?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">LoRA update</span>
-        <span class="formula">$$ W_{\text{new}} = W_{\text{pretrained}} + \frac{\alpha}{r} \cdot B A, \quad A \in \mathbb{R}^{r \times d_{\text{in}}}, \; B \in \mathbb{R}^{d_{\text{out}} \times r} $$</span>
-        <ul class="formula-legend">
-            <li>Frozen <em>W</em>, low-rank trainable update <em>BA</em></li>
-            <li><em>r</em> &lt;&lt; <em>d</em> ⇒ ~100× fewer trainable parameters</li>
-            <li>Composable: stack multiple LoRA adapters for different tasks</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ W_{\text{new}} = W_{\text{pretrained}} + \frac{\alpha}{r} \cdot B A, \quad A \in \mathbb{R}^{r \times d_{\text{in}}}, \; B \in \mathbb{R}^{d_{\text{out}} \times r} $$</span>
+            <ul class="formula-legend">
+                <li><code>W<sub>pretrained</sub></code>frozen pre-trained weight matrix</li>
+                <li><code>A, B</code>small trainable matrices; <em>A</em> projects down to rank <em>r</em>, <em>B</em> projects back up</li>
+                <li><code>r</code>rank of the update (typically 4–64)</li>
+                <li><code>α</code>scaling factor; the <code>α/r</code> ratio keeps the update magnitude controlled</li>
+                <li><em>r</em> &lt;&lt; <em>d</em> ⇒ ~100× fewer trainable parameters; LoRA adapters are composable</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{new weights} \;=\; \text{frozen pre-trained weights} \;+\; \tfrac{\alpha}{r} \,\times\, (\text{down-projection} \times \text{up-projection}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Keep the original weight matrix <em>frozen</em> — don't touch it. Add a small, trainable update on top, structured as the product of two low-rank matrices: one that projects the input down to a tiny dimension <em>r</em>, and another that projects back up to the original output size. Because <em>r</em> is small (often 8 or 16), this update has roughly 100× fewer parameters than the original weight matrix. The <code>α/r</code> scaling keeps the update from being too big — <code>α</code> is a hyperparameter you tune. At inference you can either keep the LoRA modules separate (and switch them per task) or fold them back into the original weights with no overhead.
+            </p>
+            <ul class="formula-legend">
+                <li><code>frozen pre-trained weights</code>the original matrix from the pre-trained model; never updated</li>
+                <li><code>down-projection</code>small matrix that shrinks the input to a tiny dimension <em>r</em></li>
+                <li><code>up-projection</code>small matrix that brings it back up to the output size</li>
+                <li><code>r</code>rank — how small the bottleneck is; controls parameter count</li>
+                <li><code>α</code>scaling factor; <code>α/r</code> keeps the magnitude of the update sensible</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -174,20 +203,39 @@ def layer_lrs(model, base_lr=1e-3, decay=0.7):
 
     <div class="level-next">
         <span>Want continual learning, prompt tuning, RLHF, and meta-learning?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Elastic Weight Consolidation</span>
-        <span class="formula">$$ \mathcal{L}_{\text{EWC}} = \mathcal{L}_{\text{new}} + \sum_i \lambda \, F_i \, (\theta_i - \theta^*_i)^2 $$</span>
-        <ul class="formula-legend">
-            <li><code>θ*</code>pre-trained parameters; <code>F<sub>i</sub></code> Fisher information per parameter</li>
-            <li>Penalise moving important pre-trained parameters far from their original values</li>
-            <li>One classical antidote to catastrophic forgetting</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L}_{\text{EWC}} = \mathcal{L}_{\text{new}} + \sum_i \lambda \, F_i \, (\theta_i - \theta^*_i)^2 $$</span>
+            <ul class="formula-legend">
+                <li><code>L<sub>new</sub></code>loss on the new task</li>
+                <li><code>θ*<sub>i</sub></code>pre-trained value of parameter <em>i</em></li>
+                <li><code>F<sub>i</sub></code>Fisher information per parameter — how "important" that parameter was for the old task</li>
+                <li><code>λ</code>regularization strength</li>
+                <li>Penalise moving important pre-trained parameters far from their original values</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{loss} \;=\; \text{new-task loss} \;+\; \lambda \sum_i (\text{importance}_i) \,\times\, (\text{new param}_i - \text{old param}_i)^2 $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The total loss has two pieces. The first is the usual training loss on the new task. The second is a penalty: for each parameter, it asks "how far has this parameter moved from its pre-trained value, weighted by how <em>important</em> that parameter was for the old task?" The <code>Σ</code> sums the penalty across every parameter. "Importance" here is the <strong>Fisher information</strong> — large for parameters that mattered most for the old task. <code>λ</code> (lambda) controls how strongly to hold on to the old behaviour. This lets the model learn the new task while preserving the parts of pre-training it most needs to keep.
+            </p>
+            <ul class="formula-legend">
+                <li><code>new-task loss</code>standard supervised loss on the new task's labelled data</li>
+                <li><code>importance</code>Fisher information — how much each parameter mattered for the old task</li>
+                <li><code>new param − old param</code>how far the parameter has moved from its pre-trained value</li>
+                <li><code>λ</code>regularization strength — bigger λ means stronger anti-forgetting pressure</li>
+                <li>Classical antidote to catastrophic forgetting</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -223,7 +271,7 @@ loss.backward()
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -237,19 +285,19 @@ loss.backward()
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/2106.09685" target="_blank">Hu et al. (2021) — LoRA <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Low-rank adaptation for LLMs. Short, well-written; section 4 is the canonical reference for the architecture.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/huggingface/peft" target="_blank">HuggingFace PEFT <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference parameter-efficient fine-tuning library. LoRA, prefix tuning, IA3, AdaLoRA — all in one place with HF Transformers integration.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://lilianweng.github.io/posts/2022-02-20-active-learning/" target="_blank">Lilian Weng — Learning with not enough data Pt II <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Companion to the SSL piece — covers active learning, transfer learning, and fine-tuning recipes.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1612.00796" target="_blank">Kirkpatrick et al. (2017) — EWC <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The Elastic Weight Consolidation paper — the canonical continual-learning anti-forgetting method.</span>
         </li>

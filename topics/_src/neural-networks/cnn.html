@@ -124,20 +124,35 @@ model = nn.Sequential(
 
     <div class="level-next">
         <span>Want convolution math and ResNets?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">2D convolution</span>
-        <span class="formula">$$ (\mathbf{x} \ast \mathbf{k})[i, j] \;=\; \sum_{m, n} \mathbf{x}[i+m,\, j+n] \cdot \mathbf{k}[m, n] $$</span>
-        <ul class="formula-legend">
-            <li><code>x</code>input feature map (or image channel)</li>
-            <li><code>k</code>kernel — small (e.g. 3×3 or 5×5), <em>learned</em></li>
-            <li>Output is "what the filter found at each position"</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ (\mathbf{x} \ast \mathbf{k})[i, j] \;=\; \sum_{m, n} \mathbf{x}[i+m,\, j+n] \cdot \mathbf{k}[m, n] $$</span>
+            <ul class="formula-legend">
+                <li><code>x</code>input feature map (or image channel)</li>
+                <li><code>k</code>kernel — small (e.g. 3×3 or 5×5), <em>learned</em></li>
+                <li>Output is "what the filter found at each position"</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{output}[i, j] \;=\; \text{sum over the small kernel window of (image pixel} \times \text{kernel weight)} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> At every output position <code>(i, j)</code>, line up the small <strong>kernel</strong> (a tiny 3×3 or 5×5 grid of learned numbers) over a matching patch of the <strong>input image</strong>. Multiply each kernel weight by the pixel it sits on, then add all those products together — that's one output number. Slide the kernel one pixel over and repeat for the next output position. The <code>∗</code> symbol means "convolution"; the <code>Σ</code> just means "add up all the products inside the kernel window". The same kernel is reused at every position — that's why CNNs have so few parameters.
+            </p>
+            <ul class="formula-legend">
+                <li><code>image patch</code>the small window of input pixels under the kernel right now</li>
+                <li><code>kernel</code>small grid of learned weights — the same one used at every position</li>
+                <li><code>output[i, j]</code>"how much does the kernel pattern appear at position (i, j)?"</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -187,20 +202,36 @@ for p in model.fc.parameters():
 
     <div class="level-next">
         <span>Want receptive fields, dilated convs, and modern variants?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Effective receptive field</span>
-        <span class="formula">$$ \text{RF}^{(\ell)} \;=\; \text{RF}^{(\ell-1)} \;+\; \big(k^{(\ell)} - 1\big)\,\prod_{j<\ell} s^{(j)} $$</span>
-        <ul class="formula-legend">
-            <li><code>k<sup>(ℓ)</sup></code>kernel size at layer <em>ℓ</em></li>
-            <li><code>s<sup>(j)</sup></code>stride at layer <em>j</em></li>
-            <li>The portion of the input that influences one output pixel grows with depth</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{RF}^{(\ell)} \;=\; \text{RF}^{(\ell-1)} \;+\; \big(k^{(\ell)} - 1\big)\,\prod_{j<\ell} s^{(j)} $$</span>
+            <ul class="formula-legend">
+                <li><code>k<sup>(ℓ)</sup></code>kernel size at layer <em>ℓ</em></li>
+                <li><code>s<sup>(j)</sup></code>stride at layer <em>j</em></li>
+                <li>The portion of the input that influences one output pixel grows with depth</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{receptive field at layer } \ell \;=\; \text{receptive field at } \ell{-}1 \;+\; (\text{kernel size} - 1) \times \text{product of all earlier strides} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The <strong>receptive field</strong> is the size of the input patch that influences one pixel of a deeper feature map. It grows layer by layer: each new layer's kernel sees a window of its input, but the input has already been downsampled by previous strides — so its window covers a larger region of the original image. The <code>∏</code> (capital pi) symbol means "multiply together" — here, multiply all the strides from earlier layers. A stride of 2 at layer 1 means each pixel at layer 2 already covers a 2× wider piece of the original image; a 3×3 kernel at layer 2 then sees a 6-pixel-wide patch in the original.
+            </p>
+            <ul class="formula-legend">
+                <li><code>receptive field</code>how big a patch of the original input one output pixel "sees"</li>
+                <li><code>kernel size</code>width of the filter at the current layer (e.g. 3 for a 3×3 kernel)</li>
+                <li><code>stride</code>how many input pixels the kernel jumps between output positions</li>
+                <li>Deeper layers see larger pieces of the image — which is why depth gives a CNN global context</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -258,7 +289,7 @@ class ConvNeXtBlock(nn.Module):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -267,19 +298,19 @@ class ConvNeXtBlock(nn.Module):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://cs231n.github.io/" target="_blank">CS231n — Stanford <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The gold-standard course on CNNs for vision. Lecture notes alone are worth working through, even without the videos.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1512.03385" target="_blank">He et al. (2015) — ResNet <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The paper that made very deep networks trainable. Skip connections — one of the most consequential ideas in modern deep learning.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2201.03545" target="_blank">Liu et al. (2022) — ConvNeXt <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">A CNN rebuilt with modern conventions (LayerNorm, depthwise convs, GELU). Matches ViT performance — useful proof that the choice between CNN/ViT is more about training recipe than architecture.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://distill.pub/2019/computing-receptive-fields/" target="_blank">Distill — Computing Receptive Fields <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Interactive visualization of how receptive fields grow with depth. Essential intuition for designing dense-prediction networks.</span>
         </li>

@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">The trade-off at the heart of why models fail to generalize.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -117,29 +127,47 @@ print(f"Test:  {model.score(X_test,  y_test):.3f}")
     </div>
 
     <div class="level-next">
-        <span>Want to see the math?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <span>Ready for the underlying maths?</span>
+        <button data-go-to="fundamentals" type="button">Switch to Fundamentals →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The decomposition</span>
-        <span class="formula">$$ \mathbb{E}\!\left[(y - \hat{f}(x))^2\right] \;=\; \mathrm{Bias}[\hat{f}(x)]^{\,2} \;+\; \mathrm{Var}[\hat{f}(x)] \;+\; \sigma^2 $$</span>
-        <ul class="formula-legend">
-            <li><code>E[…]</code>expected error over all possible training sets &amp; inputs</li>
-            <li><code>Bias</code>how far the <em>average</em> prediction sits from the truth</li>
-            <li><code>Var</code>how much predictions wobble as you re-sample the training data</li>
-            <li><code>σ²</code>irreducible noise — error you can't escape</li>
-        </ul>
-        <p style="margin-top:0.75rem">Total expected error splits cleanly into three terms. Two are <em>your</em> problem; one isn't.</p>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathbb{E}\!\left[(y - \hat{f}(x))^2\right] \;=\; \mathrm{Bias}[\hat{f}(x)]^{\,2} \;+\; \mathrm{Var}[\hat{f}(x)] \;+\; \sigma^2 $$</span>
+            <ul class="formula-legend">
+                <li><code>E[…]</code>expected (average) value over all possible training sets &amp; inputs</li>
+                <li><code>f̂(x)</code>the model's prediction at input <em>x</em></li>
+                <li><code>Bias</code>how far the <em>average</em> prediction sits from the truth</li>
+                <li><code>Var</code>how much predictions wobble as you re-sample the training data</li>
+                <li><code>σ²</code>variance of the irreducible label noise</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{average squared error} \;=\; \text{bias}^2 \;+\; \text{variance} \;+\; \text{noise}^2 $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The total error your model makes (averaged over fresh data) breaks cleanly into three pieces that <em>add up</em>: a piece from being systematically off (bias), a piece from being inconsistent across re-fits (variance), and a piece from randomness in the labels themselves (noise). The <code>²</code> just means "squared" — we square bias and noise before adding so the units match (everything ends up in "error squared"). You can only do something about the first two terms; the third is the floor.
+            </p>
+            <ul class="formula-legend">
+                <li><code>avg sq err</code>average of <em>(true value − prediction)²</em> across the data</li>
+                <li><code>bias</code>how far the average prediction sits from the truth, if you re-trained on many different samples</li>
+                <li><code>variance</code>how spread out those predictions are around their average</li>
+                <li><code>noise</code>the standard deviation of irreducible randomness in the labels</li>
+            </ul>
+        </div>
+
+        <p style="margin-top:0.75rem">Total expected error splits cleanly into three terms. Two of them are <em>your</em> problem; one isn't.</p>
     </div>
 
     <article class="tldr-body">
-        <p><strong>Bias</strong> is error from picking the wrong model class. A linear model has high bias on a quadratic problem no matter how much data you feed it — the hypothesis space simply doesn't contain the right answer.</p>
+        <p><strong>Bias</strong> is error from picking the wrong model family. A linear model has high bias on a quadratic problem no matter how much data you feed it — the family of straight lines simply doesn't contain the right answer.</p>
         <p><strong>Variance</strong> is error from being too sensitive to the specific training sample. A deep, unpruned tree picks up on noise; re-fit it on a slightly different sample and you get a noticeably different model.</p>
-        <p><strong>Irreducible noise (σ²)</strong> is the floor: it's noise in <em>y</em> given <em>x</em>. No model can do better.</p>
+        <p><strong>Noise</strong> is the floor: randomness in <em>y</em> given <em>x</em>. No model can do better.</p>
         <p>The trade-off comes from how knobs move bias and variance together:</p>
     </article>
 
@@ -147,7 +175,7 @@ print(f"Test:  {model.score(X_test,  y_test):.3f}")
         <div class="yes">
             <h3>Increases bias, reduces variance</h3>
             <ul>
-                <li>Simpler model class (linear → polynomial degree ↓)</li>
+                <li>Simpler model class (lower polynomial degree, fewer features)</li>
                 <li>Stronger regularization (L1, L2, dropout)</li>
                 <li>Smaller trees, more pruning</li>
                 <li>Smaller neural networks</li>
@@ -185,27 +213,49 @@ train_sizes, train_scores, val_scores = learning_curve(
 
     <div class="level-next">
         <span>Curious how this breaks down for modern deep nets?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Formal decomposition (squared loss)</span>
-        <span class="formula">$$ \begin{aligned}
+
+        <div class="notation-standard">
+            <span class="formula">$$ \begin{aligned}
 \mathbb{E}_{D,\varepsilon}\!\left[(y - \hat{f}_D(x))^2\right]
-&\;=\; \underbrace{\left(\bar{f}(x) - f(x)\right)^2}_{\text{bias}^2}
+&amp;\;=\; \underbrace{\left(\bar{f}(x) - f(x)\right)^2}_{\text{bias}^2}
 \;+\; \underbrace{\mathbb{E}_D\!\left[\left(\hat{f}_D(x) - \bar{f}(x)\right)^2\right]}_{\text{variance}}
 \;+\; \sigma^2
 \end{aligned} $$</span>
-        <ul class="formula-legend">
-            <li><code>D</code>random training sample drawn from the data distribution</li>
-            <li><code>f(x)</code>true underlying function</li>
-            <li><code>f̂<sub>D</sub>(x)</code>the model fit on a particular dataset <em>D</em></li>
-            <li><code>f̄(x)</code>shorthand for <em>E<sub>D</sub>[f̂<sub>D</sub>(x)]</em> — the average prediction across training sets</li>
-            <li><code>ε</code>noise; <em>y</em> = <em>f</em>(<em>x</em>) + <em>ε</em> with <em>Var</em>(<em>ε</em>) = <em>σ²</em></li>
-        </ul>
+            <ul class="formula-legend">
+                <li><code>D</code>random training sample drawn from the data distribution</li>
+                <li><code>f(x)</code>true underlying function</li>
+                <li><code>f̂<sub>D</sub>(x)</code>the model fit on a particular dataset <em>D</em></li>
+                <li><code>f̄(x)</code>shorthand for <em>E<sub>D</sub>[f̂<sub>D</sub>(x)]</em> — the average prediction across training sets</li>
+                <li><code>ε</code>noise; <em>y</em> = <em>f</em>(<em>x</em>) + <em>ε</em> with <em>Var</em>(<em>ε</em>) = <em>σ²</em></li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \begin{aligned}
+\text{average squared error}
+&amp;\;=\; \underbrace{(\text{avg prediction} - \text{truth})^2}_{\text{bias}^2}
+\;+\; \underbrace{\text{average of }(\text{prediction} - \text{avg prediction})^2}_{\text{variance}}
+\;+\; \text{noise}^2
+\end{aligned} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Same three-way split as Fundamentals, but now we're explicit about what's being averaged. Imagine re-running training many times — each time on a fresh sample of data, with fresh label noise. Each run gives you a different prediction at any given input <em>x</em>. The first term, <strong>bias²</strong>, is the squared gap between the <em>average</em> of those predictions and the truth. The second, <strong>variance</strong>, is how much the predictions wobble around that average from run to run. The third, <strong>noise²</strong>, is the unavoidable scatter in the labels themselves. The under-braces ( <code>⏟</code> ) are just labels saying which piece is which.
+            </p>
+            <ul class="formula-legend">
+                <li><code>avg</code>averaging is over <em>both</em> the training sample you happen to draw <em>and</em> the noise in the labels</li>
+                <li><code>truth</code>the underlying pattern <em>f(x)</em> the model is trying to learn</li>
+                <li><code>prediction</code>what your model outputs at <em>x</em> after fitting on a particular dataset</li>
+                <li><code>avg prediction</code>average of the model's predictions across all the training sets you could have drawn</li>
+                <li><code>noise</code>random scatter in the labels themselves — what's left after the true pattern</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -259,7 +309,7 @@ def bias_variance(estimator, X_train, y_train, X_test, y_test, n_boot=200, seed=
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Fundamentals</button>
     </div>
 </section>
 
@@ -273,25 +323,25 @@ def bias_variance(estimator, X_train, y_train, X_test, y_test, n_boot=200, seed=
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
-            <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">ESL, chapter 7 <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The canonical treatment of bias-variance and model assessment. Read alongside chapter 2 for context.</span>
-        </li>
-        <li>
-            <a href="https://www.pnas.org/doi/10.1073/pnas.1903070116" target="_blank">Belkin et al. (2019) <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">"Reconciling modern ML practice and the classical bias-variance trade-off" — the double-descent paper. Short, accessible.</span>
-        </li>
-        <li>
-            <a href="https://homes.cs.washington.edu/~pedrod/papers/mlc00a.pdf" target="_blank">Domingos (2000) <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Unified bias-variance decomposition for 0-1, squared, and other losses. Read when squared-loss isn't enough.</span>
-        </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://mlu-explain.github.io/bias-variance/" target="_blank">MLU-Explain — Bias-Variance <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Interactive visualization showing how complexity moves bias and variance. Best intuition builder.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
+            <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">ESL, chapter 7 <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The canonical treatment of bias-variance and model assessment. Read alongside chapter 2 for context.</span>
+        </li>
+        <li data-tier="fundamentals">
             <a href="https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff" target="_blank">Wikipedia <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Quick reference for the derivation and connections to regularization.</span>
+        </li>
+        <li data-tier="indepth">
+            <a href="https://www.pnas.org/doi/10.1073/pnas.1903070116" target="_blank">Belkin et al. (2019) <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">"Reconciling modern ML practice and the classical bias-variance trade-off" — the double-descent paper. Short, accessible.</span>
+        </li>
+        <li data-tier="indepth">
+            <a href="https://homes.cs.washington.edu/~pedrod/papers/mlc00a.pdf" target="_blank">Domingos (2000) <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Unified bias-variance decomposition for 0-1, squared, and other losses. Read when squared-loss isn't enough.</span>
         </li>
     </ul>
 </div>

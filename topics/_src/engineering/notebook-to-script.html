@@ -93,19 +93,33 @@ if __name__ == "__main__": app()
 
     <div class="level-next">
         <span>Want module structure, &amp; CI integration?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The "promote" gradient</span>
-        <span class="formula">$$ \text{notebook} \to \text{function in notebook} \to \text{function in module} \to \text{CLI entry-point} $$</span>
-        <ul class="formula-legend">
-            <li>Each step is a small refactor</li>
-            <li>Do them when the code is reused, not when it's first written</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{notebook} \to \text{function in notebook} \to \text{function in module} \to \text{CLI entry-point} $$</span>
+            <ul class="formula-legend">
+                <li>Each step is a small refactor</li>
+                <li>Do them when the code is reused, not when it's first written</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{loose cells} \;\to\; \text{notebook function} \;\to\; \text{importable module} \;\to\; \text{CLI script} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A code-maturity ladder. The arrows (<code>→</code>) are "evolves into". Each step makes the code one notch more reusable: from a sequence of cells that only run top-to-bottom, to a callable function (still in the notebook), to that same function living in a .py module that other code can import, to a script with a proper command-line interface. Climb the ladder only when the code earns it — premature promotion is overhead with no payoff.
+            </p>
+            <ul class="formula-legend">
+                <li>Each step is a small refactor</li>
+                <li>Do them when the code is reused, not when it's first written</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -142,20 +156,35 @@ if __name__ == "__main__": app()
 
     <div class="level-next">
         <span>Want testable functions, side-effect isolation, &amp; pure-function refactors?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Pure functions</span>
-        <span class="formula">$$ f(x) = y \quad \text{with no global state, no I/O, no side effects} $$</span>
-        <ul class="formula-legend">
-            <li>Easy to test — just pass inputs, assert outputs</li>
-            <li>Easy to reuse — the function doesn't depend on context</li>
-            <li>Easy to parallelise — no shared state to coordinate</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ f(x) = y \quad \text{with no global state, no I/O, no side effects} $$</span>
+            <ul class="formula-legend">
+                <li>Easy to test — just pass inputs, assert outputs</li>
+                <li>Easy to reuse — the function doesn't depend on context</li>
+                <li>Easy to parallelise — no shared state to coordinate</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{output} = f(\text{input}) \quad \text{— same input always gives same output, nothing else changes} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A <em>pure</em> function depends only on its arguments and only returns a value — no reading from disk, no writing logs, no mutating a global variable, no hidden state. <code>f(x) = y</code> just says "function <code>f</code> applied to input <code>x</code> gives output <code>y</code>", and the constraint is that the same <code>x</code> always gives the same <code>y</code> with no other effects on the world. This property is what makes a function trivially testable, reusable in any context, and safe to run in parallel.
+            </p>
+            <ul class="formula-legend">
+                <li>Easy to test — just pass inputs, assert outputs</li>
+                <li>Easy to reuse — the function doesn't depend on context</li>
+                <li>Easy to parallelise — no shared state to coordinate</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -202,7 +231,7 @@ def test_normalise():
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -211,19 +240,19 @@ def test_normalise():
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://jupytext.readthedocs.io/" target="_blank">Jupytext <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Round-trip notebooks ↔ .py files. Solves "notebooks don't diff" without making you give up Jupyter.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://typer.tiangolo.com/" target="_blank">Typer <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Modern CLI library for Python — type hints become arguments. The least-friction way to give your scripts proper command-line interfaces.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/khuyentran1401/data-science-template" target="_blank">cookiecutter-data-science <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Project scaffolding for data-science / ML repos with reasonable defaults for the notebook + script split.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://drivendata.github.io/cookiecutter-data-science/" target="_blank">Drivendata — Cookiecutter Data Science <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The most-used data-science project template. Opinionated layout; battle-tested.</span>
         </li>

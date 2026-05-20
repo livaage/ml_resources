@@ -81,22 +81,39 @@ print(f"log p(obs) = {model.score(observations):.2f}")
 
     <div class="level-next">
         <span>Want the three classical problems and the algorithms?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The model</span>
-        <span class="formula">$$ p(\mathbf{x}_{1:T}, \mathbf{z}_{1:T}) \;=\; \pi(z_1)\,\prod_{t=2}^{T} A(z_t \mid z_{t-1}) \,\prod_{t=1}^{T} B(x_t \mid z_t) $$</span>
-        <ul class="formula-legend">
-            <li><code>π</code>initial state distribution</li>
-            <li><code>A</code>state transition matrix</li>
-            <li><code>B</code>emission distribution (Gaussian, multinomial, …)</li>
-            <li><code>z<sub>t</sub></code>hidden state at time <em>t</em></li>
-            <li><code>x<sub>t</sub></code>observed emission at time <em>t</em></li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ p(\mathbf{x}_{1:T}, \mathbf{z}_{1:T}) \;=\; \pi(z_1)\,\prod_{t=2}^{T} A(z_t \mid z_{t-1}) \,\prod_{t=1}^{T} B(x_t \mid z_t) $$</span>
+            <ul class="formula-legend">
+                <li><code>π</code>initial state distribution</li>
+                <li><code>A</code>state transition matrix</li>
+                <li><code>B</code>emission distribution (Gaussian, multinomial, …)</li>
+                <li><code>z<sub>t</sub></code>hidden state at time <em>t</em></li>
+                <li><code>x<sub>t</sub></code>observed emission at time <em>t</em></li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ p(\text{observations}, \text{hidden states}) \;=\; \underbrace{P(z_1)}_{\text{start}} \;\times\; \prod_t \underbrace{P(z_t \mid z_{t-1})}_{\text{transition}} \;\times\; \prod_t \underbrace{P(x_t \mid z_t)}_{\text{emission}} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The probability of seeing a particular sequence of <em>observations</em> together with a particular sequence of <em>hidden states</em> factors into three pieces. Start with <code>π</code> (pi) — the probability of whatever hidden state you happen to begin in. Then for every following step, multiply in the <strong>transition</strong> probability <code>A(z<sub>t</sub> | z<sub>t-1</sub>)</code> — how likely it is to move to the new hidden state given the previous one. Finally, for every step, multiply in the <strong>emission</strong> probability <code>B(x<sub>t</sub> | z<sub>t</sub>)</code> — how likely the observation you saw is given the hidden state you were in. The two big products (<code>∏</code>) just say "multiply across all time steps." The whole expression is built on the <em>Markov assumption</em>: the future depends on the present only, not the past.
+            </p>
+            <ul class="formula-legend">
+                <li><code>observations</code>what you actually see, <em>x</em><sub>1</sub>, <em>x</em><sub>2</sub>, …, <em>x</em><sub>T</sub></li>
+                <li><code>hidden states</code>what's really going on underneath, <em>z</em><sub>1</sub>, <em>z</em><sub>2</sub>, …, <em>z</em><sub>T</sub></li>
+                <li><code>start</code>π — initial state distribution</li>
+                <li><code>transition</code>A — probability of moving from one hidden state to the next</li>
+                <li><code>emission</code>B — probability of producing each observation from a hidden state</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -150,19 +167,36 @@ print(np.round(model.transmat_, 3))
 
     <div class="level-next">
         <span>Want forward-backward, max-product, and the CRF connection?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Forward recursion</span>
-        <span class="formula">$$ \alpha_t(j) \;=\; B(x_t \mid z_t{=}j) \;\sum_{i=1}^{K} \alpha_{t-1}(i)\, A(i \to j) $$</span>
-        <ul class="formula-legend">
-            <li><code>α<sub>t</sub>(j)</code>joint probability of observations 1..t and hidden state <em>j</em> at <em>t</em></li>
-            <li>Combined with the analogous <strong>backward</strong> recursion <em>β<sub>t</sub>(j)</em>, you get the full posterior <em>γ<sub>t</sub>(j)</em> at each step</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \alpha_t(j) \;=\; B(x_t \mid z_t{=}j) \;\sum_{i=1}^{K} \alpha_{t-1}(i)\, A(i \to j) $$</span>
+            <ul class="formula-legend">
+                <li><code>α<sub>t</sub>(j)</code>joint probability of observations 1..t and hidden state <em>j</em> at <em>t</em></li>
+                <li>Combined with the analogous <strong>backward</strong> recursion <em>β<sub>t</sub>(j)</em>, you get the full posterior <em>γ<sub>t</sub>(j)</em> at each step</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \alpha_t(j) \;=\; P(\text{observation at } t \mid \text{state } j) \;\times\; \sum_{i} \alpha_{t-1}(i) \cdot P(\text{move } i \to j) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> <code>α<sub>t</sub>(j)</code> (alpha — Greek letter used here as a name for this quantity) is the joint probability of having seen observations 1 through <em>t</em> <em>and</em> being in hidden state <em>j</em> at time <em>t</em>. You build it step by step. To get to state <em>j</em> at time <em>t</em>, you must have been in <em>some</em> state <em>i</em> at the previous step — so the <code>Σ</code> ("sum over all possible previous states <em>i</em>") adds up every way of arriving. Multiply by the transition probability of that move, then by the emission probability of seeing <code>x<sub>t</sub></code> given you're now in state <em>j</em>. Running this recursion across <em>t = 1, 2, …, T</em> costs O(<em>T·K²</em>) — much cheaper than the exponential cost of enumerating every hidden path. The analogous <em>backward</em> recursion sweeps right-to-left, and together they give you the per-step posterior over states.
+            </p>
+            <ul class="formula-legend">
+                <li><code>α<sub>t</sub>(j)</code>probability of the first <em>t</em> observations <em>and</em> ending in state <em>j</em> at time <em>t</em></li>
+                <li><code>K</code>number of hidden states</li>
+                <li><code>i</code>candidate previous hidden state — the sum runs over all of them</li>
+                <li><code>move i → j</code>transition from state <em>i</em> to state <em>j</em> (one entry of the matrix <em>A</em>)</li>
+                <li>Cost is O(<em>T·K²</em>): for each time step, for each pair of states</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -215,7 +249,7 @@ def _logsumexp(x, axis):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -224,19 +258,19 @@ def _logsumexp(x, axis):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.cs.ubc.ca/~murphyk/Bayes/rabiner.pdf" target="_blank">Rabiner (1989) tutorial <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The classic tutorial on HMMs. Covers the three problems, all algorithms, applications to speech. Still the best single source.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://hmmlearn.readthedocs.io/" target="_blank">hmmlearn documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The maintained scikit-learn-style Python implementation. Categorical, Gaussian, and GMM emissions.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://web.stanford.edu/~jurafsky/slp3/A.pdf" target="_blank">Jurafsky &amp; Martin, appendix A <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">HMMs for NLP with worked examples (POS tagging). Cleaner notation than Rabiner.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://en.wikipedia.org/wiki/Viterbi_algorithm" target="_blank">Wikipedia — Viterbi algorithm <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Quick reference for the decoding step in isolation. Includes pseudocode.</span>
         </li>

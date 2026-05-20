@@ -83,19 +83,35 @@ scores = iso.score_samples(X_test)   # lower = more anomalous
 
     <div class="level-next">
         <span>Want the actual algorithms?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Three strategies</span>
-        <span class="formula">$$ \text{score}(x) \;\in\; \big\{\, \underbrace{-\log p(x)}_{\text{density}},\; \underbrace{d(x, \mathrm{NN}_k(x))}_{\text{distance}},\; \underbrace{\|x - \hat{x}\|}_{\text{reconstruction}} \,\big\} $$</span>
-        <ul class="formula-legend">
-            <li>Each strategy assigns a continuous score — threshold to decide normal vs. anomalous</li>
-            <li>Choice of strategy = assumption about what makes anomalies "weird"</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{score}(x) \;\in\; \big\{\, \underbrace{-\log p(x)}_{\text{density}},\; \underbrace{d(x, \mathrm{NN}_k(x))}_{\text{distance}},\; \underbrace{\|x - \hat{x}\|}_{\text{reconstruction}} \,\big\} $$</span>
+            <ul class="formula-legend">
+                <li>Each strategy assigns a continuous score — threshold to decide normal vs. anomalous</li>
+                <li>Choice of strategy = assumption about what makes anomalies "weird"</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{anomaly score}(x) \;=\; \text{one of:}\;\big\{\,\text{low density},\;\text{far from neighbours},\;\text{poor reconstruction}\,\big\} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Three ways to assign a "weirdness" score to a point <em>x</em>. <em>Density</em>: how (im)probable is <em>x</em> under a model of normal data? <code>−log p(x)</code> is the "surprise" — bigger means rarer. <em>Distance</em>: how far is <em>x</em> from its <em>k</em> nearest neighbours (written <code>NN<sub>k</sub>(x)</code>)? Lone points are anomalous. <em>Reconstruction</em>: train a compressor on normal data; if it can't faithfully reconstruct <em>x</em>, then <em>x</em> doesn't look normal. Each strategy picks a different definition of "weird"; pick the one that matches how your anomalies actually behave.
+            </p>
+            <ul class="formula-legend">
+                <li><code>density</code>negative log probability under a model of normal data — bigger = rarer</li>
+                <li><code>distance</code>how far <em>x</em> is from its <em>k</em> nearest neighbours</li>
+                <li><code>reconstruction</code>how badly an autoencoder reconstructs <em>x</em></li>
+                <li>Each strategy gives a continuous score; threshold to decide normal vs. anomalous</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -154,20 +170,36 @@ for name, m in methods.items():
 
     <div class="level-next">
         <span>Want deep methods and contextual / collective anomalies?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Three flavours of anomaly</span>
-        <span class="formula">$$ \text{point} \;\subset\; \text{contextual} \;\subset\; \text{collective} $$</span>
-        <ul class="formula-legend">
-            <li><strong>Point</strong>: one observation is anomalous regardless of context</li>
-            <li><strong>Contextual</strong>: an observation is anomalous given a context (time, location)</li>
-            <li><strong>Collective</strong>: a sequence / group is anomalous as a whole</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{point} \;\subset\; \text{contextual} \;\subset\; \text{collective} $$</span>
+            <ul class="formula-legend">
+                <li><strong>Point</strong>: one observation is anomalous regardless of context</li>
+                <li><strong>Contextual</strong>: an observation is anomalous given a context (time, location)</li>
+                <li><strong>Collective</strong>: a sequence / group is anomalous as a whole</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{point anomaly} \;\subset\; \text{contextual anomaly} \;\subset\; \text{collective anomaly} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Anomalies come in three nested types of increasing subtlety. A <em>point anomaly</em> is a single observation that's odd regardless of anything around it (a credit card charge in a country you've never visited). A <em>contextual anomaly</em> is odd only in the right context — 25°C is normal in summer, anomalous in winter; you need to know the season to flag it. A <em>collective anomaly</em> requires looking at a whole group together — no single heart-rate reading is unusual, but the whole sequence drifting upward over an hour is. Each type subsumes the previous and is harder to detect.
+            </p>
+            <ul class="formula-legend">
+                <li><code>point</code>one observation odd on its own</li>
+                <li><code>contextual</code>odd given the context (time of day, location, season)</li>
+                <li><code>collective</code>a sequence or group is anomalous as a whole, even if each piece looks normal</li>
+                <li>Each type is harder to detect than the previous</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -230,7 +262,7 @@ flagged = err > threshold
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -239,19 +271,19 @@ flagged = err > threshold
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/outlier_detection.html" target="_blank">scikit-learn — Outlier detection <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Side-by-side comparison of Isolation Forest, One-Class SVM, LOF, and Elliptic Envelope on toy data. Start here.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pyod.readthedocs.io/" target="_blank">PyOD library <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Unified API across ~40 anomaly-detection algorithms — classical, deep, and ensemble. Includes benchmarks.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2007.02500" target="_blank">Ruff et al. — Deep AD survey (2021) <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">"A Unifying Review of Deep and Shallow Anomaly Detection" — best modern survey. Covers SVDD, generative, self-supervised methods.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://www.mvtec.com/company/research/datasets/mvtec-ad" target="_blank">MVTec AD benchmark <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Industrial defect-detection benchmark. The de-facto standard for evaluating image-based anomaly methods.</span>
         </li>

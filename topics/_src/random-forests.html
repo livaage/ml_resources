@@ -85,20 +85,36 @@ print(f"Accuracy: {accuracy:.2%}")
 
     <div class="level-next">
         <span>Want to know <em>how</em> it actually works?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Key idea</span>
-        <span class="formula">$$ \hat{y}(x) \;=\; \frac{1}{B} \sum_{b=1}^{B} T_b(x) $$</span>
-        <ul class="formula-legend">
-            <li><code>ŷ(x)</code>the forest's prediction for input <em>x</em></li>
-            <li><code>B</code>the number of trees (typically 100–500)</li>
-            <li><code>T<sub>b</sub>(x)</code>the prediction from the <em>b</em>-th tree</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \hat{y}(x) \;=\; \frac{1}{B} \sum_{b=1}^{B} T_b(x) $$</span>
+            <ul class="formula-legend">
+                <li><code>ŷ(x)</code>the forest's prediction for input <em>x</em></li>
+                <li><code>B</code>the number of trees (typically 100–500)</li>
+                <li><code>T<sub>b</sub>(x)</code>the prediction from the <em>b</em>-th tree</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{forest prediction} \;=\; \text{average of all tree predictions} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Ask every tree what it thinks about input <em>x</em>, then take the average of their answers (for classification, that's a majority vote; for regression, a numeric mean). <code>B</code> is how many trees you have — usually a few hundred. Each individual tree <code>T<sub>b</sub></code> was trained on a bootstrap re-sample of the data while only considering a random subset of features at every split, so the trees are deliberately decorrelated. Averaging cancels out their independent errors while preserving the signal they all agree on.
+            </p>
+            <ul class="formula-legend">
+                <li><code>forest prediction</code>the ensemble's final answer at input <em>x</em></li>
+                <li><code>tree predictions</code>each individual tree's vote or value for <em>x</em></li>
+                <li><code>B</code>number of trees in the forest (typically 100–500)</li>
+            </ul>
+        </div>
+
         <p style="margin-top:0.75rem">Each tree is trained on a <strong>bootstrap sample</strong> with a <strong>random feature subset</strong> at each split. Both sources of randomness decorrelate the trees so the average cuts variance.</p>
     </div>
 
@@ -153,20 +169,37 @@ for name, imp in sorted(
 
     <div class="level-next">
         <span>Want the bias-variance derivation and honest diagnostics?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Variance reduction</span>
-        <span class="formula">$$ \mathrm{Var}(\hat{y}) \;=\; \rho\,\sigma^2 \;+\; \frac{1-\rho}{B}\,\sigma^2 $$</span>
-        <ul class="formula-legend">
-            <li><code>σ²</code>variance of an individual tree's prediction</li>
-            <li><code>ρ</code>pairwise correlation between trees on the same input</li>
-            <li><code>B</code>number of trees</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathrm{Var}(\hat{y}) \;=\; \rho\,\sigma^2 \;+\; \frac{1-\rho}{B}\,\sigma^2 $$</span>
+            <ul class="formula-legend">
+                <li><code>σ²</code>variance of an individual tree's prediction</li>
+                <li><code>ρ</code>pairwise correlation between trees on the same input</li>
+                <li><code>B</code>number of trees</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{forest variance} \;=\; \text{correlation} \times \text{tree variance} \;+\; \frac{1 - \text{correlation}}{\text{number of trees}} \times \text{tree variance} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The variance of the averaged forecast splits into two pieces. The first is <code>correlation</code> (called <code>ρ</code>, rho — a number between 0 and 1 measuring how similarly trees vote on the same input) times the variance of a single tree. The second piece shrinks with the number of trees in the denominator — so adding more trees only reduces the second piece, while the first piece is a hard floor you can't escape no matter how many trees you grow. The whole point of feature subsetting is to push correlation <code>ρ</code> closer to zero so that floor is lower.
+            </p>
+            <ul class="formula-legend">
+                <li><code>forest variance</code>spread of the ensemble's prediction at a fixed input across re-fits</li>
+                <li><code>tree variance</code>spread of a single tree's prediction at the same input</li>
+                <li><code>correlation</code>how similarly any two trees vote on the same input — lower is better</li>
+                <li><code>number of trees</code>more trees only shrink the second term; the first sets the floor</li>
+            </ul>
+        </div>
+
         <p style="margin-top:0.75rem">As <em>B</em> → ∞ the second term vanishes — variance is floored at <code>ρσ²</code>. The whole game is to <strong>drive ρ down</strong> via per-split feature subsets without making each tree too weak (which inflates σ²).</p>
     </div>
 
@@ -227,7 +260,7 @@ for name, imp in ranked[:10]:
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -236,19 +269,19 @@ for name, imp in ranked[:10]:
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/ensemble.html#random-forests" target="_blank">scikit-learn user guide <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical reference for hyperparameters — what each one does and how to set it.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.stat.berkeley.edu/~breiman/randomforest2001.pdf" target="_blank">Breiman (2001) <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original paper. 30 pages, surprisingly readable. The clearest explanation of <em>why</em> RFs work.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">ESL, chapter 15 <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Full theoretical treatment with the bias–variance derivation. Read after Breiman.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://en.wikipedia.org/wiki/Random_forest" target="_blank">Wikipedia <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Solid quick reference with pointers to extensions (Extra Trees, isolation forests).</span>
         </li>

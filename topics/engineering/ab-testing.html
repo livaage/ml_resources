@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Comparing models in production — sample size, statistical significance, bandits, and the human factors.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -105,20 +115,36 @@ def ab_test(success_a, n_a, success_b, n_b):
 
     <div class="level-next">
         <span>Want sequential testing, multi-armed bandits, &amp; Bayesian A/B?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Statistical power</span>
-        <span class="formula">$$ n \approx \frac{2\sigma^2 (z_{1-\alpha/2} + z_{1-\beta})^2}{\delta^2} $$</span>
-        <ul class="formula-legend">
-            <li><em>δ</em> the minimum detectable effect</li>
-            <li><em>α, β</em> false-positive and false-negative rates (typically 0.05, 0.20)</li>
-            <li><em>σ</em> standard deviation of the metric</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ n \approx \frac{2\sigma^2 (z_{1-\alpha/2} + z_{1-\beta})^2}{\delta^2} $$</span>
+            <ul class="formula-legend">
+                <li><em>δ</em> the minimum detectable effect</li>
+                <li><em>α, β</em> false-positive and false-negative rates (typically 0.05, 0.20)</li>
+                <li><em>σ</em> standard deviation of the metric</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{users per arm} \approx \frac{2 \times (\text{metric spread})^2 \times (\text{z-values})^2}{(\text{minimum effect})^2} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> This is the standard sample-size formula: how many users you need in each arm to reliably detect an effect. The numerator grows with the <em>variance</em> of your metric (<code>σ²</code>) — noisier metrics need more data. The <code>z</code>-values come from your tolerated false-positive rate <code>α</code> (typically 5%) and false-negative rate <code>β</code> (typically 20%); together they encode "how confident do I want to be?". The denominator is the squared <strong>minimum detectable effect</strong> <code>δ</code> — the smaller the lift you want to catch, the more users you need. Halving the effect quadruples the sample.
+            </p>
+            <ul class="formula-legend">
+                <li><code>users per arm</code>how many users you need in <em>each</em> of A and B</li>
+                <li><code>metric spread</code>standard deviation of the outcome metric (σ)</li>
+                <li><code>z-values</code>quantiles of the normal distribution at confidence level α and power 1−β</li>
+                <li><code>minimum effect</code>smallest lift δ you care about detecting</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -159,20 +185,36 @@ class ThompsonBandit:
 
     <div class="level-next">
         <span>Want interleaving, off-policy evaluation, &amp; long-term effects?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Inverse propensity scoring</span>
-        <span class="formula">$$ \hat V = \frac{1}{n} \sum_{i=1}^n \frac{\mathbb{1}\{a_i = \pi(x_i)\}}{p_\mathrm{behaviour}(a_i \mid x_i)} \, r_i $$</span>
-        <ul class="formula-legend">
-            <li>Estimate the value of a new policy <em>π</em> from logs of an old behaviour policy</li>
-            <li>Doesn't require deploying <em>π</em> to evaluate it</li>
-            <li>Variance grows with how different <em>π</em> is from behaviour</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \hat V = \frac{1}{n} \sum_{i=1}^n \frac{\mathbb{1}\{a_i = \pi(x_i)\}}{p_\mathrm{behaviour}(a_i \mid x_i)} \, r_i $$</span>
+            <ul class="formula-legend">
+                <li>Estimate the value of a new policy <em>π</em> from logs of an old behaviour policy</li>
+                <li>Doesn't require deploying <em>π</em> to evaluate it</li>
+                <li>Variance grows with how different <em>π</em> is from behaviour</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{estimated value} \;=\; \text{average over logs of}\; \frac{\text{1 if new policy agrees with log}}{\text{prob old policy picked that action}} \times \text{reward} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> You want to estimate how a new policy <code>π</code> (a way of choosing actions) would perform, using only logged data from the old "behaviour" policy. For each logged event, check whether the new policy would have chosen the same action; if yes, keep the reward but <em>reweight</em> it by dividing by the probability the old policy assigned to that action. The <code>𝟙{·}</code> (indicator) is 1 when the condition holds, 0 otherwise. Dividing by the logging probability corrects for the bias from the old policy picking some actions more than others — actions that were rare under the old policy get up-weighted because we have less data about them. Average across all <code>n</code> logged events to get the estimate.
+            </p>
+            <ul class="formula-legend">
+                <li><code>estimated value</code>expected reward of the new policy, estimated from old logs</li>
+                <li><code>new policy</code>the policy π you want to evaluate (without deploying it)</li>
+                <li><code>prob old policy picked that action</code>the propensity score from the logging policy</li>
+                <li><code>reward</code>observed outcome (click, conversion, revenue) for that logged event</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -214,7 +256,7 @@ def switchback_test(treatment_schedule, observations):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -238,19 +280,19 @@ def switchback_test(treatment_schedule, observations):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="indepth">
             <a href="https://exp-platform.com/" target="_blank">Microsoft Experimentation Platform <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Kohavi et al.'s research site. The "trustworthy A/B testing" papers are required reading for anyone running production experiments.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.statsig.com/" target="_blank">Statsig — Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">A modern experimentation platform; their blog covers sequential testing, CUPED, and HTE in accessible language.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.amazon.com/Trustworthy-Online-Controlled-Experiments-Practical/dp/1108724264" target="_blank">Kohavi, Tang &amp; Xu — Trustworthy Online Controlled Experiments <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The textbook. Pragmatic, exhaustive; covers the entire A/B testing lifecycle in industry.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://lilianweng.github.io/posts/2018-10-21-mab/" target="_blank">Lilian Weng — Multi-Armed Bandits <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Clear introduction to bandits and their relationship to A/B testing.</span>
         </li>

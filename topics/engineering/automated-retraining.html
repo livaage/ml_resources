@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">When to retrain, how to schedule it, and what gates promote a fresh model to production.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -105,19 +115,35 @@ jobs:
 
     <div class="level-next">
         <span>Want the gating logic, rollback, &amp; the human-in-the-loop?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Promotion criteria</span>
-        <span class="formula">$$ \text{promote} \;\Leftrightarrow\; \text{new beats baseline by} \geq \delta \;\wedge\; \text{no regression on subgroup metrics} $$</span>
-        <ul class="formula-legend">
-            <li><em>δ</em> = practically meaningful improvement, not statistical noise</li>
-            <li>Subgroup regressions = silent harm; gate on them explicitly</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{promote} \;\Leftrightarrow\; \text{new beats baseline by} \geq \delta \;\wedge\; \text{no regression on subgroup metrics} $$</span>
+            <ul class="formula-legend">
+                <li><em>δ</em> = practically meaningful improvement, not statistical noise</li>
+                <li>Subgroup regressions = silent harm; gate on them explicitly</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{promote} \;\;\text{if and only if}\;\; (\text{new model beats baseline by at least } \delta) \;\;\text{AND}\;\; (\text{no subgroup gets worse}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Two boolean conditions joined by AND — both must hold for the new model to ship. The <code>⇔</code> symbol means "if and only if": promotion is exactly equivalent to these conditions. The first gate (<code>δ</code>, a small positive threshold) prevents shipping noise: the lift must be large enough to matter, not just barely positive. The second gate (the <code>∧</code> in the math is logical AND) protects against silent harm: even if the aggregate metric goes up, you don't promote if any tracked subgroup goes meaningfully down.
+            </p>
+            <ul class="formula-legend">
+                <li><code>promote</code>move the candidate model into production</li>
+                <li><code>δ</code>minimum meaningful improvement threshold (not just statistical significance)</li>
+                <li><code>subgroup metrics</code>per-segment performance (gender, geography, customer tier)</li>
+                <li><code>AND</code>both conditions must be true — fail either and you don't ship</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -158,20 +184,35 @@ if ok:
 
     <div class="level-next">
         <span>Want online learning, multi-armed bandits, &amp; cost-aware retraining?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Retrain decision</span>
-        <span class="formula">$$ \text{retrain} \;\Leftrightarrow\; \mathbb{E}[\text{benefit}] &gt; \text{cost} + \text{risk premium} $$</span>
-        <ul class="formula-legend">
-            <li>Benefit: predicted performance gain × business value</li>
-            <li>Cost: compute + engineering + downstream disruption</li>
-            <li>Risk premium: every deploy can break something</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{retrain} \;\Leftrightarrow\; \mathbb{E}[\text{benefit}] &gt; \text{cost} + \text{risk premium} $$</span>
+            <ul class="formula-legend">
+                <li>Benefit: predicted performance gain × business value</li>
+                <li>Cost: compute + engineering + downstream disruption</li>
+                <li>Risk premium: every deploy can break something</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{retrain} \;\;\text{if and only if}\;\; \text{expected benefit} \;>\; \text{cost} + \text{risk premium} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A decision-theoretic framing of retraining. The <code>𝔼[·]</code> notation in the math version is an <em>expected value</em> — the average benefit you'd get if you ran the retrain many times, weighted by how likely each outcome is. You only retrain when the expected payoff is larger than the combined deterministic cost (compute, engineering time, downstream disruption) plus a <strong>risk premium</strong> — extra padding for the possibility that the deploy goes wrong. This is rarely computed explicitly; in practice teams use heuristics, but the framing tells you why "retrain every week regardless" is wasteful in low-drift domains.
+            </p>
+            <ul class="formula-legend">
+                <li><code>expected benefit</code>average improvement × business value of that improvement</li>
+                <li><code>cost</code>compute + engineering hours + downstream pipeline disruption</li>
+                <li><code>risk premium</code>buffer for the possibility the deploy introduces a regression</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -204,7 +245,7 @@ for x, y in streaming_iter():
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -228,19 +269,19 @@ for x, y in streaming_iter():
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://martinfowler.com/articles/cd4ml.html" target="_blank">Sato — Continuous Delivery for ML <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Same ThoughtWorks essay as on CI for ML — the model-promotion section is the canonical reference.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://huyenchip.com/2022/01/02/real-time-machine-learning-challenges-and-solutions.html" target="_blank">Chip Huyen — Real-Time ML Challenges <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical survey of real-time / continual ML systems. Online learning, monitoring, lambda architectures.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://riverml.xyz/" target="_blank">River — Online Learning in Python <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Reference library for online learning. Streaming-friendly version of scikit-learn.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://www.tecton.ai/blog/feature-store-vs-ml-platform/" target="_blank">Tecton — Feature Store Architectures <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Feature stores are central to robust retraining pipelines. This post lays out the architectural choices.</span>
         </li>

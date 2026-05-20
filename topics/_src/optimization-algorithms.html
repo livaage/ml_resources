@@ -86,20 +86,40 @@ sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt_adam, T_max=100)
 
     <div class="level-next">
         <span>Want the math: momentum, Adam, second-order, line search?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Adam update</span>
-        <span class="formula">$$ \begin{aligned} m_t &amp;= \beta_1 m_{t-1} + (1 - \beta_1)\, g_t \\ v_t &amp;= \beta_2 v_{t-1} + (1 - \beta_2)\, g_t^2 \\ \hat m_t &amp;= m_t / (1 - \beta_1^t), \quad \hat v_t = v_t / (1 - \beta_2^t) \\ \theta_{t+1} &amp;= \theta_t - \eta\, \hat m_t / (\sqrt{\hat v_t} + \epsilon) \end{aligned} $$</span>
-        <ul class="formula-legend">
-            <li><code>m</code>EMA of the gradient (momentum)</li>
-            <li><code>v</code>EMA of squared gradients (per-parameter scale)</li>
-            <li>Bias correction <em>1 − β<sup>t</sup></em> matters early in training when both EMAs start at zero</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \begin{aligned} m_t &amp;= \beta_1 m_{t-1} + (1 - \beta_1)\, g_t \\ v_t &amp;= \beta_2 v_{t-1} + (1 - \beta_2)\, g_t^2 \\ \hat m_t &amp;= m_t / (1 - \beta_1^t), \quad \hat v_t = v_t / (1 - \beta_2^t) \\ \theta_{t+1} &amp;= \theta_t - \eta\, \hat m_t / (\sqrt{\hat v_t} + \epsilon) \end{aligned} $$</span>
+            <ul class="formula-legend">
+                <li><code>g<sub>t</sub></code>gradient at step <em>t</em></li>
+                <li><code>m</code>EMA of the gradient (momentum)</li>
+                <li><code>v</code>EMA of squared gradients (per-parameter scale)</li>
+                <li><code>β<sub>1</sub>, β<sub>2</sub></code>decay rates for the two EMAs (typically 0.9 and 0.999)</li>
+                <li><code>η, ε</code>learning rate and a tiny constant to avoid division by zero</li>
+                <li>Bias correction <em>1 − β<sup>t</sup></em> matters early in training when both EMAs start at zero</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \begin{aligned} \text{velocity} &amp;= \beta_1 \times \text{velocity} + (1-\beta_1) \times \text{gradient} \\ \text{scale}  &amp;= \beta_2 \times \text{scale} + (1-\beta_2) \times (\text{gradient})^2 \\ \text{new weights} &amp;= \text{old weights} - \eta \,\times\, \frac{\text{bias-corrected velocity}}{\sqrt{\text{bias-corrected scale}} + \epsilon} \end{aligned} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Adam keeps two running averages of recent gradients. The first, <strong>velocity</strong>, smooths the gradient itself — that's the momentum piece. The second, <strong>scale</strong>, averages the <em>squared</em> gradient — telling you how big the gradient has typically been on each parameter. Each step divides the velocity by the square root of the scale, so parameters with consistently large gradients take small steps and parameters with tiny gradients take big ones. The <code>β</code> values control how much history each average retains (commonly 0.9 and 0.999). The "bias correction" division by <code>1 − β<sup>t</sup></code> fixes a small bias from initialising both averages at zero — it matters most in the first few hundred steps.
+            </p>
+            <ul class="formula-legend">
+                <li><code>gradient</code>current gradient of the loss</li>
+                <li><code>velocity</code>running average of recent gradients (momentum)</li>
+                <li><code>scale</code>running average of recent <em>squared</em> gradients (per-parameter typical magnitude)</li>
+                <li><code>β<sub>1</sub>, β<sub>2</sub></code>how much memory each running average keeps (commonly 0.9 and 0.999)</li>
+                <li><code>η</code>learning rate; <code>ε</code> tiny constant that prevents divide-by-zero</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -132,20 +152,39 @@ opt = torch.optim.AdamW(model.parameters(), lr=lr,
 
     <div class="level-next">
         <span>Want K-FAC, Shampoo, sharpness-aware minimization, and natural gradients?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Natural gradient</span>
-        <span class="formula">$$ \theta_{t+1} = \theta_t - \eta\, F(\theta_t)^{-1} \nabla \mathcal{L}(\theta_t) $$</span>
-        <ul class="formula-legend">
-            <li><code>F</code>Fisher information matrix — the Hessian of the KL between distributions</li>
-            <li>Steps in <em>distribution</em> space rather than parameter space</li>
-            <li>Reparameterization-invariant — re-scaling parameters doesn't change the trajectory</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \theta_{t+1} = \theta_t - \eta\, F(\theta_t)^{-1} \nabla \mathcal{L}(\theta_t) $$</span>
+            <ul class="formula-legend">
+                <li><code>θ</code>model parameters</li>
+                <li><code>∇L</code>gradient of the loss</li>
+                <li><code>F</code>Fisher information matrix — the Hessian of the KL between distributions</li>
+                <li><code>F<sup>−1</sup></code>inverse Fisher; rescales the gradient by local curvature in distribution space</li>
+                <li>Steps in <em>distribution</em> space — reparameterization-invariant</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{new weights} \;=\; \text{old weights} \;-\; \eta \,\times\, (\text{curvature in distribution space})^{-1} \,\times\, \text{gradient of loss} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The natural gradient is "regular gradient descent, but measure distance the right way". Ordinary SGD treats every parameter as if a unit step in parameter space were equally meaningful. The <strong>Fisher information matrix</strong> <code>F</code> measures how much the model's output distribution actually <em>changes</em> when each parameter moves. Multiplying the gradient by its inverse rescales the step so the same step always produces a similar amount of change in the output distribution. The result is reparameterization-invariant: if you rewrote your weights in different units, the trajectory would be the same. In practice <code>F</code> is huge, so methods like K-FAC and Shampoo approximate it cheaply.
+            </p>
+            <ul class="formula-legend">
+                <li><code>old weights, new weights</code>parameters before and after the step</li>
+                <li><code>gradient of loss</code>same gradient SGD would use</li>
+                <li><code>curvature in distribution space</code>Fisher information — how much the output distribution changes when each parameter moves</li>
+                <li><code>(·)<sup>−1</sup></code>inverse — undoes that curvature, so each step produces a controlled change in output</li>
+                <li>Reparameterization-invariant: rescaling the parameter axes doesn't change the trajectory</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -194,7 +233,7 @@ class SAM(torch.optim.Optimizer):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -203,19 +242,19 @@ class SAM(torch.optim.Optimizer):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="intuition">
             <a href="https://distill.pub/2017/momentum/" target="_blank">Distill — Why Momentum Really Works <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Goh's beautifully visual essay on momentum as a damped oscillator. Easily the best introduction to the geometry of optimization.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/1412.6980" target="_blank">Kingma &amp; Ba (2015) — Adam <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original Adam paper. Short and readable; sections 2–4 are essential.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1711.05101" target="_blank">Loshchilov &amp; Hutter (2019) — AdamW <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">"Decoupled Weight Decay Regularization". The paper that pointed out Adam's weight-decay implementation was wrong and gave us AdamW.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.deeplearningbook.org/contents/optimization.html" target="_blank">Deep Learning Book — Optimization Ch. 8 <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Comprehensive chapter on practical optimization including learning rate schedules, batch normalization's interaction with optimizers, and more.</span>
         </li>

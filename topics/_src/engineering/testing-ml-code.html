@@ -80,19 +80,33 @@ def test_overfit_tiny_batch(model):
 
     <div class="level-next">
         <span>Want data tests, property-based tests, &amp; CI integration?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The test pyramid for ML</span>
-        <span class="formula">$$ \underbrace{\text{unit (fast, many)}}_{\text{shapes, ranges, grads}} \;\;\;>\;\;\; \underbrace{\text{integration (medium)}}_{\text{1-batch overfit, save/load}} \;\;\;>\;\;\; \underbrace{\text{end-to-end (slow, few)}}_{\text{tiny full pipeline}} $$</span>
-        <ul class="formula-legend">
-            <li>Many cheap tests at the bottom — they catch most bugs</li>
-            <li>A few expensive tests at the top — only what really requires it</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \underbrace{\text{unit (fast, many)}}_{\text{shapes, ranges, grads}} \;\;\;>\;\;\; \underbrace{\text{integration (medium)}}_{\text{1-batch overfit, save/load}} \;\;\;>\;\;\; \underbrace{\text{end-to-end (slow, few)}}_{\text{tiny full pipeline}} $$</span>
+            <ul class="formula-legend">
+                <li>Many cheap tests at the bottom — they catch most bugs</li>
+                <li>A few expensive tests at the top — only what really requires it</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \underbrace{\text{lots of unit tests}}_{\text{shapes, ranges, grads}} \;\;>\;\; \underbrace{\text{some integration tests}}_{\text{1-batch overfit, save/load}} \;\;>\;\; \underbrace{\text{few end-to-end tests}}_{\text{tiny full pipeline}} $$</span>
+                <p class="formula-narration">
+                    <strong>In words.</strong> A pyramid of test layers, with the wider (more numerous) layer at the bottom. <code>&gt;</code> here just means "many more of these than of those". Unit tests are individual function checks — cheap, fast, run every save. Integration tests glue a few units together (one batch through the model). End-to-end tests run the whole pipeline on a tiny dataset. The underbraces (<code>⏟</code>) annotate what each layer typically checks. Test pain comes from inverting this shape — the moment you have more slow tests than fast ones, the suite stops getting run.
+                </p>
+            <ul class="formula-legend">
+                <li>Many cheap tests at the bottom — they catch most bugs</li>
+                <li>A few expensive tests at the top — only what really requires it</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -138,20 +152,35 @@ def test_forward_arbitrary_shape(batch, dim):
 
     <div class="level-next">
         <span>Want fuzzing, mutation testing, golden datasets, &amp; flake hunting?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Determinism budget</span>
-        <span class="formula">$$ \|\text{out}(s_1) - \text{out}(s_2)\|_\infty &lt; \epsilon $$</span>
-        <ul class="formula-legend">
-            <li>Two seeded runs should agree to <em>ε</em></li>
-            <li>cuDNN nondeterminism, atomic adds, multi-GPU sync — all break this</li>
-            <li>The right ε is small but not zero on GPU</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \|\text{out}(s_1) - \text{out}(s_2)\|_\infty &lt; \epsilon $$</span>
+            <ul class="formula-legend">
+                <li>Two seeded runs should agree to <em>ε</em></li>
+                <li>cuDNN nondeterminism, atomic adds, multi-GPU sync — all break this</li>
+                <li>The right ε is small but not zero on GPU</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{biggest difference between outputs of two seeded runs} \;&lt;\; \epsilon $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Two runs with the same code, same data, same seed should produce outputs that differ by at most <code>ε</code> (epsilon, a tiny tolerance number you pick). <code>‖·‖∞</code> ("infinity norm") just means "the biggest absolute difference across the whole output tensor". On CPU you can usually demand <code>ε = 0</code>; on GPU, atomic-add ordering and cuDNN's auto-tuner inject small non-determinism so you need a small positive <code>ε</code>. Setting <code>ε</code> too tight makes your tests flaky; too loose and they miss real regressions.
+            </p>
+            <ul class="formula-legend">
+                <li><code>biggest difference</code>worst-case discrepancy between the two output tensors</li>
+                <li><code>two seeded runs</code>same code + same seed, run twice (different seeds <code>s₁, s₂</code> would be a more relaxed test)</li>
+                <li><code>ε</code>tolerance — small but not zero on GPU</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -190,7 +219,7 @@ def test_against_reference(model, ref_model, x):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -199,19 +228,19 @@ def test_against_reference(model, ref_model, x):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://eugeneyan.com/writing/testing-ml/" target="_blank">Eugene Yan — Testing ML Systems <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical taxonomy of ML tests (data, model, pipeline) with examples. Best one-stop overview.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://docs.pytest.org/" target="_blank">pytest Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The Python testing framework. Fixtures, parametrize, plugins — read at least the basics if you're doing serious ML engineering.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pandera.readthedocs.io/" target="_blank">Pandera <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Statistical schema validation for pandas / Polars DataFrames. Cleanest API for "this column should be int in [0, 120]" checks.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://hypothesis.readthedocs.io/" target="_blank">Hypothesis — Property-Based Testing <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Generate random inputs to your tests. Catches edge cases you'd never write by hand.</span>
         </li>

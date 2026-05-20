@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Iteratively step in the direction that decreases the loss. The algorithm at the heart of training almost every modern model.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -48,56 +58,55 @@
         <p><strong>Step in the direction that decreases the loss. Keep stepping.</strong> You're standing on a hilly landscape in fog. You can feel which way is downhill at your feet. You step that way. Repeat until the ground is flat. The "landscape" is the loss as a function of model parameters; gradient descent is the foot-feeling-its-way algorithm.</p>
     </div>
 
-    
-
     <div class="viz-embed">
-            <div class="viz-embed-header">
-                <span class="viz-embed-title">Click anywhere on the surface to start a new descent · adjust <kbd>η</kbd> to change step size</span>
-                <div class="viz-embed-controls">
-                    <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.85rem;">
-                        η <input type="range" id="viz-gd-lr" min="0" max="100" value="40" style="width: 100px;">
-                    </label>
-                    <button id="viz-gd-play" type="button">Pause</button>
-                    <button id="viz-gd-reset" type="button">Reset</button>
-                </div>
+        <div class="viz-embed-header">
+            <span class="viz-embed-title">Click anywhere on the surface to start a new descent · adjust <kbd>η</kbd> to change step size</span>
+            <div class="viz-embed-controls">
+                <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.85rem;">
+                    η <input type="range" id="viz-gd-lr" min="0" max="100" value="40" style="width: 100px;">
+                </label>
+                <button id="viz-gd-play" type="button">Pause</button>
+                <button id="viz-gd-reset" type="button">Reset</button>
             </div>
-            <canvas id="viz-gd-canvas"></canvas>
-            <div class="viz-embed-stats" id="viz-gd-stats"></div>
         </div>
-        <script src="../js/viz/gradient-descent.js"></script>
+        <canvas id="viz-gd-canvas"></canvas>
+        <div class="viz-embed-stats" id="viz-gd-stats"></div>
+    </div>
+    <script src="../js/viz/gradient-descent.js"></script>
 
-        <p class="viz-intro">The surface above is a scaled <em>Rosenbrock</em> function — minimum at the white marker at (1, 1), inside a curved banana-shaped valley. Try clicking different starting points: the path along the valley floor is slow even at well-chosen step sizes. Crank η up: the trajectory starts oscillating or diverges. This is exactly why momentum and adaptive optimisers exist.</p>
+    <p class="viz-intro">The surface above is a scaled <em>Rosenbrock</em> function — minimum at the white marker at (1, 1), inside a curved banana-shaped valley. Try clicking different starting points: the path along the valley floor is slow even at well-chosen step sizes. Crank η up: the trajectory starts oscillating or diverges. This is exactly why momentum and adaptive optimisers exist.</p>
 
-        <div class="viz-grid">
-            <a href="https://distill.pub/2017/momentum/" target="_blank" class="viz-card viz-card-featured">
-                <span class="viz-source">distill.pub</span>
-                <h3>Why Momentum Really Works</h3>
-                <p>The single best deep dive on momentum, with interactive 2D loss surfaces. Drag points, change β, watch how momentum reshapes the trajectory. Read once and you'll never use vanilla SGD again.</p>
-                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-            </a>
+    <div class="viz-grid">
+        <a href="https://distill.pub/2017/momentum/" target="_blank" class="viz-card viz-card-featured">
+            <span class="viz-source">distill.pub</span>
+            <h3>Why Momentum Really Works</h3>
+            <p>The single best deep dive on momentum, with interactive 2D loss surfaces. Drag points, change β, watch how momentum reshapes the trajectory. Read once and you'll never use vanilla SGD again.</p>
+            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+        </a>
 
-            <a href="https://www.benfrederickson.com/numerical-optimization/" target="_blank" class="viz-card">
-                <span class="viz-source">benfrederickson.com</span>
-                <h3>An Interactive Tutorial on Numerical Optimization</h3>
-                <p>Side-by-side comparison of gradient descent, momentum, Adagrad, Adam — all running live on the same loss surface. Best for seeing the relative behaviour of different optimisers.</p>
-                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-            </a>
+        <a href="https://www.benfrederickson.com/numerical-optimization/" target="_blank" class="viz-card">
+            <span class="viz-source">benfrederickson.com</span>
+            <h3>An Interactive Tutorial on Numerical Optimization</h3>
+            <p>Side-by-side comparison of gradient descent, momentum, Adagrad, Adam — all running live on the same loss surface. Best for seeing the relative behaviour of different optimisers.</p>
+            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+        </a>
 
-            <a href="https://ruder.io/optimizing-gradient-descent/" target="_blank" class="viz-card">
-                <span class="viz-source">ruder.io</span>
-                <h3>Ruder — Optimizing Gradient Descent</h3>
-                <p>Comprehensive written overview of every SGD variant — momentum, Adagrad, RMSprop, Adam, AdamW. Static but the clearest single reference for "which optimiser should I use".</p>
-                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-            </a>
+        <a href="https://ruder.io/optimizing-gradient-descent/" target="_blank" class="viz-card">
+            <span class="viz-source">ruder.io</span>
+            <h3>Ruder — Optimizing Gradient Descent</h3>
+            <p>Comprehensive written overview of every SGD variant — momentum, Adagrad, RMSprop, Adam, AdamW. Static but the clearest single reference for "which optimiser should I use".</p>
+            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+        </a>
 
-            <a href="https://playground.tensorflow.org/" target="_blank" class="viz-card">
-                <span class="viz-source">tensorflow.org</span>
-                <h3>TensorFlow Playground</h3>
-                <p>Train a small neural network in your browser. Watch the loss curve drop while you tweak learning rate, batch size, and activations. Best for seeing GD work on a real classification problem.</p>
-                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-            </a>
-        </div>
-<article class="tldr-body">
+        <a href="https://playground.tensorflow.org/" target="_blank" class="viz-card">
+            <span class="viz-source">tensorflow.org</span>
+            <h3>TensorFlow Playground</h3>
+            <p>Train a small neural network in your browser. Watch the loss curve drop while you tweak learning rate, batch size, and activations. Best for seeing GD work on a real classification problem.</p>
+            <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
+        </a>
+    </div>
+
+    <article class="tldr-body">
         <p>Every weight in a neural network — billions of them in modern models — is tuned by gradient descent. So is logistic regression's β, linear regression's β (it has a closed form too, but GD also works), SVM's <em>w</em> via SGD, and almost every other "trainable" model.</p>
         <p>The recipe is short: compute the gradient (how loss changes if you nudge each parameter), subtract a small fraction of it from each parameter, repeat. The "small fraction" is the <strong>learning rate</strong> — too small and you'll be there forever; too large and you'll bounce around or diverge.</p>
     </article>
@@ -137,20 +146,31 @@ print(x)   # → ~3.0
 
     <div class="level-next">
         <span>Want the formula and the optimizer zoo?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Fundamentals →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The update rule</span>
-        <span class="formula">$$ \boldsymbol{\theta}_{t+1} \;=\; \boldsymbol{\theta}_t \;-\; \eta \,\nabla_{\!\boldsymbol{\theta}}\, \mathcal{L}(\boldsymbol{\theta}_t) $$</span>
-        <ul class="formula-legend">
-            <li><code>θ</code>parameters being optimised</li>
-            <li><code>η</code>learning rate (step size)</li>
-            <li><code>∇L</code>gradient of the loss w.r.t. parameters</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \boldsymbol{\theta}_{t+1} \;=\; \boldsymbol{\theta}_t \;-\; \eta \,\nabla_{\!\boldsymbol{\theta}}\, \mathcal{L}(\boldsymbol{\theta}_t) $$</span>
+            <ul class="formula-legend">
+                <li><code>θ</code>parameters being optimised (weights)</li>
+                <li><code>η</code>learning rate — step size</li>
+                <li><code>∇L</code>gradient of the loss with respect to <em>θ</em></li>
+                <li><code>θ<sub>t+1</sub></code>parameters after step <em>t+1</em></li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{new weights} \;=\; \text{old weights} \;-\; \eta \times \text{slope of loss at old weights} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> At each step, you nudge the weights a little bit in the opposite direction of the slope of the loss — "opposite" because the slope points uphill and you want to go downhill. <code>η</code> (eta, the <em>learning rate</em>) sets how big each nudge is: too small and you crawl, too big and you overshoot or oscillate. The "slope" here is technically a vector of slopes — one per weight — usually written <code>∇L</code> (the gradient). You repeat this update until the slope is roughly zero (you're at the bottom of the valley).
+            </p>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -204,19 +224,32 @@ for epoch in range(epochs):
 
     <div class="level-next">
         <span>Want convergence rates, conditioning, and second-order methods?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Convergence (convex, L-smooth)</span>
-        <span class="formula">$$ \mathcal{L}(\boldsymbol{\theta}_T) - \mathcal{L}(\boldsymbol{\theta}^*) \;\le\; \frac{\|\boldsymbol{\theta}_0 - \boldsymbol{\theta}^*\|^2}{2\eta T} \quad \text{for}\; \eta \le 1/L $$</span>
-        <ul class="formula-legend">
-            <li><code>L</code>Lipschitz constant of the gradient — bounds curvature</li>
-            <li>Convergence rate is <em>O(1/T)</em> — slow, but better than nothing on non-strongly-convex problems</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L}(\boldsymbol{\theta}_T) - \mathcal{L}(\boldsymbol{\theta}^*) \;\le\; \frac{\|\boldsymbol{\theta}_0 - \boldsymbol{\theta}^*\|^2}{2\eta T} \quad \text{for}\; \eta \le 1/L $$</span>
+            <ul class="formula-legend">
+                <li><code>θ*</code>the optimal (loss-minimising) parameters</li>
+                <li><code>θ<sub>T</sub></code>parameters after <em>T</em> steps; <code>θ<sub>0</sub></code> the starting point</li>
+                <li><code>‖·‖²</code>squared Euclidean distance</li>
+                <li><code>L</code>Lipschitz constant of the gradient — bounds curvature</li>
+                <li>Convergence rate <em>O(1/T)</em> — slow, but better than nothing on non-strongly-convex problems</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ (\text{loss after } T \text{ steps}) - (\text{best possible loss}) \;\le\; \frac{(\text{starting distance from optimum})^2}{2 \times \eta \times T} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> This is an <em>upper bound</em> on how far you can still be from the best possible loss after <em>T</em> gradient steps. The <code>≤</code> means "at most". The right-hand side shrinks as <em>T</em> grows — so more steps give a tighter guarantee. The "starting distance from optimum" is just how far apart your initial weights and the optimal weights are (Pythagoras-style, written <code>‖θ₀ − θ*‖²</code>). The condition <code>η ≤ 1/L</code> says your step size has to be small enough relative to how curvy the loss can get — pick <em>η</em> too big and the bound stops holding.
+            </p>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -282,8 +315,8 @@ for step, (xb, yb) in enumerate(loader):
     </div>
 
     <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <span>Want the picture instead?</span>
+        <button data-go-to="intuition" type="button">← Back to Intuition</button>
     </div>
 </section>
 
@@ -297,19 +330,19 @@ for step, (xb, yb) in enumerate(loader):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
-            <a href="https://ruder.io/optimizing-gradient-descent/" target="_blank">Ruder — Optimizing Gradient Descent <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Comprehensive survey of GD variants — momentum, Adagrad, Adam, etc. The reference for "which optimiser should I use".</span>
-        </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://distill.pub/2017/momentum/" target="_blank">Distill — Why Momentum Really Works <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Interactive deep dive on momentum specifically. Essential reading once you've understood vanilla SGD.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
+            <a href="https://ruder.io/optimizing-gradient-descent/" target="_blank">Ruder — Optimizing Gradient Descent <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Comprehensive survey of GD variants — momentum, Adagrad, Adam, etc. The reference for "which optimiser should I use".</span>
+        </li>
+        <li data-tier="fundamentals">
             <a href="https://www.deeplearningbook.org/contents/optimization.html" target="_blank">Goodfellow et al. — Deep Learning ch. 8 <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Textbook treatment of optimisation in the deep-learning context. Free HTML. Read after Ruder for the full picture.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1711.05101" target="_blank">Loshchilov &amp; Hutter (2017) — AdamW <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The paper introducing decoupled weight decay. Short, important — modern LLM training all uses AdamW.</span>
         </li>

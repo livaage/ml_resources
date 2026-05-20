@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Hydra, YAML, dotenv — keep hyperparameters and paths out of your code.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -95,12 +105,12 @@ training:
 
     <div class="level-next">
         <span>Want to see Hydra and config composition?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p>Use <strong>Hydra</strong> (or <strong>OmegaConf</strong>) to compose configs from reusable fragments and override them from the CLI. Secrets and environment-specific paths go in <code>.env</code> files, never in YAML.</p>
@@ -159,12 +169,12 @@ if __name__ == "__main__":
 
     <div class="level-next">
         <span>Want structured configs, Pydantic, and the alternative libraries?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Treat configs as typed objects, not dicts.</strong> Use dataclasses, Pydantic, or Hydra structured configs to validate the schema at load time. The config becomes part of your code's public interface — refactor it deliberately.</p>
@@ -217,7 +227,7 @@ with initialize(version_base=None, config_path="../configs"):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -241,19 +251,19 @@ with initialize(version_base=None, config_path="../configs"):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://hydra.cc/docs/intro/" target="_blank">Hydra documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The official docs. Read the tutorials in order — they're short, well-paced, and cover composition, multirun, and sweepers.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://omegaconf.readthedocs.io/" target="_blank">OmegaConf <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The library Hydra wraps. Useful when you want config features without Hydra's CLI framework.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://docs.pydantic.dev/" target="_blank">Pydantic <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The modern Python validation library. Use for any config that crosses a trust boundary — user input, API params, etc.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/google/gin-config" target="_blank">gin-config <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Google's lighter alternative. Decorator-based, less ceremony than Hydra, good for smaller projects.</span>
         </li>

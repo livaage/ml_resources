@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">The assumptions baked into a model — what it can express, and what it can't.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -116,20 +126,36 @@ for name, m in models.items():
 
     <div class="level-next">
         <span>Want the no-free-lunch theorem and capacity bounds?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">PAC learning bound</span>
-        <span class="formula">$$ P\!\left[\, \text{err}_{\text{true}}(h) \leq \text{err}_{\text{train}}(h) + \sqrt{\tfrac{\ln |\mathcal{H}| + \ln(1/\delta)}{2n}}\, \right] \geq 1 - \delta $$</span>
-        <ul class="formula-legend">
-            <li><code>|ℋ|</code>size of the hypothesis space (its <em>complexity</em>)</li>
-            <li><code>n</code>training-set size</li>
-            <li>Larger ℋ ⇒ more flexibility, but a worse generalization bound</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ P\!\left[\, \text{err}_{\text{true}}(h) \leq \text{err}_{\text{train}}(h) + \sqrt{\tfrac{\ln |\mathcal{H}| + \ln(1/\delta)}{2n}}\, \right] \geq 1 - \delta $$</span>
+            <ul class="formula-legend">
+                <li><code>|ℋ|</code>size of the hypothesis space (its <em>complexity</em>)</li>
+                <li><code>n</code>training-set size</li>
+                <li>Larger ℋ ⇒ more flexibility, but a worse generalization bound</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{Probability}\!\left[\, \text{true error} \leq \text{training error} + \sqrt{\tfrac{\ln(\text{hypothesis count}) + \ln(1/\delta)}{2 \times n}}\, \right] \geq 1 - \delta $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> With probability at least <code>1 − δ</code> (where <code>δ</code> is a small confidence-level you pick — e.g. 0.05 for "95% confident"), the true error of your chosen model <em>h</em> is at most its training error plus a penalty term. That penalty under the <code>√</code> (square root) grows when there are more possible hypotheses to choose from (the <code>ln|ℋ|</code> piece — <code>ln</code> is the natural logarithm, which grows slowly), and shrinks as you collect more data (the <code>n</code> in the denominator is your training-set size). The take-away: bigger hypothesis spaces need more data to generalize.
+            </p>
+            <ul class="formula-legend">
+                <li><code>hypothesis count</code>how many functions your model could potentially express</li>
+                <li><code>n</code>training-set size</li>
+                <li><code>δ</code>a small confidence-level number you pick</li>
+                <li>Larger hypothesis space ⇒ more flexibility, but a worse generalization bound</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -168,19 +194,35 @@ def periodic_features(t, periods=(1, 7, 30)):
 
     <div class="level-next">
         <span>Want PAC-learnability, VC dim, and double descent?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">VC dimension</span>
-        <span class="formula">$$ \mathrm{VC}(\mathcal{H}) = \max\{\,n : \exists\, \text{points } x_1, \ldots, x_n \text{ shattered by } \mathcal{H}\,\} $$</span>
-        <ul class="formula-legend">
-            <li>"Shattered" = ℋ can realise every possible labelling of those <em>n</em> points</li>
-            <li>The largest such <em>n</em> is the VC dimension — a measure of effective capacity</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathrm{VC}(\mathcal{H}) = \max\{\,n : \exists\, \text{points } x_1, \ldots, x_n \text{ shattered by } \mathcal{H}\,\} $$</span>
+            <ul class="formula-legend">
+                <li>"Shattered" = ℋ can realise every possible labelling of those <em>n</em> points</li>
+                <li>The largest such <em>n</em> is the VC dimension — a measure of effective capacity</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{VC dim}(\text{hypothesis space}) \;=\; \text{largest } n \text{ such that some set of } n \text{ points can be shattered} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The VC dimension is the largest number of points your model family can label every possible way. If there exist <em>n</em> points for which your model can produce every possible labelling (all 2<sup>n</sup> combinations of yes/no), the model is said to <em>shatter</em> those points. The biggest such <em>n</em> is the VC dimension — a single number that summarises how flexible your hypothesis space really is. A straight-line classifier in 2D has VC dimension 3 (can shatter 3 points, but no set of 4); deeper or wider models have bigger numbers.
+            </p>
+            <ul class="formula-legend">
+                <li><code>hypothesis space</code>the set of all functions your model can express</li>
+                <li><code>n</code>number of points</li>
+                <li><code>shatter</code>produce every possible labelling of those points</li>
+                <li>The biggest <em>n</em> the model can shatter is its VC dimension — its effective capacity</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -216,7 +258,7 @@ for w in [16, 32, 64, 128, 256, 512, 1024, 2048]:
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -230,19 +272,19 @@ for w in [16, 32, 64, 128, 256, 512, 1024, 2048]:
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.cs.princeton.edu/courses/archive/spring08/cos511/scribe_notes/0204.pdf" target="_blank">Schapire — Notes on No Free Lunch <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Short, readable proof of the no-free-lunch theorem with examples. The original Wolpert paper is also classic but harder going.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/" target="_blank">Shalev-Shwartz &amp; Ben-David — Understanding ML <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Free textbook with the cleanest modern presentation of PAC learning, VC dim, and generalization bounds. Chapters 2–6 are essential.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1812.11118" target="_blank">Belkin et al. (2019) — Double Descent <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">"Reconciling modern ML practice and the bias-variance trade-off". The paper that brought the double-descent picture into the mainstream.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1806.07572" target="_blank">Jacot, Gabriel &amp; Hongler (2018) — NTK <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The Neural Tangent Kernel paper. Shows how infinite-width networks become kernel methods — connects deep learning to classical generalization theory.</span>
         </li>

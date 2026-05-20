@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Accuracy, precision, recall, F1, ROC, AUC — when each one is the right thing to report.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -134,20 +144,37 @@ f1_weighted = f1_score(y_true, y_pred, average="weighted")  # by support
 
     <div class="level-next">
         <span>Want PR-curves, cost-sensitive thresholds, and multi-class metrics?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Fβ score</span>
-        <span class="formula">$$ F_\beta = (1 + \beta^2) \cdot \frac{\text{precision} \cdot \text{recall}}{\beta^2 \cdot \text{precision} + \text{recall}} $$</span>
-        <ul class="formula-legend">
-            <li><code>β = 1</code>standard F1 — equal weight</li>
-            <li><code>β &gt; 1</code>weights recall more (e.g. F2)</li>
-            <li><code>β &lt; 1</code>weights precision more (e.g. F0.5)</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ F_\beta = (1 + \beta^2) \cdot \frac{\text{precision} \cdot \text{recall}}{\beta^2 \cdot \text{precision} + \text{recall}} $$</span>
+            <ul class="formula-legend">
+                <li><code>β = 1</code>standard F1 — equal weight</li>
+                <li><code>β &gt; 1</code>weights recall more (e.g. F2)</li>
+                <li><code>β &lt; 1</code>weights precision more (e.g. F0.5)</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ F_\beta \;=\; (1 + \beta^2) \times \frac{\text{precision} \times \text{recall}}{\beta^2 \times \text{precision} \;+\; \text{recall}} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Fβ is a weighted blend of precision and recall into a single number. The parameter <code>β</code> (beta) controls which side you care about more: <code>β = 1</code> gives equal weight (this is just F1); a bigger β tilts toward recall (you really don't want to miss positives); a smaller β tilts toward precision (you really don't want to cry wolf). The slightly odd weighted form is the <em>harmonic</em> mean — it punishes the worse of the two scores, so you can't trade away one entirely.
+            </p>
+            <ul class="formula-legend">
+                <li><code>precision</code>fraction of "predicted positive" that are actually positive</li>
+                <li><code>recall</code>fraction of actual positives the model caught</li>
+                <li><code>β = 1</code>standard F1 — equal weight</li>
+                <li><code>β &gt; 1</code>weights recall more (e.g. F2 for medical screening)</li>
+                <li><code>β &lt; 1</code>weights precision more (e.g. F0.5 for spam filtering)</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -185,20 +212,37 @@ y_hat_cost = (p_test &gt;= tau_cost).astype(int)
 
     <div class="level-next">
         <span>Want expected calibration, Brier decomposition, &amp; proper scoring?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Brier score decomposition</span>
-        <span class="formula">$$ \text{Brier} = \underbrace{\text{Reliability}}_{\text{miscalibration}} - \underbrace{\text{Resolution}}_{\text{discrimination}} + \underbrace{\text{Uncertainty}}_{\text{class entropy}} $$</span>
-        <ul class="formula-legend">
-            <li>Lower Brier score is better</li>
-            <li>Reliability ↓ if predicted probabilities match observed frequencies</li>
-            <li>Resolution ↑ if the model assigns different probabilities to different cases</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{Brier} = \underbrace{\text{Reliability}}_{\text{miscalibration}} - \underbrace{\text{Resolution}}_{\text{discrimination}} + \underbrace{\text{Uncertainty}}_{\text{class entropy}} $$</span>
+            <ul class="formula-legend">
+                <li>Lower Brier score is better</li>
+                <li>Reliability ↓ if predicted probabilities match observed frequencies</li>
+                <li>Resolution ↑ if the model assigns different probabilities to different cases</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{Brier score} \;=\; \text{miscalibration} \;-\; \text{discrimination} \;+\; \text{class uncertainty} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The Brier score (mean squared error between predicted probabilities and actual labels) breaks cleanly into three pieces. <em>Reliability</em> is how well your stated probabilities match observed frequencies — when you say "70% likely", do 70% of those cases actually happen? Lower is better. <em>Resolution</em> is how varied your predictions are — a model that always says "50%" has no resolution. Higher is better, which is why it's subtracted. <em>Uncertainty</em> is the irreducible difficulty of the prediction (entropy of the labels). Lower Brier overall is better — and the decomposition tells you whether to fix your calibration or your discrimination.
+            </p>
+            <ul class="formula-legend">
+                <li><code>Brier score</code>average squared error between predicted probabilities and labels</li>
+                <li><code>miscalibration</code>how badly your probabilities match observed frequencies</li>
+                <li><code>discrimination</code>how much your model varies its predictions across cases</li>
+                <li><code>class uncertainty</code>baseline entropy of the labels — unavoidable</li>
+                <li>Lower Brier is better; the decomposition tells you which piece needs fixing</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -237,7 +281,7 @@ def ece(y_true, p_pred, n_bins=15):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -251,19 +295,19 @@ def ece(y_true, p_pred, n_bins=15):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/model_evaluation.html" target="_blank">scikit-learn — Model Evaluation Guide <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Best practical reference for which metric to use when. Has well-chosen examples and pitfalls.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://www.kaggle.com/code/grfiv4/plot-a-confusion-matrix" target="_blank">Kaggle — Plotting a Confusion Matrix <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Pragmatic primer with multi-class examples — useful for teaching new colleagues.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.fharrell.com/post/classification/" target="_blank">Frank Harrell — Classification vs Prediction <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Opinionated argument that we should report calibrated probabilities, not thresholded classifications. Worth reading even (especially) if you disagree.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1706.04599" target="_blank">Guo et al. (2017) — Calibration of Modern Neural Nets <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Showed modern networks are miscalibrated despite high accuracy, and recommended temperature scaling as a fix.</span>
         </li>

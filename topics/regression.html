@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">The simplest, most interpretable models — and still the right answer surprisingly often.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -135,20 +145,36 @@ print(f"Probabilities: {clf.predict_proba(X_test[:5])}")
 
     <div class="level-next">
         <span>Want OLS, regularization, and the math?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Linear regression — OLS</span>
-        <span class="formula">$$ \hat{\boldsymbol{\beta}} \;=\; \arg\min_{\boldsymbol{\beta}}\; \|\mathbf{y} - X\boldsymbol{\beta}\|_2^2 \;=\; (X^\top X)^{-1} X^\top \mathbf{y} $$</span>
-        <ul class="formula-legend">
-            <li><code>y</code>target vector (length <em>N</em>)</li>
-            <li><code>X</code>design matrix (<em>N × p</em>; usually include a column of ones for intercept)</li>
-            <li><code>β</code>coefficient vector — closed-form solution exists</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \hat{\boldsymbol{\beta}} \;=\; \arg\min_{\boldsymbol{\beta}}\; \|\mathbf{y} - X\boldsymbol{\beta}\|_2^2 \;=\; (X^\top X)^{-1} X^\top \mathbf{y} $$</span>
+            <ul class="formula-legend">
+                <li><code>y</code>target vector (length <em>N</em>)</li>
+                <li><code>X</code>design matrix (<em>N × p</em>; usually include a column of ones for intercept)</li>
+                <li><code>β</code>coefficient vector — closed-form solution exists</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{best coefficients} \;=\; \text{coefficients that minimise the sum of squared residuals} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Each prediction is <code>X × β</code> — the inputs combined by the coefficients <code>β</code> (beta). The residual at point <em>i</em> is <code>actual − predicted</code>; square them all and add them up, and you get the total squared error. OLS picks whichever <code>β</code> makes that total as small as possible. For squared loss this has a closed-form answer (no iteration needed): the matrix expression on the right is the linear-algebra recipe — invert <code>XᵀX</code> and multiply by <code>Xᵀy</code>. If <em>N</em> ≫ <em>p</em> and features aren't co-linear, it gives the unique best linear fit.
+            </p>
+            <ul class="formula-legend">
+                <li><code>best coefficients</code>β̂ — the weight on each feature in the fitted model</li>
+                <li><code>residual</code>actual − predicted, for each point</li>
+                <li><code>sum of squared residuals</code>add up (actual − predicted)² across all training points</li>
+                <li><code>design matrix</code>your features stacked into a table, usually with a column of ones for the intercept</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -215,19 +241,35 @@ print(f"Best C: {clf.C_}")
 
     <div class="level-next">
         <span>Want the GLM family, MLE derivation, and the assumptions?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Generalized Linear Models</span>
-        <span class="formula">$$ g(\mathbb{E}[y \mid x]) \;=\; \boldsymbol{\beta}^\top \mathbf{x}, \qquad y \sim \text{exponential family} $$</span>
-        <ul class="formula-legend">
-            <li><code>g</code>link function — identity (linear), logit (logistic), log (Poisson)</li>
-            <li>Linear regression, logistic, Poisson, gamma — all the same recipe with different link &amp; likelihood</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ g(\mathbb{E}[y \mid x]) \;=\; \boldsymbol{\beta}^\top \mathbf{x}, \qquad y \sim \text{exponential family} $$</span>
+            <ul class="formula-legend">
+                <li><code>g</code>link function — identity (linear), logit (logistic), log (Poisson)</li>
+                <li>Linear regression, logistic, Poisson, gamma — all the same recipe with different link &amp; likelihood</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{link function}\big(\text{average of }y\text{ given }x\big) \;=\; \text{dot product of }\beta\text{ and }x, \qquad y \sim \text{exponential family distribution} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A GLM still has a linear predictor — a weighted sum <code>β · x</code> — but instead of being equal to the mean of <em>y</em> directly, it equals the mean after passing it through a "link function" <code>g</code>. The choice of <code>g</code> (and the choice of distribution for <em>y</em>) is what specialises the model: identity link with Gaussian <em>y</em> recovers ordinary linear regression; logit link with Bernoulli <em>y</em> gives logistic regression; log link with Poisson <em>y</em> gives Poisson regression for counts. The "exponential family" is a broad class of distributions (Gaussian, Bernoulli, Poisson, gamma, etc.) that share a friendly maximum-likelihood structure.
+            </p>
+            <ul class="formula-legend">
+                <li><code>link function</code>g — a function (identity, logit, log…) connecting the linear predictor to the response mean</li>
+                <li><code>average of y given x</code>the expected value of the response at input <em>x</em></li>
+                <li><code>dot product of β and x</code>weighted sum of features — the linear predictor</li>
+                <li><code>exponential family</code>the broad class of distributions (Gaussian, Bernoulli, Poisson…) compatible with GLM fitting</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -280,7 +322,7 @@ print(f"95% CI:  {logit.conf_int().values.round(3)}")
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -294,19 +336,19 @@ print(f"95% CI:  {logit.conf_int().values.round(3)}")
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.statlearning.com/" target="_blank">ISLR — chapters 3 &amp; 4 <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">"Introduction to Statistical Learning" — free PDF. The cleanest intro to linear / logistic regression with worked examples in Python and R.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">ESL — chapters 3 &amp; 4 <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Same authors, more rigorous treatment. Free PDF. Read after ISLR when you want the math.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/linear_model.html" target="_blank">scikit-learn — linear models <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Comprehensive practical reference covering OLS, ridge, lasso, elastic net, logistic, and the lesser-known variants.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.statsmodels.org/" target="_blank">statsmodels <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">When you need proper inference (CIs, p-values, GLM diagnostics). The Python library that doesn't reduce statistics to "predict()".</span>
         </li>

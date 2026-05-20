@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Encoder-decoder networks for representation learning, dimensionality reduction, and generation.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -113,21 +123,38 @@ loss = ((model(x)[0] - x) ** 2).mean()
 
     <div class="level-next">
         <span>Want VAEs and the probabilistic story?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">VAE objective (ELBO)</span>
-        <span class="formula">$$ \mathcal{L}(\theta, \phi; \mathbf{x}) \;=\; \underbrace{\mathbb{E}_{q_\phi(\mathbf{z}\mid\mathbf{x})}\!\left[\log p_\theta(\mathbf{x}\mid\mathbf{z})\right]}_{\text{reconstruction}} \;-\; \underbrace{D_\text{KL}\!\big(q_\phi(\mathbf{z}\mid\mathbf{x}) \,\|\, p(\mathbf{z})\big)}_{\text{regularizer}} $$</span>
-        <ul class="formula-legend">
-            <li><code>q<sub>φ</sub>(z|x)</code>encoder — outputs a distribution over codes, not a single point</li>
-            <li><code>p<sub>θ</sub>(x|z)</code>decoder — likelihood of reconstructing <em>x</em> from <em>z</em></li>
-            <li><code>p(z)</code>prior, typically <em>𝒩(0, I)</em></li>
-            <li>Maximize this lower bound on <em>log p(x)</em></li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L}(\theta, \phi; \mathbf{x}) \;=\; \underbrace{\mathbb{E}_{q_\phi(\mathbf{z}\mid\mathbf{x})}\!\left[\log p_\theta(\mathbf{x}\mid\mathbf{z})\right]}_{\text{reconstruction}} \;-\; \underbrace{D_\text{KL}\!\big(q_\phi(\mathbf{z}\mid\mathbf{x}) \,\|\, p(\mathbf{z})\big)}_{\text{regularizer}} $$</span>
+            <ul class="formula-legend">
+                <li><code>q<sub>φ</sub>(z|x)</code>encoder — outputs a distribution over codes, not a single point</li>
+                <li><code>p<sub>θ</sub>(x|z)</code>decoder — likelihood of reconstructing <em>x</em> from <em>z</em></li>
+                <li><code>p(z)</code>prior, typically <em>𝒩(0, I)</em></li>
+                <li>Maximize this lower bound on <em>log p(x)</em></li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{ELBO} \;=\; \underbrace{\text{avg over codes drawn from encoder}[\log p(\text{reconstruction} \mid \text{code})]}_{\text{reconstruction term}} \;-\; \underbrace{\text{distance(encoder's code distribution, prior)}}_{\text{regularizer term}} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The objective has two competing parts. The first — <strong>reconstruction</strong> — rewards the model for decoding back to something like the input: sample a <code>code</code> from the encoder's distribution given <code>x</code>, run it through the decoder, and measure how well it reconstructs <code>x</code>. The second — the <code>D<sub>KL</sub></code> term — penalises the encoder when its per-sample distribution drifts away from the chosen <strong>prior</strong> (a fixed unit Gaussian). That keeps the latent space tidy and Gaussian-shaped so you can sample from it later. <code>D<sub>KL</sub></code> (KL divergence) is just a measure of how far one distribution sits from another. Maximising this whole expression (called the ELBO — Evidence Lower BOund) is provably a lower bound on the true data log-likelihood; you'll see that derived in the In-depth tier.
+            </p>
+            <ul class="formula-legend">
+                <li><code>encoder</code>maps input to a <em>distribution</em> over codes (mean + variance)</li>
+                <li><code>decoder</code>maps a sampled code back toward the input</li>
+                <li><code>prior</code>fixed simple distribution we want codes to look like — usually a unit Gaussian</li>
+                <li><code>D<sub>KL</sub></code>distance between two distributions; bigger means more different</li>
+                <li>Maximizing ELBO improves reconstruction <em>and</em> keeps the latent space sample-able</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -193,20 +220,36 @@ def vae_loss(x_hat, x, mu, logvar):
 
     <div class="level-next">
         <span>Want ELBO derivation, β-VAE, and posterior collapse?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">ELBO derivation</span>
-        <span class="formula">$$ \log p(\mathbf{x}) \;=\; \mathbb{E}_{q(\mathbf{z}\mid\mathbf{x})}\!\big[\log p(\mathbf{x}, \mathbf{z}) - \log q(\mathbf{z}\mid\mathbf{x})\big] \;+\; D_\text{KL}\!\big(q(\mathbf{z}\mid\mathbf{x}) \,\|\, p(\mathbf{z}\mid\mathbf{x})\big) $$</span>
-        <ul class="formula-legend">
-            <li>Log-marginal = ELBO + KL to the true posterior</li>
-            <li>Since KL ≥ 0, ELBO is a lower bound on log <em>p(x)</em></li>
-            <li>Maximizing ELBO simultaneously fits the data and makes <em>q</em> close to the posterior</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \log p(\mathbf{x}) \;=\; \mathbb{E}_{q(\mathbf{z}\mid\mathbf{x})}\!\big[\log p(\mathbf{x}, \mathbf{z}) - \log q(\mathbf{z}\mid\mathbf{x})\big] \;+\; D_\text{KL}\!\big(q(\mathbf{z}\mid\mathbf{x}) \,\|\, p(\mathbf{z}\mid\mathbf{x})\big) $$</span>
+            <ul class="formula-legend">
+                <li>Log-marginal = ELBO + KL to the true posterior</li>
+                <li>Since KL ≥ 0, ELBO is a lower bound on log <em>p(x)</em></li>
+                <li>Maximizing ELBO simultaneously fits the data and makes <em>q</em> close to the posterior</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \log p(\text{data}) \;=\; \underbrace{\text{ELBO}}_{\text{what we maximize}} \;+\; \underbrace{D_\text{KL}(\text{encoder} \,\|\, \text{true posterior})}_{\,\ge\,0\,\text{ — the gap we can't see}} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> This is the algebraic identity that makes the VAE training objective principled. The <strong>log-marginal</strong> <code>log p(data)</code> — how well the model explains the data — splits exactly into the <strong>ELBO</strong> plus the KL distance from the encoder's distribution to the <em>true</em> posterior (the distribution over codes you'd want, given the data). Because <code>D<sub>KL</sub></code> is always non-negative, the ELBO is provably a <em>lower bound</em> on <code>log p(data)</code> — that's where the name "Evidence Lower BOund" comes from. Pushing the ELBO up does two good things at once: it makes the model fit the data better, and it makes the encoder's approximation closer to the true posterior. The true posterior is intractable, so we never compute that gap directly — the ELBO is what we actually optimize.
+            </p>
+            <ul class="formula-legend">
+                <li><code>log p(data)</code>log-likelihood of the data under the model — what we'd ideally maximize</li>
+                <li><code>ELBO</code>tractable lower bound — the actual training objective</li>
+                <li><code>true posterior</code>ideal distribution over codes given the data; intractable to compute directly</li>
+                <li><code>D<sub>KL</sub> ≥ 0</code>always non-negative, so ELBO ≤ log p(data)</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -263,7 +306,7 @@ def beta_schedule(step, warmup=5000, target=4.0):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -287,19 +330,19 @@ def beta_schedule(step, warmup=5000, target=4.0):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/1906.02691" target="_blank">Kingma &amp; Welling — VAE Tutorial <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">"An Introduction to Variational Autoencoders" — the original authors' modern tutorial. Best starting point for understanding ELBOs.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://lilianweng.github.io/posts/2018-08-12-vae/" target="_blank">Lilian Weng — From Autoencoder to Beta-VAE <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Covers AE, denoising AE, sparse AE, contractive AE, VAE, β-VAE in one tour. Clearest single source on the family.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1711.00937" target="_blank">van den Oord et al. (2017) — VQ-VAE <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The discrete-code variant that became the backbone of modern multi-modal models.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2112.10752" target="_blank">Rombach et al. (2022) — Latent Diffusion <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Stable Diffusion's paper. Shows how a VAE + diffusion combination scales image generation while staying compute-efficient.</span>
         </li>

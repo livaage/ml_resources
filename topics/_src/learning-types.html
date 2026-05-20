@@ -95,20 +95,36 @@ for t in range(T):
 
     <div class="level-next">
         <span>Want the formalisms and modern blends?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Empirical risk minimisation</span>
-        <span class="formula">$$ \hat\theta = \arg\min_\theta \frac{1}{n} \sum_{i=1}^n \ell\!\big(f_\theta(x_i),\, y_i\big) $$</span>
-        <ul class="formula-legend">
-            <li>The unifying formalism of supervised learning</li>
-            <li><em>y</em> can be a true label (supervised), invented from <em>x</em> (self-supervised), or partially observed (semi-supervised)</li>
-            <li>RL replaces this with a Bellman equation</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \hat\theta = \arg\min_\theta \frac{1}{n} \sum_{i=1}^n \ell\!\big(f_\theta(x_i),\, y_i\big) $$</span>
+            <ul class="formula-legend">
+                <li>The unifying formalism of supervised learning</li>
+                <li><em>y</em> can be a true label (supervised), invented from <em>x</em> (self-supervised), or partially observed (semi-supervised)</li>
+                <li>RL replaces this with a Bellman equation</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{best parameters} \;=\; \text{the } \theta \text{ that minimises the average loss across all training examples} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> "Empirical risk minimisation" just means: try lots of parameter values <code>θ</code>, and pick the one that makes the model's <em>average</em> mistake on the training set as small as possible. The <code>arg min</code> notation means "the value of <code>θ</code> that minimises what follows"; the sum-divided-by-<code>n</code> is just the average. The function <code>ℓ</code> (lowercase L, called the loss) measures how wrong each prediction is. This single formula unifies most paradigms — only the source of <em>y</em> changes (true labels, invented labels, or partial labels).
+            </p>
+            <ul class="formula-legend">
+                <li><code>best params</code>the parameter values you'll end up using</li>
+                <li><code>average loss</code>mean of the model's error across all <em>n</em> training examples</li>
+                <li><code>ℓ</code>the loss function (squared error, cross-entropy, etc.)</li>
+                <li><em>y</em> can be a true label (supervised), invented from <em>x</em> (self-supervised), or partially observed (semi-supervised); RL replaces this with a Bellman equation</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -142,20 +158,37 @@ loss.backward(); ft_opt.step()
 
     <div class="level-next">
         <span>Want the MDP formalism, offline RL, and weak supervision?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Bellman equation (RL)</span>
-        <span class="formula">$$ V^\pi(s) = \mathbb{E}_{a \sim \pi}\!\left[ R(s, a) + \gamma\, \mathbb{E}_{s' \sim P}\,V^\pi(s') \right] $$</span>
-        <ul class="formula-legend">
-            <li><code>V<sup>π</sup></code>value of state <em>s</em> under policy <em>π</em></li>
-            <li><code>γ</code>discount factor (1 = caring about the far future)</li>
-            <li>The optimisation problem is over <em>policies</em>, not pointwise predictions</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ V^\pi(s) = \mathbb{E}_{a \sim \pi}\!\left[ R(s, a) + \gamma\, \mathbb{E}_{s' \sim P}\,V^\pi(s') \right] $$</span>
+            <ul class="formula-legend">
+                <li><code>V<sup>π</sup></code>value of state <em>s</em> under policy <em>π</em></li>
+                <li><code>γ</code>discount factor (1 = caring about the far future)</li>
+                <li>The optimisation problem is over <em>policies</em>, not pointwise predictions</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{value of state } s \;=\; \text{expected reward now} \;+\; \gamma \times \text{expected value of next state} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The "value" of being in a state is the reward you expect to collect by acting from there onward. That breaks recursively into two pieces: the immediate reward from the action your policy <code>π</code> picks now, plus the value of wherever you land next, weighted by the discount factor <code>γ</code> (gamma, a number between 0 and 1 — closer to 1 means caring more about long-term reward). The <em>E</em> symbols are averages: over the actions your policy might take, and over which next state the environment lands you in. Solve this recursive equation and you've solved the RL problem (in principle).
+            </p>
+            <ul class="formula-legend">
+                <li><code>value</code>expected total future reward from this state</li>
+                <li><code>γ</code>discount factor — closer to 1 means caring about the far future</li>
+                <li><code>policy π</code>your rule for choosing actions in each state</li>
+                <li><code>expected</code>averaged over the randomness in the policy's actions and the environment's transitions</li>
+                <li>The optimisation problem is over <em>policies</em>, not pointwise predictions</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -197,7 +230,7 @@ def majority_vote(lf_outputs):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -206,19 +239,19 @@ def majority_vote(lf_outputs):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://web.stanford.edu/~hastie/Papers/ESLII.pdf" target="_blank">Elements of Statistical Learning — Ch. 1–2 <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Hastie, Tibshirani &amp; Friedman lay out the supervised / unsupervised split with classical examples. Free PDF.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="http://incompleteideas.net/book/the-book-2nd.html" target="_blank">Sutton &amp; Barto — Reinforcement Learning: An Introduction <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The standard RL textbook. Free PDF online. Chapters 1–6 are essential.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://ai.meta.com/blog/self-supervised-learning-the-dark-matter-of-intelligence/" target="_blank">LeCun &amp; Misra — Self-Supervised: The Dark Matter of Intelligence <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Manifesto for why self-supervision is the right framing for foundation models. Worth reading even if you disagree.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://lilianweng.github.io/posts/2021-05-31-contrastive/" target="_blank">Lilian Weng — Contrastive Representation Learning <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">A thorough tour of self-supervised contrastive learning, from SimCLR to BYOL to DINO. Useful index of the major methods.</span>
         </li>

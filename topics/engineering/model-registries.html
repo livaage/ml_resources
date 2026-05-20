@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">A central catalogue of every model version — with metadata, lineage, and clear stages.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -106,20 +116,37 @@ model = mlflow.pytorch.load_model("models:/credit-risk-classifier/Production")
 
     <div class="level-next">
         <span>Want lineage tracking, model cards, &amp; multi-environment promotion?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Model versioning identity</span>
-        <span class="formula">$$ \text{model version} \;=\; \text{hash}(\text{code commit}, \text{data hash}, \text{config}, \text{seeds}) $$</span>
-        <ul class="formula-legend">
-            <li>Reproducibility = re-deriving the same model from these inputs</li>
-            <li>The registry stores the artefact and the inputs separately</li>
-            <li>Audit trail: who created it, when, with what data, why promoted</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{model version} \;=\; \text{hash}(\text{code commit}, \text{data hash}, \text{config}, \text{seeds}) $$</span>
+            <ul class="formula-legend">
+                <li>Reproducibility = re-deriving the same model from these inputs</li>
+                <li>The registry stores the artefact and the inputs separately</li>
+                <li>Audit trail: who created it, when, with what data, why promoted</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{model version id} \;=\; \text{fingerprint of (code, data, config, seeds)} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A model version is uniquely identified by everything that went into producing it: the <code>code commit</code> (a specific git SHA), the <code>data hash</code> (a fingerprint of the training data), the <code>config</code> (hyperparameters, paths), and the <code>seeds</code> (random number generators). <code>hash(...)</code> just means "smush all of these inputs into one short fingerprint string". Two runs with identical inputs should produce the same version; if anything differs, the version differs.
+            </p>
+            <ul class="formula-legend">
+                <li><code>code commit</code>git SHA at training time</li>
+                <li><code>data hash</code>fingerprint of the dataset used</li>
+                <li><code>config</code>hyperparameters &amp; settings</li>
+                <li><code>seeds</code>random number generator seeds for reproducibility</li>
+                <li>Audit trail: who created it, when, with what data, why promoted</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -161,20 +188,36 @@ client.set_registered_model_alias(
 
     <div class="level-next">
         <span>Want model cards, governance, &amp; supply-chain attestation?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Supply chain for models</span>
-        <span class="formula">$$ (\text{base model}, \text{dataset}, \text{code}, \text{config}) \xrightarrow{\text{training}} (\text{artefact}, \text{provenance}, \text{signature}) $$</span>
-        <ul class="formula-legend">
-            <li>Each input is itself versioned and signed</li>
-            <li>Output artefact carries a provenance record traceable to all inputs</li>
-            <li>SLSA-like attestation for ML — not yet standard but converging</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ (\text{base model}, \text{dataset}, \text{code}, \text{config}) \xrightarrow{\text{training}} (\text{artefact}, \text{provenance}, \text{signature}) $$</span>
+            <ul class="formula-legend">
+                <li>Each input is itself versioned and signed</li>
+                <li>Output artefact carries a provenance record traceable to all inputs</li>
+                <li>SLSA-like attestation for ML — not yet standard but converging</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ (\text{inputs: base model, dataset, code, config}) \;\to\; (\text{outputs: artefact, provenance, signature}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A training run is a function that takes versioned inputs and produces both the trained model artefact and a record of where it came from. The arrow (<code>→</code>) is just "produces"; "training" sits above it to label what's happening. The <code>provenance</code> is a paper trail back to every input; the <code>signature</code> is a cryptographic seal so consumers can verify the artefact hasn't been tampered with. If you change <em>any</em> input, you should get a different, traceable output.
+            </p>
+            <ul class="formula-legend">
+                <li><code>inputs</code>each one separately versioned and signed</li>
+                <li><code>artefact</code>the trained weights / model file itself</li>
+                <li><code>provenance</code>traceability record back to every input</li>
+                <li><code>signature</code>cryptographic seal proving the artefact is authentic</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -213,7 +256,7 @@ def make_card(run_id, model_name, version):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -237,19 +280,19 @@ def make_card(run_id, model_name, version):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://mlflow.org/docs/latest/model-registry.html" target="_blank">MLflow Model Registry Docs <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The most-used open-source registry. Stages, aliases, webhooks, governance.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://docs.wandb.ai/guides/artifacts" target="_blank">W&amp;B Artifacts <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">W&amp;B's take on artefact + model versioning. Tighter integration with W&amp;B tracking; less full-featured as a standalone registry.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1810.03993" target="_blank">Mitchell et al. (2019) — Model Cards <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The model card paper. Standardised documentation now widely adopted across the industry.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://huggingface.co/docs/hub/model-cards" target="_blank">HuggingFace — Model Cards <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical template + library for producing model cards. The largest registry of public model cards.</span>
         </li>

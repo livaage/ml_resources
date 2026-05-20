@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">The art of giving the model the inputs it needs to succeed — domain knowledge, encoded.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -120,20 +130,36 @@ df["hour_cos"] = np.cos(2 * np.pi * df["hour"] / 24)   # periodic encoding
 
     <div class="level-next">
         <span>Want the kernel trick, learned embeddings, &amp; feature selection?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The kernel trick</span>
-        <span class="formula">$$ K(x, x') = \langle \phi(x), \phi(x') \rangle $$</span>
-        <ul class="formula-legend">
-            <li><code>φ</code>implicit feature map into a high-dimensional space</li>
-            <li>Working with <em>K</em> directly avoids computing <em>φ</em> — feature engineering for free, if <em>K</em> is well-chosen</li>
-            <li>SVMs, GPs, kernel ridge regression all exploit this</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ K(x, x') = \langle \phi(x), \phi(x') \rangle $$</span>
+            <ul class="formula-legend">
+                <li><code>φ</code>implicit feature map into a high-dimensional space</li>
+                <li>Working with <em>K</em> directly avoids computing <em>φ</em> — feature engineering for free, if <em>K</em> is well-chosen</li>
+                <li>SVMs, GPs, kernel ridge regression all exploit this</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{similarity}(x, x') \;=\; \text{dot product of transformed } x \text{ and transformed } x' $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A "kernel" <em>K</em> is just a similarity score between two data points — it tells you how related <em>x</em> and <em>x'</em> are. The trick is that this score is mathematically equivalent to first transforming both points through some feature map <code>φ</code> (phi) into a richer space, then taking their dot product there. The angle brackets <code>⟨·, ·⟩</code> just mean "dot product". Because many classical algorithms only ever need similarities between points (never the points themselves), you can swap in any sensible kernel and effectively work in that richer feature space without ever computing the transformed vectors.
+            </p>
+            <ul class="formula-legend">
+                <li><code>K(x, x')</code>kernel — a similarity score between two data points</li>
+                <li><code>φ</code>feature map — sends each point into a (possibly much higher-dim) space</li>
+                <li><code>⟨·, ·⟩</code>dot product in that richer space</li>
+                <li>Common kernels: RBF (Gaussian), polynomial, string, graph</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -165,19 +191,36 @@ df = df.merge(agg, on="user_id")
 
     <div class="level-next">
         <span>Want auto-feature-engineering, deep feature synthesis, and AutoML?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Deep Feature Synthesis</span>
-        <span class="formula">$$ \mathcal{F} = \{\,g \circ \text{Aggr}(R, f) : f \in \mathcal{F}_{\text{prim}}, R \in \mathcal{R},\, g \in \mathcal{G}\,\} $$</span>
-        <ul class="formula-legend">
-            <li>Stack primitive transforms (count, mean, max, …) over relationships (R) to enumerate features automatically</li>
-            <li>Featuretools' algorithm — replaces a lot of hand feature-engineering for relational data</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{F} = \{\,g \circ \text{Aggr}(R, f) : f \in \mathcal{F}_{\text{prim}}, R \in \mathcal{R},\, g \in \mathcal{G}\,\} $$</span>
+            <ul class="formula-legend">
+                <li>Stack primitive transforms (count, mean, max, …) over relationships (R) to enumerate features automatically</li>
+                <li>Featuretools' algorithm — replaces a lot of hand feature-engineering for relational data</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{generated features} \;=\; \text{transform}(\text{aggregation across relationship}(\text{primitive feature})) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Deep Feature Synthesis enumerates new features by composing simple operations. Start with a primitive feature (a column you already have), pick a relationship in your schema (e.g. "transactions belong to a user"), apply an aggregation across that relationship (count, mean, max, sum), then optionally transform the result (log, hour-of-day). The script symbol <code>F</code> is the resulting set of all such generated features. The <code>∘</code> means "compose" — apply one after the other. Stacking depth lets you build features like "average transaction amount per user, in the last 7 days".
+            </p>
+            <ul class="formula-legend">
+                <li><code>primitive feature</code>a raw column in one of your tables</li>
+                <li><code>relationship</code>a parent–child link in the schema (e.g. user → transactions)</li>
+                <li><code>aggregation</code>combine many child rows into one summary (count, mean, max, …)</li>
+                <li><code>transform</code>a single-input function (log, day-of-week, …)</li>
+                <li>Stacked recipes — depth 2 or 3 — automate most of what hand feature-engineering produces</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -214,7 +257,7 @@ features, defs = ft.dfs(entityset=es, target_dataframe_name="users",
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -228,19 +271,19 @@ features, defs = ft.dfs(entityset=es, target_dataframe_name="users",
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="indepth">
             <a href="https://www.featuretools.com/" target="_blank">Featuretools — Deep Feature Synthesis <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference automated-feature-engineering library for relational data. Docs walk through DFS with worked examples.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://www.kaggle.com/learn/feature-engineering" target="_blank">Kaggle — Feature Engineering Mini-Course <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Six short interactive lessons covering target encoding, interaction terms, time features, and feature selection in pandas.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://otexts.com/fpp3/" target="_blank">Hyndman &amp; Athanasopoulos — Forecasting: Principles and Practice <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Best reference for time-series feature engineering — lags, rolling stats, seasonality, calendar features.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://tsfresh.readthedocs.io/" target="_blank">tsfresh <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Hundreds of pre-built features for time-series data, with built-in relevance filtering. Useful starting point for any sequence problem.</span>
         </li>

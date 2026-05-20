@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Like t-SNE but faster, more global structure preserved, and the embedding works on new points.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -97,20 +107,36 @@ X_test_2d = reducer.transform(X_test_high_d)
 
     <div class="level-next">
         <span>Want the topological story, the cross-entropy objective, &amp; parametric UMAP?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">UMAP objective</span>
-        <span class="formula">$$ \min_y \;\; \mathrm{CE}\!\left(\,\nu_{\text{high}}\,\|\, \nu_{\text{low}}\right) = -\sum_{ij} \nu_{ij}^h \log \nu_{ij}^l + (1 - \nu_{ij}^h) \log (1 - \nu_{ij}^l) $$</span>
-        <ul class="formula-legend">
-            <li><code>ν<sup>h</sup></code>fuzzy-set membership in the high-D k-NN graph</li>
-            <li><code>ν<sup>l</sup></code>fuzzy-set membership in the 2D embedding</li>
-            <li>Cross-entropy instead of t-SNE's KL — keeps both attractive and repulsive terms balanced</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \min_y \;\; \mathrm{CE}\!\left(\,\nu_{\text{high}}\,\|\, \nu_{\text{low}}\right) = -\sum_{ij} \nu_{ij}^h \log \nu_{ij}^l + (1 - \nu_{ij}^h) \log (1 - \nu_{ij}^l) $$</span>
+            <ul class="formula-legend">
+                <li><code>ν<sup>h</sup></code>fuzzy-set membership in the high-D k-NN graph</li>
+                <li><code>ν<sup>l</sup></code>fuzzy-set membership in the 2D embedding</li>
+                <li>Cross-entropy instead of t-SNE's KL — keeps both attractive and repulsive terms balanced</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \min_y \;\; -\!\sum_{ij} \left[\, \text{high-D edge strength} \times \log(\text{low-D edge strength}) \;+\; (1 - \text{high-D edge strength}) \times \log(1 - \text{low-D edge strength}) \,\right] $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Each pair of points has a number between 0 and 1 saying how strongly they're connected in the high-D nearest-neighbour graph (<code>ν^h</code> — "nu high") and the corresponding strength in the 2D layout (<code>ν^l</code> — "nu low"). The objective is the standard <strong>cross-entropy</strong> between these two: it's small when the two strengths match across every pair. The first piece pulls strong-in-input pairs together; the second piece (using <code>1 − ν</code>) pushes weak-in-input pairs apart. Unlike t-SNE's KL — which only penalises one direction — UMAP balances both forces, which is why it preserves more global structure.
+            </p>
+            <ul class="formula-legend">
+                <li><code>high-D edge strength (ν^h)</code>how strongly two points are linked in the input k-NN graph (0 to 1)</li>
+                <li><code>low-D edge strength (ν^l)</code>same number for the 2D embedding</li>
+                <li><code>cross-entropy</code>standard "distance" between two distributions, sensitive to both directions</li>
+                <li>Both attractive (similar pairs) and repulsive (dissimilar pairs) forces are balanced</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -143,20 +169,36 @@ X_test_2d = p_umap.transform(X_test)
 
     <div class="level-next">
         <span>Want supervised UMAP, manifold theory, &amp; comparisons to PaCMAP, TriMap, MDE?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The attractive-repulsive force balance</span>
-        <span class="formula">$$ F_{\text{attr}}(d) \propto \frac{-2ab\, d^{2b-1}}{1 + a d^{2b}}, \quad F_{\text{rep}}(d) \propto \frac{2b}{(0.001 + d^2)(1 + a d^{2b})} $$</span>
-        <ul class="formula-legend">
-            <li><code>a, b</code>parameters fit to make the output similarity curve match the chosen <em>min_dist</em></li>
-            <li>Same idea as t-SNE's force law but with different "long-range push" dynamics</li>
-            <li>More balanced — preserves more global structure</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ F_{\text{attr}}(d) \propto \frac{-2ab\, d^{2b-1}}{1 + a d^{2b}}, \quad F_{\text{rep}}(d) \propto \frac{2b}{(0.001 + d^2)(1 + a d^{2b})} $$</span>
+            <ul class="formula-legend">
+                <li><code>a, b</code>parameters fit to make the output similarity curve match the chosen <em>min_dist</em></li>
+                <li>Same idea as t-SNE's force law but with different "long-range push" dynamics</li>
+                <li>More balanced — preserves more global structure</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{attractive force}(d) \;\propto\; \frac{-2ab \cdot d^{2b-1}}{1 + a \cdot d^{2b}}, \qquad \text{repulsive force}(d) \;\propto\; \frac{2b}{(0.001 + d^2)(1 + a \cdot d^{2b})} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Each pair of points feels two competing forces driven by their 2D distance <em>d</em>: an <strong>attractive</strong> one pulling neighbours together, and a <strong>repulsive</strong> one pushing non-neighbours apart. The constants <code>a</code> and <code>b</code> aren't manually set — they're fit once at the start so that the resulting "low-D similarity curve" matches whatever <code>min_dist</code> you chose. The plain version just keeps the same formula because the math <em>is</em> the meaning here: an algebraic relationship between distance and force. The crucial property versus t-SNE is that the repulsive term shrinks more gradually with distance, so far-apart clusters still nudge each other — which is why UMAP preserves more global structure.
+            </p>
+            <ul class="formula-legend">
+                <li><code>d</code>distance between two points in the 2D embedding</li>
+                <li><code>a, b</code>auto-fit constants that calibrate the curve to your <code>min_dist</code></li>
+                <li><code>attractive force</code>pulls neighbouring points together — dominant at short range</li>
+                <li><code>repulsive force</code>pushes non-neighbours apart — fades more slowly than t-SNE's, hence more global structure</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -193,7 +235,7 @@ for nn_count in [5, 15, 30]:
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -217,19 +259,19 @@ for nn_count in [5, 15, 30]:
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://umap-learn.readthedocs.io/" target="_blank">UMAP Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference implementation. McInnes &amp; Healy's docs are unusually good — they explain the algorithm thoroughly with worked examples.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1802.03426" target="_blank">McInnes, Healy &amp; Melville (2018) — UMAP <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original UMAP paper. The math is intimidating; the practical recipe is the last few sections.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://pair-code.github.io/understanding-umap/" target="_blank">Coenen &amp; Pearce — Understanding UMAP <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Google's interactive companion to UMAP, in the spirit of the t-SNE Distill piece. Hands-on tour of the hyperparameters.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://distill.pub/2019/visual-exploration-gaussian-processes/" target="_blank">Distill — Various manifold methods <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Distill has multiple essays on related projection methods (t-SNE, UMAP, MDS, Isomap). The visual style is the modern standard.</span>
         </li>

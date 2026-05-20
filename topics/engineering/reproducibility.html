@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Seeds, deterministic ops, locked dependencies — making "it worked on my machine" actually portable.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -89,12 +99,12 @@ def set_seed(seed: int = 42):
 
     <div class="level-next">
         <span>Want the three pillars in detail?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea">
         <span class="key-idea-label">Three pillars</span>
         <p><strong>(1) Seeds.</strong> Every PRNG seeded and the seed logged.<br>
@@ -175,12 +185,12 @@ run_metadata = {
 
     <div class="level-next">
         <span>Want determinism caveats, DVC, and the "is this even reproducible?" check?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p><strong>Bit-exact reproducibility is harder than it looks.</strong> Hardware differences, library versions, and parallel-reduction non-determinism can defeat the simplest reproducibility setup. Decide what level you actually need and design for it.</p>
@@ -225,7 +235,7 @@ assert hash_dir(pathlib.Path("data/processed")) == EXPECTED_HASH, \
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -249,19 +259,19 @@ assert hash_dir(pathlib.Path("data/processed")) == EXPECTED_HASH, \
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch.org/docs/stable/notes/randomness.html" target="_blank">PyTorch — Reproducibility <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Definitive list of what's deterministic vs. not in PyTorch, with the specific knobs to flip. Read once, refer back often.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://dvc.org/doc/start" target="_blank">DVC — Get Started <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Quickest way to add data versioning. Skip the ML pipeline parts if you only need versioning.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://reproducibility-guide.github.io/" target="_blank">The Turing Way — Reproducibility <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Broader guide covering reproducibility in computational research. Useful even outside ML.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://paperswithcode.com/rc2022" target="_blank">ML Reproducibility Challenge <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Annual challenge attempting to reproduce published ML papers. Reports document the typical failure modes — instructive.</span>
         </li>

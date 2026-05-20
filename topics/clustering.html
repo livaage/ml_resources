@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Group similar items together without labels — k-means, DBSCAN, hierarchical, and friends.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -114,20 +124,36 @@ new_labels = km.predict(X_new)
 
     <div class="level-next">
         <span>Want to see how these algorithms actually work?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">k-means objective</span>
-        <span class="formula">$$ \min_{\{\boldsymbol{\mu}_k\}} \sum_{k=1}^{K} \sum_{\mathbf{x}_i \in C_k} \|\mathbf{x}_i - \boldsymbol{\mu}_k\|^2 $$</span>
-        <ul class="formula-legend">
-            <li><code>C<sub>k</sub></code>the set of points assigned to cluster <em>k</em></li>
-            <li><code>μ<sub>k</sub></code>the centroid of cluster <em>k</em> (the mean of its points)</li>
-            <li>Lloyd's algorithm alternates assignment and centroid update — guaranteed to converge to a local minimum</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \min_{\{\boldsymbol{\mu}_k\}} \sum_{k=1}^{K} \sum_{\mathbf{x}_i \in C_k} \|\mathbf{x}_i - \boldsymbol{\mu}_k\|^2 $$</span>
+            <ul class="formula-legend">
+                <li><code>C<sub>k</sub></code>the set of points assigned to cluster <em>k</em></li>
+                <li><code>μ<sub>k</sub></code>the centroid of cluster <em>k</em> (the mean of its points)</li>
+                <li>Lloyd's algorithm alternates assignment and centroid update — guaranteed to converge to a local minimum</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{minimise}\;\; \text{total squared distance from each point to its cluster centre} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Pick <em>K</em> cluster centres so that, when every point is assigned to its nearest centre, the sum of squared distances from points to their centre is as small as possible. <code>μ<sub>k</sub></code> (mu sub k) is the location of centre <em>k</em> — for the optimal solution it's literally the mean of the points assigned to it. Lloyd's algorithm finds a local minimum by alternating two steps until things stop moving: assign each point to its nearest centre, then move each centre to the mean of its assigned points. The k-means++ initialiser improves which local minimum you land in.
+            </p>
+            <ul class="formula-legend">
+                <li><code>cluster centre</code>μ<sub>k</sub> — one of <em>K</em> locations the algorithm picks; ends up as the mean of its points</li>
+                <li><code>squared distance</code>(point − centre)², summed across all dimensions of <em>x</em></li>
+                <li><code>total squared distance</code>summed over every point, then over every cluster — the quantity being minimised</li>
+                <li><code>K</code>number of clusters — you have to choose this in advance (try the elbow / silhouette method)</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -180,20 +206,36 @@ for name, algo in [
 
     <div class="level-next">
         <span>Want the embedding view and modern density-based methods?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Spectral clustering</span>
-        <span class="formula">$$ L \;=\; D - W \quad\text{or}\quad L_{\text{sym}} = I - D^{-1/2} W D^{-1/2} $$</span>
-        <ul class="formula-legend">
-            <li><code>W</code>similarity matrix (e.g. Gaussian kernel of pairwise distances)</li>
-            <li><code>D</code>diagonal degree matrix, <em>D<sub>ii</sub> = Σ<sub>j</sub> W<sub>ij</sub></em></li>
-            <li>Embed via the smallest <em>k</em> eigenvectors of <em>L</em>, then cluster in that space</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ L \;=\; D - W \quad\text{or}\quad L_{\text{sym}} = I - D^{-1/2} W D^{-1/2} $$</span>
+            <ul class="formula-legend">
+                <li><code>W</code>similarity matrix (e.g. Gaussian kernel of pairwise distances)</li>
+                <li><code>D</code>diagonal degree matrix, <em>D<sub>ii</sub> = Σ<sub>j</sub> W<sub>ij</sub></em></li>
+                <li>Embed via the smallest <em>k</em> eigenvectors of <em>L</em>, then cluster in that space</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{Laplacian} \;=\; \text{degree matrix} \;-\; \text{similarity matrix} \quad\text{(or its normalised form)} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Build a graph where every data point is a node and edges carry a similarity weight (the <code>W</code> matrix, often a Gaussian kernel of distances). The <code>degree matrix</code> <code>D</code> is a diagonal matrix whose entries are each node's total similarity to all others. The <code>Laplacian</code> <code>L = D − W</code> encodes graph structure; the symmetric normalised form just rescales it. The smallest eigenvectors of <code>L</code> give you an embedding where points connected by strong similarity end up close together — and running plain k-means in that embedding recovers non-convex clusters (rings, moons) that k-means in the original space can't find.
+            </p>
+            <ul class="formula-legend">
+                <li><code>similarity matrix</code>W — pairwise weights saying how similar two points are</li>
+                <li><code>degree matrix</code>D — diagonal matrix of each point's total similarity to all others</li>
+                <li><code>Laplacian</code>L — a graph operator; its small eigenvectors give cluster-aware coordinates</li>
+                <li><code>eigenvectors</code>special vectors of L that, taken together, form a coordinate system where similar points cluster naturally</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -247,7 +289,7 @@ print(f"Cluster persistence: {clusterer.cluster_persistence_.round(3)}")
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -261,19 +303,19 @@ print(f"Cluster persistence: {clusterer.cluster_persistence_.round(3)}")
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="intuition">
             <a href="https://scikit-learn.org/stable/modules/clustering.html" target="_blank">scikit-learn — Clustering <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Visual comparison of all clustering algorithms on toy datasets. Always start here to pick a candidate.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://hdbscan.readthedocs.io/" target="_blank">HDBSCAN documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Exceptionally well-written. The "How HDBSCAN Works" guide is the clearest introduction to modern density-based clustering.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/0711.0189" target="_blank">von Luxburg (2007) — Spectral Clustering tutorial <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Definitive introduction to spectral methods. Derivation, normalized vs. unnormalized variants, eigengap heuristic.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set" target="_blank">Wikipedia — Choosing K <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Survey of methods (elbow, silhouette, gap statistic, BIC). Useful summary when you need to defend your choice.</span>
         </li>

@@ -1,15 +1,16 @@
-/* Topic-page interactivity: difficulty selector + code-block copy buttons.
+/* Topic-page interactivity: tier selector + notation toggle + code copy buttons.
  * Loaded by every page built from templates/topic.html. */
 
 (function () {
-    // ----- Difficulty selector -----
+    const body = document.body;
+
+    // ----- Tier selector -----
     const tabs   = document.querySelectorAll('.level-tab');
     const levels = document.querySelectorAll('.topic-level');
     const KEY    = 'ml-hub-topic-level';
 
     // Hide tabs whose content section doesn't exist on this page.
-    // This lets sources opt into the "Visual" tab (or any future one)
-    // without forcing every topic to define it.
+    // Lets sources opt into a subset of tiers (e.g. just Intuition).
     const availableLevels = new Set(
         Array.from(levels).map(l => l.dataset.level)
     );
@@ -20,11 +21,11 @@
     });
 
     function setLevel(level) {
-        // Fall back to "intuition" if a saved level isn't available on this page
         if (!availableLevels.has(level)) level = 'intuition';
         tabs.forEach(t => t.classList.toggle('active', t.dataset.level === level));
         levels.forEach(l => l.classList.toggle('active', l.dataset.level === level));
-        localStorage.setItem(KEY, level);
+        body.setAttribute('data-tier', level);
+        try { localStorage.setItem(KEY, level); } catch (e) {}
     }
 
     tabs.forEach(t => t.addEventListener('click', () => setLevel(t.dataset.level)));
@@ -38,8 +39,31 @@
         });
     });
 
-    // Initialise with saved preference, falling back to "intuition" (the new default)
-    setLevel(localStorage.getItem(KEY) || 'intuition');
+    let savedLevel = 'intuition';
+    try { savedLevel = localStorage.getItem(KEY) || 'intuition'; } catch (e) {}
+    setLevel(savedLevel);
+
+
+    // ----- Notation toggle (Plain vs Math) -----
+    const NKEY = 'ml-hub-notation';
+    const notationButtons = document.querySelectorAll('.notation-toggle .seg button');
+
+    function setNotation(mode) {
+        if (mode !== 'plain') mode = 'standard';
+        body.setAttribute('data-notation', mode);
+        notationButtons.forEach(b =>
+            b.classList.toggle('active', b.dataset.notation === mode)
+        );
+        try { localStorage.setItem(NKEY, mode); } catch (e) {}
+    }
+
+    notationButtons.forEach(btn => {
+        btn.addEventListener('click', () => setNotation(btn.dataset.notation));
+    });
+
+    let savedNotation = 'standard';
+    try { savedNotation = localStorage.getItem(NKEY) || 'standard'; } catch (e) {}
+    setNotation(savedNotation);
 
 
     // ----- Copy button on each code block -----

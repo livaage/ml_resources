@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Reusable training-loop boilerplate — Lightning, Accelerate, custom — so you spend time on the model, not the wrapper.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -115,19 +125,35 @@ trainer.fit(MyModel(), train_loader, val_loader)
 
     <div class="level-next">
         <span>Want callbacks, custom loops, &amp; the Accelerate pattern?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">The standard training loop, abstracted</span>
-        <span class="formula">$$ \text{prep} \to (\text{step} \to \text{log} \to \text{eval} \to \text{checkpoint})^* \to \text{save} $$</span>
-        <ul class="formula-legend">
-            <li>Every framework's loop is some specialisation of this</li>
-            <li>The hook points are where you customise — callbacks, on_step_end, etc.</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{prep} \to (\text{step} \to \text{log} \to \text{eval} \to \text{checkpoint})^* \to \text{save} $$</span>
+            <ul class="formula-legend">
+                <li>Every framework's loop is some specialisation of this</li>
+                <li>The hook points are where you customise — callbacks, on_step_end, etc.</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{setup} \;\to\; \big(\text{train step} \to \text{log} \to \text{evaluate} \to \text{checkpoint}\big)\text{ repeated} \;\to\; \text{final save} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Almost every training loop has the same skeleton. <code>prep</code> happens once at startup (build model, optimizer, data loader). Then a block of four stages — step the model, log metrics, run eval periodically, save a checkpoint — runs many times in a loop; the <code>*</code> is regex-style notation for "repeat zero or more times". At the end, save the final model. Frameworks differ only in <em>how</em> you customise each stage (callbacks, hooks, mixins) — the shape is the same.
+            </p>
+            <ul class="formula-legend">
+                <li><code>setup</code>one-time work: model, optimizer, data, devices</li>
+                <li><code>train step</code>forward + backward + optimizer step on one batch</li>
+                <li><code>log / evaluate / checkpoint</code>periodic side-effects inside the loop</li>
+                <li>Every framework's loop is some specialisation of this skeleton</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -166,20 +192,36 @@ if accelerator.is_main_process:
 
     <div class="level-next">
         <span>Want custom callbacks, EMA / SWA, &amp; the unconventional loops?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Exponential Moving Average</span>
-        <span class="formula">$$ \theta_{\mathrm{EMA}}^{(t)} = \mu \cdot \theta_{\mathrm{EMA}}^{(t-1)} + (1 - \mu) \cdot \theta^{(t)} $$</span>
-        <ul class="formula-legend">
-            <li>Stash a smoothed copy of your weights</li>
-            <li>Use the EMA weights at eval / inference — often more accurate, more stable</li>
-            <li>Standard for diffusion training, self-supervised methods, and some supervised setups</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \theta_{\mathrm{EMA}}^{(t)} = \mu \cdot \theta_{\mathrm{EMA}}^{(t-1)} + (1 - \mu) \cdot \theta^{(t)} $$</span>
+            <ul class="formula-legend">
+                <li>Stash a smoothed copy of your weights</li>
+                <li>Use the EMA weights at eval / inference — often more accurate, more stable</li>
+                <li>Standard for diffusion training, self-supervised methods, and some supervised setups</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{smoothed weights now} = \mu \cdot \text{smoothed weights before} + (1 - \mu) \cdot \text{current weights} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> EMA (exponential moving average) keeps a slowly-updating shadow copy of your weights. At each step, the smoothed weights are mostly the previous smoothed weights, mixed with a tiny bit of the latest live weights. <code>μ</code> (mu, a Greek letter) is the decay — typically <code>0.999</code> or <code>0.9999</code>; bigger means slower-changing (more smoothing). The superscript <code>(t)</code> just labels the step number. Use the smoothed copy at evaluation / inference time — it's almost always a slightly better, more stable predictor than the latest weights.
+            </p>
+            <ul class="formula-legend">
+                <li><code>smoothed weights now</code>the EMA shadow copy after the current step</li>
+                <li><code>μ</code>decay factor (close to 1) — how much of the previous EMA to keep</li>
+                <li><code>current weights</code>the live trained parameters at this step</li>
+                <li>Standard for diffusion training, self-supervised methods, and some supervised setups</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -224,7 +266,7 @@ class EMACallback(L.Callback):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -248,19 +290,19 @@ class EMACallback(L.Callback):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://lightning.ai/docs/pytorch/" target="_blank">PyTorch Lightning Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference. Trainer flags, callbacks, DataModules, and Lightning Studio for hosted training.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://huggingface.co/docs/accelerate" target="_blank">HuggingFace Accelerate <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Minimal-wrapper alternative — wraps your existing loop instead of replacing it. Works particularly well with HF transformers.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/karpathy/nanoGPT" target="_blank">karpathy/nanoGPT <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The minimalist counter-example — full GPT training in a few hundred lines of pure PyTorch. Worth reading for the "what does the framework do for you" perspective.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://timm.fast.ai/" target="_blank">timm — PyTorch Image Models <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference library for vision backbones, with a built-in training script. Useful even if you don't use timm; the training script is a good template.</span>
         </li>

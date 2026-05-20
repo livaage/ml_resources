@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">When the model says 70%, is it right 70% of the time? Calibration is whether predicted probabilities mean what they say.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -126,21 +136,37 @@ print(f"Learned T = {ts.T.item():.3f}")        # &gt; 1 ⇒ was over-confident
 
     <div class="level-next">
         <span>Want ECE, MCE, beta calibration, and conformal alternatives?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Expected calibration error</span>
-        <span class="formula">$$ \text{ECE} = \sum_{m=1}^{M} \frac{|B_m|}{n} \left|\text{acc}(B_m) - \text{conf}(B_m)\right| $$</span>
-        <ul class="formula-legend">
-            <li><code>B<sub>m</sub></code>predictions binned by predicted probability (e.g. 15 equal-width bins)</li>
-            <li><code>acc(B<sub>m</sub>)</code>observed positive rate in the bin</li>
-            <li><code>conf(B<sub>m</sub>)</code>average predicted probability in the bin</li>
-            <li>Weighted average gap — ECE = 0 is perfect calibration</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{ECE} = \sum_{m=1}^{M} \frac{|B_m|}{n} \left|\text{acc}(B_m) - \text{conf}(B_m)\right| $$</span>
+            <ul class="formula-legend">
+                <li><code>B<sub>m</sub></code>predictions binned by predicted probability (e.g. 15 equal-width bins)</li>
+                <li><code>acc(B<sub>m</sub>)</code>observed positive rate in the bin</li>
+                <li><code>conf(B<sub>m</sub>)</code>average predicted probability in the bin</li>
+                <li>Weighted average gap — ECE = 0 is perfect calibration</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{ECE} \;=\; \text{weighted average across bins of} \;\big|\text{observed positive rate} \;-\; \text{average predicted probability}\big| $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Sort all predictions into <em>M</em> bins by predicted probability (e.g. bin 1 = "predicted 0–10%", bin 2 = "10–20%", and so on). For each bin, compute two things: the <em>observed positive rate</em> (what fraction were actually positive) and the <em>average predicted probability</em> (what the model said on average). The gap between those two is the per-bin miscalibration. Average those gaps, weighted by how many points landed in each bin, and you get ECE. Zero means perfect calibration; bigger numbers mean the model's confidence levels don't match reality.
+            </p>
+            <ul class="formula-legend">
+                <li><code>bin</code>group of predictions in a probability range (e.g. "predicted 60–70%")</li>
+                <li><code>observed positive rate</code>fraction of points in the bin that were actually positive</li>
+                <li><code>predicted probability</code>average of the model's confidence in the bin</li>
+                <li>Weighted by bin size; ECE = 0 means perfect calibration</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -175,20 +201,36 @@ def adaptive_ece(y, p, n_bins=15):
 
     <div class="level-next">
         <span>Want proper scoring, multi-class calibration, and OOD calibration?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Brier decomposition</span>
-        <span class="formula">$$ \text{Brier} = \underbrace{\text{Reliability}}_{\text{miscalibration}} - \underbrace{\text{Resolution}}_{\text{spread of cond. freq.}} + \underbrace{\text{Uncertainty}}_{\text{base rate}} $$</span>
-        <ul class="formula-legend">
-            <li>Brier as a sum of three orthogonal terms</li>
-            <li>Reliability ↓ as calibration improves</li>
-            <li>Resolution ↑ as the model usefully separates positives from negatives</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{Brier} = \underbrace{\text{Reliability}}_{\text{miscalibration}} - \underbrace{\text{Resolution}}_{\text{spread of cond. freq.}} + \underbrace{\text{Uncertainty}}_{\text{base rate}} $$</span>
+            <ul class="formula-legend">
+                <li>Brier as a sum of three orthogonal terms</li>
+                <li>Reliability ↓ as calibration improves</li>
+                <li>Resolution ↑ as the model usefully separates positives from negatives</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{Brier score} \;=\; \text{miscalibration} \;-\; \text{discrimination spread} \;+\; \text{base-rate uncertainty} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The Brier score (mean squared error between predicted probabilities and labels) decomposes into three orthogonal pieces. <em>Reliability</em> is miscalibration — how badly your stated probabilities match reality; lower is better. <em>Resolution</em> is how spread out your predictions are across cases — a model that varies its predictions from 5% to 95% has more resolution than one that always says 50%; it's subtracted because more resolution makes Brier smaller. <em>Uncertainty</em> is the baseline difficulty (entropy of the label distribution) — unavoidable. The decomposition lets you see <em>why</em> a model has bad Brier: miscalibrated or just not very informative?
+            </p>
+            <ul class="formula-legend">
+                <li><code>Brier score</code>mean squared error between predicted probabilities and labels</li>
+                <li><code>miscalibration</code>how poorly your probabilities match observed frequencies</li>
+                <li><code>discrimination spread</code>how varied your predictions are across cases (higher = better)</li>
+                <li><code>base-rate uncertainty</code>baseline entropy of the labels — unavoidable</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -222,7 +264,7 @@ def ensemble_probs(models, x):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -236,19 +278,19 @@ def ensemble_probs(models, x):
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://arxiv.org/abs/1706.04599" target="_blank">Guo et al. (2017) — On Calibration of Modern Neural Networks <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The paper that brought "modern nets are miscalibrated" into the mainstream and proposed temperature scaling. Required reading.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2107.03342" target="_blank">Minderer et al. (2021) — Revisiting Calibration <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Empirical study showing modern vision models (ViT, MLP-Mixer) are actually fairly well-calibrated out of the box, unlike the convnets in Guo et al.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/calibration.html" target="_blank">scikit-learn — Calibration Guide <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical reference for Platt, isotonic, and reliability diagrams with code.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2107.07511" target="_blank">Angelopoulos &amp; Bates — Conformal Prediction Intro <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Alternative to calibrating probabilities: produce prediction sets with guaranteed coverage. Increasingly the preferred answer for high-stakes deployment.</span>
         </li>

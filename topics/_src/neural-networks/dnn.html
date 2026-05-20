@@ -9,6 +9,8 @@ next_title: Convolutional Neural Networks
 
 
 <!-- TOPIC CONTENT -->
+
+
 <section class="topic-level active" data-level="intuition">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
@@ -74,20 +76,31 @@ model = nn.Sequential(
 
     <div class="level-next">
         <span>Want the forward / backward math?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Fundamentals →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Forward pass</span>
-        <span class="formula">$$ \mathbf{h}^{(\ell)} \;=\; \sigma\!\left(W^{(\ell)} \mathbf{h}^{(\ell-1)} + \mathbf{b}^{(\ell)}\right) $$</span>
-        <ul class="formula-legend">
-            <li><code>h<sup>(ℓ)</sup></code>activations of layer <em>ℓ</em>, with <code>h<sup>(0)</sup> = x</code></li>
-            <li><code>W<sup>(ℓ)</sup>, b<sup>(ℓ)</sup></code>weight matrix and bias of layer <em>ℓ</em></li>
-            <li><code>σ</code>elementwise nonlinearity — ReLU, GELU, tanh, …</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathbf{h}^{(\ell)} \;=\; \sigma\!\left(W^{(\ell)} \mathbf{h}^{(\ell-1)} + \mathbf{b}^{(\ell)}\right) $$</span>
+            <ul class="formula-legend">
+                <li><code>h<sup>(ℓ)</sup></code>activations (outputs) of layer <em>ℓ</em>, with <code>h<sup>(0)</sup> = x</code></li>
+                <li><code>W<sup>(ℓ)</sup>, b<sup>(ℓ)</sup></code>weight matrix and bias vector of layer <em>ℓ</em></li>
+                <li><code>σ</code>elementwise nonlinearity — ReLU, GELU, tanh, …</li>
+                <li>Apply this rule from <em>ℓ = 1</em> up to the final layer to get the network's output</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{layer output} \;=\; \sigma\!\left(\text{weights} \times \text{previous layer output} + \text{bias}\right) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Each layer does three things in order: multiply the previous layer's output (a list of numbers) by a matrix of <strong>weights</strong>, add a <strong>bias</strong> vector to shift the result, then run each number through a <strong>nonlinearity</strong> <code>σ</code> (sigma — usually ReLU, which is just <code>max(0, x)</code>). You repeat this for every layer, plugging each layer's output into the next. The superscript <code>(ℓ)</code> in the math version is just a layer label — "weights for layer 1", "weights for layer 2", and so on; they're different matrices, learned independently.
+            </p>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -147,19 +160,32 @@ for epoch in range(50):
 
     <div class="level-next">
         <span>Want depth-vs-width, universal approximation, and the failure modes?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Universal approximation</span>
-        <span class="formula">$$ \forall \,\varepsilon{>}0,\; \exists\, n,\, \{w_i, b_i, c_i\}: \quad \sup_{\mathbf{x}\in K} \left|\, f(\mathbf{x}) - \sum_{i=1}^{n} c_i\, \sigma(\mathbf{w}_i^\top \mathbf{x} + b_i)\,\right| < \varepsilon $$</span>
-        <ul class="formula-legend">
-            <li>A single hidden layer with enough units can approximate any continuous <em>f</em> on a compact set <em>K</em></li>
-            <li>The catch: "enough" can be astronomically large; depth makes this tractable</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \forall \,\varepsilon{>}0,\; \exists\, n,\, \{w_i, b_i, c_i\}: \quad \sup_{\mathbf{x}\in K} \left|\, f(\mathbf{x}) - \sum_{i=1}^{n} c_i\, \sigma(\mathbf{w}_i^\top \mathbf{x} + b_i)\,\right| < \varepsilon $$</span>
+            <ul class="formula-legend">
+                <li><code>∀ ε &gt; 0</code>"for any error tolerance you pick, however tiny"</li>
+                <li><code>∃ n, {w<sub>i</sub>, b<sub>i</sub>, c<sub>i</sub>}</code>"there exists some number of neurons and a set of weights/biases/output-weights"</li>
+                <li><code>sup<sub>x ∈ K</sub></code>worst-case error over a bounded input region <em>K</em></li>
+                <li><code>Σ</code>summation — one term per hidden neuron</li>
+                <li>A single hidden layer with enough units can approximate any continuous <em>f</em> on a compact set. Depth makes "enough" tractable.</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{for any error tolerance } \varepsilon \;\Rightarrow\; \text{a 1-hidden-layer network with enough neurons gets within } \varepsilon \text{ of } f \text{ everywhere} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Pick any continuous function <em>f</em> you want to approximate, and any error budget <em>ε</em> (epsilon — Greek letter for a small positive number). The theorem guarantees you can find a single-hidden-layer network — with enough neurons — whose output never differs from <em>f</em> by more than <em>ε</em>, anywhere in a bounded input region. The catch: "enough neurons" can mean an astronomical number. In practice, going <em>deep</em> (many layers, fewer neurons each) is far more efficient than going <em>wide</em> (one huge layer) — that's why we stack.
+            </p>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -222,8 +248,8 @@ class DeepMLP(nn.Module):
     </div>
 
     <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <span>Want the picture instead?</span>
+        <button data-go-to="intuition" type="button">← Back to Intuition</button>
     </div>
 </section>
 
@@ -232,21 +258,21 @@ class DeepMLP(nn.Module):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
-            <a href="https://www.deeplearningbook.org/" target="_blank">Goodfellow, Bengio, Courville — Deep Learning <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The textbook. Free HTML version. Chapters 6–8 cover MLPs, optimization, and regularization in depth.</span>
-        </li>
-        <li>
+        <li data-tier="intuition">
             <a href="http://neuralnetworksanddeeplearning.com/" target="_blank">Nielsen — Neural Networks and Deep Learning <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Best free intro for understanding backprop from scratch with worked examples and interactive demos.</span>
         </li>
-        <li>
-            <a href="https://karpathy.github.io/2019/04/25/recipe/" target="_blank">Karpathy — A Recipe for Training NNs <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Hard-won practical advice on what actually goes wrong when training networks. Read this before debugging anything.</span>
+        <li data-tier="fundamentals">
+            <a href="https://www.deeplearningbook.org/" target="_blank">Goodfellow, Bengio, Courville — Deep Learning <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">The textbook. Free HTML version. Chapters 6–8 cover MLPs, optimization, and regularization in depth.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch.org/tutorials/" target="_blank">PyTorch tutorials <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The clearest introduction to autograd, optimizers, and the training loop. Hands-on with code.</span>
+        </li>
+        <li data-tier="indepth">
+            <a href="https://karpathy.github.io/2019/04/25/recipe/" target="_blank">Karpathy — A Recipe for Training NNs <i class="fas fa-external-link-alt"></i></a>
+            <span class="annotation">Hard-won practical advice on what actually goes wrong when training networks. Read this before debugging anything.</span>
         </li>
     </ul>
 </div>

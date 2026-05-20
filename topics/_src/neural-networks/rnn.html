@@ -86,20 +86,36 @@ outputs, (h_final, c_final) = model(inputs)
 
     <div class="level-next">
         <span>Want the math behind LSTM gates?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Vanilla RNN recursion</span>
-        <span class="formula">$$ \mathbf{h}_t \;=\; \tanh\!\left(W_{xh}\, \mathbf{x}_t + W_{hh}\, \mathbf{h}_{t-1} + \mathbf{b}_h\right) $$</span>
-        <ul class="formula-legend">
-            <li><code>h<sub>t</sub></code>hidden state at time <em>t</em></li>
-            <li><code>x<sub>t</sub></code>input at time <em>t</em></li>
-            <li><code>W<sub>xh</sub>, W<sub>hh</sub></code>input-to-hidden and hidden-to-hidden weights, <em>shared across timesteps</em></li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathbf{h}_t \;=\; \tanh\!\left(W_{xh}\, \mathbf{x}_t + W_{hh}\, \mathbf{h}_{t-1} + \mathbf{b}_h\right) $$</span>
+            <ul class="formula-legend">
+                <li><code>h<sub>t</sub></code>hidden state at time <em>t</em></li>
+                <li><code>x<sub>t</sub></code>input at time <em>t</em></li>
+                <li><code>W<sub>xh</sub>, W<sub>hh</sub></code>input-to-hidden and hidden-to-hidden weights, <em>shared across timesteps</em></li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{memory}_t \;=\; \tanh\!\left(\text{input-weights} \times \text{input}_t \;+\; \text{memory-weights} \times \text{memory}_{t-1} \;+\; \text{bias}\right) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> At every timestep, the RNN mixes two things: the <strong>current input</strong> (this token, this sensor reading, this frame) and the <strong>previous memory</strong> (the hidden state from one step ago). Each is passed through its own weight matrix, the results are summed with a bias, and the whole thing is squashed through <code>tanh</code> (a smooth S-shape between −1 and +1) to keep memory from blowing up. The crucial detail is that the same weight matrices are reused at every timestep — the network is just a tiny program that runs in a loop. That weight-sharing is what makes "RNN" different from a deep feed-forward network with <em>T</em> layers.
+            </p>
+            <ul class="formula-legend">
+                <li><code>memory<sub>t</sub></code>hidden state at step <em>t</em> — what the network remembers so far</li>
+                <li><code>input<sub>t</sub></code>the data arriving at this step (e.g. a token embedding)</li>
+                <li><code>input-weights, memory-weights</code>two matrices, reused at every timestep — these are what get learned</li>
+                <li><code>tanh</code>S-shaped nonlinearity that squashes values into the range −1 to +1</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -155,27 +171,50 @@ class SeqClassifier(nn.Module):
 
     <div class="level-next">
         <span>Want BPTT, gradient clipping, and attention's relationship to RNNs?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">LSTM cell</span>
-        <span class="formula">$$ \begin{aligned}
-        \mathbf{f}_t &= \sigma(W_f [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_f) \\
-        \mathbf{i}_t &= \sigma(W_i [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_i) \\
-        \mathbf{o}_t &= \sigma(W_o [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_o) \\
-        \tilde{\mathbf{c}}_t &= \tanh(W_c [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_c) \\
-        \mathbf{c}_t &= \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t \\
-        \mathbf{h}_t &= \mathbf{o}_t \odot \tanh(\mathbf{c}_t)
-        \end{aligned} $$</span>
-        <ul class="formula-legend">
-            <li><code>f, i, o</code>forget, input, output gates (each in [0, 1])</li>
-            <li><code>c<sub>t</sub></code>cell state — the long-term memory traveling along an additive path</li>
-            <li><code>h<sub>t</sub></code>hidden state — the short-term output</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \begin{aligned}
+            \mathbf{f}_t &= \sigma(W_f [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_f) \\
+            \mathbf{i}_t &= \sigma(W_i [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_i) \\
+            \mathbf{o}_t &= \sigma(W_o [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_o) \\
+            \tilde{\mathbf{c}}_t &= \tanh(W_c [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_c) \\
+            \mathbf{c}_t &= \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t \\
+            \mathbf{h}_t &= \mathbf{o}_t \odot \tanh(\mathbf{c}_t)
+            \end{aligned} $$</span>
+            <ul class="formula-legend">
+                <li><code>f, i, o</code>forget, input, output gates (each in [0, 1])</li>
+                <li><code>c<sub>t</sub></code>cell state — the long-term memory traveling along an additive path</li>
+                <li><code>h<sub>t</sub></code>hidden state — the short-term output</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \begin{aligned}
+            \text{forget gate} &= \sigma(\ldots) \quad \text{(how much old memory to keep, 0–1)} \\
+            \text{input gate}  &= \sigma(\ldots) \quad \text{(how much new info to write, 0–1)} \\
+            \text{output gate} &= \sigma(\ldots) \quad \text{(how much memory to expose, 0–1)} \\
+            \text{candidate}   &= \tanh(\ldots) \quad \text{(proposed new content)} \\
+            \text{cell-memory} &= \text{forget gate} \times \text{old cell-memory} \;+\; \text{input gate} \times \text{candidate} \\
+            \text{hidden}      &= \text{output gate} \times \tanh(\text{cell-memory})
+            \end{aligned} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Three little gates — <strong>forget</strong>, <strong>input</strong>, <strong>output</strong> — each a small neural net followed by <code>σ</code> (sigmoid), which squashes their outputs into the range 0 to 1. They behave like dimmer switches. The <strong>cell-memory</strong> <code>c</code> is a separate "long-term memory" stream: the forget gate decides what fraction of it to keep, the input gate decides what fraction of a new <strong>candidate</strong> (a tanh-bent update) to write in, and the two are added together. The <strong>hidden state</strong> <code>h</code> is the network's per-step output, gated from the current cell-memory. <code>⊙</code> means element-by-element multiplication. The crucial trick is the cell-memory's <em>additive</em> update path: gradients flow back through it without the multiplicative collapse that kills vanilla RNNs.
+            </p>
+            <ul class="formula-legend">
+                <li><code>forget, input, output</code>three gates (each 0–1) controlling memory flow</li>
+                <li><code>cell-memory</code>the long-term store that travels along an additive path</li>
+                <li><code>candidate</code>the proposed new content to write into memory at this step</li>
+                <li><code>hidden</code>the short-term output, fed forward to the next layer / next step</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -235,7 +274,7 @@ for sequence in long_sequences:
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -244,19 +283,19 @@ for sequence in long_sequences:
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="intuition">
             <a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank">Olah — Understanding LSTMs <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The clearest visual explanation of LSTM gates ever written. Should be the first thing you read.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/" target="_blank">Karpathy — Unreasonable Effectiveness of RNNs <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Hands-on examples of char-RNNs generating Shakespeare, code, Wikipedia. Builds intuition for what RNNs <em>do</em>.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.bioinf.jku.at/publications/older/2604.pdf" target="_blank">Hochreiter &amp; Schmidhuber (1997) <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original LSTM paper. Dense but the foundational source — read after Olah for context.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2312.00752" target="_blank">Gu &amp; Dao (2023) — Mamba <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The modern selective-state-space model that's revived RNN-style processing. Includes derivation of parallel training despite sequential semantics.</span>
         </li>

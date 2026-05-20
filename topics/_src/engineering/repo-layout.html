@@ -65,12 +65,12 @@ next_title: Configuration Management
 
     <div class="level-next">
         <span>Want a concrete starter template and the reasoning behind each directory?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p>Use <strong>src layout</strong> (your code is an importable package in <code>src/</code>) and <strong>config-driven entry points</strong> (scripts in <code>scripts/</code> read configs, never embed hyperparameters). Treat notebooks as scratch paper, not source of truth.</p>
@@ -143,12 +143,12 @@ next_title: Configuration Management
 
     <div class="level-next">
         <span>Want monorepo tradeoffs, naming conventions, and templates?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p>Beyond the basic shape, the harder decisions are about <strong>boundaries</strong> — package per concern vs. flat package, monorepo vs. polyrepo, where to draw the line between library and application code, and how to keep coupling low across teams.</p>
@@ -219,7 +219,7 @@ eval  = "my_project.cli:eval"
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -228,19 +228,19 @@ eval  = "my_project.cli:eval"
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://cookiecutter-data-science.drivendata.org/" target="_blank">Cookiecutter Data Science <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The canonical research-project template. Read the rationale section even if you don't use the template directly.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/ashleve/lightning-hydra-template" target="_blank">lightning-hydra-template <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Modern PyTorch Lightning + Hydra starter. Strong opinions, sensible defaults — copy and adapt.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/" target="_blank">PyPA — src vs flat layout <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Definitive comparison from the Python Packaging Authority. The "why src layout" argument in one short page.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://martinfowler.com/articles/monorepo.html" target="_blank">Fowler — Monorepo vs Polyrepo <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Domain-neutral but the trade-offs apply directly to ML platforms. Read before choosing.</span>
         </li>

@@ -68,19 +68,35 @@ def load(path):
 
     <div class="level-next">
         <span>Want Great Expectations, drift checks, &amp; production wiring?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Drift detectors</span>
-        <span class="formula">$$ \text{drift score} = D(\,p_{\text{ref}}, p_{\text{new}}) \;\;\; (\text{KS, JS, PSI, KL, MMD, } \chi^2) $$</span>
-        <ul class="formula-legend">
-            <li>Pairwise comparison between reference (training) and current data</li>
-            <li>Above-threshold drift triggers an alert or a retrain</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{drift score} = D(\,p_{\text{ref}}, p_{\text{new}}) \;\;\; (\text{KS, JS, PSI, KL, MMD, } \chi^2) $$</span>
+            <ul class="formula-legend">
+                <li>Pairwise comparison between reference (training) and current data</li>
+                <li>Above-threshold drift triggers an alert or a retrain</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{drift score} \;=\; \text{distance}(\text{reference distribution},\; \text{current distribution}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A drift detector is just a function that takes two distributions — your reference (typically the training data) and the current incoming data — and returns a single number that grows as they diverge. The letter <code>D</code> in the math version stands for the chosen distance / divergence; <code>p<sub>ref</sub></code> and <code>p<sub>new</sub></code> are the two distributions being compared. The acronyms in parentheses (KS, JS, PSI, KL, MMD, χ²) are specific distance choices for different feature types — KS for numerical, χ² for categorical, PSI for binned, MMD for high-dimensional. When the score crosses a tuned threshold, you alert (or trigger retraining).
+            </p>
+            <ul class="formula-legend">
+                <li><code>drift score</code>a single number measuring distributional change</li>
+                <li><code>reference distribution</code>the training data or a frozen baseline window</li>
+                <li><code>current distribution</code>incoming production data over a recent window</li>
+                <li><code>distance</code>any of KS, JS, PSI, KL, MMD, χ² — choose by feature type</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -116,19 +132,35 @@ def drift_check(reference, current, threshold=0.05):
 
     <div class="level-next">
         <span>Want lineage, contracts, &amp; differential privacy guarantees?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">PSI thresholds (industry rule of thumb)</span>
-        <span class="formula">$$ \text{PSI} &lt; 0.1\;\text{stable}, \quad 0.1\,–\,0.25\;\text{minor drift}, \quad &gt; 0.25\;\text{significant drift} $$</span>
-        <ul class="formula-legend">
-            <li>Bins on the reference distribution; sum of <em>(p<sub>cur</sub> − p<sub>ref</sub>) · log(p<sub>cur</sub>/p<sub>ref</sub>)</em></li>
-            <li>Empirical thresholds from credit-risk literature, often used elsewhere</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{PSI} &lt; 0.1\;\text{stable}, \quad 0.1\,–\,0.25\;\text{minor drift}, \quad &gt; 0.25\;\text{significant drift} $$</span>
+            <ul class="formula-legend">
+                <li>Bins on the reference distribution; sum of <em>(p<sub>cur</sub> − p<sub>ref</sub>) · log(p<sub>cur</sub>/p<sub>ref</sub>)</em></li>
+                <li>Empirical thresholds from credit-risk literature, often used elsewhere</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{PSI} \;=\; \sum_{\text{bins}} (\text{current share} - \text{reference share}) \;\times\; \log\!\frac{\text{current share}}{\text{reference share}} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Population Stability Index measures how much a binned distribution has shifted. Bin your reference data into (say) deciles, then for each bin compute the difference and the log-ratio of "share of current data here" vs "share of reference data here", multiply them, and sum across bins. The <code>Σ</code> (sigma) means "sum across all the bins". The <code>log</code> term amplifies bins where the ratio is far from 1. The empirical rule of thumb from credit-risk modelling is: PSI under 0.1 means stable, 0.1–0.25 is minor drift worth a look, above 0.25 is significant.
+            </p>
+            <ul class="formula-legend">
+                <li><code>PSI</code>population stability index — single drift number</li>
+                <li><code>current share</code>fraction of new data falling in a given bin</li>
+                <li><code>reference share</code>fraction of reference data in the same bin</li>
+                <li><code>log ratio</code>natural log of (current / reference) — large when bins shift</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -166,7 +198,7 @@ for col in numeric_cols:
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -175,19 +207,19 @@ for col in numeric_cols:
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://greatexpectations.io/" target="_blank">Great Expectations <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference Python library for declarative data validation. Suites, batches, docs auto-generation.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.evidentlyai.com/" target="_blank">Evidently AI <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Drift detection, data quality reports, model monitoring. Open-source with a polished dashboard.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pandera.readthedocs.io/" target="_blank">Pandera <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Statistical schema validation for pandas / Polars. Simpler API than Great Expectations; great for use inside a Python library.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://www.deequ.io/" target="_blank">Deequ <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">AWS's Spark-based validation library. The right choice when your data lives in Spark.</span>
         </li>

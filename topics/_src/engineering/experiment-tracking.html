@@ -79,20 +79,37 @@ run.finish()
 
     <div class="level-next">
         <span>Want the schema discipline, comparison patterns, &amp; integration with Hydra?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">A run is a row, a metric is a column</span>
-        <span class="formula">$$ \text{Run}: (\text{config}, \text{git}, \text{data version}) \;\to\; (\text{metrics}_{t}, \text{artefacts}) $$</span>
-        <ul class="formula-legend">
-            <li>Every run uniquely identified</li>
-            <li>Configs flatten to columns; metrics are time series; artefacts are pointers</li>
-            <li>Compare across runs by querying the dashboard</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{Run}: (\text{config}, \text{git}, \text{data version}) \;\to\; (\text{metrics}_{t}, \text{artefacts}) $$</span>
+            <ul class="formula-legend">
+                <li>Every run uniquely identified</li>
+                <li>Configs flatten to columns; metrics are time series; artefacts are pointers</li>
+                <li>Compare across runs by querying the dashboard</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{Run} : (\text{config},\; \text{git sha},\; \text{data version}) \;\to\; (\text{metrics over time},\; \text{artefacts}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Think of every training run as a function from inputs to outputs. The inputs are everything that <em>defines</em> the run: the config (hyperparameters), the git commit (which code), and the dataset version. The outputs are the time-series of metrics (loss, accuracy, etc., indexed by step <code>t</code>) and the final artefacts (checkpoints, predictions, plots). The arrow <code>→</code> here means "produces". In tracking systems this gets flattened into a database row per run — inputs become searchable columns, metrics become charts you can overlay, artefacts become files keyed by run ID.
+            </p>
+            <ul class="formula-legend">
+                <li><code>config</code>all hyperparameters and runtime settings</li>
+                <li><code>git sha</code>commit hash (ideally plus uncommitted diff) for the code</li>
+                <li><code>data version</code>dataset hash or pointer to a fixed dataset version</li>
+                <li><code>metrics over time</code>scalar series indexed by training step</li>
+                <li><code>artefacts</code>checkpoints, prediction dumps, evaluation reports</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -133,21 +150,40 @@ def main(cfg: DictConfig):
 
     <div class="level-next">
         <span>Want offline runs, distributed logging, and team workflows?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">A complete run record</span>
-        <span class="formula">$$ \text{record} = (\text{code}, \text{config}, \text{data}, \text{env}, \text{seeds}, \text{metrics}, \text{artefacts}) $$</span>
-        <ul class="formula-legend">
-            <li>Code: git commit + uncommitted diff</li>
-            <li>Env: lockfile or container hash</li>
-            <li>Data: dataset hash / version pointer</li>
-            <li>Seeds: random, numpy, torch, cuda</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{record} = (\text{code}, \text{config}, \text{data}, \text{env}, \text{seeds}, \text{metrics}, \text{artefacts}) $$</span>
+            <ul class="formula-legend">
+                <li>Code: git commit + uncommitted diff</li>
+                <li>Env: lockfile or container hash</li>
+                <li>Data: dataset hash / version pointer</li>
+                <li>Seeds: random, numpy, torch, cuda</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{run record} \;=\; (\text{code},\; \text{config},\; \text{data},\; \text{environment},\; \text{seeds},\; \text{metrics},\; \text{artefacts}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A complete record of a single training run is a tuple of seven things — drop any one and you lose reproducibility. <strong>Code</strong> is the exact source (git sha + uncommitted diff). <strong>Config</strong> is all hyperparameters. <strong>Data</strong> is which dataset version was used. <strong>Environment</strong> captures library versions (lockfile) or the container hash. <strong>Seeds</strong> are the random seeds for Python, NumPy, PyTorch, and CUDA — without these, "same code, same data" still gives different results. <strong>Metrics</strong> are the time series. <strong>Artefacts</strong> are the binary outputs (checkpoints, plots).
+            </p>
+            <ul class="formula-legend">
+                <li><code>code</code>git commit + any uncommitted diff</li>
+                <li><code>config</code>all hyperparameters and runtime settings</li>
+                <li><code>data</code>dataset version hash or pointer</li>
+                <li><code>environment</code>lockfile (uv.lock, poetry.lock) or container digest</li>
+                <li><code>seeds</code>random seeds for Python, NumPy, PyTorch, CUDA</li>
+                <li><code>metrics</code>scalar time series logged during the run</li>
+                <li><code>artefacts</code>saved checkpoints, prediction dumps, plots</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -184,7 +220,7 @@ def log_metrics(metrics, step, is_rank0):
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -193,19 +229,19 @@ def log_metrics(metrics, step, is_rank0):
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://docs.wandb.ai/" target="_blank">Weights &amp; Biases Docs <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference for W&amp;B. Quickstarts for every framework; depth on sweeps, reports, and team workflows.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://mlflow.org/docs/latest/index.html" target="_blank">MLflow Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Open-source alternative if you need self-hosted or want a model registry in the same tool.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/aimhubio/aim" target="_blank">Aim — Open-source Experiment Tracker <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Modern, fast, open-source. Worth a look if W&amp;B is too heavyweight and MLflow's UI bothers you.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/IDSIA/sacred" target="_blank">Sacred <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original Python experiment manager. Still has a clean philosophy and a loyal user base.</span>
         </li>

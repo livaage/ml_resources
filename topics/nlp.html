@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">How models read, write, translate, summarise, classify — the path from one-hot tokens to GPT.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -118,20 +128,38 @@ out.loss.backward()
 
     <div class="level-next">
         <span>Want word embeddings, sub-word tokenisation, and modern architectures?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Cross-entropy on a vocabulary</span>
-        <span class="formula">$$ \mathcal{L} = -\sum_{t=1}^{T} \log p(w_t \mid w_{1:t-1}) $$</span>
-        <ul class="formula-legend">
-            <li><code>p(w<sub>t</sub> | …)</code>softmax over the vocabulary at position <em>t</em></li>
-            <li>Next-token prediction — the universal NLP objective</li>
-            <li>Pre-training is exactly this over trillions of tokens</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \mathcal{L} = -\sum_{t=1}^{T} \log p(w_t \mid w_{1:t-1}) $$</span>
+            <ul class="formula-legend">
+                <li><code>w<sub>t</sub></code>the actual token at position <em>t</em></li>
+                <li><code>w<sub>1:t-1</sub></code>all tokens that came before <em>t</em></li>
+                <li><code>p(w<sub>t</sub> | …)</code>softmax over the vocabulary at position <em>t</em></li>
+                <li>Next-token prediction — the universal NLP objective</li>
+                <li>Pre-training is exactly this over trillions of tokens</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{loss} \;=\; -\sum_{t=1}^{T} \log (\text{model's predicted probability of the actual next token}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> For each position <em>t</em> in the training text, the model produces a probability over every word in its vocabulary for what comes next. You look at what the actual next token was, take its predicted probability, and the loss is the negative log of that probability — summed across every position. The <code>Σ</code> just means "add up across all positions <em>t = 1 to T</em>". The negative log is small when the probability is close to 1 (a confident, correct prediction) and huge when the probability is close to 0 (the model thought the actual word was unlikely). Minimising it makes the model assign higher probability to actual continuations.
+            </p>
+            <ul class="formula-legend">
+                <li><code>loss</code>scalar to minimise; lower means better next-token predictions</li>
+                <li><code>predicted probability</code>what the model assigns to the actual next token, given everything before</li>
+                <li><code>log</code>the natural logarithm — turns multiplied probabilities into added log-probabilities</li>
+                <li>This same objective drives pre-training across trillions of tokens for every modern LLM</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -168,20 +196,39 @@ print(tok.decode(out[0]))
 
     <div class="level-next">
         <span>Want RAG, long-context tricks, multilingual, and structured outputs?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Retrieval-augmented generation</span>
-        <span class="formula">$$ p(y \mid x) = \sum_{z \in \mathrm{top}_k(x)} p_\eta(z \mid x) \, p_\theta(y \mid x, z) $$</span>
-        <ul class="formula-legend">
-            <li><code>z</code>retrieved documents; <code>p<sub>η</sub></code> retriever</li>
-            <li><code>p<sub>θ</sub></code>generator conditioned on retrieved context</li>
-            <li>Decouples knowledge from parameters; fresh facts via a vector store</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ p(y \mid x) = \sum_{z \in \mathrm{top}_k(x)} p_\eta(z \mid x) \, p_\theta(y \mid x, z) $$</span>
+            <ul class="formula-legend">
+                <li><code>x</code>user query; <code>y</code> generated answer</li>
+                <li><code>z</code>retrieved documents; <code>top<sub>k</sub>(x)</code> the <em>k</em> documents most relevant to <em>x</em></li>
+                <li><code>p<sub>η</sub>(z | x)</code>retriever's score for document <em>z</em> given query <em>x</em></li>
+                <li><code>p<sub>θ</sub>(y | x, z)</code>generator's probability of answer <em>y</em> given query and retrieved context</li>
+                <li>Decouples knowledge from parameters; fresh facts via a vector store</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ p(\text{answer} \mid \text{query}) \;=\; \sum_{\text{doc} \in \text{top-}k} p(\text{doc} \mid \text{query}) \,\times\, p(\text{answer} \mid \text{query}, \text{doc}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The probability of an answer is a weighted sum over the top-<em>k</em> retrieved documents. For each candidate document, you multiply two pieces: how relevant the <strong>retriever</strong> thinks the document is to the query, and how likely the <strong>generator</strong> would be to produce the answer given both the query and that document. Add those products up across all <em>k</em> retrieved documents (that's what the <code>Σ</code> does) and you get the model's overall probability for the answer. In practice the retriever is usually a vector-search system over a knowledge base, and the generator is an LLM — the retrieved chunks just get pasted into the prompt.
+            </p>
+            <ul class="formula-legend">
+                <li><code>query</code>the user's question or input</li>
+                <li><code>doc</code>a retrieved document chunk</li>
+                <li><code>top-k</code>the <em>k</em> most relevant documents under the retriever's similarity score</li>
+                <li><code>p(doc | query)</code>retriever score: how relevant the document is to the query</li>
+                <li><code>p(answer | query, doc)</code>generator: probability of the answer given query plus that document as context</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -219,7 +266,7 @@ prompt  = f"Use this context:\n{context}\nQ: when was the Eiffel Tower built?\nA
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -233,19 +280,19 @@ prompt  = f"Use this context:\n{context}\nQ: when was the Eiffel Tower built?\nA
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://web.stanford.edu/class/cs224n/" target="_blank">Stanford CS224N — NLP with Deep Learning <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Manning's course. Slides and lectures online; the canonical modern NLP curriculum.</span>
         </li>
-        <li>
+        <li data-tier="intuition">
             <a href="https://jalammar.github.io/illustrated-bert/" target="_blank">Alammar — The Illustrated BERT, ELMo &amp; co. <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Beautiful visual essays on each modern NLP architecture. Best starting point for the transformer family.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://huggingface.co/learn/nlp-course" target="_blank">HuggingFace NLP Course <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical, code-first introduction to modern NLP. Covers tokenisation, fine-tuning, deployment.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2005.11401" target="_blank">Lewis et al. (2020) — RAG <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The original RAG paper. The architecture has since become a production default for knowledge-grounded chat.</span>
         </li>

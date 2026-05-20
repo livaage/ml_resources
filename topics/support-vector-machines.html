@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">Find the line (or curve) that splits two classes with the widest margin possible.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -125,21 +135,37 @@ print(f"Accuracy: {clf.score(X_test, y_test):.3f}")
 
     <div class="level-next">
         <span>Want the max-margin math and the kernel trick?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Soft-margin SVM</span>
-        <span class="formula">$$ \min_{\mathbf{w}, b} \;\tfrac{1}{2}\|\mathbf{w}\|^2 \;+\; C \sum_{i=1}^{N} \max\!\left(0,\, 1 - y_i\,(\mathbf{w}^\top \mathbf{x}_i + b)\right) $$</span>
-        <ul class="formula-legend">
-            <li><code>w, b</code>normal vector and offset of the separating hyperplane</li>
-            <li><code>y<sub>i</sub> ∈ {−1, +1}</code>class label</li>
-            <li><code>max(0, 1 − …)</code>hinge loss — penalises points inside the margin or misclassified</li>
-            <li><code>C</code>regularization knob — large <em>C</em> = hard margin, small = wide margin tolerating mistakes</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \min_{\mathbf{w}, b} \;\tfrac{1}{2}\|\mathbf{w}\|^2 \;+\; C \sum_{i=1}^{N} \max\!\left(0,\, 1 - y_i\,(\mathbf{w}^\top \mathbf{x}_i + b)\right) $$</span>
+            <ul class="formula-legend">
+                <li><code>w, b</code>normal vector and offset of the separating hyperplane</li>
+                <li><code>y<sub>i</sub> ∈ {−1, +1}</code>class label</li>
+                <li><code>max(0, 1 − …)</code>hinge loss — penalises points inside the margin or misclassified</li>
+                <li><code>C</code>regularization knob — large <em>C</em> = hard margin, small = wide margin tolerating mistakes</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{minimise}\;\; \tfrac{1}{2}\,(\text{size of weights})^2 \;+\; C \times \text{sum of hinge penalties across points} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> An SVM looks for a separating line (or hyperplane) defined by weights <code>w</code> and an offset <code>b</code>. The first term keeps <code>w</code> small — and crucially, a smaller <code>w</code> means a <em>wider</em> margin between the line and the nearest points. The second term sums the hinge penalty: for each training point, you score <code>1 − label × (dot product of w and x + b)</code>; if the point is correctly classified and outside the margin, that score is negative and gets clipped to zero (no penalty), otherwise the point pays a linear cost. <code>C</code> dials the trade-off: large <code>C</code> punishes any margin violation hard (hard margin), small <code>C</code> tolerates violations in exchange for a wider buffer.
+            </p>
+            <ul class="formula-legend">
+                <li><code>size of weights</code>length of the weight vector — smaller weights mean a wider margin</li>
+                <li><code>hinge penalty</code>1 − label × score for each point, clipped at zero — costs nothing if you're correctly outside the margin</li>
+                <li><code>label</code>class identity, written as +1 or −1 so the sign trick works in the penalty</li>
+                <li><code>C</code>regularization knob — large C punishes violations hard, small C lets the margin widen</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -204,20 +230,36 @@ print(f"Test accuracy: {grid.score(X_test, y_test):.3f}")
 
     <div class="level-next">
         <span>Want the dual form, KKT conditions, and the scaling story?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Dual formulation</span>
-        <span class="formula">$$ \max_{\boldsymbol{\alpha}} \;\sum_{i} \alpha_i \;-\; \tfrac{1}{2}\sum_{i,j} \alpha_i \alpha_j \, y_i y_j \, K(\mathbf{x}_i, \mathbf{x}_j) \qquad \text{s.t.}\; 0 \le \alpha_i \le C,\; \sum_i \alpha_i y_i = 0 $$</span>
-        <ul class="formula-legend">
-            <li>Dual variables <code>α<sub>i</sub></code> — one per training point</li>
-            <li>Non-zero <code>α<sub>i</sub></code> ⟺ point <em>i</em> is a support vector</li>
-            <li>Decision: <code>f(x) = sign(Σ α<sub>i</sub> y<sub>i</sub> K(x<sub>i</sub>, x) + b)</code> — only kernels with support vectors</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \max_{\boldsymbol{\alpha}} \;\sum_{i} \alpha_i \;-\; \tfrac{1}{2}\sum_{i,j} \alpha_i \alpha_j \, y_i y_j \, K(\mathbf{x}_i, \mathbf{x}_j) \qquad \text{s.t.}\; 0 \le \alpha_i \le C,\; \sum_i \alpha_i y_i = 0 $$</span>
+            <ul class="formula-legend">
+                <li>Dual variables <code>α<sub>i</sub></code> — one per training point</li>
+                <li>Non-zero <code>α<sub>i</sub></code> ⟺ point <em>i</em> is a support vector</li>
+                <li>Decision: <code>f(x) = sign(Σ α<sub>i</sub> y<sub>i</sub> K(x<sub>i</sub>, x) + b)</code> — only kernels with support vectors</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{maximise}\;\; \text{(sum of point weights)} \;-\; \tfrac{1}{2} \times \text{(sum over pairs of weighted kernel similarities)} \quad \text{subject to:}\; 0 \le \text{point weight} \le C,\; \text{labelled weights sum to zero} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Re-parameterise the problem so that instead of optimising over <code>w</code>, you optimise over one number <code>α<sub>i</sub></code> (alpha sub i) per training point. Each <code>α</code> says how much that point matters; in the end most are zero, and only the handful with non-zero <code>α</code> — the <em>support vectors</em> — actually shape the boundary. The objective rewards spreading the <code>α</code>'s out (the sum) while penalising similar same-label points stacking up (the pairwise term, which uses the kernel <code>K</code> to measure similarity). The constraint <code>0 ≤ α ≤ C</code> caps any one point's influence; the sum-to-zero condition keeps the two classes balanced. New predictions only require kernel evaluations against the support vectors — that's the whole point of the dual.
+            </p>
+            <ul class="formula-legend">
+                <li><code>point weight</code>α — how much each training point pulls on the boundary; most are zero</li>
+                <li><code>support vector</code>a training point whose α is non-zero — only these shape the decision boundary</li>
+                <li><code>kernel similarity</code>K(xᵢ, xⱼ) — a measure of how similar two points are, possibly in a higher-dim space</li>
+                <li><code>C</code>cap on each α — same C as the soft-margin penalty in the primal</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -270,7 +312,7 @@ print(f"Test acc: {big_svm.score(X_test, y_test):.3f}")
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -289,19 +331,19 @@ print(f"Test acc: {big_svm.score(X_test, y_test):.3f}")
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://scikit-learn.org/stable/modules/svm.html" target="_blank">scikit-learn — SVM <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Practical reference with the kernel zoo, scaling tips, and the difference between SVC / NuSVC / LinearSVC.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">ESL — chapter 12 <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The statistical-learning treatment: derivation, dual, kernels, and connections to penalised regression. The clearest single source.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://www.cs.cornell.edu/people/tj/publications/joachims_98a.pdf" target="_blank">Joachims (1998) — Text Categorization with SVMs <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The paper that made SVMs the default for text classification. Useful for understanding why high-dim sparse SVMs work so well.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://en.wikipedia.org/wiki/Sequential_minimal_optimization" target="_blank">Wikipedia — Sequential Minimal Optimization <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">SMO — the algorithm at the heart of fast SVM training (used by libsvm and sklearn). Concise overview.</span>
         </li>

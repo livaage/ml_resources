@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">The silent killer — when the model "knows" something it couldn't possibly know at deployment.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -124,19 +134,34 @@ cross_val_score(pipe, X, y, groups=groups, cv=gkf)
 
     <div class="level-next">
         <span>Want target leakage detection, temporal joins, and adversarial validation?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Information-available-at-prediction-time</span>
-        <span class="formula">$$ x_i^{(t)} \;\text{is valid iff}\; x_i^{(t)} \in \mathcal{F}_{t^-} $$</span>
-        <ul class="formula-legend">
-            <li>A feature is valid only if it's measurable in the σ-algebra of past information</li>
-            <li>Every "rolling 30-day average" feature must end strictly before the target window starts</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ x_i^{(t)} \;\text{is valid iff}\; x_i^{(t)} \in \mathcal{F}_{t^-} $$</span>
+            <ul class="formula-legend">
+                <li>A feature is valid only if it's measurable in the σ-algebra of past information</li>
+                <li>Every "rolling 30-day average" feature must end strictly before the target window starts</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{feature at time } t \;\text{is valid only if it can be computed from data strictly before } t $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The rule of thumb for avoiding temporal leakage: ask, "could this feature be computed at prediction time, using only data already observed?" The mathematical version uses <em>σ-algebras</em> — a formal way to say "the set of all things knowable up to a given time" — but the intuition is what counts. Any rolling average, any aggregation, any join must end strictly before the target's timestamp. If you can't compute the feature at deployment from then-available data, you can't use it.
+            </p>
+            <ul class="formula-legend">
+                <li><code>x at time t</code>a feature value associated with prediction time <em>t</em></li>
+                <li><code>data before t</code>only data that was already observed at time <em>t</em></li>
+                <li>Every "rolling 30-day average" feature must end strictly before the target window starts</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -172,19 +197,35 @@ print(f"Shuffled: {cross_val_score(model, X_train, y_shuf, cv=5).mean():.3f}")
 
     <div class="level-next">
         <span>Want competitions, post-mortems, and production leakage?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Leakage detection via permutation importance</span>
-        <span class="formula">$$ I(x_j) = \text{err}(\text{shuffle}_j(X), y) - \text{err}(X, y) $$</span>
-        <ul class="formula-legend">
-            <li>Shuffle feature <em>j</em>; if the error spikes, the model depends heavily on it</li>
-            <li>Combined with a "should this feature even be here" check, finds many leaks</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ I(x_j) = \text{err}(\text{shuffle}_j(X), y) - \text{err}(X, y) $$</span>
+            <ul class="formula-legend">
+                <li>Shuffle feature <em>j</em>; if the error spikes, the model depends heavily on it</li>
+                <li>Combined with a "should this feature even be here" check, finds many leaks</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{importance of feature } j \;=\; \text{(error with feature } j \text{ shuffled)} \;-\; \text{(error with feature } j \text{ intact)} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A feature's importance is "how much worse does the model get if I scramble that feature?" Randomly permute the values of column <em>j</em> across rows — that breaks any association between the feature and the target — and re-evaluate. If the error jumps a lot, the model was really relying on that feature; if the error barely moves, the feature was decorative. Combined with a domain check ("is this feature even available at prediction time?"), this finds many leaks: a suspiciously powerful feature that wouldn't exist in production is almost always a leak.
+            </p>
+            <ul class="formula-legend">
+                <li><code>feature j</code>the column you're probing</li>
+                <li><code>shuffle</code>randomly permute the column across rows, breaking its link to the target</li>
+                <li><code>error</code>any metric of how badly the model does (loss, 1 − accuracy, etc.)</li>
+                <li>A suspiciously important feature is often a leak — check whether it could exist at prediction time</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -212,7 +253,7 @@ for i in result.importances_mean.argsort()[::-1][:10]:
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -226,19 +267,19 @@ for i in result.importances_mean.argsort()[::-1][:10]:
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="intuition">
             <a href="https://www.kaggle.com/code/dansbecker/data-leakage" target="_blank">Becker — Data Leakage Mini-Course (Kaggle) <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Compact, practical introduction with real competition examples. Excellent first read.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://machinelearningmastery.com/data-leakage-machine-learning/" target="_blank">Brownlee — Data Leakage in Machine Learning <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Cookbook-style article covering the common leakage patterns and detection strategies.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/2210.01437" target="_blank">Kapoor &amp; Narayanan — Leakage and the Reproducibility Crisis in ML <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Large-scale empirical study showing how widespread leakage is in published ML research across many fields.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://www.feast.dev/" target="_blank">Feast — Feature Store <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Reference open-source feature store. Point-in-time correctness is a first-class feature — eliminates a whole class of production leakage.</span>
         </li>

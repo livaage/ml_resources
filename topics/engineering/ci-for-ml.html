@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">GitHub Actions for an ML repo — what to run on every PR, what to schedule, what's worth a GPU.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -97,20 +107,35 @@ jobs:
 
     <div class="level-next">
         <span>Want matrix builds, caching, &amp; GPU CI strategies?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">CI cost model</span>
-        <span class="formula">$$ \text{cost} = (\text{frequency}) \times (\text{duration}) \times (\text{rate}) $$</span>
-        <ul class="formula-legend">
-            <li>The PR loop is high-frequency, low-duration — optimise duration</li>
-            <li>The release loop is low-frequency, high-duration — duration matters less</li>
-            <li>Spend GPU-minutes where they actually catch bugs</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{cost} = (\text{frequency}) \times (\text{duration}) \times (\text{rate}) $$</span>
+            <ul class="formula-legend">
+                <li>The PR loop is high-frequency, low-duration — optimise duration</li>
+                <li>The release loop is low-frequency, high-duration — duration matters less</li>
+                <li>Spend GPU-minutes where they actually catch bugs</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{total cost} \;=\; (\text{how often it runs}) \times (\text{how long each run takes}) \times (\text{$ per minute}) $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> CI bills look intimidating but break down into three multiplicative factors. The product structure tells you where to optimise: cutting any factor in half halves the total. For the PR loop, you can't easily change frequency (developers push when they push) and rate is set by your runner choice, so the only knob is <em>duration</em> — that's why caching, parallel jobs, and skipping expensive checks on PR pay off so much. For release-day full training, duration is large but rate is amortised across many PRs, so it's worth running.
+            </p>
+            <ul class="formula-legend">
+                <li><code>frequency</code>how many times per day/week this workflow runs</li>
+                <li><code>duration</code>wall-clock minutes per run</li>
+                <li><code>rate</code>$ per minute for that runner (CPU, GPU, self-hosted)</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -152,19 +177,36 @@ jobs:
 
     <div class="level-next">
         <span>Want artifact registries, automatic version bumps, &amp; ML-specific check gates?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Promotion pipeline</span>
-        <span class="formula">$$ \text{commit} \to \text{lint/test} \to \text{train} \to \text{eval} \to \text{registry: staging} \to \text{promote: production} $$</span>
-        <ul class="formula-legend">
-            <li>Each stage has explicit criteria for the next</li>
-            <li>Failing criteria => roll back; passing => promote</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \text{commit} \to \text{lint/test} \to \text{train} \to \text{eval} \to \text{registry: staging} \to \text{promote: production} $$</span>
+            <ul class="formula-legend">
+                <li>Each stage has explicit criteria for the next</li>
+                <li>Failing criteria =&gt; roll back; passing =&gt; promote</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{commit} \;\to\; \text{lint and test} \;\to\; \text{train} \;\to\; \text{evaluate} \;\to\; \text{staging registry} \;\to\; \text{production} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> A linear pipeline of stages — the arrows <code>→</code> mean "and only proceed if the previous stage passed". Each stage has its own pass/fail criteria: lint complains about style, tests fail on broken code, training fails on bad data, evaluation fails on regression. The model lands in a <em>staging</em> registry first (where it can be inspected but isn't yet serving traffic), and only graduates to <em>production</em> after passing one more gate. Any failure breaks the chain and triggers a rollback or alert.
+            </p>
+            <ul class="formula-legend">
+                <li><code>lint and test</code>code-quality gate — style, types, unit tests</li>
+                <li><code>train</code>fit the model on current data</li>
+                <li><code>evaluate</code>measure metrics on held-out set; gate on improvement</li>
+                <li><code>staging</code>tagged in registry but not yet serving live traffic</li>
+                <li><code>production</code>actively serving requests; rollback path must exist</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -204,7 +246,7 @@ jobs:
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -228,19 +270,19 @@ jobs:
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://docs.github.com/en/actions" target="_blank">GitHub Actions Documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The reference for the most-used CI platform in open-source ML. Workflow syntax, marketplace actions, secrets handling.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://martinfowler.com/articles/cd4ml.html" target="_blank">Sato — Continuous Delivery for ML <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">ThoughtWorks' essay on CD for ML systems. Long but the canonical reference for the data + model + code triple.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pre-commit.com/" target="_blank">pre-commit Framework <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Run linters and formatters before commits land. Saves CI minutes and reviewer time.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://dvc.org/" target="_blank">DVC — Data Version Control <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Git for data and models. Pairs naturally with CI to detect data changes that should trigger retraining.</span>
         </li>

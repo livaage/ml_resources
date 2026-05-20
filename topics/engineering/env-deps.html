@@ -11,6 +11,7 @@
     <style>
         .main-content { margin-top: 80px; }
     </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -36,10 +37,19 @@
                     <p class="lead">uv, conda, Docker — choosing the right level of isolation for your workflow.</p>
                 </header>
 
-                <div class="level-tabs" role="tablist" aria-label="Depth">
-                    <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
-                    <button class="level-tab" data-level="standard" type="button">Standard</button>
-                    <button class="level-tab" data-level="advanced" type="button">In-depth</button>
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
@@ -89,12 +99,12 @@ pip install torch numpy
 
     <div class="level-next">
         <span>Want pip vs conda vs uv, lockfiles, and Docker?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p>The choice has two axes. <strong>Python-only or polyglot?</strong> (pip / uv handle Python; conda handles non-Python like CUDA, MKL.) <strong>Local development or production deployment?</strong> (Local: env manager. Production: container.)</p>
@@ -156,12 +166,12 @@ uv run --with ipython python
 
     <div class="level-next">
         <span>Want GPU-specific Docker, multi-stage builds, and dependency hell debugging?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea">
         <span class="key-idea-label">Key idea</span>
         <p>For production ML, you need <strong>reproducible builds</strong> from source to deployed container. That means pinned base images, locked dependencies, and CI that builds the artefact deterministically — not just <code>docker build</code> with a <code>:latest</code> base.</p>
@@ -207,7 +217,7 @@ ENTRYPOINT ["python", "-m", "my_project.cli"]
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -226,23 +236,23 @@ ENTRYPOINT ["python", "-m", "my_project.cli"]
                 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://docs.astral.sh/uv/" target="_blank">uv documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Modern Python project tooling. The "Concepts" section explains how uv differs from pip / virtualenv / poetry — read it once before adopting.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://mamba.readthedocs.io/" target="_blank">mamba documentation <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Fast conda-compatible package manager. Use this when you need non-Python deps (CUDA, system libs).</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://docs.docker.com/build/building/best-practices/" target="_blank">Docker — Build best practices <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The official guide. Multi-stage builds, layer caching, and image size hygiene — the parts that actually matter for production.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://github.com/astral-sh/uv/blob/main/docs/guides/integration/docker.md" target="_blank">uv + Docker guide <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Specific recipes for using uv inside Docker. Saves you the trial-and-error.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://pytorch.org/get-started/locally/" target="_blank">PyTorch install matrix <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Authoritative source for matching CUDA / cuDNN / driver combinations to PyTorch wheels. Bookmark this.</span>
         </li>

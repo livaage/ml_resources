@@ -89,20 +89,36 @@ print(f"95% credible interval: ({posterior.ppf(0.025):.3f}, {posterior.ppf(0.975
 
     <div class="level-next">
         <span>Want Bayes' rule and conjugate priors?</span>
-        <button data-go-to="standard" type="button">Switch to Standard →</button>
+        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="standard">
+<section class="topic-level" data-level="fundamentals">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Bayes' rule</span>
-        <span class="formula">$$ \underbrace{p(\theta \mid \mathcal{D})}_{\text{posterior}} \;=\; \frac{\overbrace{p(\mathcal{D} \mid \theta)}^{\text{likelihood}} \;\overbrace{p(\theta)}^{\text{prior}}}{\underbrace{p(\mathcal{D})}_{\text{evidence}}} $$</span>
-        <ul class="formula-legend">
-            <li><code>θ</code>parameters or hypotheses</li>
-            <li><code>D</code>observed data</li>
-            <li><code>p(D)</code>marginal likelihood — usually intractable, but it's just a normalizer over <em>θ</em></li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \underbrace{p(\theta \mid \mathcal{D})}_{\text{posterior}} \;=\; \frac{\overbrace{p(\mathcal{D} \mid \theta)}^{\text{likelihood}} \;\overbrace{p(\theta)}^{\text{prior}}}{\underbrace{p(\mathcal{D})}_{\text{evidence}}} $$</span>
+            <ul class="formula-legend">
+                <li><code>θ</code>parameters or hypotheses</li>
+                <li><code>D</code>observed data</li>
+                <li><code>p(D)</code>marginal likelihood — usually intractable, but it's just a normalizer over <em>θ</em></li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \text{posterior} \;=\; \frac{\text{likelihood} \;\times\; \text{prior}}{\text{evidence}} $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> Bayes' rule tells you how to update what you believe about an unknown parameter <code>θ</code> after seeing data <code>D</code>. The <strong>prior</strong> <code>p(θ)</code> is what you believed before; the <strong>likelihood</strong> <code>p(D | θ)</code> is how plausible the data would be if a particular θ were true; multiply the two and you get the unnormalised posterior. The <strong>evidence</strong> <code>p(D)</code> in the denominator is just a number that makes everything sum (or integrate) to 1 — it doesn't change the <em>shape</em> of the answer, which is why people often ignore it and write "<code>posterior ∝ likelihood × prior</code>" with a proportionality sign.
+            </p>
+            <ul class="formula-legend">
+                <li><code>prior</code>your belief about the parameter before seeing any data</li>
+                <li><code>likelihood</code>how well a given parameter value explains the data you observed</li>
+                <li><code>posterior</code>your updated belief about the parameter after seeing the data</li>
+                <li><code>evidence</code>a normaliser that makes the posterior a valid probability distribution</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -158,19 +174,36 @@ print(az.summary(trace, var_names=["alpha", "beta", "sigma"]))
 
     <div class="level-next">
         <span>Want the MCMC mechanics, VI bounds, and the diagnostics?</span>
-        <button data-go-to="advanced" type="button">Switch to In-depth →</button>
+        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
     </div>
 </section>
 
 
-<section class="topic-level" data-level="advanced">
+<section class="topic-level" data-level="indepth">
     <div class="key-idea formula-block">
         <span class="key-idea-label">Variational lower bound (ELBO)</span>
-        <span class="formula">$$ \log p(\mathcal{D}) \;\geq\; \mathbb{E}_{q(\theta)}\!\left[\log p(\mathcal{D}, \theta) - \log q(\theta)\right] \;=\; \mathcal{L}(q) $$</span>
-        <ul class="formula-legend">
-            <li>Maximize <em>ℒ</em> over <em>q</em> — equivalent to minimizing <em>KL(q ∥ posterior)</em></li>
-            <li>Gap = KL divergence — when zero, <em>q</em> = posterior</li>
-        </ul>
+
+        <div class="notation-standard">
+            <span class="formula">$$ \log p(\mathcal{D}) \;\geq\; \mathbb{E}_{q(\theta)}\!\left[\log p(\mathcal{D}, \theta) - \log q(\theta)\right] \;=\; \mathcal{L}(q) $$</span>
+            <ul class="formula-legend">
+                <li>Maximize <em>ℒ</em> over <em>q</em> — equivalent to minimizing <em>KL(q ∥ posterior)</em></li>
+                <li>Gap = KL divergence — when zero, <em>q</em> = posterior</li>
+            </ul>
+        </div>
+
+        <div class="notation-plain">
+            <span class="formula">$$ \log(\text{evidence}) \;\geq\; \text{average over } q \text{ of } \big[\log(\text{joint}) - \log q\big] $$</span>
+            <p class="formula-narration">
+                <strong>In words.</strong> The true posterior is usually intractable, so we pick a simpler distribution <code>q(θ)</code> we <em>can</em> compute with and tune it to match. The <strong>ELBO</strong> (evidence lower bound) is a quantity that's always less than or equal to the log evidence <code>log p(D)</code> — the <code>≥</code> means "at least". The right-hand side averages <code>log(joint) − log q</code> across draws from <code>q</code>; the joint <code>p(D, θ)</code> is just <code>prior × likelihood</code>. Pushing the ELBO up is mathematically the same as pulling <code>q</code> closer to the true posterior (it shrinks the KL divergence between them). When the gap closes to zero, <code>q</code> matches the posterior exactly.
+            </p>
+            <ul class="formula-legend">
+                <li><code>q</code>tractable approximating distribution you're tuning</li>
+                <li><code>joint</code>prior × likelihood, written <em>p(D, θ)</em></li>
+                <li><code>evidence</code>marginal likelihood of the data, <em>p(D)</em></li>
+                <li><code>avg over q</code>expectation — draw θ from <em>q</em> many times and average</li>
+                <li>Maximising the ELBO ≈ minimising the distance from <em>q</em> to the true posterior</li>
+            </ul>
+        </div>
     </div>
 
     <article class="tldr-body">
@@ -226,7 +259,7 @@ mcmc.print_summary()
 
     <div class="level-next">
         <span>Too dense?</span>
-        <button data-go-to="standard" type="button">← Back to Standard</button>
+        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
     </div>
 </section>
 
@@ -235,19 +268,19 @@ mcmc.print_summary()
 <div class="learn-more">
     <h3>Where to learn more</h3>
     <ul>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://xcelab.net/rm/statistical-rethinking/" target="_blank">McElreath — Statistical Rethinking <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">The friendliest Bayesian textbook. Builds intuition with concrete examples, every chapter has Stan/PyMC code. Lectures on YouTube too.</span>
         </li>
-        <li>
+        <li data-tier="fundamentals">
             <a href="https://www.pymc.io/projects/docs/en/stable/learn.html" target="_blank">PyMC learning resources <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">PyMC's curated tutorial collection — A/B testing, GLMs, hierarchical models, time series. Hands-on, well-maintained.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://arxiv.org/abs/1601.00670" target="_blank">Blei et al. (2017) — VI Review <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">"Variational Inference: A Review for Statisticians" — the standard reference for understanding VI.</span>
         </li>
-        <li>
+        <li data-tier="indepth">
             <a href="https://www.mcmchandbook.net/" target="_blank">Brooks et al. — MCMC Handbook <i class="fas fa-external-link-alt"></i></a>
             <span class="annotation">Encyclopedic reference for MCMC algorithms and diagnostics. Free chapters online.</span>
         </li>
