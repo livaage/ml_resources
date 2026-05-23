@@ -718,12 +718,76 @@ body[data-tier="indepth"]      .learn-more li[data-tier="indepth"]      { displa
 
 /* DNN forward-pass viz — network diagram with per-neuron mini-heatmaps */
 .viz-dnn { padding: 1.25rem 1.5rem 1.5rem; }
+.viz-task-banner {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    padding: 0.7rem 0.9rem;
+    margin-bottom: 0.8rem;
+    background: rgba(79, 70, 229, 0.06);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    font-size: 0.92rem;
+    line-height: 1.45;
+}
+.viz-task-label {
+    flex: 0 0 auto;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.74rem;
+}
+.viz-task-text { color: var(--text); }
+.viz-task-text code {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 0 0.25em;
+    border-radius: 3px;
+    font-size: 0.92em;
+}
 .viz-dnn-canvas-wrap {
     background: var(--bg);
     border-radius: 8px;
     padding: 0.5rem;
     margin-bottom: 1rem;
+    position: relative;
 }
+/* Scroll-spy anchor overlays — invisible, just observed for IntersectionObserver */
+.viz-fig-anchor {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+}
+
+/* Contextual figure explainers in the sidebar — hidden by default, shown by JS */
+.fig-explainer {
+    display: none;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+.fig-explainer h3 {
+    margin: 0 0 0.6rem;
+    font-size: 1.05rem;
+    color: var(--accent);
+}
+.fig-explainer p { margin: 0 0 0.6rem; }
+.fig-explainer p:last-child { margin-bottom: 0; }
+.fig-explainer code {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 0 0.25em;
+    border-radius: 3px;
+    font-size: 0.92em;
+}
+/* When a figure is active, swap the resources panel for its explainer.
+   topic-page.js sets the .active class on the matching .fig-explainer and
+   toggles .learn-more visibility. */
+.fig-explainer.active { display: block; }
 .viz-dnn-canvas-wrap canvas {
     display: block;
     width: 100%;
@@ -752,6 +816,111 @@ body[data-tier="indepth"]      .learn-more li[data-tier="indepth"]      { displa
     margin-right: 0.5rem;
 }
 .viz-dnn-math .sum { color: var(--accent); font-weight: 600; }
+
+/* DNN "Inside a layer" viz controls */
+.viz-dnn .viz-embed-controls {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 1rem;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+}
+.viz-dnn .viz-embed-controls label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+}
+.viz-dnn .viz-embed-controls input[type="radio"] { accent-color: var(--accent); }
+.viz-dnn-label {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.viz-dnn-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 1rem;
+    margin-bottom: 0.85rem;
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+}
+.viz-dnn-inputs label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.viz-dnn-inputs input[type="range"] { width: 160px; accent-color: var(--accent); }
+.viz-dnn-readout {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--ink);
+    min-width: 2.5em;
+    display: inline-block;
+}
+.viz-dnn-arch {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.85rem;
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+}
+.viz-dnn-arch button {
+    padding: 0.2rem 0.6rem;
+    font-size: 0.85rem;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    color: var(--ink);
+    cursor: pointer;
+}
+.viz-dnn-arch button:hover { border-color: var(--accent); color: var(--accent); }
+.viz-dnn-arch button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.viz-dnn-explain {
+    margin-top: 0.85rem;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+}
+.viz-dnn-explain summary {
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    background: var(--light-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    color: var(--accent-hover);
+    font-weight: 500;
+    user-select: none;
+    list-style: none;            /* hide default ▶︎ marker */
+}
+.viz-dnn-explain summary::-webkit-details-marker { display: none; }
+.viz-dnn-explain summary::before {
+    content: "▸";
+    display: inline-block;
+    margin-right: 0.5rem;
+    transition: transform 0.15s ease;
+}
+.viz-dnn-explain[open] summary::before { transform: rotate(90deg); }
+.viz-dnn-explain summary:hover { border-color: var(--accent); }
+.viz-dnn-explain-body {
+    padding: 0.85rem 1.1rem;
+    background: rgba(79, 70, 229, 0.04);
+    border: 1px solid rgba(79, 70, 229, 0.15);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    margin-top: -1px;
+    line-height: 1.6;
+}
+.viz-dnn-explain-body ul { margin: 0; padding-left: 1.1rem; }
+.viz-dnn-explain-body li { margin: 0.35rem 0; }
 
 
 /* RNN recurrence viz — sequence unrolled across timesteps */
@@ -1163,14 +1332,121 @@ body[data-tier="indepth"]      .learn-more li[data-tier="indepth"]      { displa
 
 
 /* CNN convolution viz — three-panel layout (input / kernel+math / output) */
-.viz-cnn {
-    padding: 1.5rem;
+.viz-cnn { padding: 1.5rem; }
+
+/* Controls bar above the three-panel layout */
+.viz-cnn-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    padding: 0.75rem 0 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--hairline);
 }
+.viz-cnn-label-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+.viz-cnn-label-inline select {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.4rem;
+}
+.viz-cnn-mode-toggle {
+    display: inline-flex;
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.viz-cnn-mode-toggle button {
+    background: none;
+    border: none;
+    padding: 0.4rem 0.85rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-family: inherit;
+}
+.viz-cnn-mode-toggle button.active {
+    background: var(--accent);
+    color: #fff;
+}
+.viz-cnn-mode-pane {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-left: auto;
+}
+.viz-cnn-mode-pane[hidden] { display: none; }
+.viz-cnn-mode-pane button {
+    background: var(--bg);
+    border: 1px solid var(--hairline);
+    border-radius: 5px;
+    padding: 0.32rem 0.7rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--ink);
+    font-family: inherit;
+}
+.viz-cnn-mode-pane button:hover { border-color: var(--accent); color: var(--accent); }
+.viz-cnn-mode-pane button.viz-cnn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 600;
+}
+.viz-cnn-mode-pane button.viz-cnn-primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: #fff;
+}
+
+/* Pooling section — sits below the conv viz */
+.viz-cnn-pool {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--hairline);
+}
+.viz-cnn-pool-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    margin-bottom: 1rem;
+}
+.viz-cnn-pool-title {
+    flex: 1;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    line-height: 1.5;
+    min-width: 280px;
+}
+.viz-cnn-pool-title strong { color: var(--ink); }
+.viz-cnn-pool-layout {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    gap: 1.25rem;
+    align-items: center;
+    justify-content: center;
+}
+.viz-cnn-pool-arrow {
+    font-size: 1.8rem;
+    color: var(--muted);
+    align-self: center;
+    padding: 0 0.5rem;
+}
+.viz-cnn-pool canvas { cursor: crosshair; }
+
+/* Three-panel main row: input | kernel | output */
 .viz-cnn-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem 2rem;
+    grid-template-columns: auto auto auto;
+    gap: 1.5rem;
     align-items: start;
+    justify-content: center;
 }
 .viz-cnn-panel {
     display: flex;
@@ -1184,63 +1460,61 @@ body[data-tier="indepth"]      .learn-more li[data-tier="indepth"]      { displa
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 0.55rem;
+    margin-bottom: 0.5rem;
+}
+.viz-cnn-sub {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.45rem;
+    text-align: center;
+    max-width: 260px;
+    line-height: 1.4;
 }
 .viz-cnn-panel canvas {
     display: block;
     background: var(--bg);
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: crosshair;
     image-rendering: pixelated;
     touch-action: none;
 }
-.viz-cnn-bottom {
-    grid-column: 1 / -1;
+
+/* Learn-mode extra row: target feature map + loss curve */
+.viz-cnn-learn-row {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 1.25rem;
-    align-items: center;
-    padding-top: 1rem;
-    margin-top: 0.5rem;
+    gap: 1.5rem;
+    align-items: start;
+    padding-top: 1.25rem;
+    margin-top: 1.25rem;
     border-top: 1px solid var(--hairline);
 }
-.viz-cnn-kernel-wrap {
+.viz-cnn-learn-row[hidden] { display: none; }
+.viz-cnn-loss-panel {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
+    min-width: 0;
 }
-.viz-cnn-kernel-wrap canvas { cursor: pointer; }
-.viz-cnn-math {
-    font-family: var(--font-mono);
+.viz-cnn-loss-panel canvas {
+    display: block;
+    width: 100%;
+    background: var(--bg);
+    border-radius: 6px;
+}
+.viz-cnn-readout {
+    font-family: var(--font-mono, ui-monospace), monospace;
     font-size: 0.85rem;
-    color: var(--ink-soft);
-    line-height: 1.7;
-    padding: 0.75rem 1rem;
-    background: var(--light-bg);
-    border: 1px solid var(--hairline);
-    border-radius: 8px;
-    overflow-x: auto;
-    white-space: nowrap;
-}
-.viz-cnn-math .sum {
+    color: var(--ink);
+    margin-top: 0.5rem;
     font-weight: 600;
-    color: var(--accent);
-}
-.viz-cnn-math .lbl {
-    font-family: var(--font-sans);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-right: 0.5rem;
 }
 
 @media (max-width: 720px) {
-    .viz-cnn-layout { grid-template-columns: 1fr; }
-    .viz-cnn-bottom { grid-template-columns: 1fr; }
-    .viz-cnn-math { white-space: normal; }
+    .viz-cnn-layout      { grid-template-columns: 1fr; }
+    .viz-cnn-learn-row   { grid-template-columns: 1fr; }
+    .viz-cnn-mode-pane   { margin-left: 0; width: 100%; flex-wrap: wrap; }
+    .viz-cnn-pool-layout { grid-template-columns: 1fr; }
+    .viz-cnn-pool-arrow  { transform: rotate(90deg); }
 }
 
 
@@ -1502,6 +1776,27 @@ a.eyebrow:hover {
 }
 .tldr-body p:last-child { margin-bottom: 0; }
 .tldr-body strong { color: var(--ink); }
+.tldr-body h3 {
+    margin: 1.6rem 0 0.6rem;
+    font-size: 1.08rem;
+    color: var(--accent);
+    font-weight: 600;
+}
+.tldr-body h3:first-child { margin-top: 0; }
+.tldr-body ul {
+    margin: 0.4rem 0 1rem 0;
+    padding-left: 1.2rem;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    line-height: 1.6;
+}
+.tldr-body ul li { margin-bottom: 0.35rem; }
+.tldr-body a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dotted currentColor;
+}
+.tldr-body a:hover { color: var(--accent-hover); }
 
 /* Key-idea callout: holds the core formula / one-sentence intuition */
 .key-idea {

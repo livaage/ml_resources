@@ -34,7 +34,7 @@
                 <header class="page-header">
                     <a href="../theory.html" class="eyebrow">← Theory · Model Families</a>
                     <h1>Neural Networks</h1>
-                    <p class="lead">The foundation — artificial neurons, layers, and the trick that lets them learn from examples.</p>
+                    <p class="lead">Stacked layers of weighted sums and nonlinearities — the foundation that everything below builds on.</p>
                 </header>
 
                 <div class="tier-controls">
@@ -53,284 +53,308 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>A neural network is a flexible function you teach by example.</strong> It's built from millions of little "neurons" — each just a weighted sum followed by a small bend. Adjust all those weights via gradient descent, and the whole thing learns to map inputs (images, text, sensor data) to outputs (labels, predictions, the next word).</p>
-    </div>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Stack simple operations until something complex emerges.</strong> Like neurons in the brain, each layer does something simple — a weighted sum of its inputs, then a nonlinear bend. Stack enough of these and you can approximate just about any function: image classification, language translation, game playing.</p>
+</div>
+<div class="viz-embed viz-dnn">
+<div class="viz-task-banner">
+<span class="viz-task-label">Task</span>
+<span class="viz-task-text">
+Predict <strong>add</strong> or <strong>skip</strong> for 4 songs from <code>tempo</code> and <code>mood</code> (centred around 0). Ŷ is the prediction, <em>target</em> is the truth, ✓ marks a match. The targets are XOR-like — toggle activation to <strong>none</strong> and watch every prediction collapse.
+</span>
+</div>
+<div class="viz-embed-header">
+<span class="viz-embed-title">A small 2-layer network — drag any weight, click a column to peek inside a neuron</span>
+<div class="viz-embed-controls">
+<span class="viz-dnn-label">Activation:</span>
+<label><input type="radio" name="viz-dnn-act" value="none"> none</label>
+<label><input type="radio" name="viz-dnn-act" value="relu" checked> ReLU</label>
+<label><input type="radio" name="viz-dnn-act" value="sigmoid"> sigmoid</label>
+<label style="margin-left: 1rem;"><input type="checkbox" id="viz-dnn-numbers"> show numbers</label>
+</div>
+</div>
+<div class="viz-dnn-canvas-wrap">
+<canvas id="viz-dnn-canvas"></canvas>
+</div>
+<div class="viz-dnn-arch">
+<span class="viz-dnn-label">Hidden neurons:</span>
+<button id="viz-dnn-n-minus" type="button">−</button>
+<span id="viz-dnn-ncount" style="min-width: 1.5em; text-align: center;">3</span>
+<button id="viz-dnn-n-plus" type="button">+</button>
+<button id="viz-dnn-randomize" type="button" style="margin-left: 1rem;">randomize weights</button>
+</div>
+</div>
+<script src="../js/viz/dnn.js"></script>
+<article class="tldr-body">
+<h3>Why we need activation functions</h3>
+<p>Try toggling activation to <strong>none</strong> in the figure. Every prediction collapses — and that's the point. Without a nonlinearity between layers, two matrix multiplications compose into a single matrix multiplication: <code>W₂ · (W₁ · X) = (W₂ · W₁) · X</code>. Stack 100 layers of pure matmuls and you still have exactly the expressive power of one. The activation (ReLU, sigmoid, GELU, …) breaks that collapse — each layer can bend the representation in a new way, and only then does <em>deep</em> mean anything.</p>
+<h3>How to choose an architecture</h3>
+<p>Two main knobs: <strong>width</strong> (neurons per layer) and <strong>depth</strong> (how many layers).</p>
+<ul>
+<li><strong>Wider</strong> layers carry more parallel features at once — useful when many independent things matter.</li>
+<li><strong>Deeper</strong> stacks build features compositionally — later layers reuse what earlier ones discovered.</li>
+</ul>
+<p>For tabular problems, a few hidden layers of 64–256 units is usually plenty. For images, sequences, or graphs, the architecture itself encodes the data's structure — reach for a <a href="../topics/neural-networks/cnn.html">CNN</a>, <a href="../topics/neural-networks/rnn.html">RNN</a>, <a href="../topics/neural-networks/transformer.html">transformer</a>, or <a href="../topics/neural-networks/gnn.html">GNN</a>. In practice the hardest knobs are rarely depth or width — it's getting the input scale, regularisation, and learning rate right.</p>
+<h3>Why going deep works</h3>
+<p>Each layer can learn an abstraction built from the previous layer's features. In an image classifier: layer 1 picks up edges, layer 2 corners, layer 3 textures, layer 4 object parts, layer 5 whole objects. In language: characters → words → phrases → meaning. The <strong>universal approximation theorem</strong> (switch to the In-depth tier for the formal version) says one sufficiently wide hidden layer can in principle approximate any continuous function — but in practice <strong>deep narrow networks generalise far better</strong> than shallow wide ones with the same parameter count, because hierarchical composition lets the network <em>reuse</em> intermediate features instead of memorising every input combination separately.</p>
+<h3>Training: how the weights got there</h3>
+<p>The weights in the figure didn't appear by magic — they were learned. You define a <strong>loss</strong> (how wrong the predictions are), compute the gradient of the loss with respect to every weight using the <strong>chain rule</strong> (this procedure is called <em>backpropagation</em>), and nudge each weight a tiny step in the direction that lowers the loss. Repeat for millions of steps. The figure freezes one moment in that process; training is what carved the colours you see.</p>
+<p>→ Full mechanics in <a href="../topics/gradient-descent.html">Gradient Descent</a> and <a href="../topics/optimization-algorithms.html">Optimisation Algorithms</a>.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Tabular data and you want more flexibility than a linear model</li>
+<li>You have plenty of data and compute</li>
+<li>You'll use this as a building block in a bigger model</li>
+<li>You want a starting point before reaching for CNNs / transformers</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>Small tabular data — gradient boosting usually wins</li>
+<li>Data has obvious structure (images, sequences, graphs) — use a specialized architecture</li>
+<li>You need interpretability of individual predictions</li>
+<li>You're short on training data</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch.nn as nn
 
-    <article class="tldr-body">
-        <p>Forget the brain metaphor for a moment. An <em>artificial neuron</em> is a tiny computation: take several numbers in, multiply each by a learnable weight, add a bias, and pass the result through a nonlinear function like ReLU. Stack a few of these into a "layer". Stack a few layers. That's a neural network.</p>
-        <p>The magic is in the <em>training</em>: an algorithm called <strong>backpropagation</strong> figures out, for every weight in the network, which direction to nudge it to make the predictions slightly better. Repeat that for millions of examples and the network learns whatever pattern the data contains.</p>
-        <p>If this is your first network, the natural next step is the <a href="../topics/neural-networks/dnn.html">Deep Neural Network</a> page — the simplest concrete architecture.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>The pattern is too complex for a linear model</li>
-                <li>You have plenty of data — neural nets are data-hungry</li>
-                <li>End-to-end learning matters (no hand-engineered features)</li>
-                <li>The data has structure (images, text, audio) — use a specialized architecture</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>Small data — gradient boosting or a simple model wins</li>
-                <li>Interpretability of individual predictions matters</li>
-                <li>You need calibrated probabilities without post-hoc adjustment</li>
-                <li>The task is well-served by a known closed-form solution</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
-<pre><code class="language-python">import torch
-import torch.nn as nn
-
-# A 3-layer network: 20 inputs → 64 hidden → 32 hidden → 10 outputs
 model = nn.Sequential(
-    nn.Linear(20, 64), nn.ReLU(),
-    nn.Linear(64, 32), nn.ReLU(),
-    nn.Linear(32, 10),
+    nn.Linear(n_features, 128), nn.ReLU(),
+    nn.Linear(128, 64),          nn.ReLU(),
+    nn.Linear(64, n_classes),
 )
-
-# Train it
-opt = torch.optim.Adam(model.parameters(), lr=1e-3)
-loss_fn = nn.CrossEntropyLoss()
-for xb, yb in loader:
-    loss = loss_fn(model(xb), yb)
-    opt.zero_grad(); loss.backward(); opt.step()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want to see what's actually happening?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the forward / backward math?</span>
+<button data-go-to="fundamentals" type="button">Switch to Fundamentals →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">One neuron</span>
-
-        <div class="notation-standard">
-            <span class="formula">$$ y \;=\; \sigma\!\left(\sum_{i=1}^{n} w_i\, x_i \;+\; b\right) $$</span>
-            <ul class="formula-legend">
-                <li><code>x<sub>i</sub></code>inputs</li>
-                <li><code>w<sub>i</sub>, b</code>learnable weights and bias</li>
-                <li><code>σ</code>nonlinear activation — ReLU, sigmoid, tanh</li>
-            </ul>
-        </div>
-
-        <div class="notation-plain">
-            <span class="formula">$$ \text{output} \;=\; \sigma\!\left(\text{weight}_1 \times \text{input}_1 + \text{weight}_2 \times \text{input}_2 + \ldots + \text{bias}\right) $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> A neuron takes a list of <strong>inputs</strong>, multiplies each one by its own <strong>weight</strong>, adds them all up, then adds a single <strong>bias</strong> number to shift the result. The whole sum is passed through a <strong>nonlinearity</strong> <code>σ</code> (sigma — usually ReLU, which just keeps positive numbers and zeros out negatives). The <code>Σ</code> (sigma) in the math version is shorthand for "add up every term as <em>i</em> goes from 1 to <em>n</em>" — it's the weighted-sum step. Weights and bias are the only things the network learns; everything else is fixed structure.
-            </p>
-            <ul class="formula-legend">
-                <li><code>inputs</code>the numbers fed into the neuron</li>
-                <li><code>weights, bias</code>numbers the network learns by training</li>
-                <li><code>σ</code>a nonlinear "bend" applied to the sum — without it stacking neurons buys you nothing</li>
-            </ul>
-        </div>
-
-        <p style="margin-top:0.75rem">A neural network is just a graph of these little computations. The "neural" metaphor is mostly decorative.</p>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>Layers, not neurons.</strong> In practice we don't write individual neurons — we write layers. A <em>fully-connected layer</em> takes a vector <em>x</em> and produces <em>σ(Wx + b)</em>, where <em>W</em> is a matrix of weights (one row per output neuron). Stacking layers gives a deep network.</p>
-        <p><strong>Why nonlinearity is essential.</strong> A composition of linear functions is still linear. Without the <em>σ</em>, no matter how many layers you stack, the whole network collapses to a single linear function — same expressive power as ordinary linear regression. The nonlinearity is what makes depth meaningful.</p>
-        <p><strong>Training: gradient descent.</strong> Define a loss <em>ℒ(θ)</em> measuring how wrong the network is on the training data, then update each parameter <em>θ</em> in the direction that decreases <em>ℒ</em>: <em>θ ← θ − η ∂ℒ/∂θ</em>. The learning rate <em>η</em> controls how big each step is.</p>
-        <p><strong>Backpropagation</strong> is just the chain rule applied to the loss layer-by-layer. Compute the loss, then propagate gradients <em>backward</em> through the layers — each layer turns the gradient from above into a gradient w.r.t. its own weights and inputs. PyTorch / JAX do this automatically via autodiff.</p>
-        <p><strong>The training loop.</strong> Repeat: sample a mini-batch, forward pass, compute loss, backward pass, update weights. After many passes through the data (epochs), the loss decreases and the model has learned.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>You need a flexible function approximator</li>
-                <li>The dataset is large enough to support millions of parameters</li>
-                <li>You're going to build on top of this with a specialized architecture</li>
-                <li>End-to-end differentiability matters for your pipeline</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>The data is tiny or noisy — overfitting risk is high</li>
-                <li>You'd benefit from baking in domain priors a linear model already has</li>
-                <li>Inference latency is tight without ability to distill / quantize</li>
-                <li>Strict probabilistic guarantees needed</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Forward pass</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathbf{h}^{(\ell)} \;=\; \sigma\!\left(W^{(\ell)} \mathbf{h}^{(\ell-1)} + \mathbf{b}^{(\ell)}\right) $$</span></p>
+<ul class="formula-legend">
+<li><code>h<sup>(ℓ)</sup></code>activations (outputs) of layer <em>ℓ</em>, with <code>h<sup>(0)</sup> = x</code></li>
+<li><code>W<sup>(ℓ)</sup>, b<sup>(ℓ)</sup></code>weight matrix and bias vector of layer <em>ℓ</em></li>
+<li><code>σ</code>elementwise nonlinearity — ReLU, GELU, tanh, …</li>
+<li>Apply this rule from <em>ℓ = 1</em> up to the final layer to get the network's output</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{layer output} \;=\; \sigma\!\left(\text{weights} \times \text{previous layer output} + \text{bias}\right) $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Each layer does three things in order: multiply the previous layer's output (a list of numbers) by a matrix of <strong>weights</strong>, add a <strong>bias</strong> vector to shift the result, then run each number through a <strong>nonlinearity</strong> <code>σ</code> (sigma — usually ReLU, which is just <code>max(0, x)</code>). You repeat this for every layer, plugging each layer's output into the next. The superscript <code>(ℓ)</code> in the math version is just a layer label — "weights for layer 1", "weights for layer 2", and so on; they're different matrices, learned independently.</p>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Training.</strong> Define a loss <em>ℒ(θ)</em>, take its gradient with respect to all parameters via backpropagation (chain rule applied layer-by-layer), and step in the negative-gradient direction. SGD, Adam, AdamW are the optimizers people actually use.</p>
+<p><strong>Activations.</strong> ReLU is the default — cheap and avoids the saturating-gradient problem of tanh / sigmoid. GELU is smoother and dominates in transformers. Sigmoid / tanh appear only inside gates (LSTM, attention) where bounded outputs matter.</p>
+<p><strong>Initialization.</strong> Random Gaussian weights need to be scaled carefully — too big and activations blow up, too small and they vanish. Xavier/Glorot for tanh, He/Kaiming for ReLU. Most frameworks default to a sensible scheme.</p>
+<p><strong>Regularization.</strong> A network with enough parameters can memorize the training set perfectly — and then fail on new data. <em>Regularization</em> is anything that pushes the model away from rote memorization and toward solutions that generalize. The standard toolkit:</p>
+<ul>
+<li><strong>Dropout</strong> — randomly zero a fraction of activations during each training step so no single neuron becomes indispensable; equivalent to averaging an ensemble of thinned subnetworks.</li>
+<li><strong>Weight decay (L2)</strong> — add a penalty proportional to <code>‖W‖²</code> to the loss; shrinks weights toward zero, which limits how sharply the function can bend.</li>
+<li><strong>Early stopping</strong> — hold out a validation set and stop training the moment validation loss turns back up.</li>
+<li><strong>Data augmentation</strong> — perturb each input (flip, crop, noise, paraphrase) so the model has to learn invariant features rather than memorize examples.</li>
+</ul>
+<p>Modern nets often need less <em>explicit</em> regularization than older ones — the implicit regularization of SGD itself (its preference for flat, broad minima) does a surprising amount of the work.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>The data has no obvious structural prior — let a deep MLP discover features</li>
+<li>You can apply the modern training recipe — ReLU/GELU, He init, Adam, dropout, weight decay</li>
+<li>You're stacking many layers — residual connections + LayerNorm let you go deep without vanishing gradients</li>
+<li>You'll embed it as a head or block inside a larger architecture (CNN, transformer, …)</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>The data has structure you can exploit — use it (convolutions for images, attention for sequences)</li>
+<li>You need calibrated probabilities — neural nets are over-confident without post-hoc calibration</li>
+<li>Embedded / microcontroller-class hardware with no SIMD or GPU and tight latency</li>
+<li>You need step-by-step decision traces — neural nets are opaque inside</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch, torch.nn as nn
+from torch.optim import AdamW
 
 class MLP(nn.Module):
-    def __init__(self, d_in, d_out, hidden=(128, 64), dropout=0.1):
+    def __init__(self, d_in, d_out, hidden=(256, 128), dropout=0.1):
         super().__init__()
         layers, prev = [], d_in
         for h in hidden:
-            layers += [nn.Linear(prev, h), nn.ReLU(), nn.Dropout(dropout)]
+            layers += [nn.Linear(prev, h), nn.GELU(), nn.Dropout(dropout)]
             prev = h
         layers.append(nn.Linear(prev, d_out))
         self.net = nn.Sequential(*layers)
     def forward(self, x): return self.net(x)
 
-# Training loop sketch
-def train(model, loader, epochs=10, lr=1e-3):
-    opt    = torch.optim.Adam(model.parameters(), lr=lr)
-    loss_fn = nn.CrossEntropyLoss()
-    for epoch in range(epochs):
-        for xb, yb in loader:
-            loss = loss_fn(model(xb), yb)
-            opt.zero_grad()
-            loss.backward()       # autodiff fills in gradients
-            opt.step()            # update every parameter
-</code></pre>
-    </div>
+model = MLP(d_in=20, d_out=10)
+opt   = AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
+loss_fn = nn.CrossEntropyLoss()
 
-    <div class="level-next">
-        <span>Want universal approximation and the math behind backprop?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+for epoch in range(50):
+    for xb, yb in loader:
+        loss = loss_fn(model(xb), yb)
+        opt.zero_grad(); loss.backward(); opt.step()
+</code></pre>
+</div>
+<div class="level-next">
+<span>Want depth-vs-width, universal approximation, and the failure modes?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Backprop in one equation</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Universal approximation</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \forall \,\varepsilon{>}0,\; \exists\, n,\, \{w_i, b_i, c_i\}: \quad \sup_{\mathbf{x}\in K} \left|\, f(\mathbf{x}) - \sum_{i=1}^{n} c_i\, \sigma(\mathbf{w}_i^\top \mathbf{x} + b_i)\,\right| < \varepsilon $$</span></p>
+<ul class="formula-legend">
+<li><code>∀ ε &gt; 0</code>"for any error tolerance you pick, however tiny"</li>
+<li><code>∃ n, {w<sub>i</sub>, b<sub>i</sub>, c<sub>i</sub>}</code>"there exists some number of neurons and a set of weights/biases/output-weights"</li>
+<li><code>sup<sub>x ∈ K</sub></code>worst-case error over a bounded input region <em>K</em></li>
+<li><code>Σ</code>summation — one term per hidden neuron</li>
+<li>A single hidden layer with enough units can approximate any continuous <em>f</em> on a compact set. Depth makes "enough" tractable.</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{for any error tolerance } \varepsilon \;\Rightarrow\; \text{a 1-hidden-layer network with enough neurons gets within } \varepsilon \text{ of } f \text{ everywhere} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Pick any continuous function <em>f</em> you want to approximate, and any error budget <em>ε</em> (epsilon — Greek letter for a small positive number). The theorem guarantees you can find a single-hidden-layer network — with enough neurons — whose output never differs from <em>f</em> by more than <em>ε</em>, anywhere in a bounded input region. The catch: "enough neurons" can mean an astronomical number. In practice, going <em>deep</em> (many layers, fewer neurons each) is far more efficient than going <em>wide</em> (one huge layer) — that's why we stack.</p>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Depth vs. width.</strong> The universal approximation theorem says one hidden layer suffices. In practice, deep narrow networks generalize much better than shallow wide ones for the same parameter count — depth lets the model compose features hierarchically. Modern intuition: width gives capacity, depth gives <em>composition</em>.</p>
+<p><strong>Vanishing / exploding gradients.</strong> In deep networks, repeated multiplication of small or large Jacobian factors makes gradients shrink or explode through the chain rule. Modern fixes: ReLU (constant gradient on positive inputs), batch / layer normalization (keep activations on a sensible scale), and <a href="https://d2l.ai/chapter_convolutional-modern/resnet.html">residual connections</a> — additive "gradient highways" that let the loss reach early layers undamaged.</p>
+<p><strong>The optimization landscape</strong> is non-convex with many local minima and saddle points. SGD finds <em>flat</em> minima that generalize well; sharp minima generalize poorly. This is part of why batch size and learning rate matter for generalization, not just for training speed.</p>
+<p><strong>Dead ReLUs.</strong> If a unit's pre-activation goes strongly negative and stays there, its gradient is zero and it never updates again. Mitigations: smaller learning rate, Leaky ReLU / GELU, careful initialization, batch norm.</p>
+<p><strong>Double descent.</strong> Past the interpolation threshold (where the network can perfectly memorize the training set), test error often <em>decreases</em> as you grow the model further. Connect to <a href="../topics/bias-variance.html">bias-variance</a> — classical theory predicts the opposite. Amazon's <a href="https://mlu-explain.github.io/double-descent/">MLU-Explain — Double Descent</a> has a beautiful interactive walkthrough showing the curve form as model size grows.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>You can afford to scale (more data, more parameters)</li>
+<li>End-to-end differentiability matters — embed in any pipeline</li>
+<li>You have a budget for hyperparameter search (LR, depth, width, regularization)</li>
+<li>Pre-trained embeddings exist for your domain</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>Very small data — gradient boosting and probabilistic models win</li>
+<li>You can't engineer reasonable hyperparameters and don't want to AutoML them</li>
+<li>Adversarial robustness is a hard requirement</li>
+<li>Causal inference / counterfactual reasoning is the goal</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch, torch.nn as nn
 
-        <div class="notation-standard">
-            <span class="formula">$$ \frac{\partial \mathcal{L}}{\partial W^{(\ell)}} \;=\; \delta^{(\ell)} \big(\mathbf{h}^{(\ell-1)}\big)^\top, \qquad \delta^{(\ell)} \;=\; \big(W^{(\ell+1)}\big)^\top \delta^{(\ell+1)} \,\odot\, \sigma'\!\big(\mathbf{z}^{(\ell)}\big) $$</span>
-            <ul class="formula-legend">
-                <li><code>δ<sup>(ℓ)</sup></code>error signal at layer <em>ℓ</em>, propagated backward from the loss</li>
-                <li><code>h<sup>(ℓ-1)</sup></code>activations from the previous layer (the "incoming" signal)</li>
-                <li><code>z<sup>(ℓ)</sup></code>pre-activation; <em>σ'</em> is the derivative of the activation</li>
-            </ul>
-        </div>
-
-        <div class="notation-plain">
-            <span class="formula">$$ \text{weight-gradient at layer } \ell \;=\; \text{error at layer } \ell \times \text{input to that layer}, \quad \text{error at } \ell \;=\; (\text{next layer's weights} \times \text{next layer's error}) \times \sigma'(\text{pre-activation}) $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Backpropagation is just the chain rule run layer-by-layer from the loss back to the inputs. The <strong>error signal</strong> <code>δ</code> (delta) at the output layer is "how wrong are we", and you push it backward: multiply by the next layer's weight matrix to bring it back through that layer, then multiply by <code>σ'</code> (the slope of the nonlinearity at that layer's pre-activation) to account for the bend. Once you have the error at a layer, the gradient with respect to that layer's weights is just <code>error × input</code> to the layer (an outer product). The <code>⊙</code> symbol means element-by-element multiplication; <code>ᵀ</code> means "transpose" (flipping rows and columns). PyTorch / JAX do all of this automatically.
-            </p>
-            <ul class="formula-legend">
-                <li><code>error at layer ℓ</code>how much that layer's pre-activation needs to change to reduce the loss</li>
-                <li><code>input to layer ℓ</code>the activations from the previous layer (call them <code>h<sup>(ℓ-1)</sup></code>)</li>
-                <li><code>σ'(pre-activation)</code>slope of the nonlinearity at that layer — ReLU's slope is 1 where the input was positive, 0 where it was negative</li>
-                <li>Step backward through layers and you get a gradient for every weight in the network</li>
-            </ul>
-        </div>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>Universal approximation (Hornik et al., 1989).</strong> A feedforward network with a single hidden layer and enough units can approximate any continuous function on a compact domain to arbitrary accuracy. The catch: "enough" can be astronomically large. Depth lets the network compose features hierarchically, which is dramatically more parameter-efficient.</p>
-        <p><strong>The computational graph.</strong> A neural network is a <em>directed acyclic graph</em> of tensor operations. Each node knows how to compute its forward output and how to compute the gradient w.r.t. its inputs given the gradient w.r.t. its output. Autodiff just walks this graph backward, multiplying local Jacobians — the chain rule in matrix form.</p>
-        <p><strong>The optimization landscape</strong> is non-convex with many local minima and saddle points. In practice, SGD with momentum (or Adam) reliably finds <em>flat</em> minima that generalize well. Two surprising facts: (1) the loss surface contains many equivalent global minima reachable from random init; (2) SGD's stochasticity acts as implicit regularization, biasing it toward flatter minima.</p>
-        <p><strong>Initialization matters.</strong> If weights are too small, activations and gradients vanish through the layers. If too large, they explode. Modern initializations — He (for ReLU) and Xavier/Glorot (for tanh) — scale weights so that variance is preserved layer-to-layer. Without correct init, even a well-designed network won't train.</p>
-        <p><strong>Activations.</strong> ReLU is the default — cheap, avoids saturation on positive inputs, but has the "dead ReLU" failure mode. GELU is smoother and dominates in transformers. Modern variants: Swish, SiLU, Mish. For output layers: sigmoid for binary, softmax for multi-class, linear for regression.</p>
-        <p><strong>Regularization in modern nets.</strong> Less explicit than older networks: weight decay (L2), dropout, early stopping, data augmentation. The implicit regularization of SGD does a lot of work — increasing batch size or learning rate changes generalization behaviour even with no other regularizer.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>You can scale data and parameters — the modern win condition</li>
-                <li>You'll embed this as part of a bigger model (an encoder, a head)</li>
-                <li>You want to integrate with any differentiable component</li>
-                <li>Pretrained embeddings exist for your domain</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>Small data and no transfer-learning option</li>
-                <li>Adversarial robustness is mission-critical</li>
-                <li>Causal interpretation or counterfactual analysis needed</li>
-                <li>Compute budget can't support hyperparameter tuning</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
-<pre><code class="language-python">import torch
-import torch.nn as nn
-
-# Manual backward to understand what autograd is doing
-class TinyNet(nn.Module):
-    def __init__(self):
+# Residual MLP block — mitigates vanishing gradients, enables deeper models
+class ResBlock(nn.Module):
+    def __init__(self, d, dropout=0.1):
         super().__init__()
-        self.W1 = nn.Parameter(torch.randn(4, 8) * (2 / 4) ** 0.5)   # He init
-        self.b1 = nn.Parameter(torch.zeros(8))
-        self.W2 = nn.Parameter(torch.randn(8, 2) * (2 / 8) ** 0.5)
-        self.b2 = nn.Parameter(torch.zeros(2))
-
+        self.norm = nn.LayerNorm(d)
+        self.fc   = nn.Sequential(
+            nn.Linear(d, 4 * d), nn.GELU(), nn.Dropout(dropout),
+            nn.Linear(4 * d, d),
+        )
     def forward(self, x):
-        z1 = x @ self.W1 + self.b1
-        a1 = torch.relu(z1)
-        z2 = a1 @ self.W2 + self.b2
-        return z2
+        return x + self.fc(self.norm(x))
 
-# Autograd will compute the gradient of loss w.r.t. every Parameter automatically.
-# Internally, it does exactly what the backprop equation says:
-# δ at the output layer is (softmax_pred − target); backward through each layer
-# multiplies by the layer's weight transpose and the activation's derivative.
+# A &quot;modern&quot; deep MLP: pre-norm + residual + GELU expansion (the MLP-Mixer pattern)
+class DeepMLP(nn.Module):
+    def __init__(self, d_in, d_out, hidden=384, n_blocks=6):
+        super().__init__()
+        self.embed  = nn.Linear(d_in, hidden)
+        self.blocks = nn.ModuleList([ResBlock(hidden) for _ in range(n_blocks)])
+        self.head   = nn.Linear(hidden, d_out)
+    def forward(self, x):
+        x = self.embed(x)
+        for blk in self.blocks: x = blk(x)
+        return self.head(x)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the picture instead?</span>
+<button data-go-to="intuition" type="button">← Back to Intuition</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
                     
-                    <a href="neural-networks/dnn.html" class="next">
+                    <a href="neural-networks/cnn.html" class="next">
                         <span>
                             <span class="topic-nav-label">Next</span>
-                            <span class="topic-nav-title">Deep Neural Networks</span>
+                            <span class="topic-nav-title">Convolutional Neural Networks</span>
                         </span>
                     </a>
                 </nav>
             </div>
 
             <aside class="topic-sidebar">
-                <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="intuition">
-            <a href="https://www.3blue1brown.com/topics/neural-networks" target="_blank">3Blue1Brown — Neural Networks <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The best visual introduction. Four ~20-minute videos that build deep intuition for layers, training, and backprop.</span>
-        </li>
-        <li data-tier="intuition">
-            <a href="http://neuralnetworksanddeeplearning.com/" target="_blank">Nielsen — Neural Networks and Deep Learning <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Best free online book to build a network from scratch in Python and really understand the math.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://www.deeplearningbook.org/" target="_blank">Goodfellow, Bengio, Courville — Deep Learning <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The textbook. Chapters 6–8 give the canonical treatment of feedforward nets, optimization, and regularization.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://karpathy.github.io/2019/04/25/recipe/" target="_blank">Karpathy — A Recipe for Training NNs <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Hard-won practical advice. The single most useful debugging checklist for training networks.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://pytorch.org/tutorials/" target="_blank">PyTorch tutorials <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Hands-on with the framework most modern research uses. Run the 60-min blitz first.</span>
-        </li>
-    </ul>
+                <div class="fig-explainer" data-fig="neuron">
+<h3>Inside one neuron</h3>
+<p>The smallest unit of a neural network. The two <strong>circles on the left</strong> are inputs — for one specific song, they hold <code>tempo</code> and <code>mood</code>. The <strong>edges</strong> in between carry the weights: one number per edge, coloured by sign (indigo +, orange −) and weighted by magnitude (thicker = larger).</p>
+<p>Each input is multiplied by its weight, the results are summed with a bias, and the activation function (ReLU here) bends the sum into the output you see in the <strong>right circle</strong>.</p>
+<p>The figure traces one example song through one of the network's hidden neurons. Click any column of W₁ in the figure below to switch to a different neuron.</p>
+</div>
+<div class="fig-explainer" data-fig="main">
+<h3>The whole network at once</h3>
+<p>Each cube is <strong>one matrix multiplication</strong>. The left face is the input rows, the top face holds the weight matrix, and the <strong>front face is the result</strong>. Reading left → right: songs go in, get matmul'd by W₁, pass through ReLU (the slab — negatives are absorbed in orange), get matmul'd by W₂, pass through sigmoid, and come out as a final add/skip prediction.</p>
+<p>Drag any cell of W₁ or W₂ to change a weight — watch the downstream cells re-colour live. Click a column of W₁ to pick which neuron the figure above is tracing.</p>
+</div>
+<div class="fig-explainer" data-fig="big">
+<h3>Same network, textbook style</h3>
+<p>The familiar <strong>neurons-and-wires</strong> diagram you'll see in most ML textbooks. Each column is one layer; each circle is a neuron; each line is one edge weight. The colour of the edge matches the corresponding <strong>cell of the W matrix</strong> above — every edge here is one cell in one of those mini-cubes at the bottom.</p>
+<p>Read the mini-cubes as "W₁ is what the edges between the first two columns are", "W₂ for the next gap", and so on. Same numbers, two ways of drawing them — cube-style for the matrix machinery, circle-style for tracing signal flow.</p>
+</div>
+<div class="learn-more">
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="intuition">
+<a href="https://playground.tensorflow.org/">TensorFlow Playground</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Interactive in-browser net you can train live. Toggle activations, change architecture, and watch the decision boundary form in real time — the canonical hands-on intuition tool.</span>
+</li>
+<li data-tier="intuition">
+<a href="http://neuralnetworksanddeeplearning.com/">Nielsen — Neural Networks and Deep Learning</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Best free intro for understanding backprop from scratch with worked examples and interactive demos.</span>
+</li>
+<li data-tier="fundamentals">
+<a href="https://d2l.ai/">Zhang et al. — Dive into Deep Learning</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Interactive, code-first textbook with runnable PyTorch / JAX / MXNet notebooks alongside the maths. Best balance of theory and hands-on practice.</span>
+</li>
+<li data-tier="fundamentals">
+<a href="https://www.deeplearningbook.org/">Goodfellow, Bengio, Courville — Deep Learning</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The textbook. Free HTML version. Chapters 6–8 cover MLPs, optimization, and regularization in depth.</span>
+</li>
+<li data-tier="fundamentals">
+<a href="https://pytorch.org/tutorials/">PyTorch tutorials</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The clearest introduction to autograd, optimizers, and the training loop. Hands-on with code.</span>
+</li>
+<li data-tier="indepth">
+<a href="https://karpathy.github.io/2019/04/25/recipe/">Karpathy — A Recipe for Training NNs</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Hard-won practical advice on what actually goes wrong when training networks. Read this before debugging anything.</span>
+</li>
+</ul>
 </div>
             </aside>
 

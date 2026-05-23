@@ -34,7 +34,7 @@
                 <header class="page-header">
                     <a href="../../theory.html" class="eyebrow">← Theory · Neural Networks</a>
                     <h1>Generative Adversarial Networks</h1>
-                    <p class="lead">A generator and a discriminator in adversarial training — the architecture that started the modern image-generation era.</p>
+                    <p class="lead">A generator and a discriminator locked in a minimax game — the architecture that opened the modern image-generation era.</p>
                 </header>
 
                 <div class="tier-controls">
@@ -53,66 +53,85 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Two networks playing against each other.</strong> A <em>generator</em> tries to make fake samples that look real. A <em>discriminator</em> tries to tell real from fake. They train together — each gets better as the other improves, like a counterfeiter and a detective sharpening each other's skills.</p>
-    </div>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Two networks playing against each other.</strong> A <em>generator</em> invents fake samples from noise. A <em>discriminator</em> tries to spot the fakes. They train in an adversarial loop — each gets better as the other improves, like a counterfeiter and a detective sharpening each other's skills.</p>
+</div>
+<div class="viz-embed viz-gan" data-fig="gan">
+<div class="viz-task-banner">
+<span class="viz-task-label">Task</span>
+<span class="viz-task-text">
+A <strong>generator</strong> tries to create fake samples; a <strong>discriminator</strong> tries to spot the fakes. They train in an adversarial loop. Hit <strong>Train</strong> and watch the orange (fake) particles slide toward the indigo (real) distribution as the discriminator pushes back. Switch to <strong>Two clusters</strong> to watch <em>mode collapse</em> — the generator pours its mass into a single mode and ignores the other.
+</span>
+</div>
+<div class="viz-embed-header">
+<span class="viz-embed-title">A 2-D GAN you can train live — orange wash = "fake", indigo wash = "real" in the discriminator's eyes</span>
+</div>
+<div class="viz-gan-controls">
+<button id="viz-gan-step"  type="button">Step</button>
+<button id="viz-gan-train" type="button">Train</button>
+<button id="viz-gan-reset" type="button">Reset</button>
+<label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+Real distribution
+<select id="viz-gan-dist"></select>
+</label>
+<span class="viz-gan-counter" id="viz-gan-counter">Step 0</span>
+</div>
+<div class="viz-gan-canvas-wrap">
+<canvas id="viz-gan-canvas"></canvas>
+</div>
+<div class="viz-gan-caption" id="viz-gan-caption"></div>
+</div>
+<script src="../../js/viz/gan.js"></script>
+<article class="tldr-body">
+<h3>Why an adversarial game</h3>
+<p>No pixel-wise loss can capture what makes an image "look real". L2 distance to the nearest training image rewards blurry averages — that's exactly the failure mode of a vanilla <a href="../../topics/neural-networks/autoencoder.html">autoencoder</a>. Realism is <em>perceptual</em>: a face with one eye higher than the other is mathematically close to a real face but obviously wrong. GANs sidestep the problem by <strong>learning the loss function itself</strong> — the discriminator is a neural network whose job is to notice exactly the kinds of mistakes the generator is currently making. As long as something is off, D has something to penalise; once nothing is off, training is done.</p>
+<h3>Why GANs are unstable</h3>
+<p>The minimax setup is a <strong>two-player game with two moving targets</strong>. Standard supervised training optimises one loss against a fixed ground truth; here the generator's "ground truth" is whatever D currently believes, and D's "ground truth" is whatever G is currently producing. Both keep changing. The four classic pathologies:</p>
+<ul>
+<li><strong>Discriminator dominates</strong> — D gets perfect, the generator's gradient saturates to zero, training stalls.</li>
+<li><strong>Generator dominates</strong> — G finds a blind spot in D and exploits it forever.</li>
+<li><strong>Oscillation</strong> — both networks chase each other in circles without converging.</li>
+<li><strong>Vanishing gradients on disjoint supports</strong> — when real and fake distributions don't overlap, the JS-divergence the original objective is computing is locally flat, so neither side learns.</li>
+</ul>
+<h3>Mode collapse — what it is and why it happens</h3>
+<p>Hit the <strong>Two clusters</strong> preset in the figure. The generator quickly discovers that putting <em>all</em> its mass on one cluster fools D almost as well as covering both — and once it commits, D learns to flag the <em>other</em> cluster as fake, which only reinforces the collapse. There's no term in the minimax loss that rewards diversity; the generator is graded on each sample individually, not on its distribution as a whole. WGAN, minibatch discrimination, and unrolled GANs all add weak diversity pressure; diffusion sidesteps the problem entirely by training a denoiser.</p>
+<h3>Where GANs still win</h3>
+<p>Diffusion took over for fresh high-quality image generation, but GANs are still the default for:</p>
+<ul>
+<li><strong>Speed at inference</strong> — one forward pass, no 20–50 denoising steps. Real-time face filters, video, games.</li>
+<li><strong>Paired image-to-image translation</strong> — pix2pix, CycleGAN. The adversarial loss handles the "make it look like a Monet" half of the problem cleanly.</li>
+<li><strong>Super-resolution</strong> — ESRGAN-style models still produce sharper textures than diffusion at the same compute.</li>
+<li><strong>Identity-preserving editing</strong> — StyleGAN's disentangled latent space lets you change "age" or "smile" without touching identity. Diffusion is catching up but isn't there yet.</li>
+<li><strong>Distillation of diffusion</strong> — many of the fastest "single-step" image models today are GANs trained to mimic a teacher diffusion model.</li>
+</ul>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>You need single-pass inference (real-time, on-device, video)</li>
+<li>Paired or unpaired image-to-image translation (pix2pix, CycleGAN)</li>
+<li>Super-resolution with sharp, plausible textures</li>
+<li>Identity-preserving face / object editing in a learned style space</li>
+<li>Distilling a slow diffusion model into a one-step generator</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>Fresh text-to-image at SOTA quality — diffusion has won this fight</li>
+<li>You need mode coverage of a complex multi-modal distribution</li>
+<li>You want forgiving, stable training without convergence drama</li>
+<li>You need likelihoods or controllable inference at sample time</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch.nn as nn
 
-    <div class="viz-embed viz-gan">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Click Train and watch the orange (fake) particles slide toward the indigo (real) distribution as the discriminator chases them</span>
-        </div>
-        <div class="viz-gan-controls">
-            <button id="viz-gan-step"  type="button">Step</button>
-            <button id="viz-gan-train" type="button">Train</button>
-            <button id="viz-gan-reset" type="button">Reset</button>
-            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                Real distribution
-                <select id="viz-gan-dist"></select>
-            </label>
-            <span class="viz-gan-counter" id="viz-gan-counter">Step 0</span>
-        </div>
-        <div class="viz-gan-canvas-wrap">
-            <canvas id="viz-gan-canvas"></canvas>
-        </div>
-        <div class="viz-gan-caption" id="viz-gan-caption"></div>
-    </div>
-    <script src="../../js/viz/gan.js"></script>
-
-    <p class="viz-intro">The orange wash in the background shows where the discriminator currently thinks "real" samples live; the indigo wash is "fake". As D learns, the boundary tightens around the real points — and each fake particle climbs the gradient of D toward higher-orange regions. Try the <strong>Two clusters</strong> preset to see <em>mode collapse</em>, where the generator pours all its mass into a single mode.</p>
-
-    <article class="tldr-body">
-        <p>You give the generator a vector of random noise, and it produces an image. Initially the images are garbage. The discriminator sees real images from your dataset and fake images from the generator, and learns to tell them apart. The generator's loss is "did I fool the discriminator?" — so it updates to make better fakes. They escalate.</p>
-        <p>At equilibrium (in theory), the generator produces samples indistinguishable from real data and the discriminator can only guess 50/50. In practice training is finicky, but when it works the samples are beautiful.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>High-quality image generation with fast inference</li>
-                <li>Image-to-image translation (pix2pix, CycleGAN)</li>
-                <li>Super-resolution</li>
-                <li>You need a single-step generator (faster than diffusion)</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>You want maximum sample diversity — GANs are prone to mode collapse</li>
-                <li>You need likelihoods (GANs don't have them)</li>
-                <li>You don't want to tune training — diffusion is more forgiving</li>
-                <li>You want controllable generation — diffusion + guidance is easier</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
-<pre><code class="language-python">import torch
-import torch.nn as nn
-
-class G(nn.Module):
+class Generator(nn.Module):
     def __init__(self, z_dim=100, img_dim=784):
         super().__init__()
         self.net = nn.Sequential(
@@ -121,7 +140,7 @@ class G(nn.Module):
         )
     def forward(self, z): return self.net(z)
 
-class D(nn.Module):
+class Discriminator(nn.Module):
     def __init__(self, img_dim=784):
         super().__init__()
         self.net = nn.Sequential(
@@ -130,73 +149,72 @@ class D(nn.Module):
         )
     def forward(self, x): return self.net(x)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want the minimax game and mode collapse?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the minimax objective, DCGAN, and the training tricks that actually keep it stable?</span>
+<button data-go-to="fundamentals" type="button">Switch to Fundamentals →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">The minimax game</span>
-
-        <div class="notation-standard">
-            <span class="formula">$$ \min_G \max_D \;\; \mathbb{E}_{\mathbf{x}\sim p_{\text{data}}}[\log D(\mathbf{x})] \;+\; \mathbb{E}_{\mathbf{z}\sim p_z}[\log(1 - D(G(\mathbf{z})))] $$</span>
-            <ul class="formula-legend">
-                <li><code>D(x)</code>discriminator's probability that <em>x</em> is real</li>
-                <li><code>G(z)</code>generator's output given noise <em>z</em></li>
-                <li><code>D</code>maximizes its accuracy; <code>G</code> minimizes <em>D</em>'s accuracy on fakes</li>
-            </ul>
-        </div>
-
-        <div class="notation-plain">
-            <span class="formula">$$ \min_G \max_D \;\; \text{avg over real samples}[\log D(\text{real})] \;+\; \text{avg over noise samples}[\log(1 - D(G(\text{noise})))] $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Two players. The <strong>discriminator</strong> <code>D</code> outputs a number between 0 and 1: "how likely is this real?" Its goal is to score real samples near 1 and fakes near 0 — that's why it tries to <em>maximize</em> the expression (both terms get larger when it's right). The <strong>generator</strong> <code>G</code> turns random noise into fake samples and tries to <em>minimize</em> the same expression (which means making <code>D(G(noise))</code> close to 1, i.e. fooling D). <code>𝔼</code> just means "average over many samples". At the theoretical equilibrium, G produces samples indistinguishable from real data and D is reduced to guessing.
-            </p>
-            <ul class="formula-legend">
-                <li><code>D(real)</code>discriminator's confidence that a real sample is real</li>
-                <li><code>D(G(noise))</code>discriminator's confidence that a fake sample is real</li>
-                <li><code>min/max</code>generator wants D fooled, discriminator wants D accurate</li>
-                <li><code>avg</code>averaging is over a batch of real samples and a batch of noise samples</li>
-            </ul>
-        </div>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>Training dynamics.</strong> Alternate one gradient step on <em>D</em> (maximize), then one on <em>G</em> (minimize). In practice the generator's gradient saturates early — fakes are obviously fake, so log(1 − <em>D</em>(<em>G</em>(z))) is near zero. The standard fix is the <em>non-saturating loss</em>: minimize −log <em>D</em>(<em>G</em>(z)) instead, which gives stronger gradients when <em>D</em> is winning.</p>
-        <p><strong>Mode collapse.</strong> The generator finds a few outputs that fool the discriminator and produces only those, ignoring the rest of the data distribution. Symptom: lots of training time, but samples look very similar to each other. Diagnostic: visualize generator output diversity over training.</p>
-        <p><strong>DCGAN (Radford et al., 2015).</strong> Established the convolutional GAN recipe: strided convolutions instead of pooling, batch norm in both networks (but not in <em>G</em>'s output or <em>D</em>'s input), ReLU in <em>G</em>, LeakyReLU in <em>D</em>. Made stable image-GAN training reproducible.</p>
-        <p><strong>Conditional GAN.</strong> Concatenate a label (or a learned class embedding) to both the generator input and the discriminator input. Now <em>G</em> generates class-conditional samples, and <em>D</em> evaluates them given the class. Foundation for everything from pix2pix to BigGAN to StyleGAN.</p>
-        <p><strong>Common failure modes.</strong> Discriminator dominates (generator's gradients vanish), generator dominates (discriminator can't keep up), oscillation (both networks fight, never converge). Monitor both losses; instability often shows up as one collapsing first.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Real-time image generation — single forward pass</li>
-                <li>Image-to-image translation tasks (CycleGAN, pix2pix)</li>
-                <li>Domain adaptation</li>
-                <li>StyleGAN-style controllable face / object synthesis</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>Mode coverage is critical — diffusion captures more diversity</li>
-                <li>You need text-to-image at high quality — modern diffusion wins</li>
-                <li>You can't afford training instability</li>
-                <li>You need likelihoods or controllable inference at sample time</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">The minimax game</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \min_G \max_D \;\; \mathbb{E}_{\mathbf{x}\sim p_{\text{data}}}[\log D(\mathbf{x})] \;+\; \mathbb{E}_{\mathbf{z}\sim p_z}[\log(1 - D(G(\mathbf{z})))] $$</span></p>
+<ul class="formula-legend">
+<li><code>D(x)</code>discriminator's probability that <em>x</em> is real</li>
+<li><code>G(z)</code>generator's output given noise <em>z</em></li>
+<li><code>D</code>maximises — wants real scored near 1, fakes near 0</li>
+<li><code>G</code>minimises — wants <code>D(G(z))</code> near 1, i.e. wants to fool D</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \min_G \max_D \;\; \text{avg over real}[\log D(\text{real})] \;+\; \text{avg over fakes}[\log(1 - D(G(\text{noise})))] $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Two players. The <strong>discriminator</strong> <code>D</code> outputs a number between 0 and 1 — "how likely is this real?" Its goal is to score reals near 1 and fakes near 0, which is exactly what <em>maximising</em> the expression does (both terms get larger when D is right). The <strong>generator</strong> <code>G</code> turns random noise into fake samples and tries to <em>minimise</em> the same expression, which means pushing <code>D(G(noise))</code> close to 1 — fooling D. <code>𝔼</code> just means "average over many samples". At the theoretical equilibrium, G produces samples indistinguishable from the data and D is reduced to a 50/50 guess.</p>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Alternating optimisation.</strong> One gradient step on <em>D</em> (maximise), then one on <em>G</em> (minimise), repeat. In practice the generator's gradient <em>saturates</em> early — fakes are obviously fake, so <code>log(1 − D(G(z)))</code> is near zero and so is its derivative. The standard fix is the <strong>non-saturating loss</strong>: G minimises <code>−log D(G(z))</code> instead of <code>log(1 − D(G(z)))</code>. Same fixed point, much stronger gradient when D is winning. Every modern GAN uses this.</p>
+<p><strong>DCGAN — the convolutional recipe.</strong> Radford et al. (2015) figured out the architecture choices that made image GANs reliably trainable:</p>
+<ul>
+<li><strong>Strided convolutions</strong> instead of pooling in D; <strong>fractionally-strided (transposed) convs</strong> instead of upsampling in G.</li>
+<li><strong>BatchNorm</strong> in both networks, but <em>never</em> in G's output layer or D's input layer (it destroys the input statistics).</li>
+<li><strong>ReLU</strong> in G (Tanh on the output), <strong>LeakyReLU</strong> in D.</li>
+<li>No fully-connected hidden layers — just convs all the way down.</li>
+</ul>
+<p>These choices remained the default for years and still inform modern GAN designs.</p>
+<p><strong>Conditional GANs.</strong> Concatenate a label (or a learned class embedding) to both the generator input and the discriminator input. Now <code>G(z, y)</code> generates class-conditional samples and <code>D(x, y)</code> evaluates them given the class. The foundation for pix2pix, BigGAN, and StyleGAN's class-conditioned variants.</p>
+<p><strong>Training-stability tricks that actually help.</strong></p>
+<ul>
+<li><strong>Two time-scale update rule (TTUR).</strong> Run D at a higher learning rate than G (e.g. <code>lr_D = 4e-4</code>, <code>lr_G = 1e-4</code>). Lets D track the generator without dominating.</li>
+<li><strong>Wasserstein loss + gradient penalty (WGAN-GP).</strong> Replace the BCE objective with a critic that estimates earth-mover distance; gradients flow even when the supports don't overlap. (Full derivation in the In-depth tier.)</li>
+<li><strong>One-sided label smoothing.</strong> Train D against real labels of <code>0.9</code> instead of <code>1.0</code> — stops D from becoming overconfident.</li>
+<li><strong>Spectral normalisation.</strong> Constrain every weight matrix's largest singular value to 1; cheaper and cleaner than gradient penalty for enforcing Lipschitz-ness on D.</li>
+<li><strong>Exponential moving average of G's weights.</strong> Sample from the EMA copy, not the live G — dramatically smoother results.</li>
+</ul>
+<p><strong>Failure-mode diagnostics.</strong> Plot both losses. If <code>loss_D → 0</code> while <code>loss_G → ∞</code>, D has won and G is stuck. If they oscillate wildly, lower the learning rate or add spectral norm. If sample diversity collapses, that's mode collapse — try minibatch discrimination or switch to WGAN-GP.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Real-time image generation — single forward pass beats diffusion's sampling loop</li>
+<li>Image-to-image translation (CycleGAN, pix2pix)</li>
+<li>Domain adaptation between unpaired distributions</li>
+<li>StyleGAN-style controllable face / object synthesis with a navigable latent space</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>Mode coverage is critical — diffusion captures more of the distribution</li>
+<li>You need text-to-image at high quality — modern diffusion wins decisively</li>
+<li>You can't afford training instability or careful tuning</li>
+<li>You need likelihoods or controllable inference at sample time</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch
 import torch.nn.functional as F
 
@@ -209,8 +227,8 @@ def train_step(real_x, G, D, g_opt, d_opt, z_dim=100):
     fake_x = G(z).detach()
     d_real = D(real_x)
     d_fake = D(fake_x)
-    # BCE for both real (label=1) and fake (label=0)
-    d_loss = F.binary_cross_entropy(d_real, torch.ones_like(d_real)) \
+    # One-sided label smoothing on the real side
+    d_loss = F.binary_cross_entropy(d_real, 0.9 * torch.ones_like(d_real)) \
            + F.binary_cross_entropy(d_fake, torch.zeros_like(d_fake))
     d_opt.zero_grad(); d_loss.backward(); d_opt.step()
 
@@ -218,85 +236,71 @@ def train_step(real_x, G, D, g_opt, d_opt, z_dim=100):
     z      = torch.randn(B, z_dim, device=real_x.device)
     fake_x = G(z)
     d_fake = D(fake_x)
-    # minimize -log D(G(z))   ==  BCE with target=1
+    # minimise -log D(G(z))  ==  BCE with target=1
     g_loss = F.binary_cross_entropy(d_fake, torch.ones_like(d_fake))
     g_opt.zero_grad(); g_loss.backward(); g_opt.step()
 
     return d_loss.item(), g_loss.item()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want WGAN, spectral normalization, and StyleGAN?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want WGAN, StyleGAN, BigGAN, and where GANs lost to diffusion?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Wasserstein GAN objective</span>
-
-        <div class="notation-standard">
-            <span class="formula">$$ \min_G \max_{D \in \mathcal{D}_{1\text{-Lip}}} \;\; \mathbb{E}_{\mathbf{x}\sim p_{\text{data}}}[D(\mathbf{x})] \;-\; \mathbb{E}_{\mathbf{z}\sim p_z}[D(G(\mathbf{z}))] $$</span>
-            <ul class="formula-legend">
-                <li><code>𝒟<sub>1-Lip</sub></code>1-Lipschitz functions — <em>D</em> must have bounded gradient</li>
-                <li>Approximates the Wasserstein-1 distance between real and generated distributions</li>
-                <li>Gradient doesn't vanish when distributions don't overlap (unlike JS-divergence)</li>
-            </ul>
-        </div>
-
-        <div class="notation-plain">
-            <span class="formula">$$ \min_G \max_{D \,\text{(bounded slope)}} \;\; \text{avg over real}[\,D(\text{real})\,] \;-\; \text{avg over fake}[\,D(\text{fake})\,] $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Drop the log and the sigmoid: the discriminator now outputs a raw score (sometimes called a <em>critic</em>), and its job is to push scores up on real samples and down on fakes. The difference of the two averages approximates the <strong>Wasserstein-1 distance</strong> between the real and generated distributions — informally, "how much earth would you have to move to turn one distribution into the other." The crucial restriction is that <code>D</code> must be <strong>1-Lipschitz</strong>, meaning its slope is capped: a small change in input causes only a small change in output. This restriction is what makes the gradient flow meaningfully even when real and fake samples don't overlap, fixing the vanilla GAN's saturating-gradient problem.
-            </p>
-            <ul class="formula-legend">
-                <li><code>D(real), D(fake)</code>raw scores (no sigmoid) — higher means "looks real-er"</li>
-                <li><code>bounded slope</code>D is restricted to 1-Lipschitz functions — its gradient never exceeds 1</li>
-                <li><code>avg</code>average over a batch of real samples and a batch of generated samples</li>
-                <li>Enforced via weight clipping, gradient penalty, or spectral normalization</li>
-            </ul>
-        </div>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>WGAN (Arjovsky et al., 2017).</strong> The vanilla GAN objective is the Jensen-Shannon divergence. When real and fake distributions don't overlap (early in training), JS is locally constant — zero gradient. The Wasserstein distance gives meaningful gradients everywhere. Implementing it requires keeping <em>D</em> 1-Lipschitz.</p>
-        <p><strong>Lipschitz enforcement.</strong> Original WGAN used weight clipping (crude). WGAN-GP (Gulrajani et al., 2017) added a gradient penalty: penalize the discriminator if its gradient norm deviates from 1 on samples between real and fake. Spectral normalization (Miyato et al., 2018) bounds the largest singular value of each weight matrix — the cleanest modern approach.</p>
-        <p><strong>Progressive growing &amp; StyleGAN.</strong> Karras et al. trained generators that start at 4×4 and double resolution progressively. StyleGAN replaced the input vector with a learned style code injected at every layer — gives controllable, disentangled generation. StyleGAN2 fixed artifacts; StyleGAN3 made the model equivariant to translation.</p>
-        <p><strong>BigGAN (Brock et al., 2018).</strong> Scale up — large batch sizes (2048), large models, class-conditional everything. Reached then-SOTA on ImageNet. Highlighted that GANs respond well to scale, but require careful hyperparameter tuning.</p>
-        <p><strong>Why GANs lost to diffusion (for now).</strong> Mode coverage, sample diversity, training stability, and controllability all favour diffusion. GANs win on inference speed (one forward pass vs. many denoising steps). Recent work on consistency models and distillation tries to close the inference-speed gap — see the Diffusion page.</p>
-        <p><strong>Evaluation.</strong> No likelihoods, so we use proxies: FID (Fréchet Inception Distance) comparing feature statistics, IS (Inception Score) for diversity + recognizability, KID (Kernel Inception Distance), Precision/Recall in image space. All have failure modes — FID is the de facto standard.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li><strong>StyleGAN</strong>: face / object synthesis with explicit style control</li>
-                <li><strong>CycleGAN</strong>: unpaired image-to-image translation</li>
-                <li><strong>Conditional GANs</strong>: real-time generation for interactive applications</li>
-                <li>Inference speed matters more than absolute sample quality</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>Text-to-image — diffusion has won this fight decisively</li>
-                <li>You need diversity coverage of a complex distribution</li>
-                <li>You want straightforward training without convergence drama</li>
-                <li>You need probabilistic outputs or controllable inference</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Wasserstein GAN objective</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \min_G \max_{D \in \mathcal{D}_{1\text{-Lip}}} \;\; \mathbb{E}_{\mathbf{x}\sim p_{\text{data}}}[D(\mathbf{x})] \;-\; \mathbb{E}_{\mathbf{z}\sim p_z}[D(G(\mathbf{z}))] $$</span></p>
+<ul class="formula-legend">
+<li><code>𝒟<sub>1-Lip</sub></code>1-Lipschitz functions — D's gradient is capped at 1</li>
+<li>Approximates the Wasserstein-1 distance between real and generated distributions</li>
+<li>Gradient stays meaningful when supports don't overlap (unlike JS-divergence)</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \min_G \max_{D \,\text{(bounded slope)}} \;\; \text{avg over real}[\,D(\text{real})\,] \;-\; \text{avg over fake}[\,D(\text{fake})\,] $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Drop the log and the sigmoid. The discriminator (now called a <em>critic</em>) outputs a raw score and is asked to push scores up on real samples and down on fakes. The difference of the two averages approximates the <strong>Wasserstein-1 distance</strong> between the two distributions — informally, <em>"how much earth would you have to move to turn one into the other"</em>. The crucial restriction is that <code>D</code> must be <strong>1-Lipschitz</strong>, meaning its slope is bounded: a small change in input causes only a small change in output. That restriction is what keeps the gradient flowing even when real and fake samples don't overlap, which fixes the vanilla GAN's saturating-gradient problem at the root.</p>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>WGAN (Arjovsky et al., 2017).</strong> The vanilla GAN objective implicitly minimises the Jensen–Shannon divergence. When real and fake distributions don't overlap — which they don't at the start of training, when fakes are pure noise — JS is locally constant and the gradient is zero. Wasserstein distance gives meaningful gradients everywhere. The catch is implementing it: D must be 1-Lipschitz.</p>
+<p><strong>Lipschitz enforcement, three generations.</strong> Original WGAN used <strong>weight clipping</strong> to a small range — crude and degrades capacity. WGAN-GP (<a href="https://arxiv.org/abs/1704.00028">Gulrajani et al., 2017</a>) added a <strong>gradient penalty</strong>: penalise D when its gradient norm at interpolated points between real and fake samples drifts from 1. <strong>Spectral normalisation</strong> (<a href="https://arxiv.org/abs/1802.05957">Miyato et al., 2018</a>) bounds the largest singular value of each weight matrix — one line of code in PyTorch, cheap at runtime, and the modern default.</p>
+<p><strong>StyleGAN — controllable generation.</strong> <a href="https://arxiv.org/abs/1812.04948">Karras et al. (2018)</a> replaced the generator's input vector with a learned <strong>style code</strong> injected at every layer via adaptive instance norm. The intermediate latent space <code>W</code> is dramatically more disentangled than the raw <code>Z</code> — directions in W correspond to interpretable changes (age, pose, smile). StyleGAN2 fixed water-droplet artifacts; <strong>StyleGAN3</strong> (<a href="https://arxiv.org/abs/2106.12423">Karras et al., 2021</a>) made the generator equivariant to translation and rotation, which is what made smooth face-animation interpolations possible.</p>
+<p><strong>CycleGAN — unpaired translation.</strong> Two generators (A→B and B→A) and two discriminators. The "cycle-consistency" loss requires that translating an image to the other domain and back recovers the original. Lets you turn horses into zebras, photos into Monets, summer into winter — <em>without</em> paired training data. Still the textbook approach for unpaired image translation.</p>
+<p><strong>BigGAN — GANs at scale.</strong> <a href="https://arxiv.org/abs/1809.11096">Brock et al. (2018)</a> scaled class-conditional GANs to ImageNet: batch size 2048, large models, careful orthogonal regularisation, the truncation trick at sampling time. Then-SOTA on ImageNet. Demonstrated that GANs respond well to compute but require fastidious hyperparameter tuning to stay stable at scale.</p>
+<p><strong>How diffusion ate GANs' lunch (mostly).</strong> Mode coverage, sample diversity, training stability, controllability, and text conditioning all favour diffusion. GANs retain a decisive edge on <strong>inference speed</strong> — one forward pass versus 20–50 denoising steps. The rapprochement is happening from both sides: consistency models and distillation methods are shrinking diffusion's step count, while diffusion-distilled GANs (e.g. ADD, SDXL Turbo) hand the speed crown back to one-step generators trained adversarially against a teacher.</p>
+<p><strong>Evaluation.</strong> GANs don't give likelihoods, so we use proxy metrics. <strong>FID</strong> (Fréchet Inception Distance) compares feature statistics of real and generated samples in Inception-v3 feature space — the de facto standard. <strong>IS</strong> (Inception Score) rewards both recognisability and diversity but is brittle outside ImageNet. <strong>KID</strong> is FID's unbiased cousin. <strong>Precision / Recall in feature space</strong> (<a href="https://arxiv.org/abs/1806.00035">Sajjadi et al., 2018</a>) splits FID's single number into "are samples realistic?" (precision) and "do they cover the data?" (recall) — the clearest diagnostic for mode collapse.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li><strong>StyleGAN</strong>: face / object synthesis with a navigable, disentangled style space</li>
+<li><strong>CycleGAN</strong>: unpaired image-to-image translation</li>
+<li><strong>Conditional GANs</strong>: real-time generation for interactive applications</li>
+<li><strong>Distilling diffusion</strong>: training a one-step student against a multi-step teacher</li>
+<li>Inference speed dominates sample-quality concerns</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>Text-to-image — diffusion has won this fight decisively</li>
+<li>You need broad coverage of a complex multi-modal distribution</li>
+<li>You want straightforward training without convergence drama</li>
+<li>You need probabilistic outputs or per-step controllable inference</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch
 import torch.nn as nn
 from torch.nn.utils import spectral_norm
 
-# Spectral-norm discriminator for stable adversarial training
+# Spectral-norm discriminator + hinge loss — the modern stable recipe
 class SNDiscriminator(nn.Module):
     def __init__(self, img_channels=3):
         super().__init__()
@@ -306,31 +310,28 @@ class SNDiscriminator(nn.Module):
             spectral_norm(nn.Conv2d(128, 256, 4, 2, 1)),          nn.LeakyReLU(0.2),
             spectral_norm(nn.Conv2d(256, 1, 4, 1, 0)),
         )
-
     def forward(self, x):
         return self.net(x).view(x.size(0), -1).mean(dim=1)
 
-# Hinge loss (common modern choice alongside spectral norm)
-def hinge_loss(d_real, d_fake):
-    d_loss = torch.relu(1.0 - d_real).mean() + torch.relu(1.0 + d_fake).mean()
-    return d_loss
+# Hinge loss — pairs well with spectral norm, used by SAGAN, BigGAN, StyleGAN2
+def hinge_d_loss(d_real, d_fake):
+    return torch.relu(1.0 - d_real).mean() + torch.relu(1.0 + d_fake).mean()
 
 def hinge_g_loss(d_fake):
     return -d_fake.mean()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Fundamentals</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
                     <a href="autoencoder.html" class="prev">
                         <span>
                             <span class="topic-nav-label">Previous</span>
-                            <span class="topic-nav-title">Autoencoders &amp; VAEs</span>
+                            <span class="topic-nav-title">Autoencoders & VAEs</span>
                         </span>
                     </a>
                     <a href="diffusion.html" class="next">
@@ -343,27 +344,47 @@ def hinge_g_loss(d_fake):
             </div>
 
             <aside class="topic-sidebar">
-                <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://arxiv.org/abs/1406.2661" target="_blank">Goodfellow et al. (2014) — GAN <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The original paper. Surprisingly readable. Sections 2–4 cover the theory of the minimax game.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://lilianweng.github.io/posts/2017-08-20-gan/" target="_blank">Lilian Weng — From GAN to WGAN <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Walks from vanilla GAN to WGAN, WGAN-GP, and beyond — with the math behind each variant.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://github.com/soumith/ganhacks" target="_blank">Soumith — How to train a GAN <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Classic compilation of empirical training tricks. Many are outdated but the principles still apply.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/1812.04948" target="_blank">Karras et al. (2018) — StyleGAN <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The architecture that produced photorealistic faces and a navigable style space. Worth reading even if you're using diffusion now.</span>
-        </li>
-    </ul>
+                <div class="fig-explainer" data-fig="gan">
+<h3>Reading the figure</h3>
+<p>Each frame is a snapshot of the <strong>2-D distribution game</strong>. Indigo dots are real samples drawn from the chosen distribution; orange dots are fakes produced by the generator. The two coloured washes in the background are the <strong>discriminator's current belief surface</strong> — orange where D thinks "fake", indigo where D thinks "real". Sharp boundary = confident D; blurry boundary = D is unsure.</p>
+<p>Each <strong>Train</strong> step does one gradient update on D, then one on G. The generator's fakes climb the gradient of D toward higher-indigo regions, and D redraws its boundary to chase them. Watch the orange wash tighten around the orange points and the indigo wash settle on the real samples — that's the minimax game converging.</p>
+<p>Switch the <strong>real distribution</strong> to <em>Two clusters</em> and train past 200 steps. The generator will collapse onto one cluster while ignoring the other — classic <strong>mode collapse</strong>. There's nothing in the loss that rewards diversity; G is graded sample-by-sample, not on the distribution it covers.</p>
 </div>
+<div class="learn-more">
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="intuition">
+<a href="https://lilianweng.github.io/posts/2017-08-20-gan/">Lilian Weng — From GAN to WGAN</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The single best blog tour — walks from vanilla GAN through WGAN, WGAN-GP, and the variants that followed, with the math behind each step.</span>
+</li>
+<li data-tier="intuition">
+<a href="https://github.com/soumith/ganhacks">Soumith Chintala — How to train a GAN (NIPS 2016 tutorial)</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The classic compilation of empirical training tricks. Some are dated, but the principles (label smoothing, lr balancing, label-noise) still apply.</span>
+</li>
+<li data-tier="fundamentals">
+<a href="https://arxiv.org/abs/1406.2661">Goodfellow et al. (2014) — Generative Adversarial Nets</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The original paper. Surprisingly readable. Sections 2–4 cover the theory of the minimax game and the global-optimum proof.</span>
+</li>
+<li data-tier="fundamentals">
+<a href="https://arxiv.org/abs/1701.00160">Goodfellow (2016) — NIPS Tutorial on GANs</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Goodfellow's own 80-page survey two years after the original paper. The clearest single document on the framework, common pitfalls, and the open problems as of 2016.</span>
+</li>
+<li data-tier="fundamentals">
+<a href="https://arxiv.org/abs/1606.03498">Salimans et al. (2016) — Improved Techniques for Training GANs</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Introduced feature matching, minibatch discrimination, one-sided label smoothing, and the Inception Score. The paper behind half the tricks in the ganhacks list.</span>
+</li>
+<li data-tier="indepth">
+<a href="https://arxiv.org/abs/2106.12423">Karras et al. (2021) — StyleGAN3 (Alias-Free GAN)</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Makes the generator equivariant to translation and rotation by treating intermediate features as continuous signals — what enables smooth face-animation interpolations.</span>
+</li>
+<li data-tier="indepth">
+<a href="https://arxiv.org/abs/1809.11096">Brock et al. (2018) — BigGAN</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Class-conditional GANs at ImageNet scale. The orthogonal regularisation and truncation-trick ideas matter beyond GANs themselves.</span>
+</li>
+</ul>
+</div>
+<p></content>
+</invoke></p>
             </aside>
 
         </div>

@@ -5,22 +5,30 @@
 
 set -e
 
-# Skip the build if Python isn't available (e.g. another environment).
-if ! command -v python3 >/dev/null 2>&1; then
-    echo "[pre-commit] python3 not found, skipping topic-page build" >&2
+# Prefer `uv run` because .md sources need the python-markdown library, which
+# build.py declares as an inline script dependency. Fall back to plain
+# python3 if uv isn't available (build.py will then assume markdown is
+# already installed system-wide).
+if command -v uv >/dev/null 2>&1; then
+    RUNNER="uv run --quiet"
+elif command -v python3 >/dev/null 2>&1; then
+    RUNNER="python3"
+else
+    echo "[pre-commit] neither uv nor python3 found, skipping topic-page build" >&2
     exit 0
 fi
 
 # Build all topics. Fails loudly if any source is malformed.
-python3 build.py >&2
+$RUNNER build.py >&2
 
-# Re-stage outputs that have a corresponding source file.
-# Mirrors the source layout — handles nested paths like
-# topics/_src/neural-networks/cnn.html → topics/neural-networks/cnn.html.
-find topics/_src -name '*.html' -print0 |
+# Re-stage outputs that have a corresponding source file. Source extension
+# can be .html (legacy) or .md (new format); both produce a sibling .html
+# under the published topics/ tree.
+find topics/_src \( -name '*.html' -o -name '*.md' \) -print0 |
 while IFS= read -r -d '' src; do
     rel="${src#topics/_src/}"
-    out="topics/$rel"
+    base="${rel%.*}"
+    out="topics/$base.html"
     if [ -f "$out" ]; then
         git add "$out"
     fi

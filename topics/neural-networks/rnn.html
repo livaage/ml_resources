@@ -34,7 +34,7 @@
                 <header class="page-header">
                     <a href="../../theory.html" class="eyebrow">← Theory · Neural Networks</a>
                     <h1>Recurrent Neural Networks</h1>
-                    <p class="lead">Networks with internal state for sequence data — LSTMs, GRUs, and the long-standing default for language before transformers.</p>
+                    <p class="lead">Networks with an internal state that walks through a sequence one step at a time — LSTMs, GRUs, and the long-standing default for language before transformers.</p>
                 </header>
 
                 <div class="tier-controls">
@@ -53,63 +53,75 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>The same little network applied at every step, carrying a memory of what it saw before.</strong> Read one token, update memory, move on. Read another token, update memory again. After the whole sequence, the memory summarizes everything you've seen.</p>
-    </div>
-
-    <div class="viz-embed viz-rnn">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Watch the hidden state evolve as each token is read · click any step to inspect it</span>
-        </div>
-        <div class="viz-rnn-controls">
-            <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.85rem;">
-                Sequence
-                <select id="viz-rnn-seq"></select>
-            </label>
-            <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.85rem;">
-                Cell
-                <select id="viz-rnn-cell"></select>
-            </label>
-            <button id="viz-rnn-play" type="button">Pause</button>
-        </div>
-        <div class="viz-rnn-canvas-wrap">
-            <canvas id="viz-rnn-canvas"></canvas>
-        </div>
-        <div class="viz-rnn-formula" id="viz-rnn-formula"></div>
-    </div>
-    <script src="../../js/viz/rnn.js"></script>
-
-    <p class="viz-intro">The same RNN cell runs at every timestep — note the "same weights" label on the first cell. The horizontal arrows are the hidden state being passed forward. Try the "<em>long sequence</em>" with <em>Vanilla RNN</em>: by the time we reach "was", the early hidden state has decayed nearly to zero — the classic <strong>vanishing gradient</strong> problem. Switch to <em>LSTM-like</em> and the memory survives much further.</p>
-
-    <article class="tldr-body">
-        <p>RNNs were the default for sequences (language, speech, time series) for a decade until transformers came along. They have one key trick: the network's output at step <em>t</em> depends on a "hidden state" that was computed at step <em>t</em>−1. The hidden state is the model's memory.</p>
-        <p>Vanilla RNNs are simple but forget quickly. <strong>LSTMs</strong> and <strong>GRUs</strong> add gating mechanisms — small networks that decide what to remember and what to forget — and can carry information across hundreds of timesteps.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Short to medium-length sequences with limited compute</li>
-                <li>On-device inference where a transformer is too heavy</li>
-                <li>Streaming data where you process one step at a time</li>
-                <li>Time-series forecasting with strong temporal structure</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>Long sequences with long-range dependencies — transformers win</li>
-                <li>You have enough data + compute for a transformer</li>
-                <li>You need bidirectional context simultaneously</li>
-                <li>The task is in language / vision — pretrained transformers dominate</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>One small network, applied to every step of a sequence, passing a memory forward.</strong> Read a token, update memory, move on. Read the next token, update memory again. After the whole sequence the memory summarises everything you've seen — and any prediction you make can read from it.</p>
+</div>
+<div class="viz-embed viz-rnn" data-fig="rnn">
+<div class="viz-task-banner">
+<span class="viz-task-label">Task</span>
+<span class="viz-task-text">
+Step through a sequence one token at a time. The cell on the right is the <strong>hidden state</strong> — the network's memory. Watch how it shifts as each new input arrives, and how the early signal fades on a <em>Vanilla RNN</em> + long sequence (the classic vanishing-gradient story). Switch the cell to <em>LSTM-like</em> and the memory survives much further.
+</span>
+</div>
+<div class="viz-embed-header">
+<span class="viz-embed-title">The same RNN cell at every timestep — click any step to inspect it</span>
+</div>
+<div class="viz-rnn-controls">
+<label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.85rem;">
+Sequence
+<select id="viz-rnn-seq"></select>
+</label>
+<label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.85rem;">
+Cell
+<select id="viz-rnn-cell"></select>
+</label>
+<button id="viz-rnn-play" type="button">Pause</button>
+</div>
+<div class="viz-rnn-canvas-wrap">
+<canvas id="viz-rnn-canvas"></canvas>
+</div>
+<div class="viz-rnn-formula" id="viz-rnn-formula"></div>
+</div>
+<script src="../../js/viz/rnn.js"></script>
+<article class="tldr-body">
+<h3>Why a hidden state</h3>
+<p>A plain feedforward net sees one fixed-size input and emits one output — it has no notion of "before" or "after". For sequences (sentences, audio frames, sensor readings) the meaning of token <em>t</em> depends on everything that came before it. An RNN solves this by carrying a <strong>hidden state</strong> — a vector that gets updated at every step. The same weights are reused at every timestep, so the network is effectively a tiny program running in a loop, with the hidden state acting as its working memory.</p>
+<h3>Why RNNs are mostly replaced now</h3>
+<p>Two problems killed them in NLP. First, <strong>vanishing gradients</strong>: when you backpropagate through hundreds of timesteps, gradients are multiplied by the same matrix over and over and decay to zero — the network can't learn long-range dependencies. Second, <strong>no parallelism across timesteps</strong>: each step has to wait for the previous one's hidden state, so you can't fill a GPU. Transformers sidestep both by replacing recurrence with attention, which sees every position at once.</p>
+<h3>Where they still make sense</h3>
+<ul>
+<li><strong>Streaming and real-time inference.</strong> You process one step as it arrives — perfect for a microphone, a network packet stream, or a sensor.</li>
+<li><strong>Tiny models on tiny hardware.</strong> A 100k-parameter LSTM fits on a microcontroller; a transformer of comparable quality does not.</li>
+<li><strong>Bounded memory.</strong> The hidden state has fixed size regardless of sequence length. Attention is O(N²) in sequence length; an RNN is O(N) with constant memory per step.</li>
+<li><strong>Online learning.</strong> You can keep training on a never-ending stream without re-batching.</li>
+</ul>
+<h3>LSTM and GRU, intuitively</h3>
+<p>A vanilla RNN overwrites its memory every step — which is why it forgets. <strong>LSTM</strong> (<a href="https://www.bioinf.jku.at/publications/older/2604.pdf">Hochreiter &amp; Schmidhuber, 1997</a>) adds three small "gates" — <em>forget</em>, <em>input</em>, <em>output</em> — each a little sigmoid network that outputs values between 0 and 1, acting like dimmer switches on the memory. The cell decides <em>how much</em> of the old memory to keep, <em>how much</em> new content to write in, and <em>how much</em> of the result to expose. Crucially, the memory has its own additive update path, so gradients survive long sequences. <strong>GRU</strong> is the same idea trimmed down to two gates and one state — usually as good, faster to train.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Streaming or real-time data — one step in, one step out</li>
+<li>Edge / on-device inference where a transformer is too heavy</li>
+<li>Short-to-medium sequences with strong temporal structure</li>
+<li>Small data — LSTMs overfit less than transformers in this regime</li>
+<li>You're prototyping against a Mamba / state-space model and want a baseline</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>Long sequences with non-local dependencies — attention wins</li>
+<li>You have GPU compute and want to train fast — RNNs don't parallelise across time</li>
+<li>Pretrained transformer weights exist for your domain (almost always do in NLP / vision)</li>
+<li>You need to attend to specific positions — implicit memory is worse than explicit attention</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch.nn as nn
 
 # LSTM with 2 layers, hidden size 128
@@ -123,73 +135,64 @@ model = nn.LSTM(
 # Inputs: (B, T, input_size); outputs: (B, T, hidden_size) + final (h, c)
 outputs, (h_final, c_final) = model(inputs)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want the math behind LSTM gates?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the recursion math and the LSTM gate equations?</span>
+<button data-go-to="fundamentals" type="button">Switch to Fundamentals →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Vanilla RNN recursion</span>
-
-        <div class="notation-standard">
-            <span class="formula">$$ \mathbf{h}_t \;=\; \tanh\!\left(W_{xh}\, \mathbf{x}_t + W_{hh}\, \mathbf{h}_{t-1} + \mathbf{b}_h\right) $$</span>
-            <ul class="formula-legend">
-                <li><code>h<sub>t</sub></code>hidden state at time <em>t</em></li>
-                <li><code>x<sub>t</sub></code>input at time <em>t</em></li>
-                <li><code>W<sub>xh</sub>, W<sub>hh</sub></code>input-to-hidden and hidden-to-hidden weights, <em>shared across timesteps</em></li>
-            </ul>
-        </div>
-
-        <div class="notation-plain">
-            <span class="formula">$$ \text{memory}_t \;=\; \tanh\!\left(\text{input-weights} \times \text{input}_t \;+\; \text{memory-weights} \times \text{memory}_{t-1} \;+\; \text{bias}\right) $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> At every timestep, the RNN mixes two things: the <strong>current input</strong> (this token, this sensor reading, this frame) and the <strong>previous memory</strong> (the hidden state from one step ago). Each is passed through its own weight matrix, the results are summed with a bias, and the whole thing is squashed through <code>tanh</code> (a smooth S-shape between −1 and +1) to keep memory from blowing up. The crucial detail is that the same weight matrices are reused at every timestep — the network is just a tiny program that runs in a loop. That weight-sharing is what makes "RNN" different from a deep feed-forward network with <em>T</em> layers.
-            </p>
-            <ul class="formula-legend">
-                <li><code>memory<sub>t</sub></code>hidden state at step <em>t</em> — what the network remembers so far</li>
-                <li><code>input<sub>t</sub></code>the data arriving at this step (e.g. a token embedding)</li>
-                <li><code>input-weights, memory-weights</code>two matrices, reused at every timestep — these are what get learned</li>
-                <li><code>tanh</code>S-shaped nonlinearity that squashes values into the range −1 to +1</li>
-            </ul>
-        </div>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>The vanishing gradient problem.</strong> Vanilla RNNs struggle with long sequences. Gradients propagated backward through time get multiplied by the same matrix over and over — they either shrink to zero (vanishing) or blow up (exploding). Long-range dependencies are lost.</p>
-        <p><strong>LSTM (Hochreiter &amp; Schmidhuber, 1997).</strong> Adds three gates — forget, input, output — and a separate "cell state" that travels along its own additive path. The additive path is the key trick: gradients flow back without the multiplicative collapse.</p>
-        <p><strong>GRU (Cho et al., 2014).</strong> Simpler than LSTM — two gates, one state. Similar performance on most tasks, faster to train.</p>
-        <p><strong>Bidirectional RNNs.</strong> Run one RNN left-to-right and another right-to-left; concatenate hidden states. Captures both past and future context — useful when you can see the whole sequence at once (e.g. translation, NER).</p>
-        <p><strong>Sequence-to-sequence.</strong> Use one RNN as an encoder (consume the input, produce a final hidden state) and another as a decoder (start from that hidden state, generate the output). The bottleneck of the final hidden state motivated attention — and attention motivated transformers.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Time-series forecasting with limited compute</li>
-                <li>Online / streaming classification (process one step at a time)</li>
-                <li>Small-data sequence tasks where a transformer overfits</li>
-                <li>Edge inference — LSTMs are much smaller than transformers</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>You can throw compute at it — a transformer will dominate</li>
-                <li>Very long sequences (>1000 tokens) with non-local structure</li>
-                <li>You want to parallelize across timesteps (RNNs are sequential)</li>
-                <li>Pretrained transformer encoders exist for your domain</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Vanilla RNN recursion</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathbf{h}_t \;=\; \tanh\!\left(W_{xh}\, \mathbf{x}_t + W_{hh}\, \mathbf{h}_{t-1} + \mathbf{b}_h\right) $$</span></p>
+<ul class="formula-legend">
+<li><code>h<sub>t</sub></code>hidden state at time <em>t</em> — the network's memory so far</li>
+<li><code>x<sub>t</sub></code>input at time <em>t</em> (e.g. a token embedding)</li>
+<li><code>W<sub>xh</sub>, W<sub>hh</sub></code>input-to-hidden and hidden-to-hidden weights, <em>shared across timesteps</em></li>
+<li><code>tanh</code>S-shaped nonlinearity, bounded to [−1, 1], that keeps the state from blowing up</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{memory}_t \;=\; \tanh\!\left(\text{input-weights} \times \text{input}_t \;+\; \text{memory-weights} \times \text{memory}_{t-1} \;+\; \text{bias}\right) $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> At every timestep the RNN mixes two things: the <strong>current input</strong> (this token, this sensor reading, this frame) and the <strong>previous memory</strong> (the hidden state from one step ago). Each is run through its own weight matrix, the results are summed with a bias, and the whole thing is squashed through <code>tanh</code> so the memory stays bounded. The same weight matrices are reused at every timestep — that weight-sharing is what makes "RNN" different from a deep feed-forward network with <em>T</em> layers, and it's how the network can handle sequences of any length with a fixed parameter count.</p>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Unrolling and BPTT.</strong> To train an RNN you "unroll" it: write out the recursion for <em>T</em> steps as a deep feedforward graph of depth <em>T</em> with shared weights, then apply standard backprop. The result is called <strong>Backpropagation Through Time</strong>. Memory cost grows linearly with <em>T</em>; for long sequences you use <em>truncated BPTT</em> — backprop over a fixed window (say 200 steps), detach the hidden state, and keep going.</p>
+<p><strong>Vanishing and exploding gradients.</strong> Because BPTT multiplies by the recurrent Jacobian once per step, the gradient through <em>T</em> steps is roughly the same matrix raised to the <em>T</em>th power. Eigenvalues &gt; 1 explode; eigenvalues &lt; 1 vanish. Vanilla RNNs almost always vanish, which means signals more than ~20 steps back can't influence the loss. The standard fixes:</p>
+<ul>
+<li><strong>Gradient clipping</strong> — rescale the gradient if its norm exceeds a threshold. Stops explosions cold.</li>
+<li><strong>Gated cells (LSTM, GRU)</strong> — replace the multiplicative update with an additive one (see below).</li>
+<li><strong>Orthogonal / identity initialisation</strong> of <code>W_hh</code> — keeps the Jacobian's spectral radius near 1 at start of training.</li>
+</ul>
+<p><strong>LSTM (<a href="https://www.bioinf.jku.at/publications/older/2604.pdf">Hochreiter &amp; Schmidhuber, 1997</a>).</strong> Adds three gates — forget, input, output — and a separate "cell state" <code>c_t</code> that travels along its own additive path: <code>c_t = f_t ⊙ c_{t-1} + i_t ⊙ c̃_t</code>. The additive update is the key trick — gradients flow back through it without the multiplicative collapse.</p>
+<p><strong>GRU (<a href="https://arxiv.org/abs/1406.1078">Cho et al., 2014</a>).</strong> Two gates, one state. Comparable accuracy to LSTM on most tasks, ~25% fewer parameters, faster to train.</p>
+<p><strong>Bidirectional RNNs.</strong> Run one RNN left-to-right and another right-to-left; concatenate their hidden states. Captures both past and future context — only valid when you can see the whole sequence (translation, NER), not in streaming settings.</p>
+<p><strong>Sequence-to-sequence.</strong> One RNN as encoder (read the input, produce a final hidden state), another as decoder (start from that hidden state, generate the output token by token). The bottleneck of compressing everything into one final hidden state is what motivated <strong>attention</strong> — which eventually swallowed the RNN entirely.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Time-series forecasting with limited compute and modest sequence length</li>
+<li>Online / streaming classification — one step at a time, constant memory</li>
+<li>Small-data sequence tasks where a transformer overfits</li>
+<li>Edge inference — a quantised LSTM is a fraction the size of any transformer</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>You can afford to parallelise across time — a transformer trains an order of magnitude faster</li>
+<li>Sequences are long with non-local structure (&gt;1k tokens, scattered references)</li>
+<li>Pretrained transformer encoders exist for your domain</li>
+<li>Your loss curve plateaus quickly — likely a vanishing-gradient symptom on a vanilla RNN</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch
 import torch.nn as nn
 
@@ -208,87 +211,72 @@ class SeqClassifier(nn.Module):
         last = torch.cat([h[-2], h[-1]], dim=1)
         return self.head(last)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want BPTT, gradient clipping, and attention's relationship to RNNs?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the full LSTM cell, BPTT cost, and the state-space comeback?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">LSTM cell</span>
-
-        <div class="notation-standard">
-            <span class="formula">$$ \begin{aligned}
-            \mathbf{f}_t &= \sigma(W_f [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_f) \\
-            \mathbf{i}_t &= \sigma(W_i [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_i) \\
-            \mathbf{o}_t &= \sigma(W_o [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_o) \\
-            \tilde{\mathbf{c}}_t &= \tanh(W_c [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_c) \\
-            \mathbf{c}_t &= \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t \\
-            \mathbf{h}_t &= \mathbf{o}_t \odot \tanh(\mathbf{c}_t)
-            \end{aligned} $$</span>
-            <ul class="formula-legend">
-                <li><code>f, i, o</code>forget, input, output gates (each in [0, 1])</li>
-                <li><code>c<sub>t</sub></code>cell state — the long-term memory traveling along an additive path</li>
-                <li><code>h<sub>t</sub></code>hidden state — the short-term output</li>
-            </ul>
-        </div>
-
-        <div class="notation-plain">
-            <span class="formula">$$ \begin{aligned}
-            \text{forget gate} &= \sigma(\ldots) \quad \text{(how much old memory to keep, 0–1)} \\
-            \text{input gate}  &= \sigma(\ldots) \quad \text{(how much new info to write, 0–1)} \\
-            \text{output gate} &= \sigma(\ldots) \quad \text{(how much memory to expose, 0–1)} \\
-            \text{candidate}   &= \tanh(\ldots) \quad \text{(proposed new content)} \\
-            \text{cell-memory} &= \text{forget gate} \times \text{old cell-memory} \;+\; \text{input gate} \times \text{candidate} \\
-            \text{hidden}      &= \text{output gate} \times \tanh(\text{cell-memory})
-            \end{aligned} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Three little gates — <strong>forget</strong>, <strong>input</strong>, <strong>output</strong> — each a small neural net followed by <code>σ</code> (sigmoid), which squashes their outputs into the range 0 to 1. They behave like dimmer switches. The <strong>cell-memory</strong> <code>c</code> is a separate "long-term memory" stream: the forget gate decides what fraction of it to keep, the input gate decides what fraction of a new <strong>candidate</strong> (a tanh-bent update) to write in, and the two are added together. The <strong>hidden state</strong> <code>h</code> is the network's per-step output, gated from the current cell-memory. <code>⊙</code> means element-by-element multiplication. The crucial trick is the cell-memory's <em>additive</em> update path: gradients flow back through it without the multiplicative collapse that kills vanilla RNNs.
-            </p>
-            <ul class="formula-legend">
-                <li><code>forget, input, output</code>three gates (each 0–1) controlling memory flow</li>
-                <li><code>cell-memory</code>the long-term store that travels along an additive path</li>
-                <li><code>candidate</code>the proposed new content to write into memory at this step</li>
-                <li><code>hidden</code>the short-term output, fed forward to the next layer / next step</li>
-            </ul>
-        </div>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>BPTT (Backpropagation Through Time).</strong> Unroll the RNN over <em>T</em> timesteps into a feedforward network of depth <em>T</em>; apply standard backprop. Memory cost grows linearly with <em>T</em>. For long sequences, use <em>truncated BPTT</em>: backprop over a fixed window and discard older gradients.</p>
-        <p><strong>Exploding gradients.</strong> Even with LSTMs, gradients can blow up. The standard fix is <em>gradient clipping</em>: rescale the gradient if its norm exceeds a threshold. Effectively bounds the optimizer's step size.</p>
-        <p><strong>Attention as a fix.</strong> Bahdanau et al. (2014) added attention to seq2seq RNNs: instead of compressing the entire input into a single hidden state, let the decoder peek back at all encoder states with learned weights. This was so much better that it eventually replaced the RNN entirely (Vaswani et al., 2017).</p>
-        <p><strong>Modern RNN-like models.</strong> State Space Models (S4, Mamba) revisit RNN-style sequential processing but with carefully chosen state dynamics that enable parallel training and long-context handling. Competitive with transformers on some tasks, much cheaper per token.</p>
-        <p><strong>Why not just train a deep transformer?</strong> Three reasons RNNs still appear: (1) streaming inference is natural; (2) small models for edge devices; (3) when you can't afford the O(N²) attention. For most other settings, transformers won.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Strict memory budget for very long sequences (state is bounded, attention isn't)</li>
-                <li>Causal real-time inference where parallel decoding doesn't help</li>
-                <li>Theoretical / interpretability work on dynamical systems</li>
-                <li>You're prototyping with modern SSMs (Mamba) and want a baseline</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>You can parallelize — transformers train an order of magnitude faster</li>
-                <li>You have pretrained transformer weights for your domain</li>
-                <li>Need to attend to specific positions — explicit attention is better than implicit memory</li>
-                <li>Long-context with global dependencies</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">LSTM cell</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \begin{aligned}
+\mathbf{f}_t &= \sigma(W_f [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_f) \\
+\mathbf{i}_t &= \sigma(W_i [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_i) \\
+\mathbf{o}_t &= \sigma(W_o [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_o) \\
+\tilde{\mathbf{c}}_t &= \tanh(W_c [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_c) \\
+\mathbf{c}_t &= \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t \\
+\mathbf{h}_t &= \mathbf{o}_t \odot \tanh(\mathbf{c}_t)
+\end{aligned} $$</span></p>
+<ul class="formula-legend">
+<li><code>f, i, o</code>forget, input, output gates — each a sigmoid output in [0, 1]</li>
+<li><code>c<sub>t</sub></code>cell state — long-term memory travelling along the additive path</li>
+<li><code>h<sub>t</sub></code>hidden state — the short-term, gated output of the cell</li>
+<li><code>⊙</code>elementwise (Hadamard) product</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \begin{aligned}
+\text{forget gate} &= \sigma(\ldots) \quad \text{(how much old memory to keep, 0–1)} \\
+\text{input gate}  &= \sigma(\ldots) \quad \text{(how much new info to write, 0–1)} \\
+\text{output gate} &= \sigma(\ldots) \quad \text{(how much memory to expose, 0–1)} \\
+\text{candidate}   &= \tanh(\ldots) \quad \text{(proposed new content)} \\
+\text{cell-memory} &= \text{forget gate} \times \text{old cell-memory} \;+\; \text{input gate} \times \text{candidate} \\
+\text{hidden}      &= \text{output gate} \times \tanh(\text{cell-memory})
+\end{aligned} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Three little gates — <strong>forget</strong>, <strong>input</strong>, <strong>output</strong> — each a small neural net followed by <code>σ</code> (sigmoid), which squashes their outputs into the range 0 to 1. They behave like dimmer switches. The <strong>cell-memory</strong> <code>c</code> is a separate "long-term memory" stream: the forget gate decides what fraction of it to keep, the input gate decides what fraction of a new <strong>candidate</strong> (a tanh-bent update) to write in, and the two are added together. The <strong>hidden state</strong> <code>h</code> is the network's per-step output, gated from the current cell-memory. The crucial trick is the cell-memory's <em>additive</em> update path — gradients flow back through it without the multiplicative collapse that kills vanilla RNNs.</p>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Why transformers won.</strong> Attention (<a href="https://arxiv.org/abs/1409.0473">Bahdanau et al., 2014</a>) started life as a fix for the seq2seq bottleneck — let the decoder peek at all encoder states with learned weights instead of compressing everything into one final hidden state. By 2017 (<a href="https://arxiv.org/abs/1706.03762">Vaswani et al.</a>) the recurrence was gone entirely: attention is fully parallel across positions, has direct paths between any two tokens (no vanishing gradient), and scales beautifully on GPUs. On natural language at scale, this combination is decisive.</p>
+<p><strong>The comeback: state-space models.</strong> RNN-style sequential processing is enjoying a renaissance via <strong>state-space models</strong> — <a href="https://arxiv.org/abs/2111.00396">S4</a>, <a href="https://arxiv.org/abs/2312.00752">Mamba</a>, and friends. They use carefully chosen <em>linear</em> recurrences (a structured matrix raised to the <em>t</em>th power) that admit a parallel scan algorithm — so you get RNN-style O(N) inference and a bounded state, <em>plus</em> parallel training. On long sequences (DNA, audio, video) they're competitive with attention at a fraction of the per-token cost. Mamba adds input-dependent dynamics ("selective" state updates) and matches small transformers on language modelling.</p>
+<p><strong>Attention vs. recurrence, the trade-off.</strong> Attention gives every position direct access to every other position — O(N²) compute, O(N) memory per layer. Recurrence compresses the past into a fixed-size state — O(N) compute, O(1) memory per step, but a bottleneck that limits how much past information can be retained. The right choice depends on whether your bottleneck is compute (favours recurrence), memory (favours recurrence), or long-range precision (favours attention).</p>
+<p><strong>Where RNNs still genuinely win in 2026.</strong> Keyword-spotting on a microcontroller. Continuous audio denoising on earbuds. Online anomaly detection on streaming sensors. Reinforcement-learning policies where each environment step costs a forward pass. Tiny on-device language models. Whenever your latency budget is "one token at a time" and your memory budget is kilobytes, a quantised LSTM still beats anything transformer-shaped.</p>
+<p><strong>BPTT cost in detail.</strong> Full BPTT over <em>T</em> steps stores all activations — O(T) memory. <em>Truncated BPTT</em> with window <em>k</em> uses O(k) memory but biases the gradient (you ignore dependencies &gt; <em>k</em> steps back). <em>Gradient checkpointing</em> recomputes activations during the backward pass for O(√T) memory — useful when <em>T</em> is fixed but large.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Strict memory budget on very long sequences — state size is bounded, attention isn't</li>
+<li>Causal real-time inference where parallel decoding doesn't help</li>
+<li>You're prototyping with modern SSMs (Mamba, S5) and need a recurrent baseline</li>
+<li>Theoretical / interpretability work on dynamical systems</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>You can parallelise — transformers train an order of magnitude faster</li>
+<li>A pretrained transformer encoder exists for your domain</li>
+<li>You need to attend to specific positions — explicit attention beats implicit memory</li>
+<li>Long-range global dependencies dominate the task</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch, torch.nn as nn
 import torch.nn.utils as utils
 
@@ -311,12 +299,11 @@ for sequence in long_sequences:
         utils.clip_grad_norm_(model.parameters(), clip_norm)
         optimizer.step()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the picture instead?</span>
+<button data-go-to="intuition" type="button">← Back to Intuition</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -336,27 +323,42 @@ for sequence in long_sequences:
             </div>
 
             <aside class="topic-sidebar">
-                <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="intuition">
-            <a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank">Olah — Understanding LSTMs <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The clearest visual explanation of LSTM gates ever written. Should be the first thing you read.</span>
-        </li>
-        <li data-tier="intuition">
-            <a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/" target="_blank">Karpathy — Unreasonable Effectiveness of RNNs <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Hands-on examples of char-RNNs generating Shakespeare, code, Wikipedia. Builds intuition for what RNNs <em>do</em>.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://www.bioinf.jku.at/publications/older/2604.pdf" target="_blank">Hochreiter &amp; Schmidhuber (1997) <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The original LSTM paper. Dense but the foundational source — read after Olah for context.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/2312.00752" target="_blank">Gu &amp; Dao (2023) — Mamba <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The modern selective-state-space model that's revived RNN-style processing. Includes derivation of parallel training despite sequential semantics.</span>
-        </li>
-    </ul>
+                <div class="fig-explainer" data-fig="rnn">
+<h3>Reading the unrolled RNN</h3>
+<p>Each column is the <strong>same cell</strong>, applied at a different timestep — the "same weights" label on the first cell is the whole point. The horizontal arrow between columns is the <strong>hidden state</strong> being passed forward; the vertical arrow into each cell is the input token at that step.</p>
+<p>Click any timestep to inspect its hidden-state vector. Try the <em>long sequence</em> with a <em>Vanilla RNN</em> and watch the early hidden state decay to noise by the last step — that's the vanishing-gradient problem in pictures. Switch the cell to <em>LSTM-like</em> and the signal carries through, because the cell state has an additive update path that survives long backprop chains.</p>
 </div>
+<div class="learn-more">
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="intuition">
+<a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/">Karpathy — The Unreasonable Effectiveness of RNNs</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Hands-on char-RNNs generating Shakespeare, LaTeX, C source. The classic that hooked a generation on sequence models. Read it for the demos, stay for the intuition.</span>
+</li>
+<li data-tier="intuition">
+<a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">Olah — Understanding LSTMs</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The clearest visual explanation of LSTM gates ever written. If you remember nothing else about RNNs, remember these diagrams.</span>
+</li>
+<li data-tier="fundamentals">
+<a href="https://d2l.ai/chapter_recurrent-neural-networks/index.html">Zhang et al. — Dive into Deep Learning · RNN chapter</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Code-first walkthrough of vanilla RNNs, BPTT, gradient clipping, LSTM and GRU with runnable notebooks. Best balance of theory and practice.</span>
+</li>
+<li data-tier="fundamentals">
+<a href="https://www.bioinf.jku.at/publications/older/2604.pdf">Hochreiter &amp; Schmidhuber (1997) — Long Short-Term Memory</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The original LSTM paper. Dense but the foundational source — read after Olah for the historical context and the original motivation.</span>
+</li>
+<li data-tier="indepth">
+<a href="https://arxiv.org/abs/2312.00752">Gu &amp; Dao (2023) — Mamba</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The selective state-space model that revived RNN-style processing at scale. Includes the derivation of parallel training despite sequential semantics — the trick that makes SSMs competitive with attention.</span>
+</li>
+<li data-tier="indepth">
+<a href="https://arxiv.org/abs/1211.5063">Pascanu et al. (2013) — On the difficulty of training RNNs</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The definitive analysis of vanishing and exploding gradients in RNNs. Introduces gradient clipping and gives the spectral-radius intuition behind why long-range training is hard.</span>
+</li>
+</ul>
+</div>
+<p></content>
+</invoke></p>
             </aside>
 
         </div>

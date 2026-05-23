@@ -53,105 +53,135 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Share the same small filter across the whole image.</strong> A CNN scans a tiny window over the input, looking for a particular pattern (an edge, a texture, a colour blob). Stack many such layers and the network builds up from edges, to textures, to object parts, to whole objects.</p>
-    </div>
-
-    <div class="viz-embed viz-cnn">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Drag the filter on the input · click any kernel cell to cycle its value</span>
-            <div class="viz-embed-controls">
-                <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                    Image
-                    <select id="viz-cnn-image"></select>
-                </label>
-                <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                    Kernel
-                    <select id="viz-cnn-kernel-select"></select>
-                </label>
-                <button id="viz-cnn-play" type="button">Pause</button>
-            </div>
-        </div>
-        <div class="viz-cnn-layout">
-            <div class="viz-cnn-panel">
-                <div class="viz-cnn-label">Input · 24×24</div>
-                <canvas id="viz-cnn-input"></canvas>
-            </div>
-            <div class="viz-cnn-panel">
-                <div class="viz-cnn-label">Feature map · 22×22</div>
-                <canvas id="viz-cnn-output"></canvas>
-            </div>
-            <div class="viz-cnn-bottom">
-                <div class="viz-cnn-kernel-wrap">
-                    <div class="viz-cnn-label">Kernel · 3×3</div>
-                    <canvas id="viz-cnn-kernel"></canvas>
-                </div>
-                <div class="viz-cnn-math" id="viz-cnn-math"></div>
-            </div>
-        </div>
-    </div>
-    <script src="../../js/viz/cnn.js"></script>
-
-    <p class="viz-intro">The kernel slides across the input, computing a weighted sum at every position. Try the <strong>Sobel-x</strong> kernel — the feature map lights up at vertical edges. Try <strong>blur</strong> on the digit — high-frequency detail vanishes. Click any kernel cell to cycle its value: build your own filter and see what it detects. The polished external explainers below take this much further.</p>
-
-        <div class="viz-grid">
-            <a href="https://poloclub.github.io/cnn-explainer/" target="_blank" class="viz-card viz-card-featured">
-                <span class="viz-source">poloclub.github.io</span>
-                <h3>CNN Explainer</h3>
-                <p>A real CNN running entirely in your browser. Click through every convolution, ReLU, and pooling layer to see its activations live. Hover any cell of a feature map to see where it came from. The single best resource for understanding what each layer in a CNN actually does.</p>
-                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-            </a>
-
-            <a href="https://www.cs.ryerson.ca/~aharley/vis/conv/" target="_blank" class="viz-card">
-                <span class="viz-source">cs.ryerson.ca</span>
-                <h3>3D Visualization — Harley</h3>
-                <p>Adam Harley's classic 3D walkthrough of an MNIST CNN. Rotate, zoom, and inspect the volume of activations at every layer. Older but still uniquely insightful for the spatial structure.</p>
-                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-            </a>
-
-            <a href="https://distill.pub/2017/feature-visualization/" target="_blank" class="viz-card">
-                <span class="viz-source">distill.pub</span>
-                <h3>Feature Visualization</h3>
-                <p>Olah, Mordvintsev, Schubert. The seminal article on understanding what individual CNN neurons "see" by synthesising images that maximally activate them. Beautiful interactive diagrams.</p>
-                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-            </a>
-
-            <a href="https://playground.tensorflow.org/" target="_blank" class="viz-card">
-                <span class="viz-source">tensorflow.org</span>
-                <h3>TensorFlow Playground</h3>
-                <p>Not CNN-specific, but lets you build and train a small dense net on toy 2D problems with live decision-boundary visualization. Great for the "what does training <em>do</em>?" intuition.</p>
-                <span class="viz-cta">Open viz <i class="fas fa-arrow-right"></i></span>
-            </a>
-        </div>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Share one small filter across the whole image — and learn what it should detect.</strong> A CNN scans a tiny window (the <em>kernel</em>) over the input, looking for a specific pattern: an edge, a texture, a colour blob. The same handful of weights is reused at every position, so the network has dramatically fewer parameters than a dense net and already "knows" that a pattern in the top-left is the same kind of thing in the bottom-right. <strong>The kernel weights aren't designed by hand — they're learned by gradient descent from a loss signal</strong>, the same way every other neural-net weight is. Stack many such layers and the network grows from edges, to textures, to parts, to whole objects.</p>
+</div>
+<div class="viz-embed viz-cnn" data-fig="cnn">
+<div class="viz-task-banner">
+<span class="viz-task-label">Task</span>
+<span class="viz-task-text">
+The SAME 3×3 filter slides over every position of an image. Try <strong>preset filters</strong> (edges, blur, sharpen) to see hand-designed kernels in action, or switch to <strong>Learn the filter</strong> and watch a random kernel converge to the target via gradient descent. The 9 filter weights aren't magic — they're learned from a loss signal, just like every other weight in a neural net.
+</span>
+</div>
+<div class="viz-cnn-controls">
+<label class="viz-cnn-label-inline">
+Image
+<select id="viz-cnn-image"></select>
+</label>
+<div class="viz-cnn-mode-toggle">
+<button type="button" data-cnn-mode="preset" class="active">Use a preset filter</button>
+<button type="button" data-cnn-mode="learn">Learn the filter</button>
+</div>
+<div class="viz-cnn-mode-pane viz-cnn-pane-preset">
+<label class="viz-cnn-label-inline">
+Filter
+<select id="viz-cnn-kernel-select"></select>
+</label>
+<button id="viz-cnn-play" type="button">Pause</button>
+</div>
+<div class="viz-cnn-mode-pane viz-cnn-pane-learn" hidden="hidden">
+<label class="viz-cnn-label-inline">
+Target
+<select id="viz-cnn-target-select"></select>
+</label>
+<button id="viz-cnn-auto" type="button" class="viz-cnn-primary">▶ Auto-train</button>
+<button id="viz-cnn-step" type="button">+1 step</button>
+<button id="viz-cnn-reset" type="button">Reset</button>
+</div>
+</div>
+<div class="viz-cnn-layout">
+<div class="viz-cnn-panel">
+<div class="viz-cnn-label">Input image · 24×24</div>
+<canvas id="viz-cnn-input"></canvas>
+<div class="viz-cnn-sub">the same filter slides over every position</div>
+</div>
+<div class="viz-cnn-panel">
+<div class="viz-cnn-label">Filter · 3×3 = 9 weights</div>
+<canvas id="viz-cnn-kernel"></canvas>
+<div class="viz-cnn-sub" id="viz-cnn-kernel-sub">applied at every position</div>
+</div>
+<div class="viz-cnn-panel">
+<div class="viz-cnn-label">Feature map · 22×22</div>
+<canvas id="viz-cnn-output"></canvas>
+<div class="viz-cnn-sub">indigo = positive · orange = negative</div>
+</div>
+</div>
+<div class="viz-cnn-learn-row" hidden="hidden" id="viz-cnn-learn-row">
+<div class="viz-cnn-panel">
+<div class="viz-cnn-label">Target feature map · what we want</div>
+<canvas id="viz-cnn-target"></canvas>
+<div class="viz-cnn-sub">target filter applied to the image</div>
+</div>
+<div class="viz-cnn-loss-panel">
+<div class="viz-cnn-label">Training loss (MSE)</div>
+<canvas id="viz-cnn-loss"></canvas>
+<div class="viz-cnn-readout" id="viz-cnn-readout">step 0 · loss —</div>
+<div class="viz-cnn-sub">each "Step" runs one gradient-descent update on the 9 filter weights</div>
+</div>
+</div>
+<div class="viz-cnn-pool">
+<div class="viz-cnn-pool-header">
+<div class="viz-cnn-pool-title">
+<strong>Pooling.</strong> Downsample the feature map by taking the max (or mean) of every 2×2 block — fewer numbers, larger receptive field. Hover either side to see the block-to-cell correspondence.
+</div>
+<div class="viz-cnn-mode-toggle">
+<button type="button" data-pool-mode="max" class="active">Max pool 2×2</button>
+<button type="button" data-pool-mode="avg">Average pool 2×2</button>
+</div>
+</div>
+<div class="viz-cnn-pool-layout">
+<div class="viz-cnn-panel">
+<div class="viz-cnn-label">Feature map · 22×22</div>
+<canvas id="viz-cnn-pool-input"></canvas>
+<div class="viz-cnn-sub">each 2×2 block becomes one output cell</div>
+</div>
+<div aria-hidden="true" class="viz-cnn-pool-arrow">→</div>
+<div class="viz-cnn-panel">
+<div class="viz-cnn-label">Pooled · 11×11</div>
+<canvas id="viz-cnn-pool-output"></canvas>
+<div class="viz-cnn-sub">half the spatial size, same channels</div>
+</div>
+</div>
+</div>
+</div>
+<script src="../../js/viz/cnn.js"></script>
 <article class="tldr-body">
-        <p>Compare an image classifier with two designs. A fully-connected network gets one big vector — every pixel multiplied by its own weight. A million pixels means a million weights per output, and the network has to relearn "edges look like edges" everywhere in the image. A CNN reuses the same small filter (say 3×3) across all positions — much fewer parameters, and the model knows "an edge in the top left is the same kind of thing as an edge in the bottom right".</p>
-        <p>That weight sharing is why CNNs work so well on images. They also use <strong>pooling</strong> layers to shrink the spatial dimensions as you go deeper, building up to a few high-level features that summarize the whole image.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Image classification, detection, segmentation</li>
-                <li>Audio / spectrogram processing</li>
-                <li>Any grid-structured data with local translation invariance</li>
-                <li>You have a pretrained backbone available</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>Text or sequences — use transformers / RNNs</li>
-                <li>Graph-structured data — use GNNs</li>
-                <li>Spatial relationships aren't local (e.g. very long-range dependencies)</li>
-                <li>You need a transformer ViT for the same dataset and have the compute</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<h3>Why share weights across the image</h3>
+<p>A dense network treats every pixel as an independent feature: a 224×224 RGB image becomes a 150,528-dim vector, and a single hidden unit with 1,024 neurons already burns 150 million parameters before you've learned anything. Worse, the network has to relearn "an edge looks like an edge" separately at every position — it has no built-in notion that the top-left and bottom-right of an image play by the same rules.</p>
+<p>A CNN replaces that with a tiny 3×3 (or 5×5) kernel that is reused at every spatial location. Two consequences fall out for free:</p>
+<ul>
+<li><strong>Parameter count collapses.</strong> A 3×3 conv with 64 output channels has 9·C<sub>in</sub>·64 weights regardless of image size. You can now train a deep network on modest data.</li>
+<li><strong>Translation equivariance.</strong> Shift the input by one pixel and the feature map shifts by one pixel. The model doesn't need separate evidence for the same pattern at different positions.</li>
+</ul>
+<h3>Why pool / downsample</h3>
+<p>A single conv layer only sees a 3×3 patch. To recognise a face you need to integrate information from hundreds of pixels. The classic trick is <strong>pooling</strong> — replace each 2×2 block of the feature map with its max (or mean), halving the spatial dimensions. After a few rounds, what was a 224×224 image is a 7×7 grid of high-level features, each summarising a chunk of the original. Modern designs often skip pooling and use <strong>strided convolutions</strong> (jump 2 pixels at a time) for the same effect, with the benefit that the downsampling step is itself learned.</p>
+<h3>Why stack convolutions</h3>
+<p>A single 3×3 kernel can only see three pixels in any direction. But two stacked 3×3 convs see a 5×5 patch, three see a 7×7, and so on — the <em>receptive field</em> grows with depth. Combine that with downsampling and a deep CNN's top layers see the entire image, but built compositionally: edges from layer 1 → corners and curves from layer 2 → textures and parts from layer 3 → object-shaped responses near the top. This hierarchy is the reason CNNs work, and the reason their feature maps are interpretable in a way few other architectures are.</p>
+<p>→ For the receptive-field formula and dilated convs, switch to the In-depth tier.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Image classification, detection, segmentation — pretrained ResNet / EfficientNet / ConvNeXt backbones are a phone call away</li>
+<li>Audio spectrograms, medical scans, satellite imagery — anything on a 2D grid with local structure</li>
+<li>You have limited data and need the locality / translation-equivariance prior to do real work</li>
+<li>On-device or low-latency inference — small CNNs are still hard to beat for FLOPs-per-accuracy</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>Text or sequences — use a transformer or RNN</li>
+<li>Graph-structured data — use a GNN</li>
+<li>The important relationships are long-range and don't compose locally</li>
+<li>You have tens of millions of labelled images and the compute for a ViT — it will likely edge ahead</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch.nn as nn
 
 model = nn.Sequential(
@@ -161,71 +191,62 @@ model = nn.Sequential(
     nn.Linear(64 * 8 * 8, n_classes),
 )
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want convolution math and ResNets?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the convolution math, padding/stride, and ResNets?</span>
+<button data-go-to="fundamentals" type="button">Switch to Fundamentals →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">2D convolution</span>
-
-        <div class="notation-standard">
-            <span class="formula">$$ (\mathbf{x} \ast \mathbf{k})[i, j] \;=\; \sum_{m, n} \mathbf{x}[i+m,\, j+n] \cdot \mathbf{k}[m, n] $$</span>
-            <ul class="formula-legend">
-                <li><code>x</code>input feature map (or image channel)</li>
-                <li><code>k</code>kernel — small (e.g. 3×3 or 5×5), <em>learned</em></li>
-                <li>Output is "what the filter found at each position"</li>
-            </ul>
-        </div>
-
-        <div class="notation-plain">
-            <span class="formula">$$ \text{output}[i, j] \;=\; \text{sum over the small kernel window of (image pixel} \times \text{kernel weight)} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> At every output position <code>(i, j)</code>, line up the small <strong>kernel</strong> (a tiny 3×3 or 5×5 grid of learned numbers) over a matching patch of the <strong>input image</strong>. Multiply each kernel weight by the pixel it sits on, then add all those products together — that's one output number. Slide the kernel one pixel over and repeat for the next output position. The <code>∗</code> symbol means "convolution"; the <code>Σ</code> just means "add up all the products inside the kernel window". The same kernel is reused at every position — that's why CNNs have so few parameters.
-            </p>
-            <ul class="formula-legend">
-                <li><code>image patch</code>the small window of input pixels under the kernel right now</li>
-                <li><code>kernel</code>small grid of learned weights — the same one used at every position</li>
-                <li><code>output[i, j]</code>"how much does the kernel pattern appear at position (i, j)?"</li>
-            </ul>
-        </div>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>Anatomy of a conv layer.</strong> Each layer learns <em>F</em> filters, applied at every spatial position. Input shape <em>(B, C<sub>in</sub>, H, W)</em>, output <em>(B, F, H', W')</em>. <code>padding</code> controls whether output spatial dims shrink; <code>stride</code> controls how aggressively they shrink. <code>F</code> typically grows with depth (more filters as we get more abstract).</p>
-        <p><strong>Pooling.</strong> Max or average over small windows, downsampling spatial dims. Originally for invariance and parameter reduction; modern designs often skip pooling and use strided convolutions instead.</p>
-        <p><strong>ResNet (He et al., 2015).</strong> Add a <em>skip connection</em> from input to output of a block: <em>y = x + F(x)</em>. This made it possible to train 100+ layer networks by giving gradients a direct path back. Almost every modern vision architecture uses skip connections.</p>
-        <p><strong>Modern norms.</strong> Batch normalization is the classical choice but breaks with small batches. Group / Layer norm are more robust. The norm + activation order (pre-norm vs post-norm) matters for training stability.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Image classification — start from a pretrained ResNet / EfficientNet</li>
-                <li>Object detection — Faster R-CNN, YOLO, DETR (mostly CNN backbones)</li>
-                <li>Semantic / instance segmentation — U-Net, Mask R-CNN</li>
-                <li>Medical imaging where data is limited but a pretrained backbone helps</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>Very large image datasets and compute — Vision Transformers often win</li>
-                <li>Inputs aren't really grid-structured</li>
-                <li>You need global reasoning the receptive field can't reach</li>
-                <li>Reasoning over symbolic / discrete inputs</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">2D convolution</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ (\mathbf{x} \ast \mathbf{k})[i, j] \;=\; \sum_{m, n} \mathbf{x}[i+m,\, j+n] \cdot \mathbf{k}[m, n] $$</span></p>
+<ul class="formula-legend">
+<li><code>x</code>input feature map (or image channel)</li>
+<li><code>k</code>kernel — small (e.g. 3×3 or 5×5), <em>learned</em></li>
+<li><code>(i, j)</code>output spatial position; the kernel slides over every such position</li>
+<li>Output is "how strongly the filter's pattern appears at each position"</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{output}[i, j] \;=\; \text{sum over the kernel window of (image pixel} \times \text{kernel weight)} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> At every output position <code>(i, j)</code>, line up the small <strong>kernel</strong> (a 3×3 or 5×5 grid of learned numbers) over a matching patch of the input. Multiply each kernel weight by the pixel it sits on, add all those products together — that's one output number. Slide the kernel one pixel over and repeat. The <code>∗</code> symbol means "convolution"; the <code>Σ</code> just means "add up everything inside the kernel window". The same kernel is reused at every position — that's why CNNs have so few parameters.</p>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Anatomy of a conv layer.</strong> Each layer learns <em>F</em> filters, each of shape <code>(C_in, k, k)</code>, applied at every spatial position. Input shape <code>(B, C_in, H, W)</code> becomes <code>(B, F, H', W')</code>. Three knobs determine <code>H'</code> and <code>W'</code>:</p>
+<ul>
+<li><strong>Padding</strong> — pixels of zeros added around the input border. With <code>padding=1</code> and a 3×3 kernel, the spatial dimensions are preserved; without padding, every conv shrinks the map by 2.</li>
+<li><strong>Stride</strong> — how many input pixels the kernel jumps between output positions. Stride 2 halves the spatial dimensions and is the modern replacement for pooling.</li>
+<li><strong>Dilation</strong> — inserts gaps between kernel taps, so a 3×3 dilated-by-2 kernel covers a 5×5 patch with the same 9 weights. Used in segmentation networks to grow the receptive field without losing resolution.</li>
+</ul>
+<p><strong>Pooling vs strided convolution.</strong> Max-pooling (or average-pooling) is parameter-free and provides a hard form of translation invariance over its window. Strided convolutions are <em>learned</em> downsampling and tend to preserve more information; most modern architectures (ResNet, ConvNeXt, EfficientNet) use them in preference to pooling, keeping a single global average pool at the very end before the classifier head.</p>
+<p><strong>ResNet (He et al., 2015).</strong> Naively stacking 50+ conv layers used to <em>hurt</em> — training diverged, gradients vanished. ResNet added a <strong>skip connection</strong> around each block: <code>y = x + F(x)</code>. Now the layer only has to learn the <em>residual</em> on top of the identity, and gradients have a direct highway back to early layers. This single change unlocked networks 10× deeper than what had been possible and is now standard in essentially every modern architecture, vision or otherwise.</p>
+<p><strong>Normalization.</strong> Batch normalization is the classical default — normalize activations across the batch, learn a per-channel scale and shift. It speeds up training and acts as mild regularization, but it breaks with small batches (detection, segmentation, video). <strong>Group norm</strong> and <strong>layer norm</strong> are batch-independent and have largely taken over in modern recipes. The norm-vs-activation order (pre-norm vs post-norm) matters for training stability — pre-norm is the safer default.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Image classification — start from a pretrained ResNet / EfficientNet / ConvNeXt and fine-tune the head</li>
+<li>Object detection — Faster R-CNN, YOLO, RetinaNet all use CNN backbones</li>
+<li>Semantic / instance segmentation — U-Net for medical, Mask R-CNN for natural images</li>
+<li>Audio, video, medical imaging where labelled data is scarce but a pretrained backbone exists</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>ImageNet-scale datasets and you have the compute budget — Vision Transformers may pull ahead</li>
+<li>The task needs reasoning across the <em>whole</em> image at every layer (use attention)</li>
+<li>Inputs aren't really grid-structured (sets, graphs, irregularly-sampled point clouds)</li>
+<li>You need symbolic / discrete-token reasoning</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch.nn as nn
 import torchvision.models as tvm
 
@@ -233,82 +254,68 @@ import torchvision.models as tvm
 model = tvm.resnet50(weights=tvm.ResNet50_Weights.DEFAULT)
 model.fc = nn.Linear(model.fc.in_features, n_classes)
 
-# Freeze backbone for the first few epochs
+# Freeze backbone for the first few epochs, then unfreeze and fine-tune
 for p in model.parameters():
     p.requires_grad = False
 for p in model.fc.parameters():
     p.requires_grad = True
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want receptive fields, dilated convs, and modern variants?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want receptive fields, depthwise-separable, and ViT vs CNN?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Effective receptive field</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Effective receptive field</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \text{RF}^{(\ell)} \;=\; \text{RF}^{(\ell-1)} \;+\; \big(k^{(\ell)} - 1\big)\,\prod_{j<\ell} s^{(j)} $$</span></p>
+<ul class="formula-legend">
+<li><code>k<sup>(ℓ)</sup></code>kernel size at layer <em>ℓ</em></li>
+<li><code>s<sup>(j)</sup></code>stride at layer <em>j</em></li>
+<li><code>∏</code>product over all earlier layers' strides</li>
+<li>The patch of input that influences one output activation grows with depth</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{receptive field at layer } \ell \;=\; \text{receptive field at } \ell{-}1 \;+\; (\text{kernel size} - 1) \times \text{product of all earlier strides} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The <strong>receptive field</strong> is the size of the input patch that influences one pixel of a deeper feature map. Each new layer's kernel sees a window of its input, but the input has already been downsampled by previous strides — so its window covers a larger region of the <em>original</em> image. The <code>∏</code> (capital pi) means "multiply together" — here, multiply all the strides from earlier layers. A stride-2 layer means each subsequent pixel covers a 2× wider piece of the original; a 3×3 kernel after that sees a 6-pixel-wide patch of the input.</p>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Effective receptive field.</strong> The theoretical formula above is an upper bound. In practice the <em>effective</em> receptive field is roughly Gaussian-shaped and much smaller — most of the gradient mass concentrates near the centre. <strong>Dilated (atrous) convolutions</strong> enlarge the receptive field without growing parameters or losing resolution, which is why they show up in semantic segmentation (DeepLab) and dense prediction generally.</p>
+<p><strong>Depthwise-separable convolutions.</strong> A standard 3×3 conv with <code>C_in → C_out</code> channels costs <code>9 · C_in · C_out</code> parameters. Decompose it into a 3×3 <strong>depthwise</strong> conv (one filter per input channel, no channel mixing) followed by a 1×1 <strong>pointwise</strong> conv (mixes channels at every spatial position), and the cost drops to <code>9 · C_in + C_in · C_out</code> — often a 5-10× reduction. This is the trick behind MobileNet, EfficientNet, and ConvNeXt; the small accuracy loss is more than paid back by the FLOPs saved.</p>
+<p><strong>Vision Transformers (ViT) vs CNNs.</strong> A ViT slices the image into 16×16 patches, embeds each patch, and runs them through a stack of self-attention layers. It throws away the CNN's locality and translation-equivariance priors — and so on small data it <em>underperforms</em> CNNs badly. On hundreds of millions of labelled images (JFT-300M, LAION) it overtakes them: with enough data, learning the priors is better than hard-coding them. The modern picture is more nuanced — <strong>ConvNeXt</strong> (Liu et al., 2022) showed that a CNN modernised with depthwise convs, LayerNorm, GELU, and a ViT-style training recipe matches ViT performance on ImageNet, suggesting the gap was mostly about training tricks. Hybrids like <strong>CoAtNet</strong> and <strong>MaxViT</strong> combine convs in early stages with attention in later stages and frequently top the leaderboards.</p>
+<p><strong>Attention-augmented convolutions.</strong> Even before full ViTs, people grafted self-attention onto CNN backbones to inject global context — squeeze-and-excitation (channel-wise gating), non-local blocks, axial attention. They're still useful when you want CNN efficiency with the ability to do some long-range reasoning.</p>
+<p><strong>Inductive bias as a feature.</strong> CNNs hard-code three priors: <strong>locality</strong> (kernels are small), <strong>translation equivariance</strong> (the same kernel everywhere), and <strong>hierarchical composition</strong> (depth + downsampling). These priors are <em>correct</em> for natural images, which is why CNNs sample-efficiently learn from small datasets. They are <em>constraints</em> you'd want to relax once data is no longer the bottleneck. The choice between CNN and ViT is mostly a question of how much data you can throw at the problem.</p>
+<p><strong>Equivariance beyond translation.</strong> For rotation, reflection, or scale equivariance, see <strong>group-equivariant CNNs</strong> (Cohen &amp; Welling, 2016) and <strong>steerable CNNs</strong> — important in molecular property prediction, astronomy, and medical imaging where the orientation of an object carries no information.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>On-device / low-latency inference — depthwise-separable backbones still rule the FLOPs-per-accuracy frontier</li>
+<li>Limited data — CNN priors do real work, ViTs need orders of magnitude more</li>
+<li>Dense prediction (segmentation, depth, optical flow) — receptive-field engineering matters and is well-understood</li>
+<li>Domains with clear locality and translation invariance — natural images, medical scans, spectrograms</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>You need genuinely long-range reasoning the receptive field can't reach in a few layers</li>
+<li>You want a single architecture across modalities — transformers generalise more naturally</li>
+<li>You have ImageNet-scale data and a TPU pod budget — a well-trained ViT or hybrid usually wins</li>
+<li>The task isn't equivariant in any obvious sense (text, tabular, symbolic)</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch, torch.nn as nn
 
-        <div class="notation-standard">
-            <span class="formula">$$ \text{RF}^{(\ell)} \;=\; \text{RF}^{(\ell-1)} \;+\; \big(k^{(\ell)} - 1\big)\,\prod_{j<\ell} s^{(j)} $$</span>
-            <ul class="formula-legend">
-                <li><code>k<sup>(ℓ)</sup></code>kernel size at layer <em>ℓ</em></li>
-                <li><code>s<sup>(j)</sup></code>stride at layer <em>j</em></li>
-                <li>The portion of the input that influences one output pixel grows with depth</li>
-            </ul>
-        </div>
-
-        <div class="notation-plain">
-            <span class="formula">$$ \text{receptive field at layer } \ell \;=\; \text{receptive field at } \ell{-}1 \;+\; (\text{kernel size} - 1) \times \text{product of all earlier strides} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> The <strong>receptive field</strong> is the size of the input patch that influences one pixel of a deeper feature map. It grows layer by layer: each new layer's kernel sees a window of its input, but the input has already been downsampled by previous strides — so its window covers a larger region of the original image. The <code>∏</code> (capital pi) symbol means "multiply together" — here, multiply all the strides from earlier layers. A stride of 2 at layer 1 means each pixel at layer 2 already covers a 2× wider piece of the original image; a 3×3 kernel at layer 2 then sees a 6-pixel-wide patch in the original.
-            </p>
-            <ul class="formula-legend">
-                <li><code>receptive field</code>how big a patch of the original input one output pixel "sees"</li>
-                <li><code>kernel size</code>width of the filter at the current layer (e.g. 3 for a 3×3 kernel)</li>
-                <li><code>stride</code>how many input pixels the kernel jumps between output positions</li>
-                <li>Deeper layers see larger pieces of the image — which is why depth gives a CNN global context</li>
-            </ul>
-        </div>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>Receptive field engineering.</strong> The output of a deep CNN at one position only "sees" a finite patch of the input. Dilated (atrous) convolutions enlarge the receptive field without growing parameters — crucial for semantic segmentation and dense prediction. The <em>effective</em> receptive field is smaller than theoretical: most weight goes near the center.</p>
-        <p><strong>Modern architectures.</strong> ResNet (skip connections), DenseNet (every-to-every connections), EfficientNet (compound scaling of depth/width/resolution), ConvNeXt (CNN designed to match ViT performance with modern tricks). Most production CV systems use a ResNet or EfficientNet backbone with task-specific heads.</p>
-        <p><strong>Inductive bias.</strong> CNNs hard-code three priors: locality (filters are small), translation equivariance (same filter everywhere), hierarchical composition (deeper layers see more). These priors let CNNs learn from much less data than ViTs. ViTs win when you have enough data to learn those priors from scratch.</p>
-        <p><strong>Depthwise separable.</strong> A 3×3 conv with <em>C<sub>in</sub></em>→<em>C<sub>out</sub></em> channels has 9·C<sub>in</sub>·C<sub>out</sub> params. Split into 3×3 depthwise (one filter per input channel) + 1×1 pointwise (mix channels): 9·C<sub>in</sub> + C<sub>in</sub>·C<sub>out</sub> params. Used in MobileNet, EfficientNet — much cheaper at modest accuracy cost.</p>
-        <p><strong>Equivariance and invariance.</strong> A CNN is equivariant to translation: shift the input, the output shifts the same way. With pooling / global average pooling on top, the final prediction is <em>invariant</em> to translation. For rotation / reflection equivariance, see group-equivariant CNNs (Cohen &amp; Welling).</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Inference latency / on-device — depthwise separable wins</li>
-                <li>Small data — CNN priors do real work; ViTs need more</li>
-                <li>Dense prediction — segmentation, depth, optical flow</li>
-                <li>Domain has clear locality / translation invariance</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>You need long-range reasoning that the receptive field can't reach</li>
-                <li>You want a single architecture across modalities — transformers generalize better</li>
-                <li>The task isn't equivariant in any obvious sense (text, tabular)</li>
-                <li>Real-time inference and you can afford a custom efficient ViT</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
-<pre><code class="language-python">import torch.nn as nn
-
-# A modern residual block (pre-activation, GroupNorm, depthwise+pointwise)
+# ConvNeXt-style block: depthwise + LayerNorm + inverted bottleneck + residual
 class ConvNeXtBlock(nn.Module):
     def __init__(self, dim, expand=4):
         super().__init__()
@@ -326,19 +333,18 @@ class ConvNeXtBlock(nn.Module):
         x = x.permute(0, 3, 1, 2)                   # back to (B, C, H, W)
         return residual + x
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Fundamentals</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
-                    <a href="dnn.html" class="prev">
+                    <a href="../neural-networks.html" class="prev">
                         <span>
                             <span class="topic-nav-label">Previous</span>
-                            <span class="topic-nav-title">Deep Neural Networks</span>
+                            <span class="topic-nav-title">Neural Networks</span>
                         </span>
                     </a>
                     <a href="rnn.html" class="next">
@@ -351,27 +357,55 @@ class ConvNeXtBlock(nn.Module):
             </div>
 
             <aside class="topic-sidebar">
-                <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://cs231n.github.io/" target="_blank">CS231n — Stanford <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The gold-standard course on CNNs for vision. Lecture notes alone are worth working through, even without the videos.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/1512.03385" target="_blank">He et al. (2015) — ResNet <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The paper that made very deep networks trainable. Skip connections — one of the most consequential ideas in modern deep learning.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/2201.03545" target="_blank">Liu et al. (2022) — ConvNeXt <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">A CNN rebuilt with modern conventions (LayerNorm, depthwise convs, GELU). Matches ViT performance — useful proof that the choice between CNN/ViT is more about training recipe than architecture.</span>
-        </li>
-        <li data-tier="intuition">
-            <a href="https://distill.pub/2019/computing-receptive-fields/" target="_blank">Distill — Computing Receptive Fields <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Interactive visualization of how receptive fields grow with depth. Essential intuition for designing dense-prediction networks.</span>
-        </li>
-    </ul>
+                <div class="fig-explainer" data-fig="cnn">
+<h3>What the figure shows</h3>
+<p><strong>Top — a single 3×3 kernel</strong> (9 numbers) slides over the whole image; at every position it computes a weighted sum that becomes one cell of the feature map. <em>Use a preset filter</em> runs hand-designed kernels (Sobel edges, blur, sharpen); click any cell to cycle its value. <em>Learn the filter</em> starts from 9 random numbers and runs gradient descent toward a chosen target output — the weights aren't designed, they're learned from a loss signal, exactly like every other weight in a network.</p>
+<p><strong>Bottom — pooling</strong> downsamples the feature map: each 2×2 block becomes one output cell (max or mean). Same channels, half the spatial size. Stack conv + pool a few times and what was a 200×200 image becomes a 7×7 grid of high-level features. Hover either side of the pool to see which input block becomes which output cell.</p>
+<p>The same kernel applies at every position — that's <strong>weight sharing</strong>, the reason CNNs need so few parameters compared to a dense net.</p>
 </div>
+<div class="learn-more">
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="intuition">
+<a href="https://poloclub.github.io/cnn-explainer/">CNN Explainer — poloclub</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">A real CNN running in your browser. Click any feature-map cell to trace exactly which input pixels produced it. The single best interactive resource for seeing what each layer does.</span>
+</li>
+<li data-tier="intuition">
+<a href="https://adamharley.com/nn_vis/cnn/3d.html">Harley — 3D Visualization of an MNIST CNN</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Rotate, zoom, and inspect the volume of activations at every layer of a small CNN classifying your own hand-drawn digits. Older but still uniquely good for the spatial structure.</span>
+</li>
+<li data-tier="intuition">
+<a href="https://distill.pub/2017/feature-visualization/">Olah et al. — Feature Visualization (Distill)</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The seminal article on what individual CNN neurons "see" — synthesised images that maximally activate each filter. Beautiful interactive diagrams; pairs well with the follow-up <em>Building Blocks of Interpretability</em>.</span>
+</li>
+<li data-tier="fundamentals">
+<a href="https://d2l.ai/chapter_convolutional-neural-networks/index.html">Zhang et al. — Dive into Deep Learning, CNN chapters</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Code-first walkthrough of convolutions, padding/stride, pooling, LeNet, AlexNet, VGG, GoogLeNet, ResNet, DenseNet — every classical architecture rebuilt from scratch with runnable notebooks.</span>
+</li>
+<li data-tier="fundamentals">
+<a href="https://cs231n.github.io/">CS231n — Stanford</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The gold-standard course on CNNs for vision. The lecture notes alone are worth working through even without the videos.</span>
+</li>
+<li data-tier="indepth">
+<a href="https://arxiv.org/abs/1512.03385">He et al. (2015) — Deep Residual Learning</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The ResNet paper. Skip connections — one of the most consequential ideas in modern deep learning. Short, readable, and the experiments speak for themselves.</span>
+</li>
+<li data-tier="indepth">
+<a href="https://distill.pub/2019/computing-receptive-fields/">Araujo et al. — Computing Receptive Fields (Distill)</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Interactive walkthrough of how receptive fields actually grow with depth, dilation, and stride — including the often-surprising <em>effective</em> receptive field. Essential for designing dense-prediction networks.</span>
+</li>
+<li data-tier="indepth">
+<a href="https://arxiv.org/abs/2201.03545">Liu et al. (2022) — A ConvNet for the 2020s (ConvNeXt)</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">A CNN rebuilt with modern conventions (LayerNorm, depthwise convs, GELU, larger kernels). Matches ViT performance — useful proof that the CNN-vs-ViT gap was mostly about training recipe, not architecture.</span>
+</li>
+<li data-tier="indepth">
+<a href="https://arxiv.org/abs/2010.11929">Dosovitskiy et al. (2020) — An Image Is Worth 16×16 Words (ViT)</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The Vision Transformer paper — read this to understand what CNNs are being compared against, and why scale changes the answer.</span>
+</li>
+</ul>
+</div>
+<p></content>
+</invoke></p>
             </aside>
 
         </div>

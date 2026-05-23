@@ -1,28 +1,60 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["markdown>=3.5"]
+# ///
 """Build topic pages from sources + a shared template.
 
 Usage:
-    python3 build.py             # build everything
-    python3 build.py NAME        # build only topics/_src/NAME.html
-    python3 build.py --watch     # rebuild whenever a source or the template changes
+    uv run build.py              # build everything
+    uv run build.py NAME         # build only topics/_src/NAME.{md,html}
+    uv run build.py --watch      # rebuild whenever a source or the template changes
 
-Sources live in topics/_src/*.html, written as three sections separated by
-HTML comment markers:
+(Plain `python3 build.py` also works if `markdown` is importable.)
+
+Sources live in topics/_src/, either as legacy `.html` or as new `.md`.
+
+Legacy .html format (three HTML-comment-marked sections):
 
     <!-- TOPIC META -->
     key: value
     key: value
-    ...
 
     <!-- TOPIC CONTENT -->
-    <section class="topic-level" data-level="basic">...</section>
-    <section class="topic-level active" data-level="standard">...</section>
-    <section class="topic-level" data-level="advanced">...</section>
+    <section class="topic-level" ...>...</section>
 
     <!-- TOPIC SIDEBAR -->
     <div class="learn-more">...</div>
 
-Meta fields:
+New .md format (YAML-ish frontmatter, then markdown body, sidebar split by
+the same HTML comment marker — markdown is processed inside any HTML block
+that has the `markdown="1"` attribute):
+
+    ---
+    title: ...
+    eyebrow_text: ...
+    eyebrow_href: {{root}}theory.html
+    heading: ...
+    lead: ...
+    ---
+
+    <section class="topic-level active" data-level="intuition">
+
+    <div class="key-idea" markdown="1">
+    <span class="key-idea-label">Key idea</span>
+
+    Markdown prose here, with **bold**, *italics*, [links](...), and `code`.
+    </div>
+
+    </section>
+
+    <!-- TOPIC SIDEBAR -->
+
+    <div class="learn-more" markdown="1">
+    ...
+    </div>
+
+Meta fields (required in both formats):
     title         - <title> tag content
     eyebrow_text  - breadcrumb text shown in the eyebrow pill
     eyebrow_href  - link target for the eyebrow
@@ -38,6 +70,11 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
+
+try:
+    import markdown as _md_lib
+except ImportError:
+    _md_lib = None
 
 ROOT     = Path(__file__).resolve().parent
 SRC_DIR  = ROOT / "topics" / "_src"
@@ -76,6 +113,199 @@ def parse_source(text: str) -> tuple[dict[str, str], str, str]:
             raise ValueError(f"Missing required meta field: {k!r}")
 
     return meta, sections["content"].strip(), sections["sidebar"].strip()
+
+
+def _make_markdown():
+    """Build a markdown.Markdown instance configured for our authoring needs."""
+    if _md_lib is None:
+        raise RuntimeError(
+            "markdown library is not installed. "
+            "Run via `uv run build.py` (auto-installs) or `pip install markdown`."
+        )
+    return _md_lib.Markdown(
+        extensions=[
+            "md_in_html",   # process markdown inside <div markdown="1">…</div>
+            "fenced_code",  # ```…``` code blocks
+            "attr_list",    # {#id .class} attribute syntax
+            "tables",       # | a | b | tables
+        ],
+        # Keep our existing $math$ delimiters intact — markdown shouldn't
+        # touch them. The smarty extension is off for the same reason
+        # (would mangle quotes inside KaTeX).
+    )
+
+
+def parse_markdown_source(text: str) -> tuple[dict[str, str], str, str]:
+    """Split a `.md` source file into (meta dict, content html, sidebar html).
+
+    Format:
+        ---
+        key: value
+        ...
+        ---
+
+        [markdown + HTML body]
+
+        <!-- TOPIC SIDEBAR -->
+
+        [markdown + HTML sidebar]
+    """
+    m = re.match(r"\A---\s*\n(.*?)\n---\s*\n(.*)\Z", text, flags=re.DOTALL)
+    if not m:
+        raise ValueError(
+            "Markdown source must start with YAML-style frontmatter "
+            "between `---` lines."
+        )
+    meta_body, body = m.group(1), m.group(2)
+
+    meta: dict[str, str] = {}
+    for line in meta_body.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if ":" not in line:
+            raise ValueError(f"Bad meta line (expected 'key: value'): {line!r}")
+        key, _, value = line.partition(":")
+        meta[key.strip()] = value.strip()
+
+    for k in REQUIRED_META:
+        if k not in meta:
+            raise ValueError(f"Missing required meta field: {k!r}")
+
+    # Split body on the sidebar marker. Sidebar is optional.
+    parts = re.split(r"<!--\s*TOPIC\s+SIDEBAR\s*-->", body, maxsplit=1)
+    content_md = parts[0].strip()
+    sidebar_md = parts[1].strip() if len(parts) == 2 else ""
+
+    md = _make_markdown()
+    content_html = _convert_md_preserving_math(md, content_md)
+    md.reset()
+    sidebar_html = _convert_md_preserving_math(md, sidebar_md) if sidebar_md else ""
+
+    return meta, content_html, sidebar_html
+
+
+# Python-Markdown's inline parser treats `\` + ASCII punctuation as an
+# escape and drops the backslash, which destroys KaTeX commands like
+# `\!`, `\{`, `\,`, `\(`, `\\`. Stash math blocks before conversion and
+# restore them verbatim afterwards.
+_MATH_PLACEHOLDER = "\x00KATEX{idx}\x00"
+_MATH_RE = re.compile(r"\$\$.*?\$\$|\$(?!\s)[^$\n]+?(?<!\s)\$", re.DOTALL)
+
+# HTML void elements have no close tag.
+_HTML_VOID = {
+    "area", "base", "br", "col", "embed", "hr", "img", "input",
+    "link", "meta", "source", "track", "wbr",
+}
+_HTML_OPEN_RE = re.compile(r"^<(\w+)\b")
+
+
+def _dedent_html_blocks(text: str) -> str:
+    """Strip leading whitespace from the inside of column-0 HTML blocks.
+
+    Python-Markdown's `md_in_html` extension misparses indented HTML lines
+    (4+ leading spaces) as code blocks. This preprocessor finds top-level
+    HTML elements that start at column 0, reads forward to the matching
+    close tag at column 0, and dedents every line in between — so authors
+    can indent their HTML for readability in `.md` sources.
+
+    Fenced code blocks pass through unchanged so embedded HTML in code
+    examples is preserved.
+
+    Limitations:
+      * The opening tag and closing tag must each be on their own line at
+        column 0. Single-line blocks (`<tag>…</tag>` on one line) and
+        self-closing tags are passed through untouched.
+      * HTML void elements (`<br>`, `<hr>`, `<img>`, etc.) are passed
+        through as-is.
+    """
+    lines = text.split("\n")
+    out: list[str] = []
+    i = 0
+    in_fenced = False
+
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.lstrip()
+
+        # Fenced code blocks: pass through (and toggle state on the fence line).
+        if stripped.startswith("```"):
+            in_fenced = not in_fenced
+            out.append(line)
+            i += 1
+            continue
+        if in_fenced:
+            out.append(line)
+            i += 1
+            continue
+
+        m = _HTML_OPEN_RE.match(line)
+        if not m:
+            out.append(line)
+            i += 1
+            continue
+
+        tag = m.group(1)
+
+        # Void / self-closing / single-line cases — nothing to dedent.
+        if (tag.lower() in _HTML_VOID
+                or re.match(rf"^<{re.escape(tag)}\b[^>]*/>", line)
+                or re.search(rf"</{re.escape(tag)}>", line)):
+            out.append(line)
+            i += 1
+            continue
+
+        # Multi-line block: read until matching close at column 0.
+        close_re = re.compile(rf"^</{re.escape(tag)}>\s*$")
+        block = [line]
+        i += 1
+        found = False
+        while i < len(lines):
+            l = lines[i]
+            block.append(l)
+            i += 1
+            if close_re.match(l):
+                found = True
+                break
+
+        if found:
+            # Dedent every line; preserve blank lines as-is. Lines inside a
+            # nested fenced code block (```) pass through verbatim so we
+            # don't destroy the Python/etc. indentation the code relies on.
+            in_block_fence = False
+            for bl in block:
+                if bl.lstrip().startswith("```"):
+                    in_block_fence = not in_block_fence
+                    out.append(bl.lstrip() if bl.strip() else bl)
+                    continue
+                if in_block_fence:
+                    out.append(bl)            # preserve code indentation
+                else:
+                    out.append(bl.lstrip() if bl.strip() else bl)
+        else:
+            # No matching close — give up and pass through verbatim.
+            out.extend(block)
+
+    return "\n".join(out)
+
+
+def _convert_md_preserving_math(md, text: str) -> str:
+    # Dedent first so indented HTML inside the source doesn't trip md_in_html
+    text = _dedent_html_blocks(text)
+
+    blocks: list[str] = []
+
+    def stash(m: re.Match) -> str:
+        blocks.append(m.group(0))
+        return _MATH_PLACEHOLDER.format(idx=len(blocks) - 1)
+
+    stashed = _MATH_RE.sub(stash, text)
+    html = md.convert(stashed)
+
+    def restore(m: re.Match) -> str:
+        return blocks[int(m.group(1))]
+
+    return re.sub(r"\x00KATEX(\d+)\x00", restore, html)
 
 
 def render_nav(meta: dict[str, str], side: str) -> str:
@@ -131,8 +361,11 @@ def render(template: str, meta: dict[str, str], content: str, sidebar: str, root
 
 
 def build_one(src: Path, template: str) -> Path:
-    meta, content, sidebar = parse_source(src.read_text())
-    rel = src.relative_to(SRC_DIR)
+    if src.suffix == ".md":
+        meta, content, sidebar = parse_markdown_source(src.read_text())
+    else:
+        meta, content, sidebar = parse_source(src.read_text())
+    rel = src.relative_to(SRC_DIR).with_suffix(".html")
     # "../" per directory level back to the site root
     root = "../" * len(rel.parts)
     rendered = render(template, meta, content, sidebar, root)
@@ -142,9 +375,14 @@ def build_one(src: Path, template: str) -> Path:
     return out
 
 
+def _all_sources() -> list[Path]:
+    """All source files, sorted, both .html and .md."""
+    return sorted(list(SRC_DIR.rglob("*.html")) + list(SRC_DIR.rglob("*.md")))
+
+
 def build_all(template: str) -> int:
     """Build every source file (recursively); return number of errors."""
-    sources = sorted(SRC_DIR.rglob("*.html"))
+    sources = _all_sources()
     if not sources:
         print(f"error: no sources in {SRC_DIR}", file=sys.stderr)
         return 1
@@ -166,7 +404,7 @@ def watch_loop(template_path: Path) -> int:
 
     def snapshot() -> dict[Path, float]:
         m: dict[Path, float] = {}
-        for f in SRC_DIR.rglob("*.html"):
+        for f in _all_sources():
             m[f] = f.stat().st_mtime
         if template_path.exists():
             m[template_path] = template_path.stat().st_mtime
@@ -209,11 +447,18 @@ def main() -> int:
     template = TEMPLATE.read_text()
 
     if len(sys.argv) > 1:
-        # Build a single named topic (supports nested: "neural-networks/cnn")
-        name = sys.argv[1].removesuffix(".html")
-        src = SRC_DIR / f"{name}.html"
-        if not src.exists():
-            print(f"error: source not found: {src}", file=sys.stderr)
+        # Build a single named topic (supports nested: "neural-networks/cnn").
+        # Prefer .md if both exist (legacy .html source can be left behind
+        # until it's deleted manually).
+        name = sys.argv[1].removesuffix(".html").removesuffix(".md")
+        src_md   = SRC_DIR / f"{name}.md"
+        src_html = SRC_DIR / f"{name}.html"
+        if src_md.exists():
+            src = src_md
+        elif src_html.exists():
+            src = src_html
+        else:
+            print(f"error: source not found: {src_md} or {src_html}", file=sys.stderr)
             return 1
         try:
             out = build_one(src, template)

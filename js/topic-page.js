@@ -26,6 +26,10 @@
         levels.forEach(l => l.classList.toggle('active', l.dataset.level === level));
         body.setAttribute('data-tier', level);
         try { localStorage.setItem(KEY, level); } catch (e) {}
+        // Sections we just hid/showed change which figures are visible; re-run
+        // the scroll-spy so the sidebar doesn't keep showing an explainer for
+        // a figure that's no longer in the DOM flow.
+        window.dispatchEvent(new Event('scroll'));
     }
 
     tabs.forEach(t => t.addEventListener('click', () => setLevel(t.dataset.level)));
@@ -64,6 +68,44 @@
     let savedNotation = 'standard';
     try { savedNotation = localStorage.getItem(NKEY) || 'standard'; } catch (e) {}
     setNotation(savedNotation);
+
+
+    // ----- Scroll-spy: swap sidebar resources for figure-specific explainers -----
+    // The anchor for a figure is the .viz-embed (or .viz-fig-anchor for
+    // multi-figure canvases) — NOT the .fig-explainer itself, which also
+    // carries [data-fig] but lives in the sticky sidebar. If we treated the
+    // sidebar explainer as an anchor it would always sit at the probe line
+    // and trigger itself in a feedback loop.
+    function setupFigScrollSpy() {
+        const figs = document.querySelectorAll('[data-fig]:not(.fig-explainer)');
+        const explainers = document.querySelectorAll('.topic-sidebar .fig-explainer');
+        const learnMore  = document.querySelectorAll('.topic-sidebar .learn-more');
+        if (!figs.length || !explainers.length) return;
+
+        const update = () => {
+            const probe = window.innerHeight * 0.45;
+            let active = null;
+            for (const fig of figs) {
+                const r = fig.getBoundingClientRect();
+                if (r.top <= probe && r.bottom >= probe) {
+                    active = fig.dataset.fig;
+                    break;
+                }
+            }
+            explainers.forEach(ex => {
+                ex.classList.toggle('active', ex.dataset.fig === active);
+            });
+            learnMore.forEach(lm => {
+                lm.style.display = active ? 'none' : '';
+            });
+            if (active) body.setAttribute('data-active-fig', active);
+            else        body.removeAttribute('data-active-fig');
+        };
+        window.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        update();
+    }
+    setupFigScrollSpy();
 
 
     // ----- Copy button on each code block -----

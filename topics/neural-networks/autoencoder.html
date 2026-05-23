@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autoencoders &amp; VAEs — ML Resources Hub</title>
+    <title>Autoencoders & VAEs — ML Resources Hub</title>
     <link rel="stylesheet" href="../../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
@@ -33,7 +33,7 @@
             <div class="topic-main">
                 <header class="page-header">
                     <a href="../../theory.html" class="eyebrow">← Theory · Neural Networks</a>
-                    <h1>Autoencoders &amp; VAEs</h1>
+                    <h1>Autoencoders & VAEs</h1>
                     <p class="lead">Encoder-decoder networks for representation learning, dimensionality reduction, and generation.</p>
                 </header>
 
@@ -53,58 +53,67 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Squeeze data through a narrow channel, then reconstruct it.</strong> An encoder compresses input to a small "code"; a decoder tries to reconstruct the original from just that code. The bottleneck forces the network to learn what matters.</p>
-    </div>
-
-    <div class="viz-embed viz-ae">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Click a preset to encode it · drag the orange dot to roam the latent space · toggle VAE mode for stochastic codes</span>
-        </div>
-        <div class="viz-ae-controls">
-            <span style="font-size: 0.78rem; color: var(--muted); margin-right: 0.2rem;">Input:</span>
-            <span class="viz-ae-presets" id="viz-ae-presets"></span>
-            <button id="viz-ae-vae"   type="button">VAE mode: off</button>
-            <button id="viz-ae-reset" type="button">Reset</button>
-        </div>
-        <div class="viz-ae-canvas-wrap">
-            <canvas id="viz-ae-canvas"></canvas>
-        </div>
-        <div class="viz-ae-caption" id="viz-ae-caption"></div>
-    </div>
-    <script src="../../js/viz/ae.js"></script>
-
-    <p class="viz-intro">The 12×12 image on the left is encoded into just <em>two</em> numbers — that's what the orange dot's position represents. The decoder takes those two numbers and tries to reconstruct the image on the right. Because the latent space is continuous, points <em>between</em> prototypes give blends — that's why a VAE can generate "new" faces by walking around in latent space.</p>
-
-    <article class="tldr-body">
-        <p>Picture an image being shrunk to a tiny vector of, say, 32 numbers, then expanded back to a full image. The reconstruction won't be perfect — but if you train the encoder and decoder together to minimize reconstruction error, the 32 numbers end up capturing the most important features.</p>
-        <p>That compressed "code" is useful: as a learned embedding for downstream tasks, for dimensionality reduction (like a non-linear PCA), and — with the right twist — as a starting point for a <strong>VAE</strong> that can <em>generate</em> new images by sampling new codes.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Learning representations from unlabelled data</li>
-                <li>Non-linear dimensionality reduction</li>
-                <li>Anomaly detection (high reconstruction error → anomalous)</li>
-                <li>Denoising (train to reconstruct clean from noisy)</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>You have labels — supervised pretraining usually gives better embeddings</li>
-                <li>You want high-quality image generation — use diffusion or GAN</li>
-                <li>Linear methods (PCA) are sufficient</li>
-                <li>You need calibrated likelihoods (VAE likelihoods aren't perfect)</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Squeeze data through a narrow channel, then rebuild it.</strong> An <em>encoder</em> compresses the input to a small <em>code</em>; a <em>decoder</em> tries to reconstruct the original from that code alone. The bottleneck has nowhere to hide redundancy — only the features that actually help reconstruction survive.</p>
+</div>
+<div class="viz-embed viz-ae" data-fig="autoencoder">
+<div class="viz-task-banner">
+<span class="viz-task-label">Task</span>
+<span class="viz-task-text">
+Compress the <strong>12×12 image on the left</strong> through a narrow bottleneck of just <strong>two numbers</strong> (the orange dot's position in the middle), then reconstruct the image on the right. Click a preset to encode it; drag the orange dot to roam the latent space; toggle <strong>VAE mode</strong> for stochastic codes. The reconstruction error tells you what the code couldn't keep.
+</span>
+</div>
+<div class="viz-embed-header">
+<span class="viz-embed-title">Encoder · 2-D latent · decoder — drag the dot to decode any code</span>
+</div>
+<div class="viz-ae-controls">
+<span style="font-size: 0.78rem; color: var(--muted); margin-right: 0.2rem;">Input:</span>
+<span class="viz-ae-presets" id="viz-ae-presets"></span>
+<button id="viz-ae-vae"   type="button">VAE mode: off</button>
+<button id="viz-ae-reset" type="button">Reset</button>
+</div>
+<div class="viz-ae-canvas-wrap">
+<canvas id="viz-ae-canvas"></canvas>
+</div>
+<div class="viz-ae-caption" id="viz-ae-caption"></div>
+</div>
+<script src="../../js/viz/ae.js"></script>
+<article class="tldr-body">
+<h3>Why the bottleneck matters</h3>
+<p>If the code were as wide as the input, the network could just copy values through and learn nothing — the trivial identity function. The bottleneck makes that impossible: only a fixed number of dimensions get to pass, so the encoder has to <em>choose</em> what's worth keeping. The decoder, working from those few numbers alone, becomes a reconstruction prior — it fills in what it has learned tends to be there. The two halves trained jointly converge on a compact summary of the data's structure.</p>
+<h3>What the latent space encodes</h3>
+<p>The 2-D latent in the figure is doing a job a lot like PCA, but non-linear. Each preset lands at its own spot in the plane; points <em>between</em> presets decode to blends. Whatever varies most across the training set ends up as a direction in latent space. Walk along that direction and the reconstruction smoothly morphs — without you ever telling the network what "morph" means.</p>
+<h3>Why this is unsupervised</h3>
+<p>There are no labels. The target <em>is</em> the input — every example supervises its own reconstruction. That's the appeal: any pile of unlabelled data is enough to learn an embedding you can then plug into a classifier, a clustering algorithm, or an anomaly detector.</p>
+<h3>Denoising autoencoders</h3>
+<p>A small twist with outsized benefits: corrupt the input (add noise, mask pixels) and train the decoder to recover the <em>clean</em> original. The model can no longer memorise inputs because the inputs change every step — it has to learn what <em>should</em> be there. This is the direct ancestor of masked-token pretraining in language models.</p>
+<h3>Variational autoencoders — the generative version</h3>
+<p>A plain AE's latent space has holes — sample a random code and the decoder usually outputs garbage, because nothing trained it on that point. A <strong>VAE</strong> fixes this by making the encoder output a <em>distribution</em> over codes (a mean and a variance) and pushing those distributions toward a fixed prior, usually a unit Gaussian. After training, you can sample any code from that prior, run it through the decoder, and get a plausible new sample. That's the "generative" in VAE.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Learning representations from a pile of unlabelled data</li>
+<li>Non-linear dimensionality reduction (a deeper cousin of <a href="../../topics/dimensionality-reduction/pca.html">PCA</a>)</li>
+<li>Anomaly detection — large reconstruction error flags an outlier</li>
+<li>Denoising or inpainting where the corruption pattern is known</li>
+<li>You need a smooth, navigable latent space and can accept softer samples (VAE)</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>You have labels — supervised pretraining usually gives sharper embeddings</li>
+<li>Highest-quality image / audio generation is the goal — reach for <a href="../../topics/neural-networks/diffusion.html">diffusion</a> or a <a href="../../topics/neural-networks/gan.html">GAN</a></li>
+<li>Linear methods (PCA) are already good enough</li>
+<li>You need calibrated likelihoods — the ELBO is a lower bound, not the real thing</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch.nn as nn
 
 class AE(nn.Module):
@@ -119,75 +128,63 @@ class AE(nn.Module):
 # Loss: just reconstruction error
 loss = ((model(x)[0] - x) ** 2).mean()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want VAEs and the probabilistic story?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the loss choices, regularised variants, and the VAE objective?</span>
+<button data-go-to="fundamentals" type="button">Switch to Fundamentals →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">VAE objective (ELBO)</span>
-
-        <div class="notation-standard">
-            <span class="formula">$$ \mathcal{L}(\theta, \phi; \mathbf{x}) \;=\; \underbrace{\mathbb{E}_{q_\phi(\mathbf{z}\mid\mathbf{x})}\!\left[\log p_\theta(\mathbf{x}\mid\mathbf{z})\right]}_{\text{reconstruction}} \;-\; \underbrace{D_\text{KL}\!\big(q_\phi(\mathbf{z}\mid\mathbf{x}) \,\|\, p(\mathbf{z})\big)}_{\text{regularizer}} $$</span>
-            <ul class="formula-legend">
-                <li><code>q<sub>φ</sub>(z|x)</code>encoder — outputs a distribution over codes, not a single point</li>
-                <li><code>p<sub>θ</sub>(x|z)</code>decoder — likelihood of reconstructing <em>x</em> from <em>z</em></li>
-                <li><code>p(z)</code>prior, typically <em>𝒩(0, I)</em></li>
-                <li>Maximize this lower bound on <em>log p(x)</em></li>
-            </ul>
-        </div>
-
-        <div class="notation-plain">
-            <span class="formula">$$ \text{ELBO} \;=\; \underbrace{\text{avg over codes drawn from encoder}[\log p(\text{reconstruction} \mid \text{code})]}_{\text{reconstruction term}} \;-\; \underbrace{\text{distance(encoder's code distribution, prior)}}_{\text{regularizer term}} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> The objective has two competing parts. The first — <strong>reconstruction</strong> — rewards the model for decoding back to something like the input: sample a <code>code</code> from the encoder's distribution given <code>x</code>, run it through the decoder, and measure how well it reconstructs <code>x</code>. The second — the <code>D<sub>KL</sub></code> term — penalises the encoder when its per-sample distribution drifts away from the chosen <strong>prior</strong> (a fixed unit Gaussian). That keeps the latent space tidy and Gaussian-shaped so you can sample from it later. <code>D<sub>KL</sub></code> (KL divergence) is just a measure of how far one distribution sits from another. Maximising this whole expression (called the ELBO — Evidence Lower BOund) is provably a lower bound on the true data log-likelihood; you'll see that derived in the In-depth tier.
-            </p>
-            <ul class="formula-legend">
-                <li><code>encoder</code>maps input to a <em>distribution</em> over codes (mean + variance)</li>
-                <li><code>decoder</code>maps a sampled code back toward the input</li>
-                <li><code>prior</code>fixed simple distribution we want codes to look like — usually a unit Gaussian</li>
-                <li><code>D<sub>KL</sub></code>distance between two distributions; bigger means more different</li>
-                <li>Maximizing ELBO improves reconstruction <em>and</em> keeps the latent space sample-able</li>
-            </ul>
-        </div>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>Plain autoencoder.</strong> Loss is just reconstruction error (MSE for continuous, cross-entropy for binary). The latent space has no structure — there's no reason a midpoint between two codes corresponds to anything meaningful.</p>
-        <p><strong>Denoising autoencoder.</strong> Add noise to the input, train to reconstruct the <em>clean</em> version. Forces the network to learn structure rather than memorize the identity function. Often used as a pretraining objective.</p>
-        <p><strong>Variational autoencoder (VAE).</strong> The encoder produces a <em>distribution</em> over codes — typically <em>𝒩(μ(x), σ(x)²)</em> — and the decoder reconstructs from samples. Training enforces (a) good reconstruction and (b) the encoder's distribution stays close to a fixed prior, usually a unit Gaussian. The KL term in the loss does the "stays close" work.</p>
-        <p><strong>The reparameterization trick.</strong> Sampling from <em>𝒩(μ, σ²)</em> is non-differentiable, so we rewrite the sample as <em>z = μ + σ · ε</em> where <em>ε ~ 𝒩(0, I)</em>. Gradients flow through <em>μ</em> and <em>σ</em>; the randomness is offloaded to <em>ε</em>.</p>
-        <p><strong>Why VAEs work for generation.</strong> Because the latent space matches a known distribution (a unit Gaussian), you can sample new codes, run them through the decoder, and get plausible new samples. The trade-off: VAE samples are usually blurry compared to GANs or diffusion — the model is hedging.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>You need a continuous, navigable latent space (interpolation, arithmetic)</li>
-                <li>Anomaly detection — likelihood under the model</li>
-                <li>Representation learning with unlabelled data</li>
-                <li>You want a fast, single-step generator (much faster than diffusion)</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>Highest possible sample quality matters — GANs / diffusion win</li>
-                <li>You only need embeddings — use a contrastive method instead</li>
-                <li>Sharp generation (no blur) is required for the application</li>
-                <li>You need exact likelihoods (normalizing flows give those)</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">VAE objective (ELBO)</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathcal{L}(\theta, \phi; \mathbf{x}) \;=\; \underbrace{\mathbb{E}_{q_\phi(\mathbf{z}\mid\mathbf{x})}\!\left[\log p_\theta(\mathbf{x}\mid\mathbf{z})\right]}_{\text{reconstruction}} \;-\; \underbrace{D_\text{KL}\!\big(q_\phi(\mathbf{z}\mid\mathbf{x}) \,\|\, p(\mathbf{z})\big)}_{\text{regulariser}} $$</span></p>
+<ul class="formula-legend">
+<li><code>q<sub>φ</sub>(z|x)</code>encoder — outputs a distribution over codes, not a single point</li>
+<li><code>p<sub>θ</sub>(x|z)</code>decoder — likelihood of reconstructing <em>x</em> from <em>z</em></li>
+<li><code>p(z)</code>prior, typically <em>𝒩(0, I)</em></li>
+<li>Maximise this lower bound on <em>log p(x)</em></li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{ELBO} \;=\; \underbrace{\text{avg over codes drawn from encoder}[\log p(\text{reconstruction} \mid \text{code})]}_{\text{reconstruction term}} \;-\; \underbrace{\text{distance(encoder's code distribution, prior)}}_{\text{regulariser term}} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The objective has two competing parts. The first — <strong>reconstruction</strong> — rewards the model for decoding back to something like the input: sample a <code>code</code> from the encoder's distribution given <code>x</code>, run it through the decoder, and measure how well it reconstructs <code>x</code>. The second — the <code>D</code><sub><code>KL</code></sub> term — penalises the encoder when its per-sample distribution drifts away from the chosen <strong>prior</strong> (a fixed unit Gaussian). That keeps the latent space tidy and Gaussian-shaped so you can sample from it later. <code>D</code><sub><code>KL</code></sub> (KL divergence) is just a measure of how far one distribution sits from another. Maximising this whole expression (the <strong>ELBO</strong> — Evidence Lower BOund) is provably a lower bound on the true data log-likelihood; you'll see that derived in the In-depth tier.</p>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Reconstruction loss — pick by data type.</strong> Use <strong>MSE</strong> (squared error) for continuous outputs like image pixels in <code>[0,1]</code> or audio amplitudes; use <strong>binary cross-entropy</strong> per pixel when the decoder produces Bernoulli probabilities (the original VAE paper's choice for MNIST). For discrete data — text tokens, VQ codes — use ordinary cross-entropy. The loss implicitly encodes a <em>noise model</em> on the output: MSE assumes Gaussian noise around the reconstruction, BCE assumes Bernoulli. Mismatched losses produce blurry or weirdly sharp samples.</p>
+<p><strong>Undercomplete vs. overcomplete.</strong> <em>Undercomplete</em> means the latent is smaller than the input — the bottleneck does the regularising for you. <em>Overcomplete</em> (latent bigger than input) needs help to avoid copying the input straight through: sparsity penalties, denoising corruption, or contractive penalties on the encoder Jacobian. Without one of those, an overcomplete AE happily learns the identity and tells you nothing.</p>
+<p><strong>Tied weights.</strong> A classical trick: force the decoder weights to be the transpose of the encoder weights (<code>W_dec = W_enc^T</code>). Halves the parameter count and gives a clean analogy to PCA — for a linear AE with MSE loss and tied weights, the optimal solution literally spans the top principal components. Modern deep AEs usually don't bother, but it's a clean inductive bias for small models.</p>
+<p><strong>Regularised variants.</strong></p>
+<ul>
+<li><strong>Sparse AE</strong> — add an L1 penalty (or a KL penalty on activation means) so most latent units stay near zero per example. Each input then activates a different small subset, encouraging interpretable units.</li>
+<li><strong>Contractive AE</strong> — penalise the Frobenius norm of the encoder Jacobian, <em>‖∂z/∂x‖²</em>. Makes the code locally insensitive to tiny input perturbations — it stays put on the data manifold.</li>
+<li><strong>Denoising AE</strong> — corrupt the input, reconstruct the clean version. Practically the most useful — no extra term in the loss, just data augmentation on the input side.</li>
+</ul>
+<p><strong>VAE essentials.</strong> The encoder outputs <em>μ(x)</em> and <em>log σ²(x)</em>. To sample <em>z</em>, the <strong>reparameterisation trick</strong> rewrites <em>z = μ + σ · ε</em> with <em>ε ~ 𝒩(0, I)</em>, keeping gradients flowing through <em>μ</em> and <em>σ</em>. The KL term against a unit Gaussian has a closed form: <code>−½ Σ (1 + log σ² − μ² − σ²)</code>. Train, then sample new outputs by drawing <em>z ~ 𝒩(0, I)</em> and decoding.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>You need a continuous, navigable latent space (interpolation, vector arithmetic)</li>
+<li>Anomaly detection via reconstruction error or likelihood</li>
+<li>Representation learning where you can't get labels</li>
+<li>You want a fast single-pass generator and can accept some blur</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>Highest possible sample quality matters — diffusion / GANs win</li>
+<li>You only need embeddings — a contrastive method (SimCLR, CLIP) is usually sharper</li>
+<li>Sharp generation (no blur) is non-negotiable</li>
+<li>You need exact likelihoods — reach for a normalising flow</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch, torch.nn as nn
 import torch.nn.functional as F
 
@@ -212,88 +209,73 @@ class VAE(nn.Module):
         return self.dec(z), mu, logvar
 
 def vae_loss(x_hat, x, mu, logvar):
-    rec = F.mse_loss(x_hat, x, reduction="sum")
+    rec = F.mse_loss(x_hat, x, reduction=&quot;sum&quot;)
     kl  = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum()
     return rec + kl
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want ELBO derivation, β-VAE, and posterior collapse?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want ELBO derivation, β-VAE, VQ-VAE, and the modern story?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">ELBO derivation</span>
-
-        <div class="notation-standard">
-            <span class="formula">$$ \log p(\mathbf{x}) \;=\; \mathbb{E}_{q(\mathbf{z}\mid\mathbf{x})}\!\big[\log p(\mathbf{x}, \mathbf{z}) - \log q(\mathbf{z}\mid\mathbf{x})\big] \;+\; D_\text{KL}\!\big(q(\mathbf{z}\mid\mathbf{x}) \,\|\, p(\mathbf{z}\mid\mathbf{x})\big) $$</span>
-            <ul class="formula-legend">
-                <li>Log-marginal = ELBO + KL to the true posterior</li>
-                <li>Since KL ≥ 0, ELBO is a lower bound on log <em>p(x)</em></li>
-                <li>Maximizing ELBO simultaneously fits the data and makes <em>q</em> close to the posterior</li>
-            </ul>
-        </div>
-
-        <div class="notation-plain">
-            <span class="formula">$$ \log p(\text{data}) \;=\; \underbrace{\text{ELBO}}_{\text{what we maximize}} \;+\; \underbrace{D_\text{KL}(\text{encoder} \,\|\, \text{true posterior})}_{\,\ge\,0\,\text{ — the gap we can't see}} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> This is the algebraic identity that makes the VAE training objective principled. The <strong>log-marginal</strong> <code>log p(data)</code> — how well the model explains the data — splits exactly into the <strong>ELBO</strong> plus the KL distance from the encoder's distribution to the <em>true</em> posterior (the distribution over codes you'd want, given the data). Because <code>D<sub>KL</sub></code> is always non-negative, the ELBO is provably a <em>lower bound</em> on <code>log p(data)</code> — that's where the name "Evidence Lower BOund" comes from. Pushing the ELBO up does two good things at once: it makes the model fit the data better, and it makes the encoder's approximation closer to the true posterior. The true posterior is intractable, so we never compute that gap directly — the ELBO is what we actually optimize.
-            </p>
-            <ul class="formula-legend">
-                <li><code>log p(data)</code>log-likelihood of the data under the model — what we'd ideally maximize</li>
-                <li><code>ELBO</code>tractable lower bound — the actual training objective</li>
-                <li><code>true posterior</code>ideal distribution over codes given the data; intractable to compute directly</li>
-                <li><code>D<sub>KL</sub> ≥ 0</code>always non-negative, so ELBO ≤ log p(data)</li>
-            </ul>
-        </div>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>β-VAE.</strong> Re-weight the KL term: <em>ℒ = E[log p(x|z)] − β · KL(q‖p)</em>. With <em>β > 1</em>, the model is pushed harder toward the prior, encouraging "disentangled" latents where each dimension corresponds to one factor of variation. With <em>β &lt; 1</em>, sharper samples but worse latent structure.</p>
-        <p><strong>Posterior collapse.</strong> When the decoder is too powerful, the model learns to ignore <em>z</em> entirely — the encoder maps everything to the prior, and the decoder reconstructs from autoregression alone. Fixes: KL annealing (start with KL weight 0, ramp up), free bits (don't penalize below a threshold), or weaken the decoder.</p>
-        <p><strong>VQ-VAE.</strong> Replace the Gaussian latent with a discrete code from a learned codebook. Forces the encoder to commit to specific codes; eliminates posterior collapse; and is the basis of modern image tokenizers (used in DALL-E v1, Parti, latent diffusion).</p>
-        <p><strong>Latent diffusion (Rombach et al., 2022).</strong> Train a VAE to encode images to a compact latent space, then train a diffusion model in that latent space. Stable Diffusion is exactly this. Decouples the perceptual compression (VAE) from the generative process (diffusion).</p>
-        <p><strong>Normalizing flows.</strong> A different direction — invertible neural networks that map between the data and a simple distribution exactly. Likelihood is computable in closed form (change of variables), but architectures are restricted by invertibility. Examples: RealNVP, Glow, FFJORD.</p>
-        <p><strong>Disentanglement.</strong> The hope that each latent dimension corresponds to a single semantic factor (pose, lighting, identity, …). Locatello et al. (2019) proved that <em>unsupervised</em> disentanglement is impossible without inductive biases — but specific architectural choices (β-VAE, FactorVAE) can encourage it in practice.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li><strong>VQ-VAE</strong>: tokenizers for multi-modal models, discrete codes</li>
-                <li><strong>Latent diffusion</strong>: high-resolution generation with controllable compute</li>
-                <li><strong>β-VAE</strong>: studying disentangled representations</li>
-                <li><strong>Flows</strong>: when you need exact likelihoods</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>Sharp samples matter most — diffusion wins</li>
-                <li>You don't need a latent space — contrastive embeddings are simpler and often better</li>
-                <li>The likelihood is the goal but the prior is wrong</li>
-                <li>Architecture is too constrained — flows have strict invertibility limits</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">ELBO derivation</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \log p(\mathbf{x}) \;=\; \mathbb{E}_{q(\mathbf{z}\mid\mathbf{x})}\!\big[\log p(\mathbf{x}, \mathbf{z}) - \log q(\mathbf{z}\mid\mathbf{x})\big] \;+\; D_\text{KL}\!\big(q(\mathbf{z}\mid\mathbf{x}) \,\|\, p(\mathbf{z}\mid\mathbf{x})\big) $$</span></p>
+<ul class="formula-legend">
+<li>Log-marginal = ELBO + KL to the true posterior</li>
+<li>Since KL ≥ 0, ELBO is a lower bound on log <em>p(x)</em></li>
+<li>Maximising ELBO simultaneously fits the data and makes <em>q</em> close to the posterior</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \log p(\text{data}) \;=\; \underbrace{\text{ELBO}}_{\text{what we maximise}} \;+\; \underbrace{D_\text{KL}(\text{encoder} \,\|\, \text{true posterior})}_{\,\ge\,0\,\text{ — the gap we can't see}} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> This is the algebraic identity that makes the VAE training objective principled. The <strong>log-marginal</strong> <code>log p(data)</code> — how well the model explains the data — splits exactly into the <strong>ELBO</strong> plus the KL distance from the encoder's distribution to the <em>true</em> posterior (the distribution over codes you'd want, given the data). Because <code>D</code><sub><code>KL</code></sub> is always non-negative, the ELBO is provably a <em>lower bound</em> on <code>log p(data)</code> — that's where the name "Evidence Lower BOund" comes from. Pushing the ELBO up does two good things at once: it makes the model fit the data better, and it makes the encoder's approximation closer to the true posterior. The true posterior is intractable, so we never compute that gap directly — the ELBO is what we actually optimise.</p>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>β-VAE — knob for disentanglement.</strong> Re-weight the KL term: <em>ℒ = E[log p(x|z)] − β · KL(q‖p)</em>. With <em>β &gt; 1</em>, the prior pressure goes up and each latent dimension is pushed to carry information independently — encouraging "disentangled" axes that correspond to single factors of variation (pose, lighting, identity). With <em>β &lt; 1</em>, you get sharper samples but a messier latent. Locatello et al. (2019) proved purely unsupervised disentanglement is impossible without inductive biases — β-VAE is one such bias, not a guarantee.</p>
+<p><strong>Posterior collapse.</strong> When the decoder is powerful enough to model the data on its own (think autoregressive PixelCNN decoder), it can ignore <em>z</em> entirely — the encoder maps everything to the prior, the KL term goes to zero, and the latent carries no information. Fixes: <strong>KL annealing</strong> (start at zero, ramp up), <strong>free bits</strong> (don't penalise KL below a per-dimension floor), or simply weaken the decoder.</p>
+<p><strong>VQ-VAE — discrete latents.</strong> Replace the Gaussian latent with the nearest entry in a learned <strong>codebook</strong> of vectors. The encoder outputs a continuous vector, you snap it to the closest codebook entry, and the decoder reconstructs from that. The discrete bottleneck eliminates posterior collapse and produces <em>tokens</em> — which is why VQ-VAE is the tokeniser behind DALL-E v1, Parti, and most multi-modal LLMs that handle images or audio.</p>
+<p><strong>Latent diffusion — the modern role.</strong> Rombach et al. (2022, "Stable Diffusion") split generation into two stages: first train a VAE to compress images to a small latent grid, then train a diffusion model in <em>that</em> space rather than pixel space. The VAE handles the boring perceptual compression; the diffusion model handles the interesting semantic generation. This is by far the biggest production use of autoencoders today — almost every modern image / video model uses a learned VAE encoder under the hood.</p>
+<p><strong>Where this leaves plain AEs.</strong> For high-fidelity <em>generation</em>, diffusion has clearly won. But autoencoders are alive and well: as the <em>compression frontends</em> for latent diffusion, as <strong>tokenisers</strong> for multi-modal models (VQ-VAE), for <strong>anomaly detection</strong> in industrial monitoring, for <strong>non-linear dimensionality reduction</strong> that beats PCA on complex manifolds, and as a clean teaching example of representation learning.</p>
+<p><strong>Compared to self-supervised pretraining.</strong> Modern self-supervised methods (SimCLR, DINO, MAE, CLIP) often beat plain AEs at producing useful embeddings for downstream tasks — they optimise for <em>invariance</em> and <em>separability</em> rather than pixel-level reconstruction. The Masked Autoencoder (He et al., 2022) is a notable bridge: it's structurally an AE with heavy masking, but trained at ViT scale it produces excellent transfer features. The line between "autoencoder" and "self-supervised method" is blurry once you start masking.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li><strong>Latent diffusion</strong> — almost every modern image / video generator needs a VAE frontend</li>
+<li><strong>VQ-VAE</strong> — tokeniser for multi-modal models, discrete codes for downstream LMs</li>
+<li><strong>β-VAE</strong> — studying disentangled representations in a controlled setting</li>
+<li><strong>Anomaly detection</strong> at scale — reconstruction error is cheap and unsupervised</li>
+<li><strong>Masked AE pretraining</strong> — strong transfer features when you have a ViT and a lot of data</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>Sample sharpness is the only thing you care about — use diffusion directly in pixel space</li>
+<li>You just need good embeddings — contrastive (CLIP, SimCLR, DINO) usually wins</li>
+<li>You need exact likelihoods — use a normalising flow instead</li>
+<li>Your data is small and tabular — PCA or a <a href="https://d2l.ai/chapter_computer-vision/image-augmentation.html">denoising AE</a> tiny model is plenty</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch, torch.nn as nn
 import torch.nn.functional as F
 
 # β-VAE with KL annealing and free bits
 class BetaVAE(VAE):
-    pass    # same module; loss is what changes
+    pass    # same module; the loss is what changes
 
 def beta_vae_loss(x_hat, x, mu, logvar, beta=4.0, free_bits=0.05):
-    rec = F.mse_loss(x_hat, x, reduction="sum")
-    # KL per latent dim, with a "free bits" floor (don't penalize below it)
+    rec = F.mse_loss(x_hat, x, reduction=&quot;sum&quot;)
+    # KL per latent dim, with a &quot;free bits&quot; floor (don't penalise below it)
     kl_per_dim = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp())
     kl_per_dim = (kl_per_dim - free_bits).clamp(min=0).sum()
     return rec + beta * kl_per_dim
@@ -302,12 +284,11 @@ def beta_vae_loss(x_hat, x, mu, logvar, beta=4.0, free_bits=0.05):
 def beta_schedule(step, warmup=5000, target=4.0):
     return min(1.0, step / warmup) * target
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the picture instead?</span>
+<button data-go-to="intuition" type="button">← Back to Intuition</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -327,27 +308,39 @@ def beta_schedule(step, warmup=5000, target=4.0):
             </div>
 
             <aside class="topic-sidebar">
-                <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://arxiv.org/abs/1906.02691" target="_blank">Kingma &amp; Welling — VAE Tutorial <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">"An Introduction to Variational Autoencoders" — the original authors' modern tutorial. Best starting point for understanding ELBOs.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://lilianweng.github.io/posts/2018-08-12-vae/" target="_blank">Lilian Weng — From Autoencoder to Beta-VAE <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Covers AE, denoising AE, sparse AE, contractive AE, VAE, β-VAE in one tour. Clearest single source on the family.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/1711.00937" target="_blank">van den Oord et al. (2017) — VQ-VAE <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The discrete-code variant that became the backbone of modern multi-modal models.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/2112.10752" target="_blank">Rombach et al. (2022) — Latent Diffusion <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Stable Diffusion's paper. Shows how a VAE + diffusion combination scales image generation while staying compute-efficient.</span>
-        </li>
-    </ul>
+                <div class="fig-explainer" data-fig="autoencoder">
+<h3>Inside the figure</h3>
+<p>The <strong>left grid</strong> is the 12×12 input. The <strong>orange dot</strong> in the centre panel is the latent code — <em>two numbers</em> that together summarise the entire image. The <strong>right grid</strong> is what the decoder reconstructs from those two numbers alone.</p>
+<p>Click a preset and the encoder lands the dot at a learned position. Drag the dot anywhere and the decoder will try to reconstruct <em>something</em> — points near a preset look like that preset, points between presets give blends, and points far from any preset decode to garbage.</p>
+<p>Toggle <strong>VAE mode</strong> and the encoder starts outputting a small cloud instead of a single point: each forward pass samples a slightly different code. That stochasticity is exactly what lets the trained VAE generate plausible new samples — the decoder has learned to handle a whole neighbourhood, not just one point.</p>
 </div>
+<div class="learn-more">
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="intuition">
+<a href="https://d2l.ai/chapter_generative-adversarial-networks/index.html">Zhang et al. — Dive into Deep Learning (autoencoders)</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Interactive, code-first textbook. The generative-models chapters walk through plain AEs, denoising AEs, and the family with runnable PyTorch.</span>
+</li>
+<li data-tier="intuition">
+<a href="https://lilianweng.github.io/posts/2018-08-12-vae/">Lilian Weng — From Autoencoder to Beta-VAE</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">A single tour through AE, denoising AE, sparse AE, contractive AE, VAE, and β-VAE. The clearest single source on the whole family.</span>
+</li>
+<li data-tier="fundamentals">
+<a href="https://arxiv.org/abs/1906.02691">Kingma &amp; Welling — An Introduction to Variational Autoencoders</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">The original VAE authors' modern tutorial. The right place to go for the ELBO derivation, reparameterisation trick, and amortised inference framing.</span>
+</li>
+<li data-tier="indepth">
+<a href="https://arxiv.org/abs/1711.00937">van den Oord et al. (2017) — VQ-VAE</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Discrete-codebook latents — the backbone of modern multi-modal tokenisers (DALL-E v1, Parti, audio LMs).</span>
+</li>
+<li data-tier="indepth">
+<a href="https://arxiv.org/abs/2112.10752">Rombach et al. (2022) — High-Resolution Image Synthesis with Latent Diffusion Models</a> <i class="fas fa-external-link-alt"></i>
+<span class="annotation">Stable Diffusion's paper. Shows how a VAE frontend lets diffusion scale to high-resolution generation cheaply — the dominant production use of autoencoders today.</span>
+</li>
+</ul>
+</div>
+<p></content>
+</invoke></p>
             </aside>
 
         </div>
