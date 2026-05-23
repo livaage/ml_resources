@@ -53,69 +53,64 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Vanilla SGD is rarely the fastest.</strong> Real loss surfaces have narrow ravines, saddle points, and curvature that changes from one direction to another. Modern optimizers solve these in different ways: <em>momentum</em> remembers past direction, <em>RMSprop / Adagrad</em> scale each parameter by its own gradient history, <em>Adam</em> combines both. The viz below races them on the same start.</p>
-    </div>
-
-    <div class="viz-embed viz-classic">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Same start, same step budget — watch four optimizers race across a curved loss surface</span>
-        </div>
-        <div class="viz-classic-controls">
-            <button id="viz-opt-step" type="button">Step</button>
-            <button id="viz-opt-play" type="button">Play</button>
-            <button id="viz-opt-reset" type="button">Reset</button>
-            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                Landscape
-                <select id="viz-opt-land"></select>
-            </label>
-            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                lr
-                <input id="viz-opt-lr" class="viz-classic-slider" type="range">
-            </label>
-            <span class="viz-classic-badge" id="viz-opt-lr-lbl">lr = 0.05</span>
-            <span class="viz-classic-badge" id="viz-opt-step-lbl">step 0</span>
-        </div>
-        <div class="viz-classic-canvas-wrap">
-            <canvas id="viz-opt-canvas"></canvas>
-        </div>
-        <div class="viz-classic-caption" id="viz-opt-caption"></div>
-    </div>
-    <script src="../js/viz/optimizers.js"></script>
-
-    <p class="viz-intro">All four optimizers see the same loss surface from the same start. <strong>SGD</strong> moves straight down the local gradient and zig-zags in narrow valleys. <strong>Momentum</strong> accumulates velocity and "rolls through" valleys. <strong>RMSprop</strong> shrinks per-parameter steps where gradients are big, freeing it to take bigger steps where they're small. <strong>Adam</strong> combines momentum with RMSprop's adaptive scaling — usually the safest first pick.</p>
-
-    <article class="tldr-body">
-        <p><strong>SGD.</strong> Update is θ ← θ − η·∇L. Cheap, well-understood, often the best generalization in deep learning — but slow to converge on ill-conditioned problems where one direction needs huge steps and another tiny ones.</p>
-        <p><strong>Momentum.</strong> Keep a running velocity that smooths gradient noise and accelerates along consistent directions. Nesterov momentum looks one step ahead before computing the gradient, which gives a small but real speedup.</p>
-        <p><strong>Adam.</strong> Maintain per-parameter running estimates of the gradient mean and squared mean; scale each step by mean / √(second moment). Essentially momentum × RMSprop. The default for most deep learning today, though SGD-with-momentum sometimes generalizes better on vision tasks.</p>
-        <p>Practical truth: the learning rate matters more than the optimizer choice. A well-tuned SGD often beats a poorly-tuned Adam. Always sweep the learning rate first.</p>
-    </article>
-
-    <div class="use-cases neutral">
-        <div class="yes">
-            <h3>Adam (and friends)</h3>
-            <ul>
-                <li>Default for transformer / NLP training</li>
-                <li>You don't have time to tune lr per layer / per phase</li>
-                <li>Sparse gradients (embeddings, NLP) — Adam handles them well</li>
-                <li>RNN / LSTM training is much friendlier with Adam</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>SGD-with-momentum</h3>
-            <ul>
-                <li>Image classification, where it generalizes a little better</li>
-                <li>You've tuned the learning rate schedule carefully</li>
-                <li>Reproducing classical results (most ResNet papers use it)</li>
-                <li>You want the simplest possible thing in the loop</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Vanilla SGD is rarely the fastest.</strong> Real loss surfaces have narrow ravines, saddle points, and curvature that changes from one direction to another. Modern optimizers solve these in different ways: <em>momentum</em> remembers past direction, <em>RMSprop / Adagrad</em> scale each parameter by its own gradient history, <em>Adam</em> combines both. The viz below races them on the same start.</p>
+</div>
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">Same start, same step budget — watch four optimizers race across a curved loss surface</span>
+</div>
+<div class="viz-classic-controls">
+<button id="viz-opt-step" type="button">Step</button>
+<button id="viz-opt-play" type="button">Play</button>
+<button id="viz-opt-reset" type="button">Reset</button>
+<label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+Landscape
+<select id="viz-opt-land"></select>
+</label>
+<label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+lr
+<input id="viz-opt-lr" class="viz-classic-slider" type="range"></input>
+</label>
+<span class="viz-classic-badge" id="viz-opt-lr-lbl">lr = 0.05</span>
+<span class="viz-classic-badge" id="viz-opt-step-lbl">step 0</span>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-opt-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-opt-caption"></div>
+</div>
+<script src="../js/viz/optimizers.js"></script>
+<p class="viz-intro">All four optimizers see the same loss surface from the same start. <strong>SGD</strong> moves straight down the local gradient and zig-zags in narrow valleys. <strong>Momentum</strong> accumulates velocity and "rolls through" valleys. <strong>RMSprop</strong> shrinks per-parameter steps where gradients are big, freeing it to take bigger steps where they're small. <strong>Adam</strong> combines momentum with RMSprop's adaptive scaling — usually the safest first pick.</p>
+<article class="tldr-body">
+<p><strong>SGD.</strong> Update is θ ← θ − η·∇L. Cheap, well-understood, often the best generalization in deep learning — but slow to converge on ill-conditioned problems where one direction needs huge steps and another tiny ones.</p>
+<p><strong>Momentum.</strong> Keep a running velocity that smooths gradient noise and accelerates along consistent directions. Nesterov momentum looks one step ahead before computing the gradient, which gives a small but real speedup.</p>
+<p><strong>Adam.</strong> Maintain per-parameter running estimates of the gradient mean and squared mean; scale each step by mean / √(second moment). Essentially momentum × RMSprop. The default for most deep learning today, though SGD-with-momentum sometimes generalizes better on vision tasks.</p>
+<p>Practical truth: the learning rate matters more than the optimizer choice. A well-tuned SGD often beats a poorly-tuned Adam. Always sweep the learning rate first.</p>
+</article>
+<div class="use-cases neutral">
+<div class="yes">
+<h3>Adam (and friends)</h3>
+<ul>
+<li>Default for transformer / NLP training</li>
+<li>You don't have time to tune lr per layer / per phase</li>
+<li>Sparse gradients (embeddings, NLP) — Adam handles them well</li>
+<li>RNN / LSTM training is much friendlier with Adam</li>
+</ul>
+</div>
+<div class="no">
+<h3>SGD-with-momentum</h3>
+<ul>
+<li>Image classification, where it generalizes a little better</li>
+<li>You've tuned the learning rate schedule carefully</li>
+<li>Reproducing classical results (most ResNet papers use it)</li>
+<li>You want the simplest possible thing in the loop</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch
 
 # SGD with momentum — the deep-learning workhorse
@@ -127,56 +122,91 @@ opt_adam = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
 # Learning rate matters more than optimizer. Always have a schedule:
 sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt_adam, T_max=100)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want the math: momentum, Adam, second-order, line search?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the math: momentum, Adam, second-order, line search?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Adam update</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Adam update</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \begin{aligned} m_t &= \beta_1 m_{t-1} + (1 - \beta_1)\, g_t \\ v_t &= \beta_2 v_{t-1} + (1 - \beta_2)\, g_t^2 \\ \hat m_t &= m_t / (1 - \beta_1^t), \quad \hat v_t = v_t / (1 - \beta_2^t) \\ \theta_{t+1} &= \theta_t - \eta\, \hat m_t / (\sqrt{\hat v_t} + \epsilon) \end{aligned} $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \begin{aligned} m_t &amp;= \beta_1 m_{t-1} + (1 - \beta_1)\, g_t \\ v_t &amp;= \beta_2 v_{t-1} + (1 - \beta_2)\, g_t^2 \\ \hat m_t &amp;= m_t / (1 - \beta_1^t), \quad \hat v_t = v_t / (1 - \beta_2^t) \\ \theta_{t+1} &amp;= \theta_t - \eta\, \hat m_t / (\sqrt{\hat v_t} + \epsilon) \end{aligned} $$</span>
-            <ul class="formula-legend">
-                <li><code>g<sub>t</sub></code>gradient at step <em>t</em></li>
-                <li><code>m</code>EMA of the gradient (momentum)</li>
-                <li><code>v</code>EMA of squared gradients (per-parameter scale)</li>
-                <li><code>β<sub>1</sub>, β<sub>2</sub></code>decay rates for the two EMAs (typically 0.9 and 0.999)</li>
-                <li><code>η, ε</code>learning rate and a tiny constant to avoid division by zero</li>
-                <li>Bias correction <em>1 − β<sup>t</sup></em> matters early in training when both EMAs start at zero</li>
-            </ul>
-        </div>
+<code>gt</code>gradient at step <em>t</em>
 
-        <div class="notation-plain">
-            <span class="formula">$$ \begin{aligned} \text{velocity} &amp;= \beta_1 \times \text{velocity} + (1-\beta_1) \times \text{gradient} \\ \text{scale}  &amp;= \beta_2 \times \text{scale} + (1-\beta_2) \times (\text{gradient})^2 \\ \text{new weights} &amp;= \text{old weights} - \eta \,\times\, \frac{\text{bias-corrected velocity}}{\sqrt{\text{bias-corrected scale}} + \epsilon} \end{aligned} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Adam keeps two running averages of recent gradients. The first, <strong>velocity</strong>, smooths the gradient itself — that's the momentum piece. The second, <strong>scale</strong>, averages the <em>squared</em> gradient — telling you how big the gradient has typically been on each parameter. Each step divides the velocity by the square root of the scale, so parameters with consistently large gradients take small steps and parameters with tiny gradients take big ones. The <code>β</code> values control how much history each average retains (commonly 0.9 and 0.999). The "bias correction" division by <code>1 − β<sup>t</sup></code> fixes a small bias from initialising both averages at zero — it matters most in the first few hundred steps.
-            </p>
-            <ul class="formula-legend">
-                <li><code>gradient</code>current gradient of the loss</li>
-                <li><code>velocity</code>running average of recent gradients (momentum)</li>
-                <li><code>scale</code>running average of recent <em>squared</em> gradients (per-parameter typical magnitude)</li>
-                <li><code>β<sub>1</sub>, β<sub>2</sub></code>how much memory each running average keeps (commonly 0.9 and 0.999)</li>
-                <li><code>η</code>learning rate; <code>ε</code> tiny constant that prevents divide-by-zero</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Momentum, properly.</strong> The velocity update <em>v ← β v + g</em> is an exponentially-weighted average of past gradients with time-constant ≈ 1/(1−β). Past gradients in directions that point the same way reinforce; gradients that cancel out are smoothed. This is exactly why momentum helps in narrow ravines — the consistent ravine-floor direction gets amplified, while the bouncing perpendicular component cancels.</p>
-        <p><strong>Adagrad → RMSprop → Adam.</strong> Adagrad scales each parameter's step by 1/√(Σ g²) — but the sum grows monotonically, killing learning eventually. RMSprop replaces the sum with an EMA, fixing the decay-to-zero problem. Adam adds momentum on top. AdamW decouples weight decay from the gradient (Loshchilov &amp; Hutter, 2019) — for transformers this is a meaningful improvement.</p>
-        <p><strong>Learning rate schedules.</strong> The single highest-leverage knob is the lr schedule, not the optimizer. Warm-up (linear ramp from 0 to lr over a few hundred steps) is essential for transformers — Adam's bias correction misbehaves at step 1. Cosine decay is the modern standard for the rest. One-cycle and triangular schedules (Smith 2017) are useful when you want a quick convergence.</p>
-        <p><strong>Second-order methods.</strong> Newton's method scales steps by the inverse Hessian — works wonderfully in low dimensions, intractable in high. Practical approximations include K-FAC (block-diagonal Fisher), Shampoo (Kronecker factors of the Hessian), and L-BFGS (history-based quasi-Newton). Useful for fine-tuning or small models; rarely beat tuned Adam at scale.</p>
-        <p><strong>Implicit regularization.</strong> Different optimizers reach different solutions on the same loss surface. SGD's gradient noise has been argued to act as a regularizer that finds "flatter" minima — this is part of why it sometimes generalizes better than Adam, despite Adam reaching a lower training loss.</p>
-    </article>
+<code>m</code>EMA of the gradient (momentum)
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+<code>v</code>EMA of squared gradients (per-parameter scale)
+
+</li>
+<li>
+
+<code>β1, β2</code>decay rates for the two EMAs (typically 0.9 and 0.999)
+
+</li>
+<li>
+
+<code>η, ε</code>learning rate and a tiny constant to avoid division by zero
+
+</li>
+<li>
+
+Bias correction <em>1 − β<sup>t</sup></em> matters early in training when both EMAs start at zero
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \begin{aligned} \text{velocity} &= \beta_1 \times \text{velocity} + (1-\beta_1) \times \text{gradient} \\ \text{scale}  &= \beta_2 \times \text{scale} + (1-\beta_2) \times (\text{gradient})^2 \\ \text{new weights} &= \text{old weights} - \eta \,\times\, \frac{\text{bias-corrected velocity}}{\sqrt{\text{bias-corrected scale}} + \epsilon} \end{aligned} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Adam keeps two running averages of recent gradients. The first, <strong>velocity</strong>, smooths the gradient itself — that's the momentum piece. The second, <strong>scale</strong>, averages the <em>squared</em> gradient — telling you how big the gradient has typically been on each parameter. Each step divides the velocity by the square root of the scale, so parameters with consistently large gradients take small steps and parameters with tiny gradients take big ones. The <code>β</code> values control how much history each average retains (commonly 0.9 and 0.999). The "bias correction" division by <code>1 − βt</code> fixes a small bias from initialising both averages at zero — it matters most in the first few hundred steps.</p>
+<ul class="formula-legend">
+<li>
+
+<code>gradient</code>current gradient of the loss
+
+</li>
+<li>
+
+<code>velocity</code>running average of recent gradients (momentum)
+
+</li>
+<li>
+
+<code>scale</code>running average of recent <em>squared</em> gradients (per-parameter typical magnitude)
+
+</li>
+<li>
+
+<code>β1, β2</code>how much memory each running average keeps (commonly 0.9 and 0.999)
+
+</li>
+<li>
+
+<code>η</code>learning rate; <code>ε</code> tiny constant that prevents divide-by-zero
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Momentum, properly.</strong> The velocity update <em>v ← β v + g</em> is an exponentially-weighted average of past gradients with time-constant ≈ 1/(1−β). Past gradients in directions that point the same way reinforce; gradients that cancel out are smoothed. This is exactly why momentum helps in narrow ravines — the consistent ravine-floor direction gets amplified, while the bouncing perpendicular component cancels.</p>
+<p><strong>Adagrad → RMSprop → Adam.</strong> Adagrad scales each parameter's step by 1/√(Σ g²) — but the sum grows monotonically, killing learning eventually. RMSprop replaces the sum with an EMA, fixing the decay-to-zero problem. Adam adds momentum on top. AdamW decouples weight decay from the gradient (Loshchilov &amp; Hutter, 2019) — for transformers this is a meaningful improvement.</p>
+<p><strong>Learning rate schedules.</strong> The single highest-leverage knob is the lr schedule, not the optimizer. Warm-up (linear ramp from 0 to lr over a few hundred steps) is essential for transformers — Adam's bias correction misbehaves at step 1. Cosine decay is the modern standard for the rest. One-cycle and triangular schedules (Smith 2017) are useful when you want a quick convergence.</p>
+<p><strong>Second-order methods.</strong> Newton's method scales steps by the inverse Hessian — works wonderfully in low dimensions, intractable in high. Practical approximations include K-FAC (block-diagonal Fisher), Shampoo (Kronecker factors of the Hessian), and L-BFGS (history-based quasi-Newton). Useful for fine-tuning or small models; rarely beat tuned Adam at scale.</p>
+<p><strong>Implicit regularization.</strong> Different optimizers reach different solutions on the same loss surface. SGD's gradient noise has been argued to act as a regularizer that finds "flatter" minima — this is part of why it sometimes generalizes better than Adam, despite Adam reaching a lower training loss.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch
 
 # Linear warm-up + cosine decay — the modern transformer recipe
@@ -193,56 +223,87 @@ torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 opt = torch.optim.AdamW(model.parameters(), lr=lr,
                         betas=(0.9, 0.95), weight_decay=0.1)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want K-FAC, Shampoo, sharpness-aware minimization, and natural gradients?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want K-FAC, Shampoo, sharpness-aware minimization, and natural gradients?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Natural gradient</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Natural gradient</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \theta_{t+1} = \theta_t - \eta\, F(\theta_t)^{-1} \nabla \mathcal{L}(\theta_t) $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \theta_{t+1} = \theta_t - \eta\, F(\theta_t)^{-1} \nabla \mathcal{L}(\theta_t) $$</span>
-            <ul class="formula-legend">
-                <li><code>θ</code>model parameters</li>
-                <li><code>∇L</code>gradient of the loss</li>
-                <li><code>F</code>Fisher information matrix — the Hessian of the KL between distributions</li>
-                <li><code>F<sup>−1</sup></code>inverse Fisher; rescales the gradient by local curvature in distribution space</li>
-                <li>Steps in <em>distribution</em> space — reparameterization-invariant</li>
-            </ul>
-        </div>
+<code>θ</code>model parameters
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{new weights} \;=\; \text{old weights} \;-\; \eta \,\times\, (\text{curvature in distribution space})^{-1} \,\times\, \text{gradient of loss} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> The natural gradient is "regular gradient descent, but measure distance the right way". Ordinary SGD treats every parameter as if a unit step in parameter space were equally meaningful. The <strong>Fisher information matrix</strong> <code>F</code> measures how much the model's output distribution actually <em>changes</em> when each parameter moves. Multiplying the gradient by its inverse rescales the step so the same step always produces a similar amount of change in the output distribution. The result is reparameterization-invariant: if you rewrote your weights in different units, the trajectory would be the same. In practice <code>F</code> is huge, so methods like K-FAC and Shampoo approximate it cheaply.
-            </p>
-            <ul class="formula-legend">
-                <li><code>old weights, new weights</code>parameters before and after the step</li>
-                <li><code>gradient of loss</code>same gradient SGD would use</li>
-                <li><code>curvature in distribution space</code>Fisher information — how much the output distribution changes when each parameter moves</li>
-                <li><code>(·)<sup>−1</sup></code>inverse — undoes that curvature, so each step produces a controlled change in output</li>
-                <li>Reparameterization-invariant: rescaling the parameter axes doesn't change the trajectory</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>K-FAC.</strong> Kronecker-Factored Approximate Curvature (Martens &amp; Grosse, 2015) approximates the Fisher as a block-diagonal Kronecker product per layer. Practical for medium-sized networks; offers real wall-clock speedup for some workloads but adds substantial implementation complexity.</p>
-        <p><strong>Shampoo.</strong> Anil et al. (2020) — second-order preconditioning that maintains Kronecker factors of the gradient covariance and applies their inverse 1/4 root. Slower per step than Adam but converges in fewer steps; recent variants are competitive on real-world training.</p>
-        <p><strong>SAM — Sharpness-Aware Minimization.</strong> Foret et al. (2021) — explicitly look for parameters that minimize loss <em>and</em> have small gradient norm in their neighbourhood (flat minima). Adds a small inner-loop "find the worst direction nearby" step. Reliably improves generalization on vision tasks; ~2× the compute cost.</p>
-        <p><strong>Lion / Sophia / Schedule-Free.</strong> Three recent optimizers from Chen et al. (2023), Liu et al. (2024), and Defazio et al. (2024) respectively. Lion uses sign-of-momentum updates; Sophia uses a clipped second-order term; Schedule-Free does away with the lr schedule entirely. Each shows wins on some benchmarks but hasn't displaced AdamW as the default.</p>
-        <p><strong>Why SGD generalizes better.</strong> Empirically, SGD-with-momentum often finds "wider" minima than Adam — measured by Hessian eigenvalues at the solution. There are theoretical arguments (gradient noise as injected SDE) and counter-arguments. The practical implication is unchanged: try AdamW first, and for vision benchmarks try SGD-with-momentum as a comparison.</p>
-        <p><strong>Trust region methods.</strong> TRPO and PPO (in RL) use a KL constraint instead of a learning rate — they implicitly act like a natural gradient step. Lessons from those have leaked back into supervised learning (e.g., the "trust region for gradient steps" view of Adam's denominator).</p>
-    </article>
+<code>∇L</code>gradient of the loss
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+<code>F</code>Fisher information matrix — the Hessian of the KL between distributions
+
+</li>
+<li>
+
+<code>F−1</code>inverse Fisher; rescales the gradient by local curvature in distribution space
+
+</li>
+<li>
+
+Steps in <em>distribution</em> space — reparameterization-invariant
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{new weights} \;=\; \text{old weights} \;-\; \eta \,\times\, (\text{curvature in distribution space})^{-1} \,\times\, \text{gradient of loss} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The natural gradient is "regular gradient descent, but measure distance the right way". Ordinary SGD treats every parameter as if a unit step in parameter space were equally meaningful. The <strong>Fisher information matrix</strong> <code>F</code> measures how much the model's output distribution actually <em>changes</em> when each parameter moves. Multiplying the gradient by its inverse rescales the step so the same step always produces a similar amount of change in the output distribution. The result is reparameterization-invariant: if you rewrote your weights in different units, the trajectory would be the same. In practice <code>F</code> is huge, so methods like K-FAC and Shampoo approximate it cheaply.</p>
+<ul class="formula-legend">
+<li>
+
+<code>old weights, new weights</code>parameters before and after the step
+
+</li>
+<li>
+
+<code>gradient of loss</code>same gradient SGD would use
+
+</li>
+<li>
+
+<code>curvature in distribution space</code>Fisher information — how much the output distribution changes when each parameter moves
+
+</li>
+<li>
+
+<code>(·)−1</code>inverse — undoes that curvature, so each step produces a controlled change in output
+
+</li>
+<li>
+
+Reparameterization-invariant: rescaling the parameter axes doesn't change the trajectory
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>K-FAC.</strong> Kronecker-Factored Approximate Curvature (Martens &amp; Grosse, 2015) approximates the Fisher as a block-diagonal Kronecker product per layer. Practical for medium-sized networks; offers real wall-clock speedup for some workloads but adds substantial implementation complexity.</p>
+<p><strong>Shampoo.</strong> Anil et al. (2020) — second-order preconditioning that maintains Kronecker factors of the gradient covariance and applies their inverse 1/4 root. Slower per step than Adam but converges in fewer steps; recent variants are competitive on real-world training.</p>
+<p><strong>SAM — Sharpness-Aware Minimization.</strong> Foret et al. (2021) — explicitly look for parameters that minimize loss <em>and</em> have small gradient norm in their neighbourhood (flat minima). Adds a small inner-loop "find the worst direction nearby" step. Reliably improves generalization on vision tasks; ~2× the compute cost.</p>
+<p><strong>Lion / Sophia / Schedule-Free.</strong> Three recent optimizers from Chen et al. (2023), Liu et al. (2024), and Defazio et al. (2024) respectively. Lion uses sign-of-momentum updates; Sophia uses a clipped second-order term; Schedule-Free does away with the lr schedule entirely. Each shows wins on some benchmarks but hasn't displaced AdamW as the default.</p>
+<p><strong>Why SGD generalizes better.</strong> Empirically, SGD-with-momentum often finds "wider" minima than Adam — measured by Hessian eigenvalues at the solution. There are theoretical arguments (gradient noise as injected SDE) and counter-arguments. The practical implication is unchanged: try AdamW first, and for vision benchmarks try SGD-with-momentum as a comparison.</p>
+<p><strong>Trust region methods.</strong> TRPO and PPO (in RL) use a KL constraint instead of a learning rate — they implicitly act like a natural gradient step. Lessons from those have leaked back into supervised learning (e.g., the "trust region for gradient steps" view of Adam's denominator).</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch
 
 # Sharpness-Aware Minimization in 10 lines
@@ -255,31 +316,30 @@ class SAM(torch.optim.Optimizer):
     @torch.no_grad()
     def first_step(self):
         norm = torch.norm(torch.stack([p.grad.norm() for g in self.param_groups
-                                       for p in g["params"] if p.grad is not None]))
+                                       for p in g[&quot;params&quot;] if p.grad is not None]))
         for g in self.param_groups:
-            scale = g["rho"] / (norm + 1e-12)
-            for p in g["params"]:
+            scale = g[&quot;rho&quot;] / (norm + 1e-12)
+            for p in g[&quot;params&quot;]:
                 if p.grad is None: continue
                 e_w = p.grad * scale
-                p.add_(e_w); self.state[p]["e_w"] = e_w
+                p.add_(e_w); self.state[p][&quot;e_w&quot;] = e_w
 
     @torch.no_grad()
     def second_step(self):
         for g in self.param_groups:
-            for p in g["params"]:
-                if "e_w" in self.state[p]: p.sub_(self.state[p]["e_w"])
+            for p in g[&quot;params&quot;]:
+                if &quot;e_w&quot; in self.state[p]: p.sub_(self.state[p][&quot;e_w&quot;])
         self.base.step()
 
 # Usage:
 # loss.backward(); opt.first_step()
 # loss = compute_loss(); loss.backward(); opt.second_step()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -290,25 +350,33 @@ class SAM(torch.optim.Optimizer):
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="intuition">
-            <a href="https://distill.pub/2017/momentum/" target="_blank">Distill — Why Momentum Really Works <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Goh's beautifully visual essay on momentum as a damped oscillator. Easily the best introduction to the geometry of optimization.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://arxiv.org/abs/1412.6980" target="_blank">Kingma &amp; Ba (2015) — Adam <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The original Adam paper. Short and readable; sections 2–4 are essential.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/1711.05101" target="_blank">Loshchilov &amp; Hutter (2019) — AdamW <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">"Decoupled Weight Decay Regularization". The paper that pointed out Adam's weight-decay implementation was wrong and gave us AdamW.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://www.deeplearningbook.org/contents/optimization.html" target="_blank">Deep Learning Book — Optimization Ch. 8 <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Comprehensive chapter on practical optimization including learning rate schedules, batch normalization's interaction with optimizers, and more.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="intuition">
+
+<a href="https://distill.pub/2017/momentum/" target="_blank">Distill — Why Momentum Really Works <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Goh's beautifully visual essay on momentum as a damped oscillator. Easily the best introduction to the geometry of optimization.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://arxiv.org/abs/1412.6980" target="_blank">Kingma &amp; Ba (2015) — Adam <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The original Adam paper. Short and readable; sections 2–4 are essential.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/1711.05101" target="_blank">Loshchilov &amp; Hutter (2019) — AdamW <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">"Decoupled Weight Decay Regularization". The paper that pointed out Adam's weight-decay implementation was wrong and gave us AdamW.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://www.deeplearningbook.org/contents/optimization.html" target="_blank">Deep Learning Book — Optimization Ch. 8 <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Comprehensive chapter on practical optimization including learning rate schedules, batch normalization's interaction with optimizers, and more.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

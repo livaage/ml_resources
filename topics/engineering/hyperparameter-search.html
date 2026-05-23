@@ -53,69 +53,64 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Hyperparameter search is itself an optimisation problem with a budget.</strong> Random search beats grid search in &gt; 3 dimensions. Bayesian optimisation (Optuna, scikit-optimize) is much better when each trial is expensive. Hyperband / ASHA aggressively prune unpromising trials. The trick is matching the search strategy to the cost of a trial.</p>
-    </div>
-
-    <div class="viz-embed viz-classic">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Grid search vs random search — same number of trials, very different coverage of the important dimensions</span>
-        </div>
-        <div class="viz-classic-controls">
-            <button id="viz-hp-grid"   type="button" class="active">Grid 5×5</button>
-            <button id="viz-hp-random" type="button">Random 25</button>
-            <button id="viz-hp-bayes"  type="button">Bayesian (10 random + 15 informed)</button>
-            <button id="viz-hp-reset"  type="button">Re-sample</button>
-        </div>
-        <div class="viz-classic-canvas-wrap">
-            <canvas id="viz-hp-canvas"></canvas>
-        </div>
-        <div class="viz-classic-caption" id="viz-hp-caption"></div>
-    </div>
-    <script src="../../js/viz/hp-search.js"></script>
-
-    <p class="viz-intro">An objective <em>f(lr, wd)</em> with an "important" dimension (left-right) and an "unimportant" one (up-down). Grid wastes most of its budget on the unimportant axis; random hits more unique values of the important one; Bayesian quickly finds the high-value region after a few exploratory probes.</p>
-
-    <article class="tldr-body">
-        <p><strong>Grid search.</strong> The default beginner choice. Wasteful — most hyperparameters aren't equally important, but grid spends the same effort on each axis. Useful only with ≤ 3 hyperparameters.</p>
-        <p><strong>Random search.</strong> Sample N points uniformly. Bergstra &amp; Bengio (2012) showed this is strictly better than grid in high dimensions because the search distributes budget across the relevant axes. Surprisingly hard to beat in practice when N is large enough.</p>
-        <p><strong>Bayesian optimisation.</strong> Build a surrogate model (Gaussian process or random forest) of the objective; pick the next trial to maximise expected improvement. Wins when each trial is expensive. Tools: Optuna, scikit-optimize, BoTorch.</p>
-        <p><strong>Hyperband / ASHA.</strong> Allocate many trials, but kill the bad ones early. Train at low compute; promote the top-k to more compute; iterate. Often the most cost-efficient strategy for deep learning.</p>
-        <p><strong>Population-based training (PBT).</strong> Run many models in parallel; periodically copy the best ones' weights and perturb their hyperparameters. Adapts hyperparameters during training.</p>
-    </article>
-
-    <div class="use-cases neutral">
-        <div class="yes">
-            <h3>Pick by trial cost</h3>
-            <ul>
-                <li><strong>Cheap trial (&lt; minutes)</strong>: random search</li>
-                <li><strong>Moderate trial (~hour)</strong>: Bayesian via Optuna</li>
-                <li><strong>Expensive trial (~day)</strong>: Hyperband / ASHA</li>
-                <li><strong>Continuous training</strong>: PBT</li>
-                <li><strong>≤ 3 hyperparameters with discrete values</strong>: grid is fine</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Pitfalls</h3>
-            <ul>
-                <li>Searching too many parameters — most don't matter; profile importances first</li>
-                <li>Search range too narrow — you can't find what you don't include</li>
-                <li>Comparing trials with different seeds — variance dominates</li>
-                <li>Picking by val score from a single seed</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Hyperparameter search is itself an optimisation problem with a budget.</strong> Random search beats grid search in &gt; 3 dimensions. Bayesian optimisation (Optuna, scikit-optimize) is much better when each trial is expensive. Hyperband / ASHA aggressively prune unpromising trials. The trick is matching the search strategy to the cost of a trial.</p>
+</div>
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">Grid search vs random search — same number of trials, very different coverage of the important dimensions</span>
+</div>
+<div class="viz-classic-controls">
+<button id="viz-hp-grid" type="button" class="active">Grid 5×5</button>
+<button id="viz-hp-random" type="button">Random 25</button>
+<button id="viz-hp-bayes" type="button">Bayesian (10 random + 15 informed)</button>
+<button id="viz-hp-reset" type="button">Re-sample</button>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-hp-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-hp-caption"></div>
+</div>
+<script src="../../js/viz/hp-search.js"></script>
+<p class="viz-intro">An objective <em>f(lr, wd)</em> with an "important" dimension (left-right) and an "unimportant" one (up-down). Grid wastes most of its budget on the unimportant axis; random hits more unique values of the important one; Bayesian quickly finds the high-value region after a few exploratory probes.</p>
+<article class="tldr-body">
+<p><strong>Grid search.</strong> The default beginner choice. Wasteful — most hyperparameters aren't equally important, but grid spends the same effort on each axis. Useful only with ≤ 3 hyperparameters.</p>
+<p><strong>Random search.</strong> Sample N points uniformly. Bergstra &amp; Bengio (2012) showed this is strictly better than grid in high dimensions because the search distributes budget across the relevant axes. Surprisingly hard to beat in practice when N is large enough.</p>
+<p><strong>Bayesian optimisation.</strong> Build a surrogate model (Gaussian process or random forest) of the objective; pick the next trial to maximise expected improvement. Wins when each trial is expensive. Tools: Optuna, scikit-optimize, BoTorch.</p>
+<p><strong>Hyperband / ASHA.</strong> Allocate many trials, but kill the bad ones early. Train at low compute; promote the top-k to more compute; iterate. Often the most cost-efficient strategy for deep learning.</p>
+<p><strong>Population-based training (PBT).</strong> Run many models in parallel; periodically copy the best ones' weights and perturb their hyperparameters. Adapts hyperparameters during training.</p>
+</article>
+<div class="use-cases neutral">
+<div class="yes">
+<h3>Pick by trial cost</h3>
+<ul>
+<li><strong>Cheap trial (&lt; minutes)</strong>: random search</li>
+<li><strong>Moderate trial (~hour)</strong>: Bayesian via Optuna</li>
+<li><strong>Expensive trial (~day)</strong>: Hyperband / ASHA</li>
+<li><strong>Continuous training</strong>: PBT</li>
+<li><strong>≤ 3 hyperparameters with discrete values</strong>: grid is fine</li>
+</ul>
+</div>
+<div class="no">
+<h3>Pitfalls</h3>
+<ul>
+<li>Searching too many parameters — most don't matter; profile importances first</li>
+<li>Search range too narrow — you can't find what you don't include</li>
+<li>Comparing trials with different seeds — variance dominates</li>
+<li>Picking by val score from a single seed</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import optuna
 
 def objective(trial):
-    lr  = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
-    wd  = trial.suggest_float("wd", 1e-6, 1e-2, log=True)
-    bs  = trial.suggest_categorical("batch_size", [32, 64, 128])
-    act = trial.suggest_categorical("activation", ["relu", "gelu", "swish"])
+    lr  = trial.suggest_float(&quot;lr&quot;, 1e-5, 1e-1, log=True)
+    wd  = trial.suggest_float(&quot;wd&quot;, 1e-6, 1e-2, log=True)
+    bs  = trial.suggest_categorical(&quot;batch_size&quot;, [32, 64, 128])
+    act = trial.suggest_categorical(&quot;activation&quot;, [&quot;relu&quot;, &quot;gelu&quot;, &quot;swish&quot;])
 
     val_loss = train_and_validate(lr, wd, bs, act)
 
@@ -126,73 +121,92 @@ def objective(trial):
     return val_loss
 
 study = optuna.create_study(
-    direction="minimize",
+    direction=&quot;minimize&quot;,
     sampler=optuna.samplers.TPESampler(),
     pruner=optuna.pruners.HyperbandPruner(),
 )
 study.optimize(objective, n_trials=50, timeout=3600 * 6)
 print(study.best_params, study.best_value)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want the math behind Bayesian optimisation, &amp; ASHA scheduling?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the math behind Bayesian optimisation, &amp; ASHA scheduling?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Expected Improvement</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Expected Improvement</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathrm{EI}(x) = \mathbb{E}\!\left[\max(0,\, f^* - f(x))\right] $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \mathrm{EI}(x) = \mathbb{E}\!\left[\max(0,\, f^* - f(x))\right] $$</span>
-            <ul class="formula-legend">
-                <li><code>f*</code>best value seen so far</li>
-                <li>Expectation over the surrogate's posterior — high for promising unexplored regions</li>
-                <li>Acquisition function that drives Bayesian optimisation</li>
-            </ul>
-        </div>
+<code>f*</code>best value seen so far
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{expected improvement at } x \;=\; \text{average of }\max(0,\; \text{best so far} - f(x)) $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> An <em>acquisition function</em> that tells Bayesian optimisation which hyperparameter point to try next. The <code>𝔼[·]</code> in the math is an <em>expected value</em> — averaged over the surrogate model's uncertainty about <code>f(x)</code> (e.g., a Gaussian process posterior). For each candidate <code>x</code>, you ask: "if I were to evaluate it, how much could it beat my best score so far?" The <code>max(0, …)</code> means you only count <em>improvements</em>, never penalising regions where the model thinks <code>x</code> is worse. Points with high EI are either predicted to be better, or have lots of uncertainty (so there's a chance they're great).
-            </p>
-            <ul class="formula-legend">
-                <li><code>x</code>a candidate hyperparameter configuration</li>
-                <li><code>f(x)</code>predicted score (uncertain — from the surrogate model)</li>
-                <li><code>best so far</code>the best score seen across all trials evaluated</li>
-                <li><code>max(0, …)</code>only count improvements; ignore "would be worse"</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Surrogate models.</strong> Bayesian optimisation builds a probabilistic model of <em>f(hyperparams)</em>. Gaussian processes are the textbook choice — good with few trials, slow when many. Tree-structured Parzen Estimator (TPE, used by Optuna by default) scales better and handles categoricals.</p>
-        <p><strong>Acquisition functions.</strong> Expected Improvement, Upper Confidence Bound, Probability of Improvement, Knowledge Gradient. EI is the standard; UCB is parameterised by an exploration knob. Most libraries default to EI; pick UCB when you want explicit exploration control.</p>
-        <p><strong>Asynchronous Successive Halving (ASHA).</strong> Li et al. (2020). Promote the top η<sup>-1</sup> fraction of trials at each rung; trials that survive rung r get η× the compute. Asynchronous (no synchronisation barrier) makes it scale to hundreds of workers.</p>
-        <p><strong>Multi-fidelity methods.</strong> Use cheap proxies (subsampled data, fewer epochs) to estimate the expensive metric. Hyperband + BOHB combine ASHA's early pruning with Bayesian optimisation of which trials to try. The strongest general-purpose approach for deep learning.</p>
-        <p><strong>Pruning.</strong> Median pruner: kill a trial if its intermediate value is below the median at the same step. Patient pruner: like median but with a grace period. Hyperband pruner: structured promotion schedule.</p>
-        <p><strong>Search space design.</strong> Use log-uniform for learning rate and weight decay. Use uniform for layer counts and dropout. Use categorical for activation choice and optimizer name. Conditioning ("if optimizer == sgd, also tune momentum") is supported by Optuna's <code>trial.suggest_*</code> inside if-blocks.</p>
-    </article>
+Expectation over the surrogate's posterior — high for promising unexplored regions
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Acquisition function that drives Bayesian optimisation
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{expected improvement at } x \;=\; \text{average of }\max(0,\; \text{best so far} - f(x)) $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> An <em>acquisition function</em> that tells Bayesian optimisation which hyperparameter point to try next. The <code>𝔼[·]</code> in the math is an <em>expected value</em> — averaged over the surrogate model's uncertainty about <code>f(x)</code> (e.g., a Gaussian process posterior). For each candidate <code>x</code>, you ask: "if I were to evaluate it, how much could it beat my best score so far?" The <code>max(0, …)</code> means you only count <em>improvements</em>, never penalising regions where the model thinks <code>x</code> is worse. Points with high EI are either predicted to be better, or have lots of uncertainty (so there's a chance they're great).</p>
+<ul class="formula-legend">
+<li>
+
+<code>x</code>a candidate hyperparameter configuration
+
+</li>
+<li>
+
+<code>f(x)</code>predicted score (uncertain — from the surrogate model)
+
+</li>
+<li>
+
+<code>best so far</code>the best score seen across all trials evaluated
+
+</li>
+<li>
+
+<code>max(0, …)</code>only count improvements; ignore "would be worse"
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Surrogate models.</strong> Bayesian optimisation builds a probabilistic model of <em>f(hyperparams)</em>. Gaussian processes are the textbook choice — good with few trials, slow when many. Tree-structured Parzen Estimator (TPE, used by Optuna by default) scales better and handles categoricals.</p>
+<p><strong>Acquisition functions.</strong> Expected Improvement, Upper Confidence Bound, Probability of Improvement, Knowledge Gradient. EI is the standard; UCB is parameterised by an exploration knob. Most libraries default to EI; pick UCB when you want explicit exploration control.</p>
+<p><strong>Asynchronous Successive Halving (ASHA).</strong> Li et al. (2020). Promote the top η<sup>-1</sup> fraction of trials at each rung; trials that survive rung r get η× the compute. Asynchronous (no synchronisation barrier) makes it scale to hundreds of workers.</p>
+<p><strong>Multi-fidelity methods.</strong> Use cheap proxies (subsampled data, fewer epochs) to estimate the expensive metric. Hyperband + BOHB combine ASHA's early pruning with Bayesian optimisation of which trials to try. The strongest general-purpose approach for deep learning.</p>
+<p><strong>Pruning.</strong> Median pruner: kill a trial if its intermediate value is below the median at the same step. Patient pruner: like median but with a grace period. Hyperband pruner: structured promotion schedule.</p>
+<p><strong>Search space design.</strong> Use log-uniform for learning rate and weight decay. Use uniform for layer counts and dropout. Use categorical for activation choice and optimizer name. Conditioning ("if optimizer == sgd, also tune momentum") is supported by Optuna's <code>trial.suggest_*</code> inside if-blocks.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import optuna
 
 # Multi-fidelity with HyperbandPruner — train cheap, promote winners
 study = optuna.create_study(
-    direction="minimize",
+    direction=&quot;minimize&quot;,
     sampler=optuna.samplers.TPESampler(multivariate=True),
     pruner=optuna.pruners.HyperbandPruner(min_resource=1, max_resource=100, reduction_factor=3),
 )
 
 def objective(trial):
     cfg = {
-        "lr": trial.suggest_float("lr", 1e-5, 1e-1, log=True),
-        "model": trial.suggest_categorical("model", ["resnet18", "resnet50", "vit"]),
+        &quot;lr&quot;: trial.suggest_float(&quot;lr&quot;, 1e-5, 1e-1, log=True),
+        &quot;model&quot;: trial.suggest_categorical(&quot;model&quot;, [&quot;resnet18&quot;, &quot;resnet50&quot;, &quot;vit&quot;]),
     }
     for epoch in range(100):
         val_loss = train_one_epoch(cfg)
@@ -202,65 +216,88 @@ def objective(trial):
 
 study.optimize(objective, n_trials=200, n_jobs=4)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want PBT, neural architecture search, &amp; multi-objective?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want PBT, neural architecture search, &amp; multi-objective?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Population-Based Training</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Population-Based Training</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \theta_i^{(t+1)} \leftarrow \begin{cases} \theta_j^{(t)} \;\text{(copy)} & \text{if rank}(i) < \text{bottom k} \\ \theta_i^{(t)} \;\text{(continue)} & \text{otherwise} \end{cases} $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \theta_i^{(t+1)} \leftarrow \begin{cases} \theta_j^{(t)} \;\text{(copy)} &amp; \text{if rank}(i) &lt; \text{bottom k} \\ \theta_i^{(t)} \;\text{(continue)} &amp; \text{otherwise} \end{cases} $$</span>
-            <ul class="formula-legend">
-                <li>Bottom performers copy top performers' weights</li>
-                <li>… then perturb the hyperparameters</li>
-                <li>Adapts hyperparameters during training — useful when the optimal LR schedule isn't known a priori</li>
-            </ul>
-        </div>
+Bottom performers copy top performers' weights
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{agent $i$ next step} \;=\; \begin{cases} \text{copy weights from a top agent} &amp; \text{if agent $i$ is in the bottom } k \\ \text{keep current weights} &amp; \text{otherwise} \end{cases} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Run many training runs ("agents") in parallel, each with different hyperparameters. <code>θ</code> (theta) denotes the model weights; the subscript <code>i</code> is the agent index and superscript <code>t</code> is the training step. Periodically, rank agents by validation score: the bottom <code>k</code> copy the weights of a top performer, then <em>perturb</em> their hyperparameters (e.g., multiply LR by 1.2 or 0.8). High performers continue unchanged. Over time, the surviving hyperparameter <em>trajectory</em> becomes an evolved schedule — possibly better than any fixed schedule a human would pick.
-            </p>
-            <ul class="formula-legend">
-                <li><code>θ</code>model weights (parameters)</li>
-                <li><code>i</code>agent index (which run in the population)</li>
-                <li><code>t</code>training step / generation</li>
-                <li><code>bottom k</code>the worst-performing fraction at this checkpoint</li>
-                <li><code>copy</code>literally copy the weights from a randomly chosen top agent</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>PBT.</strong> Jaderberg et al. (2017). Run <em>N</em> agents in parallel with random hyperparameters; periodically exploit (bad agents copy good agents' weights) and explore (perturb hyperparameters). The hyperparameter trajectory becomes a "schedule" rather than a fixed value. Used at DeepMind for many production-grade hyperparameter sweeps.</p>
-        <p><strong>Neural Architecture Search (NAS).</strong> Hyperparameter search for architectures. Once-popular; now mostly subsumed by foundation-model fine-tuning. Differentiable NAS (DARTS) and gradient-based methods are the modern face.</p>
-        <p><strong>Multi-objective optimisation.</strong> Trade off accuracy vs latency, accuracy vs cost, etc. Pareto fronts; NSGA-II for evolutionary, qNEHVI for Bayesian. Optuna has built-in support.</p>
-        <p><strong>Cost-aware search.</strong> Each trial has a known cost; the budget is constrained. Cost-EI, Cost-LCB. Useful when trials vary enormously in compute (batch size, model size).</p>
-        <p><strong>Continual / online hyperparameter tuning.</strong> Production models drift; what was the best LR a year ago may not be now. Periodic re-tuning, possibly with PBT-style methods running on production.</p>
-        <p><strong>Beware overfitting the search.</strong> If your search trains on training data and selects on val, you're fine. If you tune the validation set itself (e.g., picking which features to engineer based on val performance), you're overfitting your search procedure. Hold out a final test set.</p>
-        <p><strong>Reporting.</strong> Always report your search budget (number of trials, total GPU-hours). Without this, a "we found 95% accuracy" is meaningless — was that 5 trials or 50 000?</p>
-    </article>
+… then perturb the hyperparameters
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Adapts hyperparameters during training — useful when the optimal LR schedule isn't known a priori
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{agent $i$ next step} \;=\; \begin{cases} \text{copy weights from a top agent} & \text{if agent $i$ is in the bottom } k \\ \text{keep current weights} & \text{otherwise} \end{cases} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Run many training runs ("agents") in parallel, each with different hyperparameters. <code>θ</code> (theta) denotes the model weights; the subscript <code>i</code> is the agent index and superscript <code>t</code> is the training step. Periodically, rank agents by validation score: the bottom <code>k</code> copy the weights of a top performer, then <em>perturb</em> their hyperparameters (e.g., multiply LR by 1.2 or 0.8). High performers continue unchanged. Over time, the surviving hyperparameter <em>trajectory</em> becomes an evolved schedule — possibly better than any fixed schedule a human would pick.</p>
+<ul class="formula-legend">
+<li>
+
+<code>θ</code>model weights (parameters)
+
+</li>
+<li>
+
+<code>i</code>agent index (which run in the population)
+
+</li>
+<li>
+
+<code>t</code>training step / generation
+
+</li>
+<li>
+
+<code>bottom k</code>the worst-performing fraction at this checkpoint
+
+</li>
+<li>
+
+<code>copy</code>literally copy the weights from a randomly chosen top agent
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>PBT.</strong> Jaderberg et al. (2017). Run <em>N</em> agents in parallel with random hyperparameters; periodically exploit (bad agents copy good agents' weights) and explore (perturb hyperparameters). The hyperparameter trajectory becomes a "schedule" rather than a fixed value. Used at DeepMind for many production-grade hyperparameter sweeps.</p>
+<p><strong>Neural Architecture Search (NAS).</strong> Hyperparameter search for architectures. Once-popular; now mostly subsumed by foundation-model fine-tuning. Differentiable NAS (DARTS) and gradient-based methods are the modern face.</p>
+<p><strong>Multi-objective optimisation.</strong> Trade off accuracy vs latency, accuracy vs cost, etc. Pareto fronts; NSGA-II for evolutionary, qNEHVI for Bayesian. Optuna has built-in support.</p>
+<p><strong>Cost-aware search.</strong> Each trial has a known cost; the budget is constrained. Cost-EI, Cost-LCB. Useful when trials vary enormously in compute (batch size, model size).</p>
+<p><strong>Continual / online hyperparameter tuning.</strong> Production models drift; what was the best LR a year ago may not be now. Periodic re-tuning, possibly with PBT-style methods running on production.</p>
+<p><strong>Beware overfitting the search.</strong> If your search trains on training data and selects on val, you're fine. If you tune the validation set itself (e.g., picking which features to engineer based on val performance), you're overfitting your search procedure. Hold out a final test set.</p>
+<p><strong>Reporting.</strong> Always report your search budget (number of trials, total GPU-hours). Without this, a "we found 95% accuracy" is meaningless — was that 5 trials or 50 000?</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import optuna
 
 # Multi-objective — maximise accuracy AND minimise inference latency
 study = optuna.create_study(
-    directions=["maximize", "minimize"],
+    directions=[&quot;maximize&quot;, &quot;minimize&quot;],
     sampler=optuna.samplers.NSGAIISampler(),
 )
 def objective(trial):
-    width = trial.suggest_int("width", 32, 512, log=True)
-    depth = trial.suggest_int("depth", 2, 8)
+    width = trial.suggest_int(&quot;width&quot;, 32, 512, log=True)
+    depth = trial.suggest_int(&quot;depth&quot;, 2, 8)
     acc, latency_ms = train_and_benchmark(width, depth)
     return acc, latency_ms
 
@@ -270,12 +307,11 @@ study.optimize(objective, n_trials=100)
 for trial in study.best_trials:
     print(trial.values, trial.params)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -296,25 +332,33 @@ for trial in study.best_trials:
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://optuna.org/" target="_blank">Optuna — Documentation <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The reference Python hyperparameter optimisation library. TPE, Hyperband pruner, multi-objective, sklearn / Lightning / huggingface integrations.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://www.jmlr.org/papers/v13/bergstra12a.html" target="_blank">Bergstra &amp; Bengio (2012) — Random Search <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The empirical paper showing random search beats grid search in high dimensions. Short, readable, foundational.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/1810.05934" target="_blank">Li et al. (2020) — ASHA <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Asynchronous Successive Halving — the basis of modern multi-fidelity tuning.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/1711.09846" target="_blank">Jaderberg et al. (2017) — PBT <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">DeepMind's Population-Based Training paper. Hyperparameters as a learned schedule, not a fixed value.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://optuna.org/" target="_blank">Optuna — Documentation <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The reference Python hyperparameter optimisation library. TPE, Hyperband pruner, multi-objective, sklearn / Lightning / huggingface integrations.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://www.jmlr.org/papers/v13/bergstra12a.html" target="_blank">Bergstra &amp; Bengio (2012) — Random Search <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The empirical paper showing random search beats grid search in high dimensions. Short, readable, foundational.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/1810.05934" target="_blank">Li et al. (2020) — ASHA <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Asynchronous Successive Halving — the basis of modern multi-fidelity tuning.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/1711.09846" target="_blank">Jaderberg et al. (2017) — PBT <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">DeepMind's Population-Based Training paper. Hyperparameters as a learned schedule, not a fixed value.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

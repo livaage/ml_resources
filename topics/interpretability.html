@@ -53,58 +53,53 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Two flavours. Per-prediction explanation: "why did this input get this answer?". Model-wide understanding: "what does this model actually compute?".</strong> The first is feature-attribution (SHAP, LIME, Integrated Gradients). The second is mechanistic interpretability (probing, circuits, sparse autoencoders). Both have real successes and real limits.</p>
-    </div>
-
-    <div class="viz-embed viz-classic">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">SHAP-style local explanation — which features pushed this prediction up, which pushed it down?</span>
-        </div>
-        <div class="viz-classic-controls">
-            <button id="viz-int-resample" type="button">Re-sample input</button>
-        </div>
-        <div class="viz-classic-canvas-wrap">
-            <canvas id="viz-int-canvas"></canvas>
-        </div>
-        <div class="viz-classic-caption" id="viz-int-caption"></div>
-    </div>
-    <script src="../js/viz/interpretability.js"></script>
-
-    <p class="viz-intro">A single tabular prediction with per-feature SHAP-style contributions. Each bar shows how much that feature pushed the prediction up (orange) or down (indigo) relative to the average. Sum them all up + the model's average prediction = this specific prediction. SHAP values guarantee this additivity by construction.</p>
-
-    <article class="tldr-body">
-        <p><strong>Feature importance (model-wide).</strong> Permutation importance: shuffle a feature; how much does the score drop? Tree importance: how often a feature appears in splits, weighted by gain. Both are simple and useful but can be misled by correlated features.</p>
-        <p><strong>SHAP &amp; LIME (per-prediction).</strong> SHAP (Lundberg &amp; Lee, 2017) — game-theoretic Shapley values, additivity by construction, slow but principled. LIME — fit a local linear surrogate around a single prediction, fast but unstable. Both give "this feature contributed +X to this prediction".</p>
-        <p><strong>Saliency maps for images.</strong> Where in the image did the model "look"? Gradient × input, Integrated Gradients, GradCAM, SmoothGrad. All are easy to compute, but easy to mislead — a saliency map can highlight the right region for the wrong reason.</p>
-        <p><strong>Attention as explanation?</strong> Tempting but controversial. Attention weights don't directly correspond to feature importance, even in transformers. Use as a starting hypothesis, not an explanation. Jain &amp; Wallace (2019): "Attention is not Explanation".</p>
-        <p><strong>Mechanistic interpretability.</strong> Find specific circuits inside a neural network that implement a specific behaviour. Anthropic's induction heads, OpenAI's sparse autoencoders. Still early — the field is producing real results but on toy models.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Regulated domain (finance, healthcare, insurance) — explanations are mandatory</li>
-                <li>Debugging — why is this prediction wrong?</li>
-                <li>Audit — does the model rely on a feature it shouldn't?</li>
-                <li>Trust — communicating model behaviour to non-ML stakeholders</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Real limits</h3>
-            <ul>
-                <li>Explanations can mislead — humans accept plausible-but-wrong narratives</li>
-                <li>Correlated features confound most attribution methods</li>
-                <li>"Why" questions presume a causal model that the attribution doesn't have</li>
-                <li>Mechanistic understanding is hard work and rarely complete</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Two flavours. Per-prediction explanation: "why did this input get this answer?". Model-wide understanding: "what does this model actually compute?".</strong> The first is feature-attribution (SHAP, LIME, Integrated Gradients). The second is mechanistic interpretability (probing, circuits, sparse autoencoders). Both have real successes and real limits.</p>
+</div>
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">SHAP-style local explanation — which features pushed this prediction up, which pushed it down?</span>
+</div>
+<div class="viz-classic-controls">
+<button id="viz-int-resample" type="button">Re-sample input</button>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-int-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-int-caption"></div>
+</div>
+<script src="../js/viz/interpretability.js"></script>
+<p class="viz-intro">A single tabular prediction with per-feature SHAP-style contributions. Each bar shows how much that feature pushed the prediction up (orange) or down (indigo) relative to the average. Sum them all up + the model's average prediction = this specific prediction. SHAP values guarantee this additivity by construction.</p>
+<article class="tldr-body">
+<p><strong>Feature importance (model-wide).</strong> Permutation importance: shuffle a feature; how much does the score drop? Tree importance: how often a feature appears in splits, weighted by gain. Both are simple and useful but can be misled by correlated features.</p>
+<p><strong>SHAP &amp; LIME (per-prediction).</strong> SHAP (Lundberg &amp; Lee, 2017) — game-theoretic Shapley values, additivity by construction, slow but principled. LIME — fit a local linear surrogate around a single prediction, fast but unstable. Both give "this feature contributed +X to this prediction".</p>
+<p><strong>Saliency maps for images.</strong> Where in the image did the model "look"? Gradient × input, Integrated Gradients, GradCAM, SmoothGrad. All are easy to compute, but easy to mislead — a saliency map can highlight the right region for the wrong reason.</p>
+<p><strong>Attention as explanation?</strong> Tempting but controversial. Attention weights don't directly correspond to feature importance, even in transformers. Use as a starting hypothesis, not an explanation. Jain &amp; Wallace (2019): "Attention is not Explanation".</p>
+<p><strong>Mechanistic interpretability.</strong> Find specific circuits inside a neural network that implement a specific behaviour. Anthropic's induction heads, OpenAI's sparse autoencoders. Still early — the field is producing real results but on toy models.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Regulated domain (finance, healthcare, insurance) — explanations are mandatory</li>
+<li>Debugging — why is this prediction wrong?</li>
+<li>Audit — does the model rely on a feature it shouldn't?</li>
+<li>Trust — communicating model behaviour to non-ML stakeholders</li>
+</ul>
+</div>
+<div class="no">
+<h3>Real limits</h3>
+<ul>
+<li>Explanations can mislead — humans accept plausible-but-wrong narratives</li>
+<li>Correlated features confound most attribution methods</li>
+<li>"Why" questions presume a causal model that the attribution doesn't have</li>
+<li>Mechanistic understanding is hard work and rarely complete</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import shap
 import xgboost as xgb
 
@@ -123,56 +118,79 @@ shap.summary_plot(shap_values, X_test)
 from sklearn.inspection import permutation_importance
 result = permutation_importance(model, X_val, y_val, n_repeats=10, random_state=0)
 for i in result.importances_mean.argsort()[::-1][:5]:
-    print(f"{X_val.columns[i]:30s}  {result.importances_mean[i]:.3f}")
+    print(f&quot;{X_val.columns[i]:30s}  {result.importances_mean[i]:.3f}&quot;)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want global vs local, axiomatic guarantees, &amp; mechanistic methods?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want global vs local, axiomatic guarantees, &amp; mechanistic methods?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Shapley value</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Shapley value</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \phi_i(f, x) = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|!\,(|F| - |S| - 1)!}{|F|!} \big[\, f(S \cup \{i\}) - f(S)\,\big] $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \phi_i(f, x) = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|!\,(|F| - |S| - 1)!}{|F|!} \big[\, f(S \cup \{i\}) - f(S)\,\big] $$</span>
-            <ul class="formula-legend">
-                <li>Marginal contribution of feature <em>i</em>, averaged over all subsets</li>
-                <li>Unique attribution method satisfying efficiency, symmetry, dummy, additivity</li>
-                <li>Exact computation is exponential — SHAP uses tractable approximations</li>
-            </ul>
-        </div>
+Marginal contribution of feature <em>i</em>, averaged over all subsets
 
-        <div class="notation-plain">
-            <span class="formula">$$ \phi_i \;=\; \text{weighted average across all feature subsets } S \text{ of}\; \big[\,\text{prediction with } i \text{ added to } S \;-\; \text{prediction with just } S\,\big] $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> The Shapley value for feature <em>i</em> answers "how much did feature <em>i</em> contribute, on average, across every possible context?" For each subset <em>S</em> of the other features, you ask: "what does the prediction become if I add feature <em>i</em> to this subset?" That difference is feature <em>i</em>'s marginal contribution given context <em>S</em>. Average those marginals across every possible context, with the specific weighting in the formula (which counts each "size of context" equally), and you get the unique attribution satisfying four natural axioms (efficiency, symmetry, dummy, additivity). Computing exactly is exponential in feature count; SHAP uses clever approximations.
-            </p>
-            <ul class="formula-legend">
-                <li><code>φᵢ</code>Shapley value (attribution) for feature <em>i</em></li>
-                <li><code>S</code>a subset of features <em>not including i</em></li>
-                <li><code>f(S ∪ {i}) − f(S)</code>marginal contribution of <em>i</em> given the context <em>S</em></li>
-                <li>The factorial weights ensure each "context size" is averaged equally</li>
-                <li>Unique method satisfying efficiency, symmetry, dummy, additivity</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Axiomatic attribution.</strong> SHAP, Integrated Gradients, and LIME each obey specific axioms — efficiency, sensitivity, implementation invariance. The choice of axioms determines the method. There's no "right" axiom set; pick what matches your need.</p>
-        <p><strong>Local vs global explanations.</strong> Local: "why this specific prediction?" — SHAP-per-instance, IG, LIME. Global: "what does the model rely on overall?" — permutation importance, mean |SHAP|, partial dependence plots. Both are useful for different questions.</p>
-        <p><strong>Partial dependence plots (PDP) and ICE.</strong> PDP: average the model's prediction over the training distribution, varying one feature. ICE: do the same per-instance. Useful for visualising the marginal effect of one feature on the model's prediction.</p>
-        <p><strong>Counterfactual explanations.</strong> "What's the smallest change to the input that flips the prediction?" Useful for actionable explanations: "to get the loan, raise income by $5k". Tools: DiCE, Alibi, scikit-learn-compat libraries.</p>
-        <p><strong>Probing classifiers.</strong> Train a small linear classifier on a model's internal representations to predict some property. Reveals what information is linearly decodable from the model's intermediate states. Used heavily in interpretability of language models.</p>
-        <p><strong>Concept-based methods.</strong> TCAV (Kim et al. 2018) — measure how sensitive a prediction is to a high-level concept (defined by examples). Useful for "does the model use this concept?" rather than "this raw feature?".</p>
-    </article>
+Unique attribution method satisfying efficiency, symmetry, dummy, additivity
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Exact computation is exponential — SHAP uses tractable approximations
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \phi_i \;=\; \text{weighted average across all feature subsets } S \text{ of}\; \big[\,\text{prediction with } i \text{ added to } S \;-\; \text{prediction with just } S\,\big] $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The Shapley value for feature <em>i</em> answers "how much did feature <em>i</em> contribute, on average, across every possible context?" For each subset <em>S</em> of the other features, you ask: "what does the prediction become if I add feature <em>i</em> to this subset?" That difference is feature <em>i</em>'s marginal contribution given context <em>S</em>. Average those marginals across every possible context, with the specific weighting in the formula (which counts each "size of context" equally), and you get the unique attribution satisfying four natural axioms (efficiency, symmetry, dummy, additivity). Computing exactly is exponential in feature count; SHAP uses clever approximations.</p>
+<ul class="formula-legend">
+<li>
+
+<code>φᵢ</code>Shapley value (attribution) for feature <em>i</em>
+
+</li>
+<li>
+
+<code>S</code>a subset of features <em>not including i</em>
+
+</li>
+<li>
+
+<code>f(S ∪ {i}) − f(S)</code>marginal contribution of <em>i</em> given the context <em>S</em>
+
+</li>
+<li>
+
+The factorial weights ensure each "context size" is averaged equally
+
+</li>
+<li>
+
+Unique method satisfying efficiency, symmetry, dummy, additivity
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Axiomatic attribution.</strong> SHAP, Integrated Gradients, and LIME each obey specific axioms — efficiency, sensitivity, implementation invariance. The choice of axioms determines the method. There's no "right" axiom set; pick what matches your need.</p>
+<p><strong>Local vs global explanations.</strong> Local: "why this specific prediction?" — SHAP-per-instance, IG, LIME. Global: "what does the model rely on overall?" — permutation importance, mean |SHAP|, partial dependence plots. Both are useful for different questions.</p>
+<p><strong>Partial dependence plots (PDP) and ICE.</strong> PDP: average the model's prediction over the training distribution, varying one feature. ICE: do the same per-instance. Useful for visualising the marginal effect of one feature on the model's prediction.</p>
+<p><strong>Counterfactual explanations.</strong> "What's the smallest change to the input that flips the prediction?" Useful for actionable explanations: "to get the loan, raise income by $5k". Tools: DiCE, Alibi, scikit-learn-compat libraries.</p>
+<p><strong>Probing classifiers.</strong> Train a small linear classifier on a model's internal representations to predict some property. Reveals what information is linearly decodable from the model's intermediate states. Used heavily in interpretability of language models.</p>
+<p><strong>Concept-based methods.</strong> TCAV (Kim et al. 2018) — measure how sensitive a prediction is to a high-level concept (defined by examples). Useful for "does the model use this concept?" rather than "this raw feature?".</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch
 from captum.attr import IntegratedGradients, LayerGradCam
 
@@ -184,55 +202,78 @@ attributions, delta = ig.attribute(input, baselines=baseline, return_convergence
 cam = LayerGradCam(model, model.layer4[-1])
 heat = cam.attribute(input, target=pred_class)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want mechanistic interpretability, circuits, &amp; sparse autoencoders?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want mechanistic interpretability, circuits, &amp; sparse autoencoders?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Sparse autoencoder objective</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Sparse autoencoder objective</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathcal{L} = \big\lVert x - \hat x \big\rVert^2 + \lambda\,\lVert z \rVert_1, \quad z = \sigma(W_\text{enc} x + b) $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \mathcal{L} = \big\lVert x - \hat x \big\rVert^2 + \lambda\,\lVert z \rVert_1, \quad z = \sigma(W_\text{enc} x + b) $$</span>
-            <ul class="formula-legend">
-                <li>Learn a sparse code <em>z</em> over the network's hidden state</li>
-                <li>Activations of single <em>z</em>-dimensions tend to correspond to interpretable features</li>
-                <li>Anthropic / DeepMind's flagship mech-interp tool</li>
-            </ul>
-        </div>
+Learn a sparse code <em>z</em> over the network's hidden state
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{loss} \;=\; \text{(squared reconstruction error)} \;+\; \lambda \times \text{(sum of absolute values of the sparse code)} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> A sparse autoencoder learns to compress a network's hidden state <em>x</em> into a sparse code <em>z</em> and then reconstruct <em>x</em> from <em>z</em>. The loss has two competing terms: the first measures how badly the reconstruction <em>x̂</em> misses <em>x</em> (squared error); the second is an L1 penalty that pressures the code <em>z</em> to be mostly zero. <code>λ</code> (lambda) controls how aggressively to sparsify. After training, individual dimensions of <em>z</em> tend to light up for interpretable concepts — one for "fruit", one for "lawsuit", one for "Python code". <code>σ</code> here is a nonlinearity (typically ReLU).
-            </p>
-            <ul class="formula-legend">
-                <li><code>x</code>the original hidden state of the network</li>
-                <li><code>x̂</code>the reconstruction from the sparse code</li>
-                <li><code>z</code>the sparse code (mostly zeros after training)</li>
-                <li><code>λ</code>sparsity strength — bigger λ forces more zeros</li>
-                <li>Single <em>z</em>-dimensions tend to correspond to interpretable features</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Mechanistic interpretability.</strong> Aim: understand a neural network the way you'd understand a compiled program — find the algorithms it implements. Olah et al.'s Circuits work (Distill 2020+), Anthropic's induction heads (2022), Nanda's modular arithmetic (2023). Real progress on toy and small-real models.</p>
-        <p><strong>Probing &amp; representational similarity.</strong> Probe with a small classifier; representational similarity analysis (RSA); centered kernel alignment (CKA). All are ways of asking "what information is in this layer?" without intervening on the model.</p>
-        <p><strong>Causal interpretability.</strong> Patch activations between forward passes; ablate specific neurons or attention heads; measure the effect. Activation patching (Meng et al. 2022), path patching (Goldowsky-Dill 2023). The most rigorous way to attribute behaviour to components.</p>
-        <p><strong>Sparse autoencoders for feature discovery.</strong> Train a sparse autoencoder on a model's hidden states. The sparse codes' dimensions tend to correspond to interpretable features ("this neuron fires for fruit"). Bricken et al. 2023 (Anthropic), Cunningham et al. 2023.</p>
-        <p><strong>Why "attention is not explanation" matters.</strong> Attention weights are <em>part of</em> the computation but they don't tell you what the model is computing. Two attention distributions can lead to the same output; high attention to a token doesn't mean the model needs that token. Use attention as a hypothesis generator, not an answer.</p>
-        <p><strong>Limits and dangers of explanations.</strong> Even faithful explanations can mislead — humans confabulate. "Right answer for the wrong reason" is hard to detect. Adversarial explanations exist (Slack et al. 2020 — fool LIME / SHAP). Treat explanation as a debugging tool, not as truth.</p>
-        <p><strong>Mechanistic for LLMs.</strong> The frontier — induction heads, name mover heads, indirect object identification, modular arithmetic circuits, the "in-context learning" mechanism. Anthropic and OpenAI have dedicated interpretability teams; results are technical and incremental.</p>
-    </article>
+Activations of single <em>z</em>-dimensions tend to correspond to interpretable features
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Anthropic / DeepMind's flagship mech-interp tool
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{loss} \;=\; \text{(squared reconstruction error)} \;+\; \lambda \times \text{(sum of absolute values of the sparse code)} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> A sparse autoencoder learns to compress a network's hidden state <em>x</em> into a sparse code <em>z</em> and then reconstruct <em>x</em> from <em>z</em>. The loss has two competing terms: the first measures how badly the reconstruction <em>x̂</em> misses <em>x</em> (squared error); the second is an L1 penalty that pressures the code <em>z</em> to be mostly zero. <code>λ</code> (lambda) controls how aggressively to sparsify. After training, individual dimensions of <em>z</em> tend to light up for interpretable concepts — one for "fruit", one for "lawsuit", one for "Python code". <code>σ</code> here is a nonlinearity (typically ReLU).</p>
+<ul class="formula-legend">
+<li>
+
+<code>x</code>the original hidden state of the network
+
+</li>
+<li>
+
+<code>x̂</code>the reconstruction from the sparse code
+
+</li>
+<li>
+
+<code>z</code>the sparse code (mostly zeros after training)
+
+</li>
+<li>
+
+<code>λ</code>sparsity strength — bigger λ forces more zeros
+
+</li>
+<li>
+
+Single <em>z</em>-dimensions tend to correspond to interpretable features
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Mechanistic interpretability.</strong> Aim: understand a neural network the way you'd understand a compiled program — find the algorithms it implements. Olah et al.'s Circuits work (Distill 2020+), Anthropic's induction heads (2022), Nanda's modular arithmetic (2023). Real progress on toy and small-real models.</p>
+<p><strong>Probing &amp; representational similarity.</strong> Probe with a small classifier; representational similarity analysis (RSA); centered kernel alignment (CKA). All are ways of asking "what information is in this layer?" without intervening on the model.</p>
+<p><strong>Causal interpretability.</strong> Patch activations between forward passes; ablate specific neurons or attention heads; measure the effect. Activation patching (Meng et al. 2022), path patching (Goldowsky-Dill 2023). The most rigorous way to attribute behaviour to components.</p>
+<p><strong>Sparse autoencoders for feature discovery.</strong> Train a sparse autoencoder on a model's hidden states. The sparse codes' dimensions tend to correspond to interpretable features ("this neuron fires for fruit"). Bricken et al. 2023 (Anthropic), Cunningham et al. 2023.</p>
+<p><strong>Why "attention is not explanation" matters.</strong> Attention weights are <em>part of</em> the computation but they don't tell you what the model is computing. Two attention distributions can lead to the same output; high attention to a token doesn't mean the model needs that token. Use attention as a hypothesis generator, not an answer.</p>
+<p><strong>Limits and dangers of explanations.</strong> Even faithful explanations can mislead — humans confabulate. "Right answer for the wrong reason" is hard to detect. Adversarial explanations exist (Slack et al. 2020 — fool LIME / SHAP). Treat explanation as a debugging tool, not as truth.</p>
+<p><strong>Mechanistic for LLMs.</strong> The frontier — induction heads, name mover heads, indirect object identification, modular arithmetic circuits, the "in-context learning" mechanism. Anthropic and OpenAI have dedicated interpretability teams; results are technical and incremental.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch, torch.nn as nn
 
 # Sparse autoencoder over a transformer's hidden states
@@ -255,12 +296,11 @@ x_hat, z, loss = sae(hidden)
 # z has thousands of dimensions, most of which are zero at any given input.
 # Look at what each non-zero feature fires on across many examples.
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -271,25 +311,33 @@ x_hat, z, loss = sae(hidden)
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://christophm.github.io/interpretable-ml-book/" target="_blank">Molnar — Interpretable Machine Learning <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Free, comprehensive textbook on practical interpretability. SHAP, LIME, PDP, ICE, counterfactuals — all worked examples.</span>
-        </li>
-        <li data-tier="intuition">
-            <a href="https://distill.pub/2020/circuits/" target="_blank">Distill — Circuits Thread <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Olah et al.'s series on mechanistic interpretability of convolutional networks. The visual style still sets the standard.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://transformer-circuits.pub/" target="_blank">Anthropic — Transformer Circuits <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Anthropic's mech-interp blog. Induction heads, sparse autoencoders, and superposition. The frontier of "what's inside transformers".</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://shap.readthedocs.io/" target="_blank">SHAP — Documentation <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The reference SHAP library. Practical tutorials for trees, deep models, kernels.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://christophm.github.io/interpretable-ml-book/" target="_blank">Molnar — Interpretable Machine Learning <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Free, comprehensive textbook on practical interpretability. SHAP, LIME, PDP, ICE, counterfactuals — all worked examples.</span>
+
+</li>
+<li data-tier="intuition">
+
+<a href="https://distill.pub/2020/circuits/" target="_blank">Distill — Circuits Thread <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Olah et al.'s series on mechanistic interpretability of convolutional networks. The visual style still sets the standard.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://transformer-circuits.pub/" target="_blank">Anthropic — Transformer Circuits <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Anthropic's mech-interp blog. Induction heads, sparse autoencoders, and superposition. The frontier of "what's inside transformers".</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://shap.readthedocs.io/" target="_blank">SHAP — Documentation <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The reference SHAP library. Practical tutorials for trees, deep models, kernels.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

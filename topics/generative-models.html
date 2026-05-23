@@ -53,64 +53,59 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Modelling <em>P(data)</em> instead of <em>P(label | data)</em>.</strong> Once you've learned the data distribution, you can sample new data, score the likelihood of new data, infill missing parts, or condition on side-information for controlled generation. Different families make different trade-offs between sample quality, likelihood, speed, and ease of training.</p>
-    </div>
-
-    <div class="viz-embed viz-classic">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Compare the four major families on a simple 2D distribution — same data, very different generative behaviours</span>
-        </div>
-        <div class="viz-classic-controls">
-            <button id="viz-gen-vae"   type="button" class="active">VAE</button>
-            <button id="viz-gen-gan"   type="button">GAN</button>
-            <button id="viz-gen-flow"  type="button">Normalising flow</button>
-            <button id="viz-gen-diff"  type="button">Diffusion</button>
-            <button id="viz-gen-ar"    type="button">Autoregressive</button>
-        </div>
-        <div class="viz-classic-canvas-wrap">
-            <canvas id="viz-gen-canvas"></canvas>
-        </div>
-        <div class="viz-classic-caption" id="viz-gen-caption"></div>
-    </div>
-    <script src="../js/viz/generative.js"></script>
-
-    <p class="viz-intro">A simple 2D target distribution (a ring) shown four ways. Each family is good at different things. <strong>VAE</strong> — fast, blurry. <strong>GAN</strong> — sharp samples, mode collapse risk, no likelihood. <strong>Flow</strong> — exact likelihood, restricted architecture. <strong>Diffusion</strong> — high quality, slow sampling. <strong>Autoregressive</strong> — exact likelihood, sequential sampling.</p>
-
-    <article class="tldr-body">
-        <p><strong>VAE (Variational Autoencoder).</strong> Encode to a Gaussian latent; decode back. Train with reconstruction + KL-to-prior. Fast sampling (one forward pass); usually blurry; exact likelihood (sort of — an ELBO bound). See <a href="neural-networks/autoencoder.html">Autoencoders &amp; VAEs</a>.</p>
-        <p><strong>GAN (Generative Adversarial Network).</strong> Generator and discriminator in a minimax game. Sharp samples; no likelihood; mode collapse common; finicky training. See <a href="neural-networks/gan.html">GANs</a>.</p>
-        <p><strong>Normalising flows.</strong> Invertible transformations from a simple base distribution to the data distribution. Exact likelihood and exact sampling; architecture restricted to invertible maps. Useful when you need likelihoods (anomaly detection, density estimation).</p>
-        <p><strong>Diffusion.</strong> Iteratively denoise from Gaussian noise. Slow sampling (10s–1000s of steps), highest sample quality, stable training. State of the art for images. See <a href="neural-networks/diffusion.html">Diffusion Models</a>.</p>
-        <p><strong>Autoregressive.</strong> Model <em>P(x) = ∏ P(x<sub>i</sub> | x<sub>&lt;i</sub>)</em>. Exact likelihood; sequential (slow) sampling; the architecture behind every modern LLM and PixelRNN/CNN.</p>
-    </article>
-
-    <div class="use-cases neutral">
-        <div class="yes">
-            <h3>Pick by what you need</h3>
-            <ul>
-                <li><strong>Sample quality</strong>: diffusion &gt; GAN ≈ AR &gt; flow &gt; VAE</li>
-                <li><strong>Sample speed</strong>: GAN ≈ VAE ≈ flow &gt; AR &gt; diffusion (parallel: AR loses)</li>
-                <li><strong>Exact likelihood</strong>: flow = AR &gt;&gt; VAE (lower bound only) &gt;&gt; GAN (none)</li>
-                <li><strong>Mode coverage</strong>: AR ≈ diffusion &gt; flow &gt; VAE &gt; GAN</li>
-                <li><strong>Training stability</strong>: AR &gt; diffusion &gt; flow ≈ VAE &gt; GAN</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>None is a free lunch</h3>
-            <ul>
-                <li>Diffusion: slow at inference unless distilled</li>
-                <li>GAN: unstable, mode collapse, no likelihood</li>
-                <li>Flow: architecture constraints hurt quality</li>
-                <li>VAE: blurry; high-quality VAE needs a lot of capacity</li>
-                <li>AR: sequential, slow for long sequences</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Modelling <em>P(data)</em> instead of <em>P(label | data)</em>.</strong> Once you've learned the data distribution, you can sample new data, score the likelihood of new data, infill missing parts, or condition on side-information for controlled generation. Different families make different trade-offs between sample quality, likelihood, speed, and ease of training.</p>
+</div>
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">Compare the four major families on a simple 2D distribution — same data, very different generative behaviours</span>
+</div>
+<div class="viz-classic-controls">
+<button id="viz-gen-vae" type="button" class="active">VAE</button>
+<button id="viz-gen-gan" type="button">GAN</button>
+<button id="viz-gen-flow" type="button">Normalising flow</button>
+<button id="viz-gen-diff" type="button">Diffusion</button>
+<button id="viz-gen-ar" type="button">Autoregressive</button>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-gen-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-gen-caption"></div>
+</div>
+<script src="../js/viz/generative.js"></script>
+<p class="viz-intro">A simple 2D target distribution (a ring) shown four ways. Each family is good at different things. <strong>VAE</strong> — fast, blurry. <strong>GAN</strong> — sharp samples, mode collapse risk, no likelihood. <strong>Flow</strong> — exact likelihood, restricted architecture. <strong>Diffusion</strong> — high quality, slow sampling. <strong>Autoregressive</strong> — exact likelihood, sequential sampling.</p>
+<article class="tldr-body">
+<p><strong>VAE (Variational Autoencoder).</strong> Encode to a Gaussian latent; decode back. Train with reconstruction + KL-to-prior. Fast sampling (one forward pass); usually blurry; exact likelihood (sort of — an ELBO bound). See <a href="neural-networks/autoencoder.html">Autoencoders &amp; VAEs</a>.</p>
+<p><strong>GAN (Generative Adversarial Network).</strong> Generator and discriminator in a minimax game. Sharp samples; no likelihood; mode collapse common; finicky training. See <a href="neural-networks/gan.html">GANs</a>.</p>
+<p><strong>Normalising flows.</strong> Invertible transformations from a simple base distribution to the data distribution. Exact likelihood and exact sampling; architecture restricted to invertible maps. Useful when you need likelihoods (anomaly detection, density estimation).</p>
+<p><strong>Diffusion.</strong> Iteratively denoise from Gaussian noise. Slow sampling (10s–1000s of steps), highest sample quality, stable training. State of the art for images. See <a href="neural-networks/diffusion.html">Diffusion Models</a>.</p>
+<p><strong>Autoregressive.</strong> Model <em>P(x) = ∏ P(x<sub>i</sub> | x<sub>&lt;i</sub>)</em>. Exact likelihood; sequential (slow) sampling; the architecture behind every modern LLM and PixelRNN/CNN.</p>
+</article>
+<div class="use-cases neutral">
+<div class="yes">
+<h3>Pick by what you need</h3>
+<ul>
+<li><strong>Sample quality</strong>: diffusion &gt; GAN ≈ AR &gt; flow &gt; VAE</li>
+<li><strong>Sample speed</strong>: GAN ≈ VAE ≈ flow &gt; AR &gt; diffusion (parallel: AR loses)</li>
+<li><strong>Exact likelihood</strong>: flow = AR &gt;&gt; VAE (lower bound only) &gt;&gt; GAN (none)</li>
+<li><strong>Mode coverage</strong>: AR ≈ diffusion &gt; flow &gt; VAE &gt; GAN</li>
+<li><strong>Training stability</strong>: AR &gt; diffusion &gt; flow ≈ VAE &gt; GAN</li>
+</ul>
+</div>
+<div class="no">
+<h3>None is a free lunch</h3>
+<ul>
+<li>Diffusion: slow at inference unless distilled</li>
+<li>GAN: unstable, mode collapse, no likelihood</li>
+<li>Flow: architecture constraints hurt quality</li>
+<li>VAE: blurry; high-quality VAE needs a lot of capacity</li>
+<li>AR: sequential, slow for long sequences</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python"># Each family in one breath
 import torch, torch.nn as nn, torch.nn.functional as F
 
@@ -135,53 +130,72 @@ loss = F.mse_loss(model(xt, t), noise)
 logits = model(x[:, :-1])
 loss   = F.cross_entropy(logits.flatten(end_dim=-2), x[:, 1:].flatten())
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want EBMs, score-based models, and conditional generation?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want EBMs, score-based models, and conditional generation?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Score matching</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Score matching</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathcal{L} = \mathbb{E}_{x \sim p_{\text{data}}}\big\lVert \nabla_x \log p_\theta(x) - \nabla_x \log p_{\text{data}}(x) \big\rVert^2 $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \mathcal{L} = \mathbb{E}_{x \sim p_{\text{data}}}\big\lVert \nabla_x \log p_\theta(x) - \nabla_x \log p_{\text{data}}(x) \big\rVert^2 $$</span>
-            <ul class="formula-legend">
-                <li>Match the gradient of log-density, not the density itself</li>
-                <li>Avoids the partition function</li>
-                <li>The foundation of score-based and diffusion models</li>
-            </ul>
-        </div>
+Match the gradient of log-density, not the density itself
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{loss} \;=\; \text{average squared difference between model's score and data's score, over real samples} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Rather than fitting the data's <em>density</em> directly (which would require a hard-to-compute normaliser), fit the <em>score</em>: the gradient of the log-density with respect to <em>x</em>, written <code>∇<sub>x</sub> log p(x)</code>. The score is a vector field pointing "uphill" in probability — toward where data is more likely. For each real training sample, compute the model's predicted score and compare it to the true data score, then average the squared error. The trick is that normalising constants drop out when you take the log-gradient, so you can train without the partition function. In practice you don't know the true data score either, but Hyvärinen's identity lets you optimise an equivalent objective, and denoising score matching estimates it by adding noise.
-            </p>
-            <ul class="formula-legend">
-                <li><code>score</code>∇<sub>x</sub> log p(x) — the gradient of log-density, a vector pointing toward higher-density regions</li>
-                <li><code>model's score</code>the score predicted by your neural net (parameters θ)</li>
-                <li><code>data's score</code>the true gradient of log p<sub>data</sub>(x) — not known directly, but estimable</li>
-                <li><code>average over real samples</code>expectation taken over data <em>x</em> drawn from p<sub>data</sub></li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Energy-based models.</strong> Define <em>p(x) ∝ exp(-E<sub>θ</sub>(x))</em>. Maximum likelihood requires the partition function (intractable). Trained via contrastive divergence, score matching, or variational methods. Conceptually powerful; tricky in practice.</p>
-        <p><strong>Score-based models.</strong> Learn <em>∇<sub>x</sub> log p(x)</em> (the "score"). Sample via Langevin dynamics or related SDEs. Closely related to diffusion: a denoising network is essentially a score estimator at multiple noise levels. Unified by Song et al. 2021's SDE formulation.</p>
-        <p><strong>Conditional generation.</strong> <em>p(x | y)</em> instead of <em>p(x)</em>. Class-conditional images, text-to-image, image-to-image. Classifier-free guidance (Ho &amp; Salimans 2021) trains a single model on conditional and unconditional examples; trade off quality and diversity at sampling time by mixing the two.</p>
-        <p><strong>Latent diffusion.</strong> Train a VAE to compress images to a latent space; train a diffusion model in that space. Stable Diffusion is exactly this. Faster sampling (smaller latents) without losing much quality.</p>
-        <p><strong>Likelihood vs sample quality.</strong> Not the same! A model can have great likelihood and ugly samples (over-smooth average) or beautiful samples and terrible likelihood (mode-collapsed). Pick the metric that matches what you care about.</p>
-        <p><strong>Evaluation.</strong> No single metric is right. FID (Fréchet Inception Distance) compares feature statistics; IS (Inception Score) measures diversity + classifiability; PR (Precision/Recall in image space) decouples mode coverage from sample quality; CLIP score for text-image alignment. All have known failure modes.</p>
-    </article>
+Avoids the partition function
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+The foundation of score-based and diffusion models
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{loss} \;=\; \text{average squared difference between model's score and data's score, over real samples} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Rather than fitting the data's <em>density</em> directly (which would require a hard-to-compute normaliser), fit the <em>score</em>: the gradient of the log-density with respect to <em>x</em>, written <code>∇x log p(x)</code>. The score is a vector field pointing "uphill" in probability — toward where data is more likely. For each real training sample, compute the model's predicted score and compare it to the true data score, then average the squared error. The trick is that normalising constants drop out when you take the log-gradient, so you can train without the partition function. In practice you don't know the true data score either, but Hyvärinen's identity lets you optimise an equivalent objective, and denoising score matching estimates it by adding noise.</p>
+<ul class="formula-legend">
+<li>
+
+<code>score</code>∇<sub>x</sub> log p(x) — the gradient of log-density, a vector pointing toward higher-density regions
+
+</li>
+<li>
+
+<code>model's score</code>the score predicted by your neural net (parameters θ)
+
+</li>
+<li>
+
+<code>data's score</code>the true gradient of log p<sub>data</sub>(x) — not known directly, but estimable
+
+</li>
+<li>
+
+<code>average over real samples</code>expectation taken over data <em>x</em> drawn from p<sub>data</sub>
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Energy-based models.</strong> Define <em>p(x) ∝ exp(-E<sub>θ</sub>(x))</em>. Maximum likelihood requires the partition function (intractable). Trained via contrastive divergence, score matching, or variational methods. Conceptually powerful; tricky in practice.</p>
+<p><strong>Score-based models.</strong> Learn <em>∇<sub>x</sub> log p(x)</em> (the "score"). Sample via Langevin dynamics or related SDEs. Closely related to diffusion: a denoising network is essentially a score estimator at multiple noise levels. Unified by Song et al. 2021's SDE formulation.</p>
+<p><strong>Conditional generation.</strong> <em>p(x | y)</em> instead of <em>p(x)</em>. Class-conditional images, text-to-image, image-to-image. Classifier-free guidance (Ho &amp; Salimans 2021) trains a single model on conditional and unconditional examples; trade off quality and diversity at sampling time by mixing the two.</p>
+<p><strong>Latent diffusion.</strong> Train a VAE to compress images to a latent space; train a diffusion model in that space. Stable Diffusion is exactly this. Faster sampling (smaller latents) without losing much quality.</p>
+<p><strong>Likelihood vs sample quality.</strong> Not the same! A model can have great likelihood and ugly samples (over-smooth average) or beautiful samples and terrible likelihood (mode-collapsed). Pick the metric that matches what you care about.</p>
+<p><strong>Evaluation.</strong> No single metric is right. FID (Fréchet Inception Distance) compares feature statistics; IS (Inception Score) measures diversity + classifiability; PR (Precision/Recall in image space) decouples mode coverage from sample quality; CLIP score for text-image alignment. All have known failure modes.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch, torch.nn as nn
 
 # Classifier-free guidance — train with random dropout of the condition
@@ -194,55 +208,78 @@ def sample_cfg(model, y, num_steps, guidance=7.5):
         x = denoise_step(x, noise, t)
     return x
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want SDE formulation, consistency models, &amp; ImageNet scaling?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want SDE formulation, consistency models, &amp; ImageNet scaling?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Score SDE</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Score SDE</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ dx = \big[\, f(x, t) - g(t)^2 \nabla_x \log p_t(x)\, \big]\, dt + g(t)\, d\bar W $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ dx = \big[\, f(x, t) - g(t)^2 \nabla_x \log p_t(x)\, \big]\, dt + g(t)\, d\bar W $$</span>
-            <ul class="formula-legend">
-                <li>Reverse-time SDE for sampling — needs the score <em>∇log p<sub>t</sub>(x)</em></li>
-                <li>Unifies diffusion, score-based, and Langevin samplers</li>
-                <li>Score networks trained at multiple noise levels approximate ∇log p<sub>t</sub></li>
-            </ul>
-        </div>
+Reverse-time SDE for sampling — needs the score <em>∇log p<sub>t</sub>(x)</em>
 
-        <div class="notation-plain">
-            <span class="formula">$$ dx \;=\; \big[\, \text{drift}(x, t) \;-\; \text{diffusion}(t)^2 \times \text{score}(x, t)\, \big]\, dt \;+\; \text{diffusion}(t)\, d\bar W $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> This is the reverse-time stochastic differential equation that turns noise back into data. <code>dx</code> is the tiny change in <em>x</em> at each step of integration. The bracketed part is the deterministic pull: a built-in <code>drift</code> term <code>f(x, t)</code>, minus the squared <code>diffusion</code> coefficient <code>g(t)</code> times the <code>score</code> — the gradient of log-density at the current noise level, which points uphill toward more-likely <em>x</em>. The final term <code>g(t)·d&#x305;W</code> injects a controlled amount of random noise at every step (<code>d&#x305;W</code> is the reverse Wiener-process increment — formal mathematical jargon for "infinitesimal Gaussian noise"). Start from pure Gaussian noise, integrate this equation backwards in time, and you get a sample from the data distribution. Diffusion, score-based models, and Langevin sampling are all instances of this with different choices of <code>f</code> and <code>g</code>.
-            </p>
-            <ul class="formula-legend">
-                <li><code>drift</code>f(x, t) — the deterministic pull, often a simple linear function of <em>x</em></li>
-                <li><code>diffusion</code>g(t) — how much noise to inject at time <em>t</em></li>
-                <li><code>score</code>∇<sub>x</sub> log p<sub>t</sub>(x) — gradient of log-density at the current noise level, approximated by a neural net</li>
-                <li><code>d&#x305;W</code>reverse-time noise increment — mathematical name for "a small Gaussian random kick"</li>
-                <li><code>t</code>time, running from noise (t=T) back to data (t=0) during sampling</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Consistency models.</strong> Song et al. (2023). Train a one-step distillation of a diffusion model — sample in 1 to 4 steps instead of 50–1000. Trade-off: somewhat lower quality than the multi-step teacher; orders-of-magnitude faster.</p>
-        <p><strong>Flow matching &amp; rectified flow.</strong> Lipman et al. (2023), Liu et al. (2022). Train a vector field that maps noise to data; sample by solving the ODE. Often faster than diffusion at comparable quality. The frontier of "diffusion done better".</p>
-        <p><strong>Discrete diffusion &amp; masked language models.</strong> The diffusion framework generalises beyond Gaussian noise — for discrete data (text, tokens), use absorbing-state diffusion or masked modelling. Mask-and-predict objectives are the conceptual cousin.</p>
-        <p><strong>Autoregressive scaling.</strong> Most modern foundation models are autoregressive over discrete tokens, including over images (Parti, MaskGIT, ImageGPT). Tokenise the image with a VQ-VAE or similar, then run an autoregressive transformer over the tokens. Slower at inference than parallel diffusion but conceptually simpler.</p>
-        <p><strong>Likelihood-based vs adversarial.</strong> Likelihood-based models (AR, diffusion, flows, VAEs) tend to cover all modes but produce blurry/smoothed samples. Adversarial models (GANs) produce sharp samples but miss modes. Hybrids (VAE-GAN, diffusion-GAN) try to combine.</p>
-        <p><strong>Controllable generation.</strong> ControlNet, T2I-Adapter, LoRA, IP-Adapter, image conditioning, depth-conditioning, prompt-engineering — the modern stack for steering diffusion models. Less a "model family" than a meta-pattern of adding more conditioning signals.</p>
-        <p><strong>Evaluation difficulties.</strong> FID is the de facto standard but can disagree with human judgement. CLIP-IQA, DINOv2-FID, and human evaluation (preference models) are alternative measures. Always look at samples, not just numbers.</p>
-    </article>
+Unifies diffusion, score-based, and Langevin samplers
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Score networks trained at multiple noise levels approximate ∇log p<sub>t</sub>
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ dx \;=\; \big[\, \text{drift}(x, t) \;-\; \text{diffusion}(t)^2 \times \text{score}(x, t)\, \big]\, dt \;+\; \text{diffusion}(t)\, d\bar W $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> This is the reverse-time stochastic differential equation that turns noise back into data. <code>dx</code> is the tiny change in <em>x</em> at each step of integration. The bracketed part is the deterministic pull: a built-in <code>drift</code> term <code>f(x, t)</code>, minus the squared <code>diffusion</code> coefficient <code>g(t)</code> times the <code>score</code> — the gradient of log-density at the current noise level, which points uphill toward more-likely <em>x</em>. The final term <code>g(t)·d̅W</code> injects a controlled amount of random noise at every step (<code>d̅W</code> is the reverse Wiener-process increment — formal mathematical jargon for "infinitesimal Gaussian noise"). Start from pure Gaussian noise, integrate this equation backwards in time, and you get a sample from the data distribution. Diffusion, score-based models, and Langevin sampling are all instances of this with different choices of <code>f</code> and <code>g</code>.</p>
+<ul class="formula-legend">
+<li>
+
+<code>drift</code>f(x, t) — the deterministic pull, often a simple linear function of <em>x</em>
+
+</li>
+<li>
+
+<code>diffusion</code>g(t) — how much noise to inject at time <em>t</em>
+
+</li>
+<li>
+
+<code>score</code>∇<sub>x</sub> log p<sub>t</sub>(x) — gradient of log-density at the current noise level, approximated by a neural net
+
+</li>
+<li>
+
+<code>d̅W</code>reverse-time noise increment — mathematical name for "a small Gaussian random kick"
+
+</li>
+<li>
+
+<code>t</code>time, running from noise (t=T) back to data (t=0) during sampling
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Consistency models.</strong> Song et al. (2023). Train a one-step distillation of a diffusion model — sample in 1 to 4 steps instead of 50–1000. Trade-off: somewhat lower quality than the multi-step teacher; orders-of-magnitude faster.</p>
+<p><strong>Flow matching &amp; rectified flow.</strong> Lipman et al. (2023), Liu et al. (2022). Train a vector field that maps noise to data; sample by solving the ODE. Often faster than diffusion at comparable quality. The frontier of "diffusion done better".</p>
+<p><strong>Discrete diffusion &amp; masked language models.</strong> The diffusion framework generalises beyond Gaussian noise — for discrete data (text, tokens), use absorbing-state diffusion or masked modelling. Mask-and-predict objectives are the conceptual cousin.</p>
+<p><strong>Autoregressive scaling.</strong> Most modern foundation models are autoregressive over discrete tokens, including over images (Parti, MaskGIT, ImageGPT). Tokenise the image with a VQ-VAE or similar, then run an autoregressive transformer over the tokens. Slower at inference than parallel diffusion but conceptually simpler.</p>
+<p><strong>Likelihood-based vs adversarial.</strong> Likelihood-based models (AR, diffusion, flows, VAEs) tend to cover all modes but produce blurry/smoothed samples. Adversarial models (GANs) produce sharp samples but miss modes. Hybrids (VAE-GAN, diffusion-GAN) try to combine.</p>
+<p><strong>Controllable generation.</strong> ControlNet, T2I-Adapter, LoRA, IP-Adapter, image conditioning, depth-conditioning, prompt-engineering — the modern stack for steering diffusion models. Less a "model family" than a meta-pattern of adding more conditioning signals.</p>
+<p><strong>Evaluation difficulties.</strong> FID is the de facto standard but can disagree with human judgement. CLIP-IQA, DINOv2-FID, and human evaluation (preference models) are alternative measures. Always look at samples, not just numbers.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch
 import torch.nn.functional as F
 
@@ -258,12 +295,11 @@ def flow_loss(model, x_data, sigma=1.0):
     target_velocity = x_data - x0
     return F.mse_loss(model(x_t, t), target_velocity)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -274,25 +310,33 @@ def flow_loss(model, x_data, sigma=1.0):
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/" target="_blank">Lilian Weng — Diffusion Models <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Single best reference for the diffusion / score-based family. Covers DDPM, score-SDE, latent diffusion, and consistency models with worked math.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/2011.13456" target="_blank">Song et al. (2021) — Score-based Generative Modeling through SDEs <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The unifying paper. Shows diffusion = score matching = Langevin sampling under the right lens. Excellent if you want the math.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/2210.02747" target="_blank">Lipman et al. (2023) — Flow Matching <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">"Flow matching for generative modelling" — the recent reframing that's becoming the new default.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://huggingface.co/docs/diffusers" target="_blank">HuggingFace diffusers <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The reference library for diffusion-based generation. Pretrained models, schedulers, samplers, ControlNet — all in one place.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/" target="_blank">Lilian Weng — Diffusion Models <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Single best reference for the diffusion / score-based family. Covers DDPM, score-SDE, latent diffusion, and consistency models with worked math.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/2011.13456" target="_blank">Song et al. (2021) — Score-based Generative Modeling through SDEs <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The unifying paper. Shows diffusion = score matching = Langevin sampling under the right lens. Excellent if you want the math.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/2210.02747" target="_blank">Lipman et al. (2023) — Flow Matching <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">"Flow matching for generative modelling" — the recent reframing that's becoming the new default.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://huggingface.co/docs/diffusers" target="_blank">HuggingFace diffusers <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The reference library for diffusion-based generation. Pretrained models, schedulers, samplers, ControlNet — all in one place.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

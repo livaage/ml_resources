@@ -53,190 +53,245 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>If a run isn't logged, it didn't happen.</strong> Treat every training run as an experiment with a unique ID, all its hyperparameters captured, all its metrics streamed, all its artefacts saved. You'll thank yourself in three weeks when you're trying to find "the one where I tried dropout 0.3 with cosine schedule."</p>
-    </div>
-
-    <article class="tldr-body">
-        <p>Without tracking: spreadsheets, dated folders, and the eternal regret of "which checkpoint was the good one?". With tracking: a searchable dashboard of every run, plottable side-by-side, with every config and artefact one click away.</p>
-        <p><strong>What to log.</strong> Hyperparameters, the git commit, the dataset version, training loss and val metrics (per step), system metrics (GPU util), and final artefacts (checkpoints, predictions, plots). For deep learning, also gradients norms and learning rate.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Tools</h3>
-            <ul>
-                <li><strong>W&amp;B (wandb)</strong>: hosted, free for individuals, nicest UI. Default in many shops.</li>
-                <li><strong>MLflow</strong>: open-source, self-hosted. Solid for production-adjacent workflows.</li>
-                <li><strong>Comet</strong>: similar to W&amp;B, hosted</li>
-                <li><strong>TensorBoard</strong>: built into PyTorch, fine for one-off projects</li>
-                <li><strong>Neptune, ClearML, Aim</strong>: niche but loyal fanbases</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>What to log</h3>
-            <ul>
-                <li>All hyperparameters, automatically (Hydra integration is nice)</li>
-                <li>Train loss + every val metric, per step</li>
-                <li>The git commit hash and any uncommitted diffs</li>
-                <li>The dataset version / hash</li>
-                <li>Final checkpoints and prediction artefacts</li>
-                <li>Learning rate, gradient norms, system utilisation</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>If a run isn't logged, it didn't happen.</strong> Treat every training run as an experiment with a unique ID, all its hyperparameters captured, all its metrics streamed, all its artefacts saved. You'll thank yourself in three weeks when you're trying to find "the one where I tried dropout 0.3 with cosine schedule."</p>
+</div>
+<article class="tldr-body">
+<p>Without tracking: spreadsheets, dated folders, and the eternal regret of "which checkpoint was the good one?". With tracking: a searchable dashboard of every run, plottable side-by-side, with every config and artefact one click away.</p>
+<p><strong>What to log.</strong> Hyperparameters, the git commit, the dataset version, training loss and val metrics (per step), system metrics (GPU util), and final artefacts (checkpoints, predictions, plots). For deep learning, also gradients norms and learning rate.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Tools</h3>
+<ul>
+<li><strong>W&amp;B (wandb)</strong>: hosted, free for individuals, nicest UI. Default in many shops.</li>
+<li><strong>MLflow</strong>: open-source, self-hosted. Solid for production-adjacent workflows.</li>
+<li><strong>Comet</strong>: similar to W&amp;B, hosted</li>
+<li><strong>TensorBoard</strong>: built into PyTorch, fine for one-off projects</li>
+<li><strong>Neptune, ClearML, Aim</strong>: niche but loyal fanbases</li>
+</ul>
+</div>
+<div class="no">
+<h3>What to log</h3>
+<ul>
+<li>All hyperparameters, automatically (Hydra integration is nice)</li>
+<li>Train loss + every val metric, per step</li>
+<li>The git commit hash and any uncommitted diffs</li>
+<li>The dataset version / hash</li>
+<li>Final checkpoints and prediction artefacts</li>
+<li>Learning rate, gradient norms, system utilisation</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import wandb
 import torch
 
 run = wandb.init(
-    project="my-project",
+    project=&quot;my-project&quot;,
     config={
-        "lr":      1e-3,
-        "batch":   64,
-        "model":   "resnet18",
-        "dataset": "cifar10",
+        &quot;lr&quot;:      1e-3,
+        &quot;batch&quot;:   64,
+        &quot;model&quot;:   &quot;resnet18&quot;,
+        &quot;dataset&quot;: &quot;cifar10&quot;,
     },
-    tags=["baseline"],
+    tags=[&quot;baseline&quot;],
 )
 
 for step in range(num_steps):
     loss = train_step()
     val_acc = validate() if step % 500 == 0 else None
-    wandb.log({"train/loss": loss.item(),
-               "val/acc":   val_acc,
-               "lr":        scheduler.get_last_lr()[0]}, step=step)
+    wandb.log({&quot;train/loss&quot;: loss.item(),
+               &quot;val/acc&quot;:   val_acc,
+               &quot;lr&quot;:        scheduler.get_last_lr()[0]}, step=step)
 
 # Save the final model
-torch.save(model.state_dict(), "final.pt")
-wandb.save("final.pt")
+torch.save(model.state_dict(), &quot;final.pt&quot;)
+wandb.save(&quot;final.pt&quot;)
 run.finish()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want the schema discipline, comparison patterns, &amp; integration with Hydra?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the schema discipline, comparison patterns, &amp; integration with Hydra?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">A run is a row, a metric is a column</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">A run is a row, a metric is a column</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \text{Run}: (\text{config}, \text{git}, \text{data version}) \;\to\; (\text{metrics}_{t}, \text{artefacts}) $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \text{Run}: (\text{config}, \text{git}, \text{data version}) \;\to\; (\text{metrics}_{t}, \text{artefacts}) $$</span>
-            <ul class="formula-legend">
-                <li>Every run uniquely identified</li>
-                <li>Configs flatten to columns; metrics are time series; artefacts are pointers</li>
-                <li>Compare across runs by querying the dashboard</li>
-            </ul>
-        </div>
+Every run uniquely identified
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{Run} : (\text{config},\; \text{git sha},\; \text{data version}) \;\to\; (\text{metrics over time},\; \text{artefacts}) $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Think of every training run as a function from inputs to outputs. The inputs are everything that <em>defines</em> the run: the config (hyperparameters), the git commit (which code), and the dataset version. The outputs are the time-series of metrics (loss, accuracy, etc., indexed by step <code>t</code>) and the final artefacts (checkpoints, predictions, plots). The arrow <code>→</code> here means "produces". In tracking systems this gets flattened into a database row per run — inputs become searchable columns, metrics become charts you can overlay, artefacts become files keyed by run ID.
-            </p>
-            <ul class="formula-legend">
-                <li><code>config</code>all hyperparameters and runtime settings</li>
-                <li><code>git sha</code>commit hash (ideally plus uncommitted diff) for the code</li>
-                <li><code>data version</code>dataset hash or pointer to a fixed dataset version</li>
-                <li><code>metrics over time</code>scalar series indexed by training step</li>
-                <li><code>artefacts</code>checkpoints, prediction dumps, evaluation reports</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Logging discipline.</strong> Decide on a schema upfront and stick to it: <code>train/loss</code>, <code>val/loss</code>, <code>val/acc</code>, <code>val/precision</code>. Don't have <code>loss</code> in one run and <code>training_loss</code> in another — the dashboard can't compare them.</p>
-        <p><strong>Logging frequency.</strong> Train loss per batch is too noisy and expensive; per N batches (50–500) is fine. Val metrics per epoch (or every K steps). Gradient norms periodically — they're often the first sign of trouble.</p>
-        <p><strong>Tagging and grouping.</strong> Add tags ("baseline", "ablation-dropout", "phase-2") to make runs filterable. Group runs by sweep ID so you can compare "all hyperparameter search trials from yesterday".</p>
-        <p><strong>Versioning artefacts.</strong> Models, prediction dumps, and evaluation reports. W&amp;B's Artifacts and MLflow's Model Registry both handle this — promote to "staging" then "production" with explicit tracking of which run produced each.</p>
-        <p><strong>The git + diff trick.</strong> Save the commit hash AND the uncommitted diff (<code>git diff HEAD</code>). Now you can reproduce any run exactly, even if it was launched from a dirty working tree.</p>
-        <p><strong>Hydra + W&amp;B.</strong> Hydra parses the YAML config; pass the resulting dict directly to <code>wandb.init(config=...)</code>. Now every Hydra override automatically shows up as a column in the dashboard.</p>
-    </article>
+Configs flatten to columns; metrics are time series; artefacts are pointers
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Compare across runs by querying the dashboard
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{Run} : (\text{config},\; \text{git sha},\; \text{data version}) \;\to\; (\text{metrics over time},\; \text{artefacts}) $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Think of every training run as a function from inputs to outputs. The inputs are everything that <em>defines</em> the run: the config (hyperparameters), the git commit (which code), and the dataset version. The outputs are the time-series of metrics (loss, accuracy, etc., indexed by step <code>t</code>) and the final artefacts (checkpoints, predictions, plots). The arrow <code>→</code> here means "produces". In tracking systems this gets flattened into a database row per run — inputs become searchable columns, metrics become charts you can overlay, artefacts become files keyed by run ID.</p>
+<ul class="formula-legend">
+<li>
+
+<code>config</code>all hyperparameters and runtime settings
+
+</li>
+<li>
+
+<code>git sha</code>commit hash (ideally plus uncommitted diff) for the code
+
+</li>
+<li>
+
+<code>data version</code>dataset hash or pointer to a fixed dataset version
+
+</li>
+<li>
+
+<code>metrics over time</code>scalar series indexed by training step
+
+</li>
+<li>
+
+<code>artefacts</code>checkpoints, prediction dumps, evaluation reports
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Logging discipline.</strong> Decide on a schema upfront and stick to it: <code>train/loss</code>, <code>val/loss</code>, <code>val/acc</code>, <code>val/precision</code>. Don't have <code>loss</code> in one run and <code>training_loss</code> in another — the dashboard can't compare them.</p>
+<p><strong>Logging frequency.</strong> Train loss per batch is too noisy and expensive; per N batches (50–500) is fine. Val metrics per epoch (or every K steps). Gradient norms periodically — they're often the first sign of trouble.</p>
+<p><strong>Tagging and grouping.</strong> Add tags ("baseline", "ablation-dropout", "phase-2") to make runs filterable. Group runs by sweep ID so you can compare "all hyperparameter search trials from yesterday".</p>
+<p><strong>Versioning artefacts.</strong> Models, prediction dumps, and evaluation reports. W&amp;B's Artifacts and MLflow's Model Registry both handle this — promote to "staging" then "production" with explicit tracking of which run produced each.</p>
+<p><strong>The git + diff trick.</strong> Save the commit hash AND the uncommitted diff (<code>git diff HEAD</code>). Now you can reproduce any run exactly, even if it was launched from a dirty working tree.</p>
+<p><strong>Hydra + W&amp;B.</strong> Hydra parses the YAML config; pass the resulting dict directly to <code>wandb.init(config=...)</code>. Now every Hydra override automatically shows up as a column in the dashboard.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import hydra, wandb, subprocess
 from omegaconf import DictConfig, OmegaConf
 
-@hydra.main(config_path="configs", config_name="train")
+@hydra.main(config_path=&quot;configs&quot;, config_name=&quot;train&quot;)
 def main(cfg: DictConfig):
     # Capture the git state for reproducibility
-    git_sha  = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
-    git_diff = subprocess.check_output(["git", "diff", "HEAD"]).decode()
+    git_sha  = subprocess.check_output([&quot;git&quot;, &quot;rev-parse&quot;, &quot;HEAD&quot;]).decode().strip()
+    git_diff = subprocess.check_output([&quot;git&quot;, &quot;diff&quot;, &quot;HEAD&quot;]).decode()
 
     run = wandb.init(
         project=cfg.project,
         config=OmegaConf.to_container(cfg, resolve=True),
-        tags=cfg.get("tags", []),
-        notes=f"git: {git_sha[:8]}",
+        tags=cfg.get(&quot;tags&quot;, []),
+        notes=f&quot;git: {git_sha[:8]}&quot;,
     )
     if git_diff:
         # Save the uncommitted diff as an artefact
-        with open("uncommitted.diff", "w") as f: f.write(git_diff)
-        wandb.save("uncommitted.diff")
+        with open(&quot;uncommitted.diff&quot;, &quot;w&quot;) as f: f.write(git_diff)
+        wandb.save(&quot;uncommitted.diff&quot;)
 
     train(cfg)
     run.finish()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want offline runs, distributed logging, and team workflows?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want offline runs, distributed logging, and team workflows?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">A complete run record</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">A complete run record</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \text{record} = (\text{code}, \text{config}, \text{data}, \text{env}, \text{seeds}, \text{metrics}, \text{artefacts}) $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \text{record} = (\text{code}, \text{config}, \text{data}, \text{env}, \text{seeds}, \text{metrics}, \text{artefacts}) $$</span>
-            <ul class="formula-legend">
-                <li>Code: git commit + uncommitted diff</li>
-                <li>Env: lockfile or container hash</li>
-                <li>Data: dataset hash / version pointer</li>
-                <li>Seeds: random, numpy, torch, cuda</li>
-            </ul>
-        </div>
+Code: git commit + uncommitted diff
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{run record} \;=\; (\text{code},\; \text{config},\; \text{data},\; \text{environment},\; \text{seeds},\; \text{metrics},\; \text{artefacts}) $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> A complete record of a single training run is a tuple of seven things — drop any one and you lose reproducibility. <strong>Code</strong> is the exact source (git sha + uncommitted diff). <strong>Config</strong> is all hyperparameters. <strong>Data</strong> is which dataset version was used. <strong>Environment</strong> captures library versions (lockfile) or the container hash. <strong>Seeds</strong> are the random seeds for Python, NumPy, PyTorch, and CUDA — without these, "same code, same data" still gives different results. <strong>Metrics</strong> are the time series. <strong>Artefacts</strong> are the binary outputs (checkpoints, plots).
-            </p>
-            <ul class="formula-legend">
-                <li><code>code</code>git commit + any uncommitted diff</li>
-                <li><code>config</code>all hyperparameters and runtime settings</li>
-                <li><code>data</code>dataset version hash or pointer</li>
-                <li><code>environment</code>lockfile (uv.lock, poetry.lock) or container digest</li>
-                <li><code>seeds</code>random seeds for Python, NumPy, PyTorch, CUDA</li>
-                <li><code>metrics</code>scalar time series logged during the run</li>
-                <li><code>artefacts</code>saved checkpoints, prediction dumps, plots</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Offline runs.</strong> When training on a cluster without internet, log to local files first (<code>WANDB_MODE=offline</code> or MLflow's local backend) and sync after. Same for W&amp;B Service mode on isolated networks.</p>
-        <p><strong>Distributed logging.</strong> Only rank 0 should log scalar metrics — otherwise every rank writes them and you get an N× inflated step counter. Rank 0 broadcasts the run ID; other ranks can save per-rank artefacts (gradient histograms) under separate keys.</p>
-        <p><strong>Team workflows.</strong> Shared projects with role-based access (W&amp;B Teams, MLflow's auth). Naming conventions (<code>project_phase_owner</code>). Tagging discipline (<code>baseline</code>, <code>candidate</code>, <code>production</code>). Reports/Notebooks for sharing findings.</p>
-        <p><strong>Cost tracking.</strong> Modern dashboards can ingest GPU-hours and dollar cost per run. Useful for blameless retros and for spotting runs that are 80% of the budget for 5% of the gain.</p>
-        <p><strong>Integration with experiment platforms.</strong> Optuna's trials can stream into W&amp;B sweeps. Lightning's Trainer auto-logs to whichever tracker you set. AzureML, Vertex, SageMaker all bridge to common trackers.</p>
-        <p><strong>The "experiment journal" pattern.</strong> Per project, maintain a short markdown "what I tried, what happened, why" file alongside the code. Tracking dashboards are noisy; a few hand-written sentences per branch is what you'll actually re-read.</p>
-    </article>
+Env: lockfile or container hash
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Data: dataset hash / version pointer
+
+</li>
+<li>
+
+Seeds: random, numpy, torch, cuda
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{run record} \;=\; (\text{code},\; \text{config},\; \text{data},\; \text{environment},\; \text{seeds},\; \text{metrics},\; \text{artefacts}) $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> A complete record of a single training run is a tuple of seven things — drop any one and you lose reproducibility. <strong>Code</strong> is the exact source (git sha + uncommitted diff). <strong>Config</strong> is all hyperparameters. <strong>Data</strong> is which dataset version was used. <strong>Environment</strong> captures library versions (lockfile) or the container hash. <strong>Seeds</strong> are the random seeds for Python, NumPy, PyTorch, and CUDA — without these, "same code, same data" still gives different results. <strong>Metrics</strong> are the time series. <strong>Artefacts</strong> are the binary outputs (checkpoints, plots).</p>
+<ul class="formula-legend">
+<li>
+
+<code>code</code>git commit + any uncommitted diff
+
+</li>
+<li>
+
+<code>config</code>all hyperparameters and runtime settings
+
+</li>
+<li>
+
+<code>data</code>dataset version hash or pointer
+
+</li>
+<li>
+
+<code>environment</code>lockfile (uv.lock, poetry.lock) or container digest
+
+</li>
+<li>
+
+<code>seeds</code>random seeds for Python, NumPy, PyTorch, CUDA
+
+</li>
+<li>
+
+<code>metrics</code>scalar time series logged during the run
+
+</li>
+<li>
+
+<code>artefacts</code>saved checkpoints, prediction dumps, plots
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Offline runs.</strong> When training on a cluster without internet, log to local files first (<code>WANDB_MODE=offline</code> or MLflow's local backend) and sync after. Same for W&amp;B Service mode on isolated networks.</p>
+<p><strong>Distributed logging.</strong> Only rank 0 should log scalar metrics — otherwise every rank writes them and you get an N× inflated step counter. Rank 0 broadcasts the run ID; other ranks can save per-rank artefacts (gradient histograms) under separate keys.</p>
+<p><strong>Team workflows.</strong> Shared projects with role-based access (W&amp;B Teams, MLflow's auth). Naming conventions (<code>project_phase_owner</code>). Tagging discipline (<code>baseline</code>, <code>candidate</code>, <code>production</code>). Reports/Notebooks for sharing findings.</p>
+<p><strong>Cost tracking.</strong> Modern dashboards can ingest GPU-hours and dollar cost per run. Useful for blameless retros and for spotting runs that are 80% of the budget for 5% of the gain.</p>
+<p><strong>Integration with experiment platforms.</strong> Optuna's trials can stream into W&amp;B sweeps. Lightning's Trainer auto-logs to whichever tracker you set. AzureML, Vertex, SageMaker all bridge to common trackers.</p>
+<p><strong>The "experiment journal" pattern.</strong> Per project, maintain a short markdown "what I tried, what happened, why" file alongside the code. Tracking dashboards are noisy; a few hand-written sentences per branch is what you'll actually re-read.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import os, torch.distributed as dist
 import wandb
 
@@ -245,7 +300,7 @@ def setup_logging(cfg):
     if is_rank0:
         run = wandb.init(project=cfg.project, config=cfg)
         # Share the run ID with other ranks so they know who they are
-        os.environ["WANDB_RUN_ID"] = run.id
+        os.environ[&quot;WANDB_RUN_ID&quot;] = run.id
     return is_rank0
 
 def log_metrics(metrics, step, is_rank0):
@@ -256,12 +311,11 @@ def log_metrics(metrics, step, is_rank0):
 # Run: WANDB_MODE=offline python train.py
 # Later: wandb sync wandb/offline-run-...
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -282,25 +336,33 @@ def log_metrics(metrics, step, is_rank0):
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://docs.wandb.ai/" target="_blank">Weights &amp; Biases Docs <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The reference for W&amp;B. Quickstarts for every framework; depth on sweeps, reports, and team workflows.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://mlflow.org/docs/latest/index.html" target="_blank">MLflow Documentation <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Open-source alternative if you need self-hosted or want a model registry in the same tool.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://github.com/aimhubio/aim" target="_blank">Aim — Open-source Experiment Tracker <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Modern, fast, open-source. Worth a look if W&amp;B is too heavyweight and MLflow's UI bothers you.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://github.com/IDSIA/sacred" target="_blank">Sacred <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The original Python experiment manager. Still has a clean philosophy and a loyal user base.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://docs.wandb.ai/" target="_blank">Weights &amp; Biases Docs <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The reference for W&amp;B. Quickstarts for every framework; depth on sweeps, reports, and team workflows.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://mlflow.org/docs/latest/index.html" target="_blank">MLflow Documentation <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Open-source alternative if you need self-hosted or want a model registry in the same tool.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://github.com/aimhubio/aim" target="_blank">Aim — Open-source Experiment Tracker <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Modern, fast, open-source. Worth a look if W&amp;B is too heavyweight and MLflow's UI bothers you.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://github.com/IDSIA/sacred" target="_blank">Sacred <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The original Python experiment manager. Still has a clean philosophy and a loyal user base.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

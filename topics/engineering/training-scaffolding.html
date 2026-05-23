@@ -53,39 +53,36 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>The training loop is mostly the same across projects.</strong> Forward pass, backward, step, scheduler, log, eval, save. Don't rewrite it every time. Use Lightning, Accelerate, or a small in-house scaffold. The model logic is what's project-specific; the loop is plumbing.</p>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>Three options.</strong> (1) Vanilla PyTorch — the most control, the most boilerplate. (2) HuggingFace Accelerate — minimal changes to your existing loop, handles devices + distributed + mixed precision. (3) PyTorch Lightning — opinionated scaffold; you implement <code>training_step</code>, it handles everything else.</p>
-        <p>Lightning is great for typical supervised training; Accelerate is great when you want to keep your custom loop but get free distributed + mixed-precision; vanilla is right for unusual training patterns (RL, GANs, custom adversarial setups).</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Picking a framework</h3>
-            <ul>
-                <li><strong>Lightning</strong>: typical supervised training, fast iteration, good defaults</li>
-                <li><strong>Accelerate</strong>: existing custom loop you don't want to throw away</li>
-                <li><strong>Vanilla PyTorch</strong>: unusual training (RL, multi-network adversarial)</li>
-                <li><strong>Trainer (HF)</strong>: transformer fine-tuning specifically</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Common mistakes</h3>
-            <ul>
-                <li>Rewriting the loop from scratch in every project</li>
-                <li>Wrapping a framework so tightly you can't use its features</li>
-                <li>Using Lightning + bypassing its abstractions ("Lightning + custom hooks")</li>
-                <li>Reinventing logging, checkpointing, mixed-precision yourself</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>The training loop is mostly the same across projects.</strong> Forward pass, backward, step, scheduler, log, eval, save. Don't rewrite it every time. Use Lightning, Accelerate, or a small in-house scaffold. The model logic is what's project-specific; the loop is plumbing.</p>
+</div>
+<article class="tldr-body">
+<p><strong>Three options.</strong> (1) Vanilla PyTorch — the most control, the most boilerplate. (2) HuggingFace Accelerate — minimal changes to your existing loop, handles devices + distributed + mixed precision. (3) PyTorch Lightning — opinionated scaffold; you implement <code>training_step</code>, it handles everything else.</p>
+<p>Lightning is great for typical supervised training; Accelerate is great when you want to keep your custom loop but get free distributed + mixed-precision; vanilla is right for unusual training patterns (RL, GANs, custom adversarial setups).</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Picking a framework</h3>
+<ul>
+<li><strong>Lightning</strong>: typical supervised training, fast iteration, good defaults</li>
+<li><strong>Accelerate</strong>: existing custom loop you don't want to throw away</li>
+<li><strong>Vanilla PyTorch</strong>: unusual training (RL, multi-network adversarial)</li>
+<li><strong>Trainer (HF)</strong>: transformer fine-tuning specifically</li>
+</ul>
+</div>
+<div class="no">
+<h3>Common mistakes</h3>
+<ul>
+<li>Rewriting the loop from scratch in every project</li>
+<li>Wrapping a framework so tightly you can't use its features</li>
+<li>Using Lightning + bypassing its abstractions ("Lightning + custom hooks")</li>
+<li>Reinventing logging, checkpointing, mixed-precision yourself</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import lightning as L
 import torch
 import torch.nn.functional as F
@@ -101,7 +98,7 @@ class MyModel(L.LightningModule):
         x, y = batch
         logits = self.head(self.backbone(x))
         loss = F.cross_entropy(logits, y)
-        self.log("train/loss", loss, prog_bar=True)
+        self.log(&quot;train/loss&quot;, loss, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -109,133 +106,167 @@ class MyModel(L.LightningModule):
         logits = self.head(self.backbone(x))
         loss = F.cross_entropy(logits, y)
         acc  = (logits.argmax(-1) == y).float().mean()
-        self.log_dict({"val/loss": loss, "val/acc": acc})
+        self.log_dict({&quot;val/loss&quot;: loss, &quot;val/acc&quot;: acc})
 
     def configure_optimizers(self):
         return torch.optim.AdamW(self.parameters(), lr=self.hparams.lr)
 
 trainer = L.Trainer(
-    max_epochs=20, devices=4, strategy="ddp", precision="bf16-mixed",
-    callbacks=[L.callbacks.ModelCheckpoint(monitor="val/loss")],
-    logger=L.loggers.WandbLogger(project="my-project"),
+    max_epochs=20, devices=4, strategy=&quot;ddp&quot;, precision=&quot;bf16-mixed&quot;,
+    callbacks=[L.callbacks.ModelCheckpoint(monitor=&quot;val/loss&quot;)],
+    logger=L.loggers.WandbLogger(project=&quot;my-project&quot;),
 )
 trainer.fit(MyModel(), train_loader, val_loader)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want callbacks, custom loops, &amp; the Accelerate pattern?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want callbacks, custom loops, &amp; the Accelerate pattern?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">The standard training loop, abstracted</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">The standard training loop, abstracted</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \text{prep} \to (\text{step} \to \text{log} \to \text{eval} \to \text{checkpoint})^* \to \text{save} $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \text{prep} \to (\text{step} \to \text{log} \to \text{eval} \to \text{checkpoint})^* \to \text{save} $$</span>
-            <ul class="formula-legend">
-                <li>Every framework's loop is some specialisation of this</li>
-                <li>The hook points are where you customise — callbacks, on_step_end, etc.</li>
-            </ul>
-        </div>
+Every framework's loop is some specialisation of this
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{setup} \;\to\; \big(\text{train step} \to \text{log} \to \text{evaluate} \to \text{checkpoint}\big)\text{ repeated} \;\to\; \text{final save} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Almost every training loop has the same skeleton. <code>prep</code> happens once at startup (build model, optimizer, data loader). Then a block of four stages — step the model, log metrics, run eval periodically, save a checkpoint — runs many times in a loop; the <code>*</code> is regex-style notation for "repeat zero or more times". At the end, save the final model. Frameworks differ only in <em>how</em> you customise each stage (callbacks, hooks, mixins) — the shape is the same.
-            </p>
-            <ul class="formula-legend">
-                <li><code>setup</code>one-time work: model, optimizer, data, devices</li>
-                <li><code>train step</code>forward + backward + optimizer step on one batch</li>
-                <li><code>log / evaluate / checkpoint</code>periodic side-effects inside the loop</li>
-                <li>Every framework's loop is some specialisation of this skeleton</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Lightning callbacks.</strong> Lightning's extensibility model. <code>EarlyStopping</code>, <code>ModelCheckpoint</code>, <code>LearningRateMonitor</code>, custom callbacks. The right place to inject behaviour without bloating the LightningModule.</p>
-        <p><strong>Accelerate.</strong> Wraps your existing loop. <code>accelerator.prepare(model, optimizer, dataloader)</code> handles device placement, mixed precision, distributed. Your loop stays mostly the same but gains all the framework features.</p>
-        <p><strong>Mixin patterns.</strong> Reusable pieces: <code>EMAMixin</code> for exponential moving average of weights, <code>GradAccumMixin</code> for accumulation. Drop into any model.</p>
-        <p><strong>Custom Lightning DataModules.</strong> Encapsulate your data setup: <code>prepare_data</code> (download), <code>setup</code> (split, transform), <code>train_dataloader</code> / <code>val_dataloader</code>. Lightning's separation of model and data scaffolding pays off across multiple projects.</p>
-        <p><strong>Trainer flags.</strong> <code>fast_dev_run=True</code> for a smoke test, <code>overfit_batches=2</code> for a 1-batch sanity check, <code>limit_train_batches=0.1</code> for a quick partial run. Lightning has most of these built in; Accelerate gets them via your own flags.</p>
-        <p><strong>Save the LightningModule, not the model.</strong> Lightning saves the module with hyperparameters; load with <code>MyModel.load_from_checkpoint(path)</code> and you get the same object with the same configuration. Don't extract the bare PyTorch model unless you need to deploy to non-Lightning code.</p>
-    </article>
+The hook points are where you customise — callbacks, on_step_end, etc.
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{setup} \;\to\; \big(\text{train step} \to \text{log} \to \text{evaluate} \to \text{checkpoint}\big)\text{ repeated} \;\to\; \text{final save} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Almost every training loop has the same skeleton. <code>prep</code> happens once at startup (build model, optimizer, data loader). Then a block of four stages — step the model, log metrics, run eval periodically, save a checkpoint — runs many times in a loop; the <code>*</code> is regex-style notation for "repeat zero or more times". At the end, save the final model. Frameworks differ only in <em>how</em> you customise each stage (callbacks, hooks, mixins) — the shape is the same.</p>
+<ul class="formula-legend">
+<li>
+
+<code>setup</code>one-time work: model, optimizer, data, devices
+
+</li>
+<li>
+
+<code>train step</code>forward + backward + optimizer step on one batch
+
+</li>
+<li>
+
+<code>log / evaluate / checkpoint</code>periodic side-effects inside the loop
+
+</li>
+<li>
+
+Every framework's loop is some specialisation of this skeleton
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Lightning callbacks.</strong> Lightning's extensibility model. <code>EarlyStopping</code>, <code>ModelCheckpoint</code>, <code>LearningRateMonitor</code>, custom callbacks. The right place to inject behaviour without bloating the LightningModule.</p>
+<p><strong>Accelerate.</strong> Wraps your existing loop. <code>accelerator.prepare(model, optimizer, dataloader)</code> handles device placement, mixed precision, distributed. Your loop stays mostly the same but gains all the framework features.</p>
+<p><strong>Mixin patterns.</strong> Reusable pieces: <code>EMAMixin</code> for exponential moving average of weights, <code>GradAccumMixin</code> for accumulation. Drop into any model.</p>
+<p><strong>Custom Lightning DataModules.</strong> Encapsulate your data setup: <code>prepare_data</code> (download), <code>setup</code> (split, transform), <code>train_dataloader</code> / <code>val_dataloader</code>. Lightning's separation of model and data scaffolding pays off across multiple projects.</p>
+<p><strong>Trainer flags.</strong> <code>fast_dev_run=True</code> for a smoke test, <code>overfit_batches=2</code> for a 1-batch sanity check, <code>limit_train_batches=0.1</code> for a quick partial run. Lightning has most of these built in; Accelerate gets them via your own flags.</p>
+<p><strong>Save the LightningModule, not the model.</strong> Lightning saves the module with hyperparameters; load with <code>MyModel.load_from_checkpoint(path)</code> and you get the same object with the same configuration. Don't extract the bare PyTorch model unless you need to deploy to non-Lightning code.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">from accelerate import Accelerator
 
 # Keep your own training loop; let Accelerate handle the rest
-accelerator = Accelerator(mixed_precision="bf16", gradient_accumulation_steps=4)
+accelerator = Accelerator(mixed_precision=&quot;bf16&quot;, gradient_accumulation_steps=4)
 
 model, opt, loader = accelerator.prepare(model, opt, loader)
 
 for batch in loader:
     with accelerator.accumulate(model):
-        out  = model(batch["x"])
-        loss = loss_fn(out, batch["y"])
+        out  = model(batch[&quot;x&quot;])
+        loss = loss_fn(out, batch[&quot;y&quot;])
         accelerator.backward(loss)
         opt.step(); opt.zero_grad()
 
     if accelerator.is_main_process and step % 100 == 0:
-        accelerator.print(f"step={step} loss={loss.item():.4f}")
+        accelerator.print(f&quot;step={step} loss={loss.item():.4f}&quot;)
 
 accelerator.wait_for_everyone()
 if accelerator.is_main_process:
-    accelerator.save(accelerator.unwrap_model(model).state_dict(), "ckpt.pt")
+    accelerator.save(accelerator.unwrap_model(model).state_dict(), &quot;ckpt.pt&quot;)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want custom callbacks, EMA / SWA, &amp; the unconventional loops?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want custom callbacks, EMA / SWA, &amp; the unconventional loops?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Exponential Moving Average</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Exponential Moving Average</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \theta_{\mathrm{EMA}}^{(t)} = \mu \cdot \theta_{\mathrm{EMA}}^{(t-1)} + (1 - \mu) \cdot \theta^{(t)} $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \theta_{\mathrm{EMA}}^{(t)} = \mu \cdot \theta_{\mathrm{EMA}}^{(t-1)} + (1 - \mu) \cdot \theta^{(t)} $$</span>
-            <ul class="formula-legend">
-                <li>Stash a smoothed copy of your weights</li>
-                <li>Use the EMA weights at eval / inference — often more accurate, more stable</li>
-                <li>Standard for diffusion training, self-supervised methods, and some supervised setups</li>
-            </ul>
-        </div>
+Stash a smoothed copy of your weights
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{smoothed weights now} = \mu \cdot \text{smoothed weights before} + (1 - \mu) \cdot \text{current weights} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> EMA (exponential moving average) keeps a slowly-updating shadow copy of your weights. At each step, the smoothed weights are mostly the previous smoothed weights, mixed with a tiny bit of the latest live weights. <code>μ</code> (mu, a Greek letter) is the decay — typically <code>0.999</code> or <code>0.9999</code>; bigger means slower-changing (more smoothing). The superscript <code>(t)</code> just labels the step number. Use the smoothed copy at evaluation / inference time — it's almost always a slightly better, more stable predictor than the latest weights.
-            </p>
-            <ul class="formula-legend">
-                <li><code>smoothed weights now</code>the EMA shadow copy after the current step</li>
-                <li><code>μ</code>decay factor (close to 1) — how much of the previous EMA to keep</li>
-                <li><code>current weights</code>the live trained parameters at this step</li>
-                <li>Standard for diffusion training, self-supervised methods, and some supervised setups</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>EMA / SWA.</strong> Maintain a running average of weights during training; use it at inference. EMA decay typically 0.999 or 0.9999. SWA (Stochastic Weight Averaging) is the larger-step variant. Both reliably improve test accuracy by 0.1-1pp.</p>
-        <p><strong>Gradient accumulation correctly.</strong> Forward + backward N micro-batches without stepping; then step once. Effective batch size is N × micro_batch. Watch out for BatchNorm — it uses per-rank stats, not effective batch stats.</p>
-        <p><strong>Custom unusual loops.</strong> GAN training (alternating G and D updates), reinforcement learning (rollouts + updates), curriculum learning (data shifting over time). Lightning supports most via callbacks; pure PyTorch is sometimes cleaner.</p>
-        <p><strong>Checkpoint hygiene.</strong> Save every N steps (resumable mid-epoch). Keep last K and best M checkpoints. Compress with safetensors. Decoupled from "the final model" — that's a registry artefact.</p>
-        <p><strong>Resume on failure.</strong> <code>trainer.fit(ckpt_path="last.ckpt")</code> in Lightning. With Accelerate, save and restore both model + optimizer + scheduler + RNG state. Essential for jobs longer than a few hours.</p>
-        <p><strong>Profile inside the training loop.</strong> <code>torch.profiler</code> can be attached as a Lightning callback. Look at the chrome trace; spot data-loader gaps, kernel-launch overhead, slow communications.</p>
-        <p><strong>Test the training loop.</strong> Unit test the LightningModule's <code>training_step</code> with a hand-built batch. Asserts: loss is non-negative, gradients are non-zero on every parameter, output shape matches. Catches refactor bugs without launching a full run.</p>
-    </article>
+Use the EMA weights at eval / inference — often more accurate, more stable
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Standard for diffusion training, self-supervised methods, and some supervised setups
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{smoothed weights now} = \mu \cdot \text{smoothed weights before} + (1 - \mu) \cdot \text{current weights} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> EMA (exponential moving average) keeps a slowly-updating shadow copy of your weights. At each step, the smoothed weights are mostly the previous smoothed weights, mixed with a tiny bit of the latest live weights. <code>μ</code> (mu, a Greek letter) is the decay — typically <code>0.999</code> or <code>0.9999</code>; bigger means slower-changing (more smoothing). The superscript <code>(t)</code> just labels the step number. Use the smoothed copy at evaluation / inference time — it's almost always a slightly better, more stable predictor than the latest weights.</p>
+<ul class="formula-legend">
+<li>
+
+<code>smoothed weights now</code>the EMA shadow copy after the current step
+
+</li>
+<li>
+
+<code>μ</code>decay factor (close to 1) — how much of the previous EMA to keep
+
+</li>
+<li>
+
+<code>current weights</code>the live trained parameters at this step
+
+</li>
+<li>
+
+Standard for diffusion training, self-supervised methods, and some supervised setups
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>EMA / SWA.</strong> Maintain a running average of weights during training; use it at inference. EMA decay typically 0.999 or 0.9999. SWA (Stochastic Weight Averaging) is the larger-step variant. Both reliably improve test accuracy by 0.1-1pp.</p>
+<p><strong>Gradient accumulation correctly.</strong> Forward + backward N micro-batches without stepping; then step once. Effective batch size is N × micro_batch. Watch out for BatchNorm — it uses per-rank stats, not effective batch stats.</p>
+<p><strong>Custom unusual loops.</strong> GAN training (alternating G and D updates), reinforcement learning (rollouts + updates), curriculum learning (data shifting over time). Lightning supports most via callbacks; pure PyTorch is sometimes cleaner.</p>
+<p><strong>Checkpoint hygiene.</strong> Save every N steps (resumable mid-epoch). Keep last K and best M checkpoints. Compress with safetensors. Decoupled from "the final model" — that's a registry artefact.</p>
+<p><strong>Resume on failure.</strong> <code>trainer.fit(ckpt_path="last.ckpt")</code> in Lightning. With Accelerate, save and restore both model + optimizer + scheduler + RNG state. Essential for jobs longer than a few hours.</p>
+<p><strong>Profile inside the training loop.</strong> <code>torch.profiler</code> can be attached as a Lightning callback. Look at the chrome trace; spot data-loader gaps, kernel-launch overhead, slow communications.</p>
+<p><strong>Test the training loop.</strong> Unit test the LightningModule's <code>training_step</code> with a hand-built batch. Asserts: loss is non-negative, gradients are non-zero on every parameter, output shape matches. Catches refactor bugs without launching a full run.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import lightning as L
 import torch
 import copy
@@ -262,12 +293,11 @@ class EMACallback(L.Callback):
         for p, p_e in zip(pl_module.parameters(), self.ema.parameters()):
             p.data, p_e.data = p_e.data.clone(), p.data.clone()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -288,25 +318,33 @@ class EMACallback(L.Callback):
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://lightning.ai/docs/pytorch/" target="_blank">PyTorch Lightning Documentation <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The reference. Trainer flags, callbacks, DataModules, and Lightning Studio for hosted training.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://huggingface.co/docs/accelerate" target="_blank">HuggingFace Accelerate <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Minimal-wrapper alternative — wraps your existing loop instead of replacing it. Works particularly well with HF transformers.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://github.com/karpathy/nanoGPT" target="_blank">karpathy/nanoGPT <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The minimalist counter-example — full GPT training in a few hundred lines of pure PyTorch. Worth reading for the "what does the framework do for you" perspective.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://timm.fast.ai/" target="_blank">timm — PyTorch Image Models <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The reference library for vision backbones, with a built-in training script. Useful even if you don't use timm; the training script is a good template.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://lightning.ai/docs/pytorch/" target="_blank">PyTorch Lightning Documentation <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The reference. Trainer flags, callbacks, DataModules, and Lightning Studio for hosted training.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://huggingface.co/docs/accelerate" target="_blank">HuggingFace Accelerate <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Minimal-wrapper alternative — wraps your existing loop instead of replacing it. Works particularly well with HF transformers.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://github.com/karpathy/nanoGPT" target="_blank">karpathy/nanoGPT <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The minimalist counter-example — full GPT training in a few hundred lines of pure PyTorch. Worth reading for the "what does the framework do for you" perspective.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://timm.fast.ai/" target="_blank">timm — PyTorch Image Models <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The reference library for vision backbones, with a built-in training script. Useful even if you don't use timm; the training script is a good template.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

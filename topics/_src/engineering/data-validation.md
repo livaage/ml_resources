@@ -1,0 +1,342 @@
+---
+title: Data Validation — ML Resources Hub
+eyebrow_text: ← Engineering · CI / CD
+eyebrow_href: {{root}}engineering.html
+heading: Data Validation
+lead: Schemas, ranges, distributions — catching bad data before it poisons your model.
+active_nav: engineering
+prev_href: ci-for-ml.html
+prev_title: CI for ML
+next_href: automated-retraining.html
+next_title: Automated Retraining
+---
+
+<section class="topic-level active" data-level="intuition" markdown="1">
+
+<div class="key-idea" markdown="1">
+
+<span class="key-idea-label">Key idea</span>
+
+**"Garbage in, garbage out" — but quietly.** Bad data rarely throws an error; it just makes your model worse, and the failure looks like "the model is bad" rather than "the data is bad". Catch it at the boundary: schema (right columns, right types), ranges (numbers within bounds), and distributions (no surprise drift).
+
+</div>
+
+<article class="tldr-body" markdown="1">
+
+Three layers of validation: **schema** (the data is shaped right), **range** (values are within expected bounds), **distribution** (the statistics of the new batch match what the model expects). The first two are cheap and catch ~80% of issues; the third catches the silent ones.
+
+</article>
+
+<div class="use-cases" markdown="1">
+
+<div class="yes" markdown="1">
+
+### Three layers of validation
+
+- **Schema**: column names, types, nullability
+- **Range**: numeric bounds, categorical sets, regex on strings
+- **Distribution**: mean, variance, % missing, % unique within tolerance of training stats
+- **Cross-column**: invariants ("end_date >= start_date")
+
+</div>
+
+<div class="no" markdown="1">
+
+### Common pitfalls
+
+- Validating output schema but not input distribution
+- Validation too strict — production data is messier than train
+- Validation too loose — silent drift goes undetected
+- Hand-coded checks that drift apart from the data they should match
+
+</div>
+
+</div>
+
+<div class="code-snippet" markdown="1">
+
+<button class="copy-btn" type="button">Copy</button>
+
+```python
+import pandera as pa
+from pandera import Column, Check
+import pandas as pd
+
+# Declare once, enforce everywhere
+schema = pa.DataFrameSchema({
+    "user_id":  Column(int,   Check.greater_than(0)),
+    "age":      Column(int,   Check.in_range(13, 110)),
+    "income":   Column(float, Check.greater_than_or_equal_to(0), nullable=True),
+    "country":  Column(str,   Check.isin(["UK", "US", "FR", "DE"])),
+    "ts":       Column(pd.Timestamp),
+})
+
+def load(path):
+    df = pd.read_csv(path, parse_dates=["ts"])
+    return schema.validate(df, lazy=True)     # raise with full list of failures
+
+# Same schema, used at every IO boundary: load, before save, after merge
+```
+
+</div>
+
+<div class="level-next">
+<span>Want Great Expectations, drift checks, & production wiring?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
+
+</section>
+
+<section class="topic-level" data-level="fundamentals" markdown="1">
+
+<div class="key-idea formula-block" markdown="1">
+
+<span class="key-idea-label">Drift detectors</span>
+
+<div class="notation-standard" markdown="1">
+
+<span class="formula">$$ \text{drift score} = D(\,p_{\text{ref}}, p_{\text{new}}) \;\;\; (\text{KS, JS, PSI, KL, MMD, } \chi^2) $$</span>
+
+<ul class="formula-legend" markdown="1">
+<li markdown="1">
+
+Pairwise comparison between reference (training) and current data
+
+</li>
+<li markdown="1">
+
+Above-threshold drift triggers an alert or a retrain
+
+</li>
+</ul>
+
+</div>
+
+<div class="notation-plain" markdown="1">
+
+<span class="formula">$$ \text{drift score} \;=\; \text{distance}(\text{reference distribution},\; \text{current distribution}) $$</span>
+
+**In words.** A drift detector is just a function that takes two distributions — your reference (typically the training data) and the current incoming data — and returns a single number that grows as they diverge. The letter `D` in the math version stands for the chosen distance / divergence; `pref` and `pnew` are the two distributions being compared. The acronyms in parentheses (KS, JS, PSI, KL, MMD, χ²) are specific distance choices for different feature types — KS for numerical, χ² for categorical, PSI for binned, MMD for high-dimensional. When the score crosses a tuned threshold, you alert (or trigger retraining).
+{: .formula-narration }
+
+<ul class="formula-legend" markdown="1">
+<li markdown="1">
+
+`drift score`a single number measuring distributional change
+
+</li>
+<li markdown="1">
+
+`reference distribution`the training data or a frozen baseline window
+
+</li>
+<li markdown="1">
+
+`current distribution`incoming production data over a recent window
+
+</li>
+<li markdown="1">
+
+`distance`any of KS, JS, PSI, KL, MMD, χ² — choose by feature type
+
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<article class="tldr-body" markdown="1">
+
+**Great Expectations.** Declarative validation library with a "suite" of expectations per dataset. Plays well with Airflow, dbt, pandas, Spark. The reference tool for production tabular validation.
+
+**Drift metrics.** KS (Kolmogorov-Smirnov) for numerical, chi-squared for categorical, PSI (Population Stability Index) for binned numerical. MMD (Maximum Mean Discrepancy) for high-dimensional distributional comparison. Pick by feature type.
+
+**What to monitor.** Inputs (every feature), predictions (the output distribution), residuals (where you have ground truth), latency. Each tells you something different about how the model is doing.
+
+**Reference window.** The training distribution is the natural reference. For seasonal data, use the same season last year. For streaming, a rolling reference window — but watch out for "drift" becoming "today is normal, yesterday was anomalous".
+
+**Validation at training vs serving.** Train-time: catch corrupt training data. Serve-time: catch corrupt input requests. Same schema, different consequences — train-time often crashes the pipeline; serve-time silently degrades predictions.
+
+**Alerting fatigue.** Validation that fires often gets ignored. Tune thresholds. Group related failures. Have a clear runbook ("if FeatureX drifts, do Y"). False alarms are worse than no alarms.
+
+</article>
+
+<div class="code-snippet" markdown="1">
+
+<button class="copy-btn" type="button">Copy</button>
+
+```python
+from evidently.report import Report
+from evidently.metrics import DataDriftPreset
+from scipy.stats import ks_2samp
+
+# Drift report comparing reference (training) and current data
+report = Report(metrics=[DataDriftPreset()])
+report.run(reference_data=df_train, current_data=df_today)
+report.save_html("drift.html")
+
+# Or roll-your-own per feature
+def drift_check(reference, current, threshold=0.05):
+    drifted = {}
+    for col in reference.columns:
+        if pd.api.types.is_numeric_dtype(reference[col]):
+            stat, p = ks_2samp(reference[col].dropna(), current[col].dropna())
+            if p < threshold: drifted[col] = ("ks", stat, p)
+    return drifted
+```
+
+</div>
+
+<div class="level-next">
+<span>Want lineage, contracts, & differential privacy guarantees?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
+
+</section>
+
+<section class="topic-level" data-level="indepth" markdown="1">
+
+<div class="key-idea formula-block" markdown="1">
+
+<span class="key-idea-label">PSI thresholds (industry rule of thumb)</span>
+
+<div class="notation-standard" markdown="1">
+
+<span class="formula">$$ \text{PSI} < 0.1\;\text{stable}, \quad 0.1\,–\,0.25\;\text{minor drift}, \quad > 0.25\;\text{significant drift} $$</span>
+
+<ul class="formula-legend" markdown="1">
+<li markdown="1">
+
+Bins on the reference distribution; sum of *(p<sub>cur</sub> − p<sub>ref</sub>) · log(p<sub>cur</sub>/p<sub>ref</sub>)*
+
+</li>
+<li markdown="1">
+
+Empirical thresholds from credit-risk literature, often used elsewhere
+
+</li>
+</ul>
+
+</div>
+
+<div class="notation-plain" markdown="1">
+
+<span class="formula">$$ \text{PSI} \;=\; \sum_{\text{bins}} (\text{current share} - \text{reference share}) \;\times\; \log\!\frac{\text{current share}}{\text{reference share}} $$</span>
+
+**In words.** Population Stability Index measures how much a binned distribution has shifted. Bin your reference data into (say) deciles, then for each bin compute the difference and the log-ratio of "share of current data here" vs "share of reference data here", multiply them, and sum across bins. The `Σ` (sigma) means "sum across all the bins". The `log` term amplifies bins where the ratio is far from 1. The empirical rule of thumb from credit-risk modelling is: PSI under 0.1 means stable, 0.1–0.25 is minor drift worth a look, above 0.25 is significant.
+{: .formula-narration }
+
+<ul class="formula-legend" markdown="1">
+<li markdown="1">
+
+`PSI`population stability index — single drift number
+
+</li>
+<li markdown="1">
+
+`current share`fraction of new data falling in a given bin
+
+</li>
+<li markdown="1">
+
+`reference share`fraction of reference data in the same bin
+
+</li>
+<li markdown="1">
+
+`log ratio`natural log of (current / reference) — large when bins shift
+
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<article class="tldr-body" markdown="1">
+
+**Data contracts.** The producer of a dataset commits to a schema and SLA; the consumer relies on it. Tools: Soda, Monte Carlo, dbt tests. Breaks the "we changed an upstream column and the model silently broke" loop.
+
+**Lineage and provenance.** Track where each feature came from — which raw table, which transformation, which dataset version. dbt, OpenLineage, Marquez. Essential for debugging "why did this prediction look weird" in regulated domains.
+
+**Out-of-distribution detection.** Not just feature-level drift but example-level — is this specific input from a distribution the model has seen? Mahalanobis distance, energy scores, outlier exposure. Pairs with conformal prediction for safe deployment.
+
+**Privacy & PII validation.** Scan incoming data for PII before training. Presidio, Snowflake's classifier, custom regex. Often a compliance requirement; nearly always a good idea anyway.
+
+**Synthetic-data validation.** When you augment with synthetic data (rare-class oversampling, simulation), validate that the synthetic distribution doesn't push the model toward spurious correlations. Compare statistics; train one model on real-only and one on real+synthetic; compare them.
+
+**Sampling for validation.** Streaming or massive datasets — validate a sample, not the whole batch. Reservoir sampling for unbiased samples; stratified sampling to keep rare classes represented.
+
+**Feedback loops.** A drift detector that fires triggers retraining → new model → new "normal" distribution → drift detector goes quiet. Be aware of these self-fulfilling cycles; sometimes the right answer is to fix the upstream data, not the model.
+
+</article>
+
+<div class="code-snippet" markdown="1">
+
+<button class="copy-btn" type="button">Copy</button>
+
+```python
+import numpy as np
+
+# Population Stability Index — binned distributional drift
+def psi(reference, current, bins=10):
+    edges = np.percentile(reference, np.linspace(0, 100, bins + 1))
+    edges = np.unique(edges)
+    if len(edges) < 3: return 0.0
+    ref_hist, _ = np.histogram(reference, bins=edges)
+    cur_hist, _ = np.histogram(current,   bins=edges)
+    ref = (ref_hist + 1e-6) / ref_hist.sum()
+    cur = (cur_hist + 1e-6) / cur_hist.sum()
+    return float(((cur - ref) * np.log(cur / ref)).sum())
+
+# Usage
+for col in numeric_cols:
+    score = psi(df_train[col], df_today[col])
+    flag  = "OK" if score < 0.1 else ("MINOR" if score < 0.25 else "DRIFT")
+    print(f"{col:20s} psi={score:.3f}  {flag}")
+```
+
+</div>
+
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
+
+</section>
+
+<!-- TOPIC SIDEBAR -->
+
+<div class="learn-more" markdown="1">
+
+### Where to learn more
+
+<ul markdown="1">
+<li data-tier="fundamentals" markdown="1">
+
+[Great Expectations <i class="fas fa-external-link-alt"></i>](https://greatexpectations.io/){: target="_blank" }
+<span class="annotation">The reference Python library for declarative data validation. Suites, batches, docs auto-generation.</span>
+
+</li>
+<li data-tier="fundamentals" markdown="1">
+
+[Evidently AI <i class="fas fa-external-link-alt"></i>](https://www.evidentlyai.com/){: target="_blank" }
+<span class="annotation">Drift detection, data quality reports, model monitoring. Open-source with a polished dashboard.</span>
+
+</li>
+<li data-tier="fundamentals" markdown="1">
+
+[Pandera <i class="fas fa-external-link-alt"></i>](https://pandera.readthedocs.io/){: target="_blank" }
+<span class="annotation">Statistical schema validation for pandas / Polars. Simpler API than Great Expectations; great for use inside a Python library.</span>
+
+</li>
+<li data-tier="indepth" markdown="1">
+
+[Deequ <i class="fas fa-external-link-alt"></i>](https://www.deequ.io/){: target="_blank" }
+<span class="annotation">AWS's Spark-based validation library. The right choice when your data lives in Spark.</span>
+
+</li>
+</ul>
+
+</div>

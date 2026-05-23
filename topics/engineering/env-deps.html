@@ -53,18 +53,16 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Every project gets its own Python environment.</strong> Never install packages globally. Never share an environment between projects. The cost of setup is ten minutes; the cost of skipping it is six months of cryptic version conflicts.</p>
-    </div>
-
-    <article class="tldr-body">
-        <p>Two projects, both needing different versions of <code>torch</code> or <code>numpy</code>. Without isolation: one breaks. With isolation: both work. The same applies to Python versions, CUDA versions, system libraries.</p>
-        <p>The modern recommendation: <strong>use <a href="https://docs.astral.sh/uv/" target="_blank">uv</a></strong> (a fast, sane replacement for pip/virtualenv/poetry, written in Rust). <a href="https://docs.conda.io/" target="_blank">conda/mamba</a> is the classic alternative; useful when you need non-Python dependencies. For deployment, wrap in a Docker container.</p>
-    </article>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Every project gets its own Python environment.</strong> Never install packages globally. Never share an environment between projects. The cost of setup is ten minutes; the cost of skipping it is six months of cryptic version conflicts.</p>
+</div>
+<article class="tldr-body">
+<p>Two projects, both needing different versions of <code>torch</code> or <code>numpy</code>. Without isolation: one breaks. With isolation: both work. The same applies to Python versions, CUDA versions, system libraries.</p>
+<p>The modern recommendation: <strong>use <a href="https://docs.astral.sh/uv/" target="_blank">uv</a></strong> (a fast, sane replacement for pip/virtualenv/poetry, written in Rust). <a href="https://docs.conda.io/" target="_blank">conda/mamba</a> is the classic alternative; useful when you need non-Python dependencies. For deployment, wrap in a Docker container.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-bash"># With uv — fast, modern, recommended
 uv init my-project
 cd my-project
@@ -76,57 +74,51 @@ python -m venv .venv
 source .venv/bin/activate
 pip install torch numpy
 </code></pre>
-    </div>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Isolate when</h3>
-            <ul>
-                <li>Always. Every Python project, every time.</li>
-                <li>You're using a different Python version than system Python</li>
-                <li>You'll share the project with anyone (including future-you)</li>
-                <li>The project will run on more than one machine</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip only when</h3>
-            <ul>
-                <li>You're running a single one-off script with no dependencies</li>
-                <li>You're in an interactive REPL just trying something out</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="level-next">
-        <span>Want pip vs conda vs uv, lockfiles, and Docker?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="use-cases">
+<div class="yes">
+<h3>Isolate when</h3>
+<ul>
+<li>Always. Every Python project, every time.</li>
+<li>You're using a different Python version than system Python</li>
+<li>You'll share the project with anyone (including future-you)</li>
+<li>The project will run on more than one machine</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip only when</h3>
+<ul>
+<li>You're running a single one-off script with no dependencies</li>
+<li>You're in an interactive REPL just trying something out</li>
+</ul>
+</div>
+</div>
+<div class="level-next">
+<span>Want pip vs conda vs uv, lockfiles, and Docker?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p>The choice has two axes. <strong>Python-only or polyglot?</strong> (pip / uv handle Python; conda handles non-Python like CUDA, MKL.) <strong>Local development or production deployment?</strong> (Local: env manager. Production: container.)</p>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>uv</strong> (recommended for new projects) is a drop-in replacement for pip + virtualenv + pip-tools + poetry, written in Rust. ~10-100× faster than pip. Manages Python versions too (replaces pyenv). Single tool, no shell activation needed. If you're starting fresh, use this.</p>
-        <p><strong>pip + venv</strong>: the bare-bones option. Use <code>pip-tools</code> (or <code>pip freeze</code>) to produce a lockfile from your <code>requirements.in</code>. Fine for simple projects; uv just makes the same workflow faster.</p>
-        <p><strong>conda / mamba</strong>: when you need non-Python dependencies — CUDA toolkit, system libraries, MKL, R, etc. Heavier than pip but invaluable when the alternative is "install CUDA system-wide". <code>mamba</code> is the fast C++ implementation; almost always use it instead of <code>conda</code> directly.</p>
-        <p><strong>poetry</strong>: was the modern choice before uv. Still solid; uv is faster and more focused. New projects: pick uv. Existing poetry projects: migrate when you have time.</p>
-        <p><strong>Docker</strong>: for deployment and CI, not local development. Start <code>FROM python:3.11-slim</code>, install your locked dependencies, copy your code, set the entrypoint. The container is the unit of "deployable artefact" — even your training jobs should run in one for production work.</p>
-        <p><strong>Lockfiles matter.</strong> <code>pyproject.toml</code> says "I want torch ≥ 2.0"; the lockfile (<code>uv.lock</code>, <code>poetry.lock</code>) records "I got torch 2.4.1, numpy 1.26.4, ...". Commit the lockfile. CI builds from the lockfile. This is what makes "reproducible environment" actually true.</p>
-    </article>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p>The choice has two axes. <strong>Python-only or polyglot?</strong> (pip / uv handle Python; conda handles non-Python like CUDA, MKL.) <strong>Local development or production deployment?</strong> (Local: env manager. Production: container.)</p>
+</div>
+<article class="tldr-body">
+<p><strong>uv</strong> (recommended for new projects) is a drop-in replacement for pip + virtualenv + pip-tools + poetry, written in Rust. ~10-100× faster than pip. Manages Python versions too (replaces pyenv). Single tool, no shell activation needed. If you're starting fresh, use this.</p>
+<p><strong>pip + venv</strong>: the bare-bones option. Use <code>pip-tools</code> (or <code>pip freeze</code>) to produce a lockfile from your <code>requirements.in</code>. Fine for simple projects; uv just makes the same workflow faster.</p>
+<p><strong>conda / mamba</strong>: when you need non-Python dependencies — CUDA toolkit, system libraries, MKL, R, etc. Heavier than pip but invaluable when the alternative is "install CUDA system-wide". <code>mamba</code> is the fast C++ implementation; almost always use it instead of <code>conda</code> directly.</p>
+<p><strong>poetry</strong>: was the modern choice before uv. Still solid; uv is faster and more focused. New projects: pick uv. Existing poetry projects: migrate when you have time.</p>
+<p><strong>Docker</strong>: for deployment and CI, not local development. Start <code>FROM python:3.11-slim</code>, install your locked dependencies, copy your code, set the entrypoint. The container is the unit of "deployable artefact" — even your training jobs should run in one for production work.</p>
+<p><strong>Lockfiles matter.</strong> <code>pyproject.toml</code> says "I want torch ≥ 2.0"; the lockfile (<code>uv.lock</code>, <code>poetry.lock</code>) records "I got torch 2.4.1, numpy 1.26.4, ...". Commit the lockfile. CI builds from the lockfile. This is what makes "reproducible environment" actually true.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-bash"># uv workflow — modern Python project from zero
 uv init my-project --python 3.11
 cd my-project
 
 # Add dependencies
-uv add "torch>=2.0" hydra-core wandb
+uv add &quot;torch&gt;=2.0&quot; hydra-core wandb
 uv add --dev pytest ruff mypy
 
 # Install (creates .venv/, writes uv.lock)
@@ -141,53 +133,47 @@ uv lock --upgrade-package torch
 # Run a tool without adding it
 uv run --with ipython python
 </code></pre>
-    </div>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li><strong>uv:</strong> any new Python project — research or production</li>
-                <li><strong>conda / mamba:</strong> need non-Python deps (CUDA, R, system libs)</li>
-                <li><strong>Docker:</strong> deployment, CI, multi-machine training, isolation from host</li>
-                <li><strong>pip + venv:</strong> minimal projects with no extra ceremony needed</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip / migrate when</h3>
-            <ul>
-                <li><strong>Anaconda:</strong> the bundled distribution — heavy; prefer Miniconda or mamba</li>
-                <li><strong>Pipenv:</strong> mostly unmaintained — migrate to uv or poetry</li>
-                <li><strong>Global pip install:</strong> never, on any machine you care about</li>
-                <li><strong>Custom shell scripts:</strong> use a real tool instead</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="level-next">
-        <span>Want GPU-specific Docker, multi-stage builds, and dependency hell debugging?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li><strong>uv:</strong> any new Python project — research or production</li>
+<li><strong>conda / mamba:</strong> need non-Python deps (CUDA, R, system libs)</li>
+<li><strong>Docker:</strong> deployment, CI, multi-machine training, isolation from host</li>
+<li><strong>pip + venv:</strong> minimal projects with no extra ceremony needed</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip / migrate when</h3>
+<ul>
+<li><strong>Anaconda:</strong> the bundled distribution — heavy; prefer Miniconda or mamba</li>
+<li><strong>Pipenv:</strong> mostly unmaintained — migrate to uv or poetry</li>
+<li><strong>Global pip install:</strong> never, on any machine you care about</li>
+<li><strong>Custom shell scripts:</strong> use a real tool instead</li>
+</ul>
+</div>
+</div>
+<div class="level-next">
+<span>Want GPU-specific Docker, multi-stage builds, and dependency hell debugging?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p>For production ML, you need <strong>reproducible builds</strong> from source to deployed container. That means pinned base images, locked dependencies, and CI that builds the artefact deterministically — not just <code>docker build</code> with a <code>:latest</code> base.</p>
-    </div>
-
-    <article class="tldr-body">
-        <p><strong>Base image discipline.</strong> Pin a specific digest: <code>FROM python:3.11-slim@sha256:abcdef…</code>, not <code>FROM python:3.11</code>. The <code>3.11</code> tag rolls forward when the upstream image is rebuilt; the digest doesn't. For GPU work: <a href="https://hub.docker.com/r/nvidia/cuda" target="_blank">nvidia/cuda</a> images at a specific tag, or PyTorch's official <a href="https://hub.docker.com/r/pytorch/pytorch" target="_blank">pytorch/pytorch</a>.</p>
-        <p><strong>Multi-stage builds.</strong> A "builder" stage installs build tools and compiles wheels; a "runtime" stage copies only the installed packages + your code. Final image is smaller and has fewer attack surfaces. Essential for production deployments.</p>
-        <p><strong>Dependency hell on GPU stacks.</strong> CUDA version, cuDNN, NCCL, PyTorch, and the kernel driver all need to be compatible. Use PyTorch's published wheel matrix as ground truth, or install via conda/mamba which pulls compatible CUDA runtimes. Common failure: PyTorch built for CUDA 12.1 on a host with CUDA 11.8 driver.</p>
-        <p><strong>Caching strategies for fast iteration.</strong> Layer order in Dockerfile matters: copy <code>pyproject.toml</code> + <code>uv.lock</code> first, install deps, then copy source. Only the source layer rebuilds on code changes — deps stay cached. With <code>uv</code>, pass <code>--mount=type=cache,target=/root/.cache/uv</code> in BuildKit to cache across builds.</p>
-        <p><strong>Editable installs vs. wheels.</strong> Local dev: editable (<code>pip install -e .</code> or <code>uv pip install -e .</code>) so code changes are picked up without reinstall. Production: build a wheel and install it. Don't ship editable installs to production — they leak source paths and assume a writable filesystem layout.</p>
-        <p><strong>Vendoring vs. dynamic resolution.</strong> For maximum reproducibility (think regulated ML), vendor wheels into a private registry. Your build never touches PyPI. Heavier but bulletproof — no "wheel withdrawn from PyPI" surprises.</p>
-    </article>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p>For production ML, you need <strong>reproducible builds</strong> from source to deployed container. That means pinned base images, locked dependencies, and CI that builds the artefact deterministically — not just <code>docker build</code> with a <code>:latest</code> base.</p>
+</div>
+<article class="tldr-body">
+<p><strong>Base image discipline.</strong> Pin a specific digest: <code>FROM python:3.11-slim@sha256:abcdef…</code>, not <code>FROM python:3.11</code>. The <code>3.11</code> tag rolls forward when the upstream image is rebuilt; the digest doesn't. For GPU work: <a href="https://hub.docker.com/r/nvidia/cuda" target="_blank">nvidia/cuda</a> images at a specific tag, or PyTorch's official <a href="https://hub.docker.com/r/pytorch/pytorch" target="_blank">pytorch/pytorch</a>.</p>
+<p><strong>Multi-stage builds.</strong> A "builder" stage installs build tools and compiles wheels; a "runtime" stage copies only the installed packages + your code. Final image is smaller and has fewer attack surfaces. Essential for production deployments.</p>
+<p><strong>Dependency hell on GPU stacks.</strong> CUDA version, cuDNN, NCCL, PyTorch, and the kernel driver all need to be compatible. Use PyTorch's published wheel matrix as ground truth, or install via conda/mamba which pulls compatible CUDA runtimes. Common failure: PyTorch built for CUDA 12.1 on a host with CUDA 11.8 driver.</p>
+<p><strong>Caching strategies for fast iteration.</strong> Layer order in Dockerfile matters: copy <code>pyproject.toml</code> + <code>uv.lock</code> first, install deps, then copy source. Only the source layer rebuilds on code changes — deps stay cached. With <code>uv</code>, pass <code>--mount=type=cache,target=/root/.cache/uv</code> in BuildKit to cache across builds.</p>
+<p><strong>Editable installs vs. wheels.</strong> Local dev: editable (<code>pip install -e .</code> or <code>uv pip install -e .</code>) so code changes are picked up without reinstall. Production: build a wheel and install it. Don't ship editable installs to production — they leak source paths and assume a writable filesystem layout.</p>
+<p><strong>Vendoring vs. dynamic resolution.</strong> For maximum reproducibility (think regulated ML), vendor wheels into a private registry. Your build never touches PyPI. Heavier but bulletproof — no "wheel withdrawn from PyPI" surprises.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-dockerfile"># Multi-stage Dockerfile for a uv-based ML project
 FROM python:3.11-slim AS builder
 
@@ -209,16 +195,15 @@ FROM python:3.11-slim AS runtime
 # Copy only the resolved environment + code
 COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/src   /app/src
-ENV PATH="/app/.venv/bin:$PATH" PYTHONPATH="/app/src"
+ENV PATH=&quot;/app/.venv/bin:$PATH&quot; PYTHONPATH=&quot;/app/src&quot;
 
-ENTRYPOINT ["python", "-m", "my_project.cli"]
+ENTRYPOINT [&quot;python&quot;, &quot;-m&quot;, &quot;my_project.cli&quot;]
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -234,29 +219,39 @@ ENTRYPOINT ["python", "-m", "my_project.cli"]
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://docs.astral.sh/uv/" target="_blank">uv documentation <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Modern Python project tooling. The "Concepts" section explains how uv differs from pip / virtualenv / poetry — read it once before adopting.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://mamba.readthedocs.io/" target="_blank">mamba documentation <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Fast conda-compatible package manager. Use this when you need non-Python deps (CUDA, system libs).</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://docs.docker.com/build/building/best-practices/" target="_blank">Docker — Build best practices <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The official guide. Multi-stage builds, layer caching, and image size hygiene — the parts that actually matter for production.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://github.com/astral-sh/uv/blob/main/docs/guides/integration/docker.md" target="_blank">uv + Docker guide <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Specific recipes for using uv inside Docker. Saves you the trial-and-error.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://pytorch.org/get-started/locally/" target="_blank">PyTorch install matrix <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Authoritative source for matching CUDA / cuDNN / driver combinations to PyTorch wheels. Bookmark this.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://docs.astral.sh/uv/" target="_blank">uv documentation <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Modern Python project tooling. The "Concepts" section explains how uv differs from pip / virtualenv / poetry — read it once before adopting.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://mamba.readthedocs.io/" target="_blank">mamba documentation <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Fast conda-compatible package manager. Use this when you need non-Python deps (CUDA, system libs).</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://docs.docker.com/build/building/best-practices/" target="_blank">Docker — Build best practices <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The official guide. Multi-stage builds, layer caching, and image size hygiene — the parts that actually matter for production.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://github.com/astral-sh/uv/blob/main/docs/guides/integration/docker.md" target="_blank">uv + Docker guide <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Specific recipes for using uv inside Docker. Saves you the trial-and-error.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://pytorch.org/get-started/locally/" target="_blank">PyTorch install matrix <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Authoritative source for matching CUDA / cuDNN / driver combinations to PyTorch wheels. Bookmark this.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

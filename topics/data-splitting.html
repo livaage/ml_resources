@@ -53,61 +53,56 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>You can't measure generalization on data you trained on.</strong> Split the dataset into three roles: <em>train</em> (fit the model), <em>validation</em> (pick hyperparameters and compare models), and <em>test</em> (one number at the end). Touching the test set in any way during model development invalidates it.</p>
-    </div>
-
-    <div class="viz-embed viz-classic">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">See how different splitting strategies divide your dataset — and which ones leak when the data isn't iid</span>
-        </div>
-        <div class="viz-classic-controls">
-            <button id="viz-ds-random" type="button" class="active">Random</button>
-            <button id="viz-ds-strat"  type="button">Stratified</button>
-            <button id="viz-ds-time"   type="button">Time-based</button>
-            <button id="viz-ds-group"  type="button">Group</button>
-        </div>
-        <div class="viz-classic-canvas-wrap">
-            <canvas id="viz-ds-canvas"></canvas>
-        </div>
-        <div class="viz-classic-caption" id="viz-ds-caption"></div>
-    </div>
-    <script src="../js/viz/data-splitting.js"></script>
-
-    <p class="viz-intro">Above: 60 examples coloured by class (imbalanced 80/20) and grouped (every 3 share a group ID). <strong>Random</strong> splitting can put almost no class-1 examples in val; <strong>stratified</strong> preserves the class ratio. <strong>Time-based</strong> always puts the future in val (no peeking). <strong>Group</strong> keeps all members of a group on one side — required when independence assumptions break (patient ID, household ID, session ID).</p>
-
-    <article class="tldr-body">
-        <p><strong>The three roles.</strong> Train, validation, test. Train fits. Validation chooses. Test reports. The test set is touched <em>once</em>, at the end. Multiple test set evaluations during development invalidate the test as an estimate of true performance.</p>
-        <p><strong>Random split.</strong> Default for iid data. Typically 60/20/20 or 70/15/15. Doesn't preserve class balance — use stratified if classes are imbalanced.</p>
-        <p><strong>Stratified split.</strong> Same class proportions in each split. Critical for imbalanced classification; standard for any classification task with k &gt; 2 classes.</p>
-        <p><strong>Time-based split.</strong> Train on the past, validate / test on the future. The only correct split for sequential data. Random splits leak the future into training and overstate performance.</p>
-        <p><strong>Group split.</strong> When examples are not independent — multiple records per patient, per user, per session — keep all examples from a group on one side of the split. Otherwise you measure within-group memorisation, not generalization.</p>
-    </article>
-
-    <div class="use-cases neutral">
-        <div class="yes">
-            <h3>Pick stratified / group / time when</h3>
-            <ul>
-                <li>Classes are imbalanced → stratified</li>
-                <li>Multiple examples per entity → group</li>
-                <li>Sequential / time-series → time-based</li>
-                <li>Geographic / spatial — try spatial blocks</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Pitfalls to avoid</h3>
-            <ul>
-                <li>Random splitting time-series — leaks the future</li>
-                <li>Random splitting grouped data — leaks the group</li>
-                <li>Refitting preprocessing on val/test — leaks statistics</li>
-                <li>Touching the test set during model selection</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>You can't measure generalization on data you trained on.</strong> Split the dataset into three roles: <em>train</em> (fit the model), <em>validation</em> (pick hyperparameters and compare models), and <em>test</em> (one number at the end). Touching the test set in any way during model development invalidates it.</p>
+</div>
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">See how different splitting strategies divide your dataset — and which ones leak when the data isn't iid</span>
+</div>
+<div class="viz-classic-controls">
+<button id="viz-ds-random" type="button" class="active">Random</button>
+<button id="viz-ds-strat" type="button">Stratified</button>
+<button id="viz-ds-time" type="button">Time-based</button>
+<button id="viz-ds-group" type="button">Group</button>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-ds-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-ds-caption"></div>
+</div>
+<script src="../js/viz/data-splitting.js"></script>
+<p class="viz-intro">Above: 60 examples coloured by class (imbalanced 80/20) and grouped (every 3 share a group ID). <strong>Random</strong> splitting can put almost no class-1 examples in val; <strong>stratified</strong> preserves the class ratio. <strong>Time-based</strong> always puts the future in val (no peeking). <strong>Group</strong> keeps all members of a group on one side — required when independence assumptions break (patient ID, household ID, session ID).</p>
+<article class="tldr-body">
+<p><strong>The three roles.</strong> Train, validation, test. Train fits. Validation chooses. Test reports. The test set is touched <em>once</em>, at the end. Multiple test set evaluations during development invalidate the test as an estimate of true performance.</p>
+<p><strong>Random split.</strong> Default for iid data. Typically 60/20/20 or 70/15/15. Doesn't preserve class balance — use stratified if classes are imbalanced.</p>
+<p><strong>Stratified split.</strong> Same class proportions in each split. Critical for imbalanced classification; standard for any classification task with k &gt; 2 classes.</p>
+<p><strong>Time-based split.</strong> Train on the past, validate / test on the future. The only correct split for sequential data. Random splits leak the future into training and overstate performance.</p>
+<p><strong>Group split.</strong> When examples are not independent — multiple records per patient, per user, per session — keep all examples from a group on one side of the split. Otherwise you measure within-group memorisation, not generalization.</p>
+</article>
+<div class="use-cases neutral">
+<div class="yes">
+<h3>Pick stratified / group / time when</h3>
+<ul>
+<li>Classes are imbalanced → stratified</li>
+<li>Multiple examples per entity → group</li>
+<li>Sequential / time-series → time-based</li>
+<li>Geographic / spatial — try spatial blocks</li>
+</ul>
+</div>
+<div class="no">
+<h3>Pitfalls to avoid</h3>
+<ul>
+<li>Random splitting time-series — leaks the future</li>
+<li>Random splitting grouped data — leaks the group</li>
+<li>Refitting preprocessing on val/test — leaks statistics</li>
+<li>Touching the test set during model selection</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">from sklearn.model_selection import (
     train_test_split, StratifiedShuffleSplit,
     GroupShuffleSplit, TimeSeriesSplit,
@@ -128,61 +123,80 @@ tscv = TimeSeriesSplit(n_splits=5)
 for tr, val in tscv.split(X):
     fit(X[tr], y[tr]); evaluate(X[val], y[val])
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want nested CV, distribution shift checks, and probing splits?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want nested CV, distribution shift checks, and probing splits?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Generalisation error decomposition</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Generalisation error decomposition</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \text{err}_{\text{test}} = \text{err}_{\text{train}} + \underbrace{\text{generalization gap}}_{\text{model-dependent}} + \underbrace{\text{distribution shift}}_{\text{often the killer}} $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \text{err}_{\text{test}} = \text{err}_{\text{train}} + \underbrace{\text{generalization gap}}_{\text{model-dependent}} + \underbrace{\text{distribution shift}}_{\text{often the killer}} $$</span>
-            <ul class="formula-legend">
-                <li>CV estimates the generalization gap on data drawn from the same distribution</li>
-                <li>Distribution shift is what kills production models — your CV told you nothing about it</li>
-                <li>Always reserve an out-of-distribution test set if you can</li>
-            </ul>
-        </div>
+CV estimates the generalization gap on data drawn from the same distribution
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{test error} \;=\; \text{training error} \;+\; \text{generalization gap} \;+\; \text{distribution shift} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> The error you'll see at deployment breaks into three pieces. The first is just how well you fit the training data. The second, the <em>generalization gap</em>, is the extra error you pay because your model has memorised quirks of the training set — this is what cross-validation estimates. The third, <em>distribution shift</em>, is extra error because the real world doesn't look quite like your dataset (different time period, different region, different users). The third piece is invisible to CV and is usually what hurts you most in production.
-            </p>
-            <ul class="formula-legend">
-                <li><code>training error</code>how badly the model does on the data it learned from</li>
-                <li><code>generalization gap</code>extra error from fitting noise / quirks of the training set</li>
-                <li><code>distribution shift</code>extra error because the deployment data differs from the training data</li>
-                <li>CV estimates the generalization gap; distribution shift requires a separate OOD test</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Nested CV.</strong> Outer loop estimates generalization; inner loop chooses hyperparameters. Without it, tuning on the same folds you report from gives optimistic results. Expensive — typical setup is 5 outer × 3 inner — but the right thing for small datasets.</p>
-        <p><strong>Holdout vs CV.</strong> For large datasets a single 80/20 split is fine and much cheaper. CV pays off when data is small (the variance of any single split is too high). Rule of thumb: CV below ~50k examples, single holdout above.</p>
-        <p><strong>Distribution-shift tests.</strong> A common pattern: train on data from 2020–2023, test on data from 2024. Reveals whether your model relies on features that change over time. Same for geographic shift (train on Europe, test on Asia), demographic shift, etc.</p>
-        <p><strong>Probe / adversarial splits.</strong> Construct a test set deliberately different from the training distribution — long-tail classes, distribution shift, adversarial perturbations. Forces you to find weaknesses before deployment does.</p>
-        <p><strong>The split-it-back-together trick.</strong> When your dataset is too small for both validation and test, use nested CV — the outer fold's test is the inner fold's "held-out" validation; you cycle through. Doubles your effective data with care.</p>
-        <p><strong>Repeated random splits.</strong> Report mean ± std over multiple random splits. Surprisingly informative on small data: a difference of 1 std isn't a real improvement.</p>
-    </article>
+Distribution shift is what kills production models — your CV told you nothing about it
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Always reserve an out-of-distribution test set if you can
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{test error} \;=\; \text{training error} \;+\; \text{generalization gap} \;+\; \text{distribution shift} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The error you'll see at deployment breaks into three pieces. The first is just how well you fit the training data. The second, the <em>generalization gap</em>, is the extra error you pay because your model has memorised quirks of the training set — this is what cross-validation estimates. The third, <em>distribution shift</em>, is extra error because the real world doesn't look quite like your dataset (different time period, different region, different users). The third piece is invisible to CV and is usually what hurts you most in production.</p>
+<ul class="formula-legend">
+<li>
+
+<code>training error</code>how badly the model does on the data it learned from
+
+</li>
+<li>
+
+<code>generalization gap</code>extra error from fitting noise / quirks of the training set
+
+</li>
+<li>
+
+<code>distribution shift</code>extra error because the deployment data differs from the training data
+
+</li>
+<li>
+
+CV estimates the generalization gap; distribution shift requires a separate OOD test
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Nested CV.</strong> Outer loop estimates generalization; inner loop chooses hyperparameters. Without it, tuning on the same folds you report from gives optimistic results. Expensive — typical setup is 5 outer × 3 inner — but the right thing for small datasets.</p>
+<p><strong>Holdout vs CV.</strong> For large datasets a single 80/20 split is fine and much cheaper. CV pays off when data is small (the variance of any single split is too high). Rule of thumb: CV below ~50k examples, single holdout above.</p>
+<p><strong>Distribution-shift tests.</strong> A common pattern: train on data from 2020–2023, test on data from 2024. Reveals whether your model relies on features that change over time. Same for geographic shift (train on Europe, test on Asia), demographic shift, etc.</p>
+<p><strong>Probe / adversarial splits.</strong> Construct a test set deliberately different from the training distribution — long-tail classes, distribution shift, adversarial perturbations. Forces you to find weaknesses before deployment does.</p>
+<p><strong>The split-it-back-together trick.</strong> When your dataset is too small for both validation and test, use nested CV — the outer fold's test is the inner fold's "held-out" validation; you cycle through. Doubles your effective data with care.</p>
+<p><strong>Repeated random splits.</strong> Report mean ± std over multiple random splits. Surprisingly informative on small data: a difference of 1 std isn't a real improvement.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">from sklearn.model_selection import cross_val_score, GroupKFold
 import numpy as np
 
 # Repeated stratified CV with confidence interval
 from sklearn.model_selection import RepeatedStratifiedKFold
 cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=5, random_state=0)
-scores = cross_val_score(pipe, X, y, cv=cv, scoring="roc_auc")
-print(f"{scores.mean():.3f} ± {scores.std():.3f}  n={len(scores)}")
+scores = cross_val_score(pipe, X, y, cv=cv, scoring=&quot;roc_auc&quot;)
+print(f&quot;{scores.mean():.3f} ± {scores.std():.3f}  n={len(scores)}&quot;)
 
 # Group K-Fold — keep all examples from a group on one side
 gkf = GroupKFold(n_splits=5)
@@ -191,55 +205,70 @@ for tr, te in gkf.split(X, y, groups):
     pass
 
 # Distribution-shift split: use a different time period as test
-mask_train = df["year"] &lt;= 2023
-mask_test  = df["year"] == 2024
+mask_train = df[&quot;year&quot;] &lt;= 2023
+mask_test  = df[&quot;year&quot;] == 2024
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want bootstrap, conformal prediction, and OOD detection?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want bootstrap, conformal prediction, and OOD detection?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Bootstrap estimator</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Bootstrap estimator</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \hat{\theta}_\text{boot} = \frac{1}{B} \sum_{b=1}^{B} \hat{\theta}\!\big(D_b^*\big), \quad D_b^* \sim D \text{ with replacement} $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \hat{\theta}_\text{boot} = \frac{1}{B} \sum_{b=1}^{B} \hat{\theta}\!\big(D_b^*\big), \quad D_b^* \sim D \text{ with replacement} $$</span>
-            <ul class="formula-legend">
-                <li>Resample <em>B</em> times to estimate the distribution of any statistic</li>
-                <li>Out-of-bag examples (~37% per draw) act as a held-out validation set for free</li>
-            </ul>
-        </div>
+Resample <em>B</em> times to estimate the distribution of any statistic
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{bootstrap estimate} \;=\; \text{average across } B \text{ resamples of the statistic computed on each resample} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> The bootstrap pretends your dataset is the population. Draw <code>B</code> new datasets of the same size by sampling <em>with replacement</em> from the original — meaning some examples appear multiple times and others not at all. Compute your statistic (mean, AUC, anything) on each of those <code>B</code> resamples. The spread of those <code>B</code> values approximates the sampling distribution of the statistic, giving you confidence intervals essentially for free. Around 37% of the original points get left out of any given resample — those "out-of-bag" examples can serve as a held-out test set.
-            </p>
-            <ul class="formula-legend">
-                <li><code>B</code>number of bootstrap resamples (typically 200–1000)</li>
-                <li><code>resample</code>a dataset of the same size drawn with replacement from the original</li>
-                <li><code>statistic</code>any quantity computed from a dataset (mean, accuracy, AUC, etc.)</li>
-                <li>Out-of-bag examples (~37% per draw) act as a held-out validation set for free</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Bootstrap vs CV.</strong> Bootstrap resamples with replacement; CV partitions. Bootstrap gives confidence intervals on metrics; CV gives a point estimate. Use both — bootstrap to report uncertainty, CV to pick the best model. Out-of-bag estimation in random forests uses the bootstrap by construction.</p>
-        <p><strong>Conformal prediction.</strong> Use a held-out calibration fold to construct prediction intervals with finite-sample coverage guarantees. Distribution-free, model-agnostic. Increasingly the right answer for production deployment of regression and classification.</p>
-        <p><strong>OOD detection.</strong> Many production systems combine an in-distribution model with an OOD detector that flags inputs the model hasn't seen anything like before. Methods include Mahalanobis distance in feature space, Energy-based scores, Outlier exposure, conformal anomaly detection.</p>
-        <p><strong>The "validation set rot" trap.</strong> Repeatedly tuning on the same validation set selects for performance on that set specifically — eventually your "best" model is overfit to validation. Hold out a final test set, rotate validation sets, or use nested CV.</p>
-        <p><strong>Adaptive data analysis.</strong> Dwork et al. (2015) showed that interactive data analysis can produce arbitrarily inflated performance estimates if you're not careful — even with held-out validation. Differential-privacy-based mechanisms (thresholdout, gauss-out) give bounds; in practice, treat each new analysis as eating into a budget.</p>
-        <p><strong>Time-series with non-stationarity.</strong> The classical TimeSeriesSplit assumes a fixed underlying process. When the world genuinely changes, error grows with the gap between train and test ends. Walk-forward validation with re-training, exponentially-weighted features, and model monitoring all matter.</p>
-    </article>
+Out-of-bag examples (~37% per draw) act as a held-out validation set for free
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{bootstrap estimate} \;=\; \text{average across } B \text{ resamples of the statistic computed on each resample} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The bootstrap pretends your dataset is the population. Draw <code>B</code> new datasets of the same size by sampling <em>with replacement</em> from the original — meaning some examples appear multiple times and others not at all. Compute your statistic (mean, AUC, anything) on each of those <code>B</code> resamples. The spread of those <code>B</code> values approximates the sampling distribution of the statistic, giving you confidence intervals essentially for free. Around 37% of the original points get left out of any given resample — those "out-of-bag" examples can serve as a held-out test set.</p>
+<ul class="formula-legend">
+<li>
+
+<code>B</code>number of bootstrap resamples (typically 200–1000)
+
+</li>
+<li>
+
+<code>resample</code>a dataset of the same size drawn with replacement from the original
+
+</li>
+<li>
+
+<code>statistic</code>any quantity computed from a dataset (mean, accuracy, AUC, etc.)
+
+</li>
+<li>
+
+Out-of-bag examples (~37% per draw) act as a held-out validation set for free
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Bootstrap vs CV.</strong> Bootstrap resamples with replacement; CV partitions. Bootstrap gives confidence intervals on metrics; CV gives a point estimate. Use both — bootstrap to report uncertainty, CV to pick the best model. Out-of-bag estimation in random forests uses the bootstrap by construction.</p>
+<p><strong>Conformal prediction.</strong> Use a held-out calibration fold to construct prediction intervals with finite-sample coverage guarantees. Distribution-free, model-agnostic. Increasingly the right answer for production deployment of regression and classification.</p>
+<p><strong>OOD detection.</strong> Many production systems combine an in-distribution model with an OOD detector that flags inputs the model hasn't seen anything like before. Methods include Mahalanobis distance in feature space, Energy-based scores, Outlier exposure, conformal anomaly detection.</p>
+<p><strong>The "validation set rot" trap.</strong> Repeatedly tuning on the same validation set selects for performance on that set specifically — eventually your "best" model is overfit to validation. Hold out a final test set, rotate validation sets, or use nested CV.</p>
+<p><strong>Adaptive data analysis.</strong> Dwork et al. (2015) showed that interactive data analysis can produce arbitrarily inflated performance estimates if you're not careful — even with held-out validation. Differential-privacy-based mechanisms (thresholdout, gauss-out) give bounds; in practice, treat each new analysis as eating into a budget.</p>
+<p><strong>Time-series with non-stationarity.</strong> The classical TimeSeriesSplit assumes a fixed underlying process. When the world genuinely changes, error grows with the gap between train and test ends. Walk-forward validation with re-training, exponentially-weighted features, and model monitoring all matter.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import numpy as np
 from sklearn.utils import resample
 
@@ -261,12 +290,11 @@ def walk_forward(X, y, n_splits=5, min_train=500):
         tr_end = min_train + i * step
         yield slice(0, tr_end), slice(tr_end, tr_end + step)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -277,25 +305,33 @@ def walk_forward(X, y, n_splits=5, min_train=500):
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">scikit-learn — Cross-Validation <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Practical guide with diagrams of every split type. Best place to look up which API to use for which kind of data.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://datasciencebook.ca/" target="_blank">Timbers et al. — Data Science: A First Introduction <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Free textbook with an excellent intuitive chapter on train/val/test discipline and the pitfalls of touching the test set.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://otexts.com/fpp3/tscv.html" target="_blank">Hyndman &amp; Athanasopoulos — Time-Series CV <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The canonical reference for sequential data evaluation. Walk-forward, expanding window, blocked CV.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/2107.07511" target="_blank">Angelopoulos &amp; Bates — Conformal Prediction Tutorial <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Distribution-free prediction intervals with finite-sample coverage. Increasingly the answer for production-grade uncertainty.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">scikit-learn — Cross-Validation <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Practical guide with diagrams of every split type. Best place to look up which API to use for which kind of data.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://datasciencebook.ca/" target="_blank">Timbers et al. — Data Science: A First Introduction <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Free textbook with an excellent intuitive chapter on train/val/test discipline and the pitfalls of touching the test set.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://otexts.com/fpp3/tscv.html" target="_blank">Hyndman &amp; Athanasopoulos — Time-Series CV <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The canonical reference for sequential data evaluation. Walk-forward, expanding window, blocked CV.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/2107.07511" target="_blank">Angelopoulos &amp; Bates — Conformal Prediction Tutorial <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Distribution-free prediction intervals with finite-sample coverage. Increasingly the answer for production-grade uncertainty.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

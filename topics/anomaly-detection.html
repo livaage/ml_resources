@@ -53,69 +53,64 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Learn what "normal" looks like; flag what doesn't.</strong> Anomaly detection is unsupervised — you usually don't have labelled anomalies, just the assumption that most of your data is normal and a few rare points are not.</p>
-    </div>
-
-    <div class="viz-embed viz-classic">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Slide the threshold — every point below the cutoff density gets flagged in terracotta</span>
-        </div>
-        <div class="viz-classic-controls">
-            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                Data
-                <select id="viz-anom-data"></select>
-            </label>
-            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                τ
-                <input id="viz-anom-threshold" class="viz-classic-slider" type="range">
-            </label>
-            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                h
-                <input id="viz-anom-bw" class="viz-classic-slider" type="range">
-            </label>
-            <button id="viz-anom-reset" type="button">Re-sample</button>
-            <span class="viz-classic-badge" id="viz-anom-threshold-lbl">τ = 0.25</span>
-            <span class="viz-classic-badge" id="viz-anom-bw-lbl">h = 0.12</span>
-        </div>
-        <div class="viz-classic-canvas-wrap">
-            <canvas id="viz-anom-canvas"></canvas>
-        </div>
-        <div class="viz-classic-caption" id="viz-anom-caption"></div>
-    </div>
-    <script src="../js/viz/anomaly.js"></script>
-
-    <p class="viz-intro">The cream-to-indigo heatmap is a kernel density estimate of "where normal lives". Points are flagged as anomalies when their local density score drops below the threshold τ. Drop the bandwidth <em>h</em> and the model becomes sensitive to local quirks (over-fits); raise it and only the most isolated points stand out. The <em>Ring</em> dataset is a classic — the genuinely anomalous points live <em>inside</em> the ring, where most distance-based methods would happily call them "central and normal".</p>
-
-    <article class="tldr-body">
-        <p>Three classical strategies. <strong>Density-based</strong>: a point with low probability under a model of "normal" is anomalous. <strong>Distance-based</strong>: a point far from its nearest neighbours is anomalous. <strong>Reconstruction-based</strong>: train a model to compress and reconstruct normal data; points it reconstructs badly are anomalous.</p>
-        <p>The right choice depends on what "anomalous" means in your domain — a fraudster looks different from a manufacturing defect looks different from a network intrusion.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Fraud / intrusion / defect detection</li>
-                <li>You have plenty of normal data but few or no labelled anomalies</li>
-                <li>Monitoring sensor data for unusual patterns</li>
-                <li>Cleaning a dataset of outliers before modelling</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>You have labels for both classes — train a regular classifier (with class weights)</li>
-                <li>Anomalies are common enough to balance — it's just classification</li>
-                <li>"Anomalous" isn't well-defined and changes over time</li>
-                <li>You need to explain why a specific point was flagged</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Learn what "normal" looks like; flag what doesn't.</strong> Anomaly detection is unsupervised — you usually don't have labelled anomalies, just the assumption that most of your data is normal and a few rare points are not.</p>
+</div>
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">Slide the threshold — every point below the cutoff density gets flagged in terracotta</span>
+</div>
+<div class="viz-classic-controls">
+<label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+Data
+<select id="viz-anom-data"></select>
+</label>
+<label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+τ
+<input id="viz-anom-threshold" class="viz-classic-slider" type="range"></input>
+</label>
+<label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+h
+<input id="viz-anom-bw" class="viz-classic-slider" type="range"></input>
+</label>
+<button id="viz-anom-reset" type="button">Re-sample</button>
+<span class="viz-classic-badge" id="viz-anom-threshold-lbl">τ = 0.25</span>
+<span class="viz-classic-badge" id="viz-anom-bw-lbl">h = 0.12</span>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-anom-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-anom-caption"></div>
+</div>
+<script src="../js/viz/anomaly.js"></script>
+<p class="viz-intro">The cream-to-indigo heatmap is a kernel density estimate of "where normal lives". Points are flagged as anomalies when their local density score drops below the threshold τ. Drop the bandwidth <em>h</em> and the model becomes sensitive to local quirks (over-fits); raise it and only the most isolated points stand out. The <em>Ring</em> dataset is a classic — the genuinely anomalous points live <em>inside</em> the ring, where most distance-based methods would happily call them "central and normal".</p>
+<article class="tldr-body">
+<p>Three classical strategies. <strong>Density-based</strong>: a point with low probability under a model of "normal" is anomalous. <strong>Distance-based</strong>: a point far from its nearest neighbours is anomalous. <strong>Reconstruction-based</strong>: train a model to compress and reconstruct normal data; points it reconstructs badly are anomalous.</p>
+<p>The right choice depends on what "anomalous" means in your domain — a fraudster looks different from a manufacturing defect looks different from a network intrusion.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Fraud / intrusion / defect detection</li>
+<li>You have plenty of normal data but few or no labelled anomalies</li>
+<li>Monitoring sensor data for unusual patterns</li>
+<li>Cleaning a dataset of outliers before modelling</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>You have labels for both classes — train a regular classifier (with class weights)</li>
+<li>Anomalies are common enough to balance — it's just classification</li>
+<li>"Anomalous" isn't well-defined and changes over time</li>
+<li>You need to explain why a specific point was flagged</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">from sklearn.ensemble import IsolationForest
 
 iso = IsolationForest(contamination=0.05, random_state=0).fit(X_train)
@@ -124,72 +119,86 @@ iso = IsolationForest(contamination=0.05, random_state=0).fit(X_train)
 labels = iso.predict(X_test)
 scores = iso.score_samples(X_test)   # lower = more anomalous
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want the actual algorithms?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the actual algorithms?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Three strategies</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Three strategies</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \text{score}(x) \;\in\; \big\{\, \underbrace{-\log p(x)}_{\text{density}},\; \underbrace{d(x, \mathrm{NN}_k(x))}_{\text{distance}},\; \underbrace{\|x - \hat{x}\|}_{\text{reconstruction}} \,\big\} $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \text{score}(x) \;\in\; \big\{\, \underbrace{-\log p(x)}_{\text{density}},\; \underbrace{d(x, \mathrm{NN}_k(x))}_{\text{distance}},\; \underbrace{\|x - \hat{x}\|}_{\text{reconstruction}} \,\big\} $$</span>
-            <ul class="formula-legend">
-                <li>Each strategy assigns a continuous score — threshold to decide normal vs. anomalous</li>
-                <li>Choice of strategy = assumption about what makes anomalies "weird"</li>
-            </ul>
-        </div>
+Each strategy assigns a continuous score — threshold to decide normal vs. anomalous
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{anomaly score}(x) \;=\; \text{one of:}\;\big\{\,\text{low density},\;\text{far from neighbours},\;\text{poor reconstruction}\,\big\} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Three ways to assign a "weirdness" score to a point <em>x</em>. <em>Density</em>: how (im)probable is <em>x</em> under a model of normal data? <code>−log p(x)</code> is the "surprise" — bigger means rarer. <em>Distance</em>: how far is <em>x</em> from its <em>k</em> nearest neighbours (written <code>NN<sub>k</sub>(x)</code>)? Lone points are anomalous. <em>Reconstruction</em>: train a compressor on normal data; if it can't faithfully reconstruct <em>x</em>, then <em>x</em> doesn't look normal. Each strategy picks a different definition of "weird"; pick the one that matches how your anomalies actually behave.
-            </p>
-            <ul class="formula-legend">
-                <li><code>density</code>negative log probability under a model of normal data — bigger = rarer</li>
-                <li><code>distance</code>how far <em>x</em> is from its <em>k</em> nearest neighbours</li>
-                <li><code>reconstruction</code>how badly an autoencoder reconstructs <em>x</em></li>
-                <li>Each strategy gives a continuous score; threshold to decide normal vs. anomalous</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Isolation Forest.</strong> Builds random trees that split features at random thresholds. Anomalies — being in sparse regions — get isolated in fewer splits. The score is average path length to isolation. Cheap, scales well, and works in moderate dimensions. Default for tabular anomaly detection.</p>
-        <p><strong>One-Class SVM.</strong> Fits a decision boundary around the "normal" data in a kernel feature space, treating the origin as the "anomaly side". Good with small data and a sensible kernel; doesn't scale to big data.</p>
-        <p><strong>Local Outlier Factor (LOF).</strong> Compares each point's local density to its neighbours' local densities. Catches anomalies in heterogeneous-density data that global methods miss. Score &gt; 1 means lower density than neighbours.</p>
-        <p><strong>Autoencoder reconstruction.</strong> Train an autoencoder on normal data; at inference time, flag points with high reconstruction error. Scales to images and high-dim data where other methods struggle.</p>
-        <p><strong>Threshold setting.</strong> All methods give continuous scores; the threshold is a business decision (precision vs. recall trade-off). With no labels, use a quantile of training scores; with some labels, calibrate against the validation set.</p>
-    </article>
+Choice of strategy = assumption about what makes anomalies "weird"
 
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li><strong>Isolation Forest:</strong> moderate-dim tabular — strong default</li>
-                <li><strong>One-Class SVM:</strong> small / clean dataset with kernel intuition</li>
-                <li><strong>LOF:</strong> heterogeneous local density (clusters of different sizes)</li>
-                <li><strong>Autoencoder:</strong> images, time series, high-dim structured data</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>"Anomalous" depends on labelled examples and you have plenty of them</li>
-                <li>The score distribution is bi-modal and no threshold cleanly separates classes</li>
-                <li>Anomalies arrive in groups (contextual) — single-point methods miss the group</li>
-                <li>The data-generating process drifts over time — model becomes stale</li>
-            </ul>
-        </div>
-    </div>
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{anomaly score}(x) \;=\; \text{one of:}\;\big\{\,\text{low density},\;\text{far from neighbours},\;\text{poor reconstruction}\,\big\} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Three ways to assign a "weirdness" score to a point <em>x</em>. <em>Density</em>: how (im)probable is <em>x</em> under a model of normal data? <code>−log p(x)</code> is the "surprise" — bigger means rarer. <em>Distance</em>: how far is <em>x</em> from its <em>k</em> nearest neighbours (written <code>NNk(x)</code>)? Lone points are anomalous. <em>Reconstruction</em>: train a compressor on normal data; if it can't faithfully reconstruct <em>x</em>, then <em>x</em> doesn't look normal. Each strategy picks a different definition of "weird"; pick the one that matches how your anomalies actually behave.</p>
+<ul class="formula-legend">
+<li>
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<code>density</code>negative log probability under a model of normal data — bigger = rarer
+
+</li>
+<li>
+
+<code>distance</code>how far <em>x</em> is from its <em>k</em> nearest neighbours
+
+</li>
+<li>
+
+<code>reconstruction</code>how badly an autoencoder reconstructs <em>x</em>
+
+</li>
+<li>
+
+Each strategy gives a continuous score; threshold to decide normal vs. anomalous
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Isolation Forest.</strong> Builds random trees that split features at random thresholds. Anomalies — being in sparse regions — get isolated in fewer splits. The score is average path length to isolation. Cheap, scales well, and works in moderate dimensions. Default for tabular anomaly detection.</p>
+<p><strong>One-Class SVM.</strong> Fits a decision boundary around the "normal" data in a kernel feature space, treating the origin as the "anomaly side". Good with small data and a sensible kernel; doesn't scale to big data.</p>
+<p><strong>Local Outlier Factor (LOF).</strong> Compares each point's local density to its neighbours' local densities. Catches anomalies in heterogeneous-density data that global methods miss. Score &gt; 1 means lower density than neighbours.</p>
+<p><strong>Autoencoder reconstruction.</strong> Train an autoencoder on normal data; at inference time, flag points with high reconstruction error. Scales to images and high-dim data where other methods struggle.</p>
+<p><strong>Threshold setting.</strong> All methods give continuous scores; the threshold is a business decision (precision vs. recall trade-off). With no labels, use a quantile of training scores; with some labels, calibrate against the validation set.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li><strong>Isolation Forest:</strong> moderate-dim tabular — strong default</li>
+<li><strong>One-Class SVM:</strong> small / clean dataset with kernel intuition</li>
+<li><strong>LOF:</strong> heterogeneous local density (clusters of different sizes)</li>
+<li><strong>Autoencoder:</strong> images, time series, high-dim structured data</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>"Anomalous" depends on labelled examples and you have plenty of them</li>
+<li>The score distribution is bi-modal and no threshold cleanly separates classes</li>
+<li>Anomalies arrive in groups (contextual) — single-point methods miss the group</li>
+<li>The data-generating process drifts over time — model becomes stale</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">from sklearn.ensemble import IsolationForest
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.svm import OneClassSVM
@@ -199,85 +208,103 @@ import numpy as np
 X_scaled = StandardScaler().fit_transform(X)
 
 methods = {
-    "iforest":  IsolationForest(contamination=0.05, random_state=0),
-    "lof":      LocalOutlierFactor(n_neighbors=20, contamination=0.05),
-    "ocsvm":    OneClassSVM(nu=0.05, kernel="rbf", gamma="scale"),
+    &quot;iforest&quot;:  IsolationForest(contamination=0.05, random_state=0),
+    &quot;lof&quot;:      LocalOutlierFactor(n_neighbors=20, contamination=0.05),
+    &quot;ocsvm&quot;:    OneClassSVM(nu=0.05, kernel=&quot;rbf&quot;, gamma=&quot;scale&quot;),
 }
 
 for name, m in methods.items():
-    if hasattr(m, "fit_predict"):
+    if hasattr(m, &quot;fit_predict&quot;):
         labels = m.fit_predict(X_scaled)         # for LOF
     else:
         labels = m.fit(X_scaled).predict(X_scaled)
-    print(f"{name:10s} flagged {(labels == -1).sum():,} points as anomalous")
+    print(f&quot;{name:10s} flagged {(labels == -1).sum():,} points as anomalous&quot;)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want deep methods and contextual / collective anomalies?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want deep methods and contextual / collective anomalies?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Three flavours of anomaly</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Three flavours of anomaly</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \text{point} \;\subset\; \text{contextual} \;\subset\; \text{collective} $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \text{point} \;\subset\; \text{contextual} \;\subset\; \text{collective} $$</span>
-            <ul class="formula-legend">
-                <li><strong>Point</strong>: one observation is anomalous regardless of context</li>
-                <li><strong>Contextual</strong>: an observation is anomalous given a context (time, location)</li>
-                <li><strong>Collective</strong>: a sequence / group is anomalous as a whole</li>
-            </ul>
-        </div>
+<strong>Point</strong>: one observation is anomalous regardless of context
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{point anomaly} \;\subset\; \text{contextual anomaly} \;\subset\; \text{collective anomaly} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Anomalies come in three nested types of increasing subtlety. A <em>point anomaly</em> is a single observation that's odd regardless of anything around it (a credit card charge in a country you've never visited). A <em>contextual anomaly</em> is odd only in the right context — 25°C is normal in summer, anomalous in winter; you need to know the season to flag it. A <em>collective anomaly</em> requires looking at a whole group together — no single heart-rate reading is unusual, but the whole sequence drifting upward over an hour is. Each type subsumes the previous and is harder to detect.
-            </p>
-            <ul class="formula-legend">
-                <li><code>point</code>one observation odd on its own</li>
-                <li><code>contextual</code>odd given the context (time of day, location, season)</li>
-                <li><code>collective</code>a sequence or group is anomalous as a whole, even if each piece looks normal</li>
-                <li>Each type is harder to detect than the previous</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Deep one-class methods.</strong> Deep SVDD (Ruff et al.) replaces the kernel feature map with a learned neural network and shrinks the data into a small hypersphere. Trained end-to-end; works for images and time series. Watch for representation collapse (every input maps to the centre).</p>
-        <p><strong>Generative anomaly detection.</strong> Train a generative model (GAN, normalizing flow, diffusion) on normal data; anomalies have low likelihood or low-quality reconstructions. State of the art on industrial defect detection (MVTec AD). Caveat: deep generative models <em>do not</em> reliably assign low likelihood to out-of-distribution inputs — see Nalisnick et al. 2019.</p>
-        <p><strong>Sequence and time-series.</strong> Forecast-based methods flag points where the prediction error exceeds a threshold (ARIMA residuals, Prophet, deep forecast models). Reconstruction-based methods (LSTM autoencoders, transformer denoisers) work for collective anomalies — flag a window whose reconstruction is poor.</p>
-        <p><strong>Calibration.</strong> Anomaly scores are not probabilities. Convert via percentile-based mapping or fit a tail distribution (Generalized Pareto). PR-AUC is the right summary metric in the heavily-imbalanced regime; ROC-AUC overstates performance.</p>
-        <p><strong>Evaluation pitfalls.</strong> Without labels, you're estimating performance from synthetic anomalies — which often don't match real ones. With labels, watch out for label leakage from the threshold-setting process. Always evaluate on a held-out period for time-series.</p>
-    </article>
+<strong>Contextual</strong>: an observation is anomalous given a context (time, location)
 
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li><strong>Deep SVDD:</strong> images, learned representations, end-to-end pipeline</li>
-                <li><strong>Normalizing flows:</strong> need calibrated densities, not just scores</li>
-                <li><strong>LSTM / transformer reconstruction:</strong> sequential data with structure</li>
-                <li><strong>Density-ratio:</strong> compare against a known reference distribution</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>You truly have labels — use supervised methods with class weights / focal loss</li>
-                <li>"Normal" is multi-modal and rare — single-class methods overfit one mode</li>
-                <li>Anomalies must be human-interpretable — deep methods are opaque</li>
-                <li>You can't retrain regularly and the data drifts</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<strong>Collective</strong>: a sequence / group is anomalous as a whole
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{point anomaly} \;\subset\; \text{contextual anomaly} \;\subset\; \text{collective anomaly} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Anomalies come in three nested types of increasing subtlety. A <em>point anomaly</em> is a single observation that's odd regardless of anything around it (a credit card charge in a country you've never visited). A <em>contextual anomaly</em> is odd only in the right context — 25°C is normal in summer, anomalous in winter; you need to know the season to flag it. A <em>collective anomaly</em> requires looking at a whole group together — no single heart-rate reading is unusual, but the whole sequence drifting upward over an hour is. Each type subsumes the previous and is harder to detect.</p>
+<ul class="formula-legend">
+<li>
+
+<code>point</code>one observation odd on its own
+
+</li>
+<li>
+
+<code>contextual</code>odd given the context (time of day, location, season)
+
+</li>
+<li>
+
+<code>collective</code>a sequence or group is anomalous as a whole, even if each piece looks normal
+
+</li>
+<li>
+
+Each type is harder to detect than the previous
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Deep one-class methods.</strong> Deep SVDD (Ruff et al.) replaces the kernel feature map with a learned neural network and shrinks the data into a small hypersphere. Trained end-to-end; works for images and time series. Watch for representation collapse (every input maps to the centre).</p>
+<p><strong>Generative anomaly detection.</strong> Train a generative model (GAN, normalizing flow, diffusion) on normal data; anomalies have low likelihood or low-quality reconstructions. State of the art on industrial defect detection (MVTec AD). Caveat: deep generative models <em>do not</em> reliably assign low likelihood to out-of-distribution inputs — see Nalisnick et al. 2019.</p>
+<p><strong>Sequence and time-series.</strong> Forecast-based methods flag points where the prediction error exceeds a threshold (ARIMA residuals, Prophet, deep forecast models). Reconstruction-based methods (LSTM autoencoders, transformer denoisers) work for collective anomalies — flag a window whose reconstruction is poor.</p>
+<p><strong>Calibration.</strong> Anomaly scores are not probabilities. Convert via percentile-based mapping or fit a tail distribution (Generalized Pareto). PR-AUC is the right summary metric in the heavily-imbalanced regime; ROC-AUC overstates performance.</p>
+<p><strong>Evaluation pitfalls.</strong> Without labels, you're estimating performance from synthetic anomalies — which often don't match real ones. With labels, watch out for label leakage from the threshold-setting process. Always evaluate on a held-out period for time-series.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li><strong>Deep SVDD:</strong> images, learned representations, end-to-end pipeline</li>
+<li><strong>Normalizing flows:</strong> need calibrated densities, not just scores</li>
+<li><strong>LSTM / transformer reconstruction:</strong> sequential data with structure</li>
+<li><strong>Density-ratio:</strong> compare against a known reference distribution</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>You truly have labels — use supervised methods with class weights / focal loss</li>
+<li>"Normal" is multi-modal and rare — single-class methods overfit one mode</li>
+<li>Anomalies must be human-interpretable — deep methods are opaque</li>
+<li>You can't retrain regularly and the data drifts</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch
 import torch.nn as nn
 
@@ -301,14 +328,13 @@ for _ in range(100):
 with torch.no_grad():
     err = ((model(X_test) - X_test) ** 2).mean(dim=1)
 threshold = err[y_test == 0].quantile(0.99)    # top 1% of normal training errors
-flagged = err > threshold
+flagged = err &gt; threshold
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -319,25 +345,33 @@ flagged = err > threshold
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://scikit-learn.org/stable/modules/outlier_detection.html" target="_blank">scikit-learn — Outlier detection <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Side-by-side comparison of Isolation Forest, One-Class SVM, LOF, and Elliptic Envelope on toy data. Start here.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://pyod.readthedocs.io/" target="_blank">PyOD library <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Unified API across ~40 anomaly-detection algorithms — classical, deep, and ensemble. Includes benchmarks.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/2007.02500" target="_blank">Ruff et al. — Deep AD survey (2021) <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">"A Unifying Review of Deep and Shallow Anomaly Detection" — best modern survey. Covers SVDD, generative, self-supervised methods.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://www.mvtec.com/company/research/datasets/mvtec-ad" target="_blank">MVTec AD benchmark <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Industrial defect-detection benchmark. The de-facto standard for evaluating image-based anomaly methods.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://scikit-learn.org/stable/modules/outlier_detection.html" target="_blank">scikit-learn — Outlier detection <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Side-by-side comparison of Isolation Forest, One-Class SVM, LOF, and Elliptic Envelope on toy data. Start here.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://pyod.readthedocs.io/" target="_blank">PyOD library <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Unified API across ~40 anomaly-detection algorithms — classical, deep, and ensemble. Includes benchmarks.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/2007.02500" target="_blank">Ruff et al. — Deep AD survey (2021) <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">"A Unifying Review of Deep and Shallow Anomaly Detection" — best modern survey. Covers SVDD, generative, self-supervised methods.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://www.mvtec.com/company/research/datasets/mvtec-ad" target="_blank">MVTec AD benchmark <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Industrial defect-detection benchmark. The de-facto standard for evaluating image-based anomaly methods.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

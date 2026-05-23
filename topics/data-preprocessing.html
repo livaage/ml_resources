@@ -53,61 +53,56 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Most models can't read raw data.</strong> Linear models break when features are on wildly different scales; trees don't mind. Distance-based models (k-NN, k-means) are dominated by whichever feature has the biggest numbers. Neural nets train faster with normalised inputs. Encoding categories, handling missing values, normalising scales — that's preprocessing.</p>
-    </div>
-
-    <div class="viz-embed viz-classic">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Toggle the scaler — watch the boundary go from useless to correct as the features get put on the same footing</span>
-        </div>
-        <div class="viz-classic-controls">
-            <button id="viz-pre-raw"    type="button" class="active">Raw (mixed scales)</button>
-            <button id="viz-pre-std"    type="button">Standardised</button>
-            <button id="viz-pre-minmax" type="button">Min-Max</button>
-            <button id="viz-pre-robust" type="button">Robust (median/IQR)</button>
-        </div>
-        <div class="viz-classic-canvas-wrap">
-            <canvas id="viz-pre-canvas"></canvas>
-        </div>
-        <div class="viz-classic-caption" id="viz-pre-caption"></div>
-    </div>
-    <script src="../js/viz/preprocessing.js"></script>
-
-    <p class="viz-intro">Same dataset, three transforms. On the raw data, feature 1 ranges over [0, 1000] while feature 2 is in [0, 1]. A k-NN classifier ignores feature 2 entirely — every neighbour decision is dominated by feature 1. After <strong>standardisation</strong> (subtract mean, divide by std), both features get equal say. <strong>Min-max</strong> scales to [0, 1]; <strong>robust</strong> uses median and IQR so outliers don't blow up the scale.</p>
-
-    <article class="tldr-body">
-        <p><strong>Standardisation</strong> (z-score): subtract the mean, divide by the standard deviation. Each feature has mean 0, std 1. Default for most linear models and neural networks.</p>
-        <p><strong>Min-max scaling</strong>: linearly squash to [0, 1] (or [-1, 1]). Sensitive to outliers; useful for image pixels or where bounded input is required.</p>
-        <p><strong>Robust scaling</strong>: subtract the median, divide by the IQR. Doesn't care about outliers. Reach for it when the distribution has heavy tails or known anomalies.</p>
-        <p><strong>Categorical encoding</strong>: one-hot for ordinal-free categories, ordinal for ordered ones, target encoding (mean target value per category) for high-cardinality categories — used carefully to avoid leakage.</p>
-        <p><strong>Log / Box-Cox transforms</strong>: when the target or feature is skewed (prices, counts, durations), a log transform often makes it Gaussian-ish and helps any model.</p>
-    </article>
-
-    <div class="use-cases neutral">
-        <div class="yes">
-            <h3>Must preprocess for</h3>
-            <ul>
-                <li>k-NN, k-means, SVM with non-tree kernels — distance-based</li>
-                <li>Linear and logistic regression with regularization</li>
-                <li>Neural networks — converges faster, more stably</li>
-                <li>PCA / dimensionality reduction</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Can usually skip for</h3>
-            <ul>
-                <li>Decision trees, random forests, gradient boosting</li>
-                <li>Naive Bayes (depending on the variant)</li>
-                <li>Models with built-in normalisation (BatchNorm, LayerNorm)</li>
-                <li>When all features are already on the same scale (pixels)</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Most models can't read raw data.</strong> Linear models break when features are on wildly different scales; trees don't mind. Distance-based models (k-NN, k-means) are dominated by whichever feature has the biggest numbers. Neural nets train faster with normalised inputs. Encoding categories, handling missing values, normalising scales — that's preprocessing.</p>
+</div>
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">Toggle the scaler — watch the boundary go from useless to correct as the features get put on the same footing</span>
+</div>
+<div class="viz-classic-controls">
+<button id="viz-pre-raw" type="button" class="active">Raw (mixed scales)</button>
+<button id="viz-pre-std" type="button">Standardised</button>
+<button id="viz-pre-minmax" type="button">Min-Max</button>
+<button id="viz-pre-robust" type="button">Robust (median/IQR)</button>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-pre-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-pre-caption"></div>
+</div>
+<script src="../js/viz/preprocessing.js"></script>
+<p class="viz-intro">Same dataset, three transforms. On the raw data, feature 1 ranges over [0, 1000] while feature 2 is in [0, 1]. A k-NN classifier ignores feature 2 entirely — every neighbour decision is dominated by feature 1. After <strong>standardisation</strong> (subtract mean, divide by std), both features get equal say. <strong>Min-max</strong> scales to [0, 1]; <strong>robust</strong> uses median and IQR so outliers don't blow up the scale.</p>
+<article class="tldr-body">
+<p><strong>Standardisation</strong> (z-score): subtract the mean, divide by the standard deviation. Each feature has mean 0, std 1. Default for most linear models and neural networks.</p>
+<p><strong>Min-max scaling</strong>: linearly squash to [0, 1] (or [-1, 1]). Sensitive to outliers; useful for image pixels or where bounded input is required.</p>
+<p><strong>Robust scaling</strong>: subtract the median, divide by the IQR. Doesn't care about outliers. Reach for it when the distribution has heavy tails or known anomalies.</p>
+<p><strong>Categorical encoding</strong>: one-hot for ordinal-free categories, ordinal for ordered ones, target encoding (mean target value per category) for high-cardinality categories — used carefully to avoid leakage.</p>
+<p><strong>Log / Box-Cox transforms</strong>: when the target or feature is skewed (prices, counts, durations), a log transform often makes it Gaussian-ish and helps any model.</p>
+</article>
+<div class="use-cases neutral">
+<div class="yes">
+<h3>Must preprocess for</h3>
+<ul>
+<li>k-NN, k-means, SVM with non-tree kernels — distance-based</li>
+<li>Linear and logistic regression with regularization</li>
+<li>Neural networks — converges faster, more stably</li>
+<li>PCA / dimensionality reduction</li>
+</ul>
+</div>
+<div class="no">
+<h3>Can usually skip for</h3>
+<ul>
+<li>Decision trees, random forests, gradient boosting</li>
+<li>Naive Bayes (depending on the variant)</li>
+<li>Models with built-in normalisation (BatchNorm, LayerNorm)</li>
+<li>When all features are already on the same scale (pixels)</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">from sklearn.preprocessing import (
     StandardScaler, MinMaxScaler, RobustScaler,
     OneHotEncoder, OrdinalEncoder, PowerTransformer,
@@ -116,130 +111,172 @@ from sklearn.pipeline   import Pipeline
 from sklearn.compose    import ColumnTransformer
 
 # A real preprocessing pipeline — fit on TRAIN ONLY
-numerical_cols   = ["age", "income", "balance"]
-categorical_cols = ["country", "occupation"]
+numerical_cols   = [&quot;age&quot;, &quot;income&quot;, &quot;balance&quot;]
+categorical_cols = [&quot;country&quot;, &quot;occupation&quot;]
 
 prep = ColumnTransformer([
-    ("num", StandardScaler(),              numerical_cols),
-    ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_cols),
+    (&quot;num&quot;, StandardScaler(),              numerical_cols),
+    (&quot;cat&quot;, OneHotEncoder(handle_unknown=&quot;ignore&quot;), categorical_cols),
 ])
 
-pipe = Pipeline([("prep", prep), ("model", LogisticRegression())])
+pipe = Pipeline([(&quot;prep&quot;, prep), (&quot;model&quot;, LogisticRegression())])
 pipe.fit(X_train, y_train)              # scaler fitted on TRAIN
 pipe.predict(X_test)                    # scaler applied to TEST
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want target encoding, robust scalers, and quantile transforms?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want target encoding, robust scalers, and quantile transforms?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Why scaling matters for optimization</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Why scaling matters for optimization</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \nabla_w \mathcal{L} = X^\top (Xw - y), \quad \|\nabla_w \mathcal{L}\| \propto \sigma_{\max}(X) $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \nabla_w \mathcal{L} = X^\top (Xw - y), \quad \|\nabla_w \mathcal{L}\| \propto \sigma_{\max}(X) $$</span>
-            <ul class="formula-legend">
-                <li>Gradient magnitude scales with feature magnitudes</li>
-                <li>Features on very different scales ⇒ ill-conditioned gradient ⇒ slow / unstable convergence</li>
-                <li>Standardising puts all features at <em>σ ≈ 1</em>, dramatically improving conditioning</li>
-            </ul>
-        </div>
+Gradient magnitude scales with feature magnitudes
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{slope of loss} \;=\; \text{(features)}^\top \times \text{(residuals)}, \quad \text{size of slope} \;\propto\; \text{largest feature scale} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> The gradient (slope of the loss with respect to the weights) is just the feature matrix times the residuals — so its size grows with whatever the largest feature scale is. <code>σ_max</code> (sigma-max) is the biggest "stretch" of the feature matrix; it dominates the step size each weight gets. When one feature is in the thousands and another in the tenths, the optimiser is essentially taking giant steps for the big-scale weight and tiny steps for the small-scale one — slow, unstable, or both. Standardising every feature to roughly the same scale fixes the imbalance.
-            </p>
-            <ul class="formula-legend">
-                <li><code>slope of loss</code>gradient with respect to the weights</li>
-                <li><code>features</code>the design matrix <em>X</em></li>
-                <li><code>residuals</code>predictions minus targets (<em>Xw − y</em>)</li>
-                <li><code>largest feature scale</code>biggest singular value of <em>X</em> — dominates step size</li>
-                <li>Standardising → every feature near scale 1 → balanced step sizes → fast convergence</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Target encoding for high-cardinality categories.</strong> Replace each category with its mean target value (e.g. mean of <em>y</em> per ZIP code). Captures the signal in a single feature — but if you compute it on the whole dataset before splitting, that's data leakage. Always compute target encodings <em>within</em> CV folds.</p>
-        <p><strong>Quantile transforms.</strong> Map each feature to its rank, then optionally to a Gaussian. Robust to outliers, makes the feature uniform or normal. Useful for skewed distributions or when downstream models assume Gaussian inputs.</p>
-        <p><strong>Power transforms (Box-Cox, Yeo-Johnson).</strong> Parametric family of transforms that find the closest-to-Gaussian shape. Yeo-Johnson handles negative values; Box-Cox needs positives. Stabilises variance — important for regression with heteroscedastic noise.</p>
-        <p><strong>Encoders for ordered categories.</strong> Ordinal encoding when there's a natural order ("low" &lt; "medium" &lt; "high"). One-hot when there isn't. Trees handle ordinal encoding fine; linear models often need one-hot to avoid imposing a false ordering.</p>
-        <p><strong>Sparse handling.</strong> One-hot encoding with thousands of categories blows up memory. Sparse matrices, hashing tricks, learnable embeddings, and feature crosses are all common alternatives.</p>
-        <p><strong>Preprocess inside the CV loop.</strong> The single most common preprocessing mistake is fitting the scaler / encoder on the full dataset before splitting. The validation fold's mean / std then leaks into the training fold's "scaled" features. Pipelines exist to enforce the right order.</p>
-    </article>
+Features on very different scales ⇒ ill-conditioned gradient ⇒ slow / unstable convergence
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Standardising puts all features at <em>σ ≈ 1</em>, dramatically improving conditioning
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{slope of loss} \;=\; \text{(features)}^\top \times \text{(residuals)}, \quad \text{size of slope} \;\propto\; \text{largest feature scale} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The gradient (slope of the loss with respect to the weights) is just the feature matrix times the residuals — so its size grows with whatever the largest feature scale is. <code>σ_max</code> (sigma-max) is the biggest "stretch" of the feature matrix; it dominates the step size each weight gets. When one feature is in the thousands and another in the tenths, the optimiser is essentially taking giant steps for the big-scale weight and tiny steps for the small-scale one — slow, unstable, or both. Standardising every feature to roughly the same scale fixes the imbalance.</p>
+<ul class="formula-legend">
+<li>
+
+<code>slope of loss</code>gradient with respect to the weights
+
+</li>
+<li>
+
+<code>features</code>the design matrix <em>X</em>
+
+</li>
+<li>
+
+<code>residuals</code>predictions minus targets (<em>Xw − y</em>)
+
+</li>
+<li>
+
+<code>largest feature scale</code>biggest singular value of <em>X</em> — dominates step size
+
+</li>
+<li>
+
+Standardising → every feature near scale 1 → balanced step sizes → fast convergence
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Target encoding for high-cardinality categories.</strong> Replace each category with its mean target value (e.g. mean of <em>y</em> per ZIP code). Captures the signal in a single feature — but if you compute it on the whole dataset before splitting, that's data leakage. Always compute target encodings <em>within</em> CV folds.</p>
+<p><strong>Quantile transforms.</strong> Map each feature to its rank, then optionally to a Gaussian. Robust to outliers, makes the feature uniform or normal. Useful for skewed distributions or when downstream models assume Gaussian inputs.</p>
+<p><strong>Power transforms (Box-Cox, Yeo-Johnson).</strong> Parametric family of transforms that find the closest-to-Gaussian shape. Yeo-Johnson handles negative values; Box-Cox needs positives. Stabilises variance — important for regression with heteroscedastic noise.</p>
+<p><strong>Encoders for ordered categories.</strong> Ordinal encoding when there's a natural order ("low" &lt; "medium" &lt; "high"). One-hot when there isn't. Trees handle ordinal encoding fine; linear models often need one-hot to avoid imposing a false ordering.</p>
+<p><strong>Sparse handling.</strong> One-hot encoding with thousands of categories blows up memory. Sparse matrices, hashing tricks, learnable embeddings, and feature crosses are all common alternatives.</p>
+<p><strong>Preprocess inside the CV loop.</strong> The single most common preprocessing mistake is fitting the scaler / encoder on the full dataset before splitting. The validation fold's mean / std then leaks into the training fold's "scaled" features. Pipelines exist to enforce the right order.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import numpy as np, pandas as pd
 from sklearn.preprocessing import PowerTransformer, QuantileTransformer
 from category_encoders import TargetEncoder
 
 # Box-Cox / Yeo-Johnson for skewed features
-pt = PowerTransformer(method="yeo-johnson")
+pt = PowerTransformer(method=&quot;yeo-johnson&quot;)
 X_pt = pt.fit_transform(X_train_numeric)
 
 # Rank-Gaussian transform for very skewed data
-qt = QuantileTransformer(output_distribution="normal")
+qt = QuantileTransformer(output_distribution=&quot;normal&quot;)
 X_qt = qt.fit_transform(X_train_numeric)
 
 # Target encoding with smoothing — high-cardinality categories
 te = TargetEncoder(smoothing=10.0)
-X_te = te.fit_transform(X_train[["zip"]], y_train)
+X_te = te.fit_transform(X_train[[&quot;zip&quot;]], y_train)
 # Fit on train only; transform on test
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want feature stores, online preprocessing, and lookup tables?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want feature stores, online preprocessing, and lookup tables?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Pre-processing as a learned function</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Pre-processing as a learned function</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathbf{x}_{\text{enc}} = f_\phi(\mathbf{x}_{\text{raw}}) \quad \text{(differentiable, jointly trained)} $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \mathbf{x}_{\text{enc}} = f_\phi(\mathbf{x}_{\text{raw}}) \quad \text{(differentiable, jointly trained)} $$</span>
-            <ul class="formula-legend">
-                <li>Embeddings, BatchNorm, LayerNorm — preprocessing as part of the model</li>
-                <li>Updated jointly with the rest of the parameters</li>
-                <li>Generalises classical scalers — but harder to enforce no-leakage by construction</li>
-            </ul>
-        </div>
+Embeddings, BatchNorm, LayerNorm — preprocessing as part of the model
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{encoded input} \;=\; \text{learned transform}(\text{raw input}) $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Instead of hand-picking a scaler before training, treat the preprocessing step as part of the model itself. <code>f_φ</code> is just "a function with learnable parameters <em>φ</em>" — an embedding lookup, a batch-norm layer, a small MLP. Because it's differentiable and trained jointly with the rest of the network, its parameters tune themselves to make the downstream task work better. The catch: the line between "preprocessing" and "model" blurs, so you have to be careful nothing about the validation set leaks into the encoder's parameters.
-            </p>
-            <ul class="formula-legend">
-                <li><code>encoded input</code>the cleaned-up version that the rest of the model sees</li>
-                <li><code>raw input</code>the original feature vector</li>
-                <li><code>learned transform</code>any differentiable function with parameters (<em>φ</em>) trained jointly with the model</li>
-                <li>Examples: learned embeddings, batch / layer norm, learned tokenisers</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Feature stores.</strong> Production ML systems share preprocessed features across training and online inference. A feature store (Feast, Tecton, Vertex, etc.) is essentially a database of precomputed features keyed by entity ID, with versioning and time-travel queries to prevent train/serve skew.</p>
-        <p><strong>Train / serve skew.</strong> The classic deployment bug: training pipeline computes feature X one way, the online serving system computes it differently. Hard to detect until production data hits. Mitigation: share the same code, or enforce schema and statistic checks at both endpoints.</p>
-        <p><strong>BatchNorm and friends as preprocessing.</strong> BatchNorm normalises activations by their mini-batch statistics — essentially "scale, but inside the model". LayerNorm and RMSNorm do similar things along different axes. The interaction with explicit weight decay is subtle (see Regularization).</p>
-        <p><strong>Embedding tables for categories.</strong> Instead of one-hot, learn a dense vector per category. Reduces dimensionality and captures similarity automatically. Standard for high-cardinality categorical inputs in deep learning (users, items, tokens).</p>
-        <p><strong>Streaming statistics.</strong> When data is streamed and you can't fit it all in memory, use online formulas (Welford's algorithm) to compute mean and variance incrementally. Same idea behind <code>StandardScaler.partial_fit</code> in scikit-learn.</p>
-        <p><strong>Preprocessing for fairness.</strong> Some preprocessing is itself a fairness intervention — re-weighting examples, removing protected attributes, learning fair representations. See the Fairness page for details.</p>
-    </article>
+Updated jointly with the rest of the parameters
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Generalises classical scalers — but harder to enforce no-leakage by construction
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{encoded input} \;=\; \text{learned transform}(\text{raw input}) $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Instead of hand-picking a scaler before training, treat the preprocessing step as part of the model itself. <code>f_φ</code> is just "a function with learnable parameters <em>φ</em>" — an embedding lookup, a batch-norm layer, a small MLP. Because it's differentiable and trained jointly with the rest of the network, its parameters tune themselves to make the downstream task work better. The catch: the line between "preprocessing" and "model" blurs, so you have to be careful nothing about the validation set leaks into the encoder's parameters.</p>
+<ul class="formula-legend">
+<li>
+
+<code>encoded input</code>the cleaned-up version that the rest of the model sees
+
+</li>
+<li>
+
+<code>raw input</code>the original feature vector
+
+</li>
+<li>
+
+<code>learned transform</code>any differentiable function with parameters (<em>φ</em>) trained jointly with the model
+
+</li>
+<li>
+
+Examples: learned embeddings, batch / layer norm, learned tokenisers
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Feature stores.</strong> Production ML systems share preprocessed features across training and online inference. A feature store (Feast, Tecton, Vertex, etc.) is essentially a database of precomputed features keyed by entity ID, with versioning and time-travel queries to prevent train/serve skew.</p>
+<p><strong>Train / serve skew.</strong> The classic deployment bug: training pipeline computes feature X one way, the online serving system computes it differently. Hard to detect until production data hits. Mitigation: share the same code, or enforce schema and statistic checks at both endpoints.</p>
+<p><strong>BatchNorm and friends as preprocessing.</strong> BatchNorm normalises activations by their mini-batch statistics — essentially "scale, but inside the model". LayerNorm and RMSNorm do similar things along different axes. The interaction with explicit weight decay is subtle (see Regularization).</p>
+<p><strong>Embedding tables for categories.</strong> Instead of one-hot, learn a dense vector per category. Reduces dimensionality and captures similarity automatically. Standard for high-cardinality categorical inputs in deep learning (users, items, tokens).</p>
+<p><strong>Streaming statistics.</strong> When data is streamed and you can't fit it all in memory, use online formulas (Welford's algorithm) to compute mean and variance incrementally. Same idea behind <code>StandardScaler.partial_fit</code> in scikit-learn.</p>
+<p><strong>Preprocessing for fairness.</strong> Some preprocessing is itself a fairness intervention — re-weighting examples, removing protected attributes, learning fair representations. See the Fairness page for details.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch
 import torch.nn as nn
 
@@ -264,12 +301,11 @@ class RunningStats:
     def std(self):
         return (self.M2 / max(1, self.n - 1)) ** 0.5
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -280,25 +316,33 @@ class RunningStats:
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://scikit-learn.org/stable/modules/preprocessing.html" target="_blank">scikit-learn — Preprocessing Guide <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Practical reference for every scaler / encoder / transformer with worked examples and code.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://www.feast.dev/" target="_blank">Feast — Open-source Feature Store <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Reference implementation for a production feature store. Docs walk through training / serving consistency for tabular ML.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://contrib.scikit-learn.org/category_encoders/" target="_blank">category_encoders <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Library of categorical encoders beyond what sklearn ships — target, hash, James-Stein, GLMM and more. Side-by-side benchmarks.</span>
-        </li>
-        <li data-tier="intuition">
-            <a href="https://www.kaggle.com/competitions/feature-engineering-tips" target="_blank">Kaggle — Feature Engineering Wisdom <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Community-collected practical tips that often beat fancy models. Lots of preprocessing tricks here.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://scikit-learn.org/stable/modules/preprocessing.html" target="_blank">scikit-learn — Preprocessing Guide <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Practical reference for every scaler / encoder / transformer with worked examples and code.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://www.feast.dev/" target="_blank">Feast — Open-source Feature Store <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Reference implementation for a production feature store. Docs walk through training / serving consistency for tabular ML.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://contrib.scikit-learn.org/category_encoders/" target="_blank">category_encoders <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Library of categorical encoders beyond what sklearn ships — target, hash, James-Stein, GLMM and more. Side-by-side benchmarks.</span>
+
+</li>
+<li data-tier="intuition">
+
+<a href="https://www.kaggle.com/competitions/feature-engineering-tips" target="_blank">Kaggle — Feature Engineering Wisdom <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Community-collected practical tips that often beat fancy models. Lots of preprocessing tricks here.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

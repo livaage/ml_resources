@@ -53,64 +53,59 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>"Average error" hides outliers; "relative error" hides zeros.</strong> Each regression metric makes a different bargain with reality. MSE punishes big mistakes; MAE treats all of them equally; R² compares your model to "always predict the mean"; MAPE answers "what fraction off are we, on average" — but blows up when the truth is zero.</p>
-    </div>
-
-    <div class="viz-embed viz-classic">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Drag the outlier — watch MSE explode while MAE shrugs; the model line is OLS fit to all the points</span>
-        </div>
-        <div class="viz-classic-controls">
-            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                Outlier y
-                <input id="viz-rm-outlier" class="viz-classic-slider" type="range">
-            </label>
-            <button id="viz-rm-reset" type="button">Re-sample</button>
-            <span class="viz-classic-badge" id="viz-rm-out-lbl">y = 0.0</span>
-        </div>
-        <div class="viz-classic-canvas-wrap">
-            <canvas id="viz-rm-canvas"></canvas>
-        </div>
-        <div class="viz-classic-caption" id="viz-rm-caption"></div>
-    </div>
-    <script src="../js/viz/regression-metrics.js"></script>
-
-    <p class="viz-intro">Drag the orange outlier away from the trend and watch the metric strip below: <strong>MSE</strong> rises quadratically, <strong>MAE</strong> rises linearly, <strong>R²</strong> drops sharply because the variance the model has to explain just grew. A single point can move MSE by an order of magnitude — that's why MSE-trained models often "chase" outliers.</p>
-
-    <article class="tldr-body">
-        <p><strong>MSE</strong> (mean squared error). Bayes-optimal if errors are Gaussian; punishes large errors quadratically. Same units as <em>y²</em> — usually report √MSE (RMSE) for interpretability.</p>
-        <p><strong>MAE</strong> (mean absolute error). Same units as <em>y</em>. Robust to outliers — corresponds to predicting the median rather than the mean.</p>
-        <p><strong>R²</strong> (coefficient of determination). <em>1 − SSE/SST</em>. The fraction of variance the model explains relative to "always predict the mean". 1 = perfect, 0 = no better than the mean, negative = worse than the mean. Pseudo-R² for nonlinear models is similar in spirit but unitless.</p>
-        <p><strong>MAPE</strong> (mean absolute <em>percentage</em> error). Scale-free, easy to communicate ("our forecast is 12% off on average"). Useless when <em>y</em> can be zero or near-zero.</p>
-        <p><strong>Pinball loss / quantile loss.</strong> The right metric for quantile regression — measures how well you predicted the τ-th quantile, not the mean.</p>
-    </article>
-
-    <div class="use-cases neutral">
-        <div class="yes">
-            <h3>Reach for</h3>
-            <ul>
-                <li><strong>RMSE</strong>: default, especially when big errors matter most</li>
-                <li><strong>MAE</strong>: outliers, robust reporting</li>
-                <li><strong>R²</strong>: "how much variance did I explain?"</li>
-                <li><strong>MAPE</strong>: forecasting where y &gt; 0 always</li>
-                <li><strong>Pinball</strong>: prediction intervals</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Don't use</h3>
-            <ul>
-                <li>MAPE when y can be zero or close to it</li>
-                <li>MSE alone when outliers exist — report MAE too</li>
-                <li>R² for non-linear or non-Gaussian models without care</li>
-                <li>Any single metric without sanity-checking residual plots</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>"Average error" hides outliers; "relative error" hides zeros.</strong> Each regression metric makes a different bargain with reality. MSE punishes big mistakes; MAE treats all of them equally; R² compares your model to "always predict the mean"; MAPE answers "what fraction off are we, on average" — but blows up when the truth is zero.</p>
+</div>
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">Drag the outlier — watch MSE explode while MAE shrugs; the model line is OLS fit to all the points</span>
+</div>
+<div class="viz-classic-controls">
+<label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+Outlier y
+<input id="viz-rm-outlier" class="viz-classic-slider" type="range"></input>
+</label>
+<button id="viz-rm-reset" type="button">Re-sample</button>
+<span class="viz-classic-badge" id="viz-rm-out-lbl">y = 0.0</span>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-rm-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-rm-caption"></div>
+</div>
+<script src="../js/viz/regression-metrics.js"></script>
+<p class="viz-intro">Drag the orange outlier away from the trend and watch the metric strip below: <strong>MSE</strong> rises quadratically, <strong>MAE</strong> rises linearly, <strong>R²</strong> drops sharply because the variance the model has to explain just grew. A single point can move MSE by an order of magnitude — that's why MSE-trained models often "chase" outliers.</p>
+<article class="tldr-body">
+<p><strong>MSE</strong> (mean squared error). Bayes-optimal if errors are Gaussian; punishes large errors quadratically. Same units as <em>y²</em> — usually report √MSE (RMSE) for interpretability.</p>
+<p><strong>MAE</strong> (mean absolute error). Same units as <em>y</em>. Robust to outliers — corresponds to predicting the median rather than the mean.</p>
+<p><strong>R²</strong> (coefficient of determination). <em>1 − SSE/SST</em>. The fraction of variance the model explains relative to "always predict the mean". 1 = perfect, 0 = no better than the mean, negative = worse than the mean. Pseudo-R² for nonlinear models is similar in spirit but unitless.</p>
+<p><strong>MAPE</strong> (mean absolute <em>percentage</em> error). Scale-free, easy to communicate ("our forecast is 12% off on average"). Useless when <em>y</em> can be zero or near-zero.</p>
+<p><strong>Pinball loss / quantile loss.</strong> The right metric for quantile regression — measures how well you predicted the τ-th quantile, not the mean.</p>
+</article>
+<div class="use-cases neutral">
+<div class="yes">
+<h3>Reach for</h3>
+<ul>
+<li><strong>RMSE</strong>: default, especially when big errors matter most</li>
+<li><strong>MAE</strong>: outliers, robust reporting</li>
+<li><strong>R²</strong>: "how much variance did I explain?"</li>
+<li><strong>MAPE</strong>: forecasting where y &gt; 0 always</li>
+<li><strong>Pinball</strong>: prediction intervals</li>
+</ul>
+</div>
+<div class="no">
+<h3>Don't use</h3>
+<ul>
+<li>MAPE when y can be zero or close to it</li>
+<li>MSE alone when outliers exist — report MAE too</li>
+<li>R² for non-linear or non-Gaussian models without care</li>
+<li>Any single metric without sanity-checking residual plots</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import numpy as np
 from sklearn.metrics import (
     mean_squared_error, mean_absolute_error,
@@ -127,53 +122,72 @@ def pinball(y_true, y_pred, tau=0.5):
     e = y_true - y_pred
     return np.maximum(tau * e, (tau - 1) * e).mean()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want adjusted-R², MSLE, calibration, and proper scoring rules for regression?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want adjusted-R², MSLE, calibration, and proper scoring rules for regression?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Mean squared error decomposed</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Mean squared error decomposed</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \text{MSE} = \mathbb{E}\!\big[(y - \hat y)^2\big] = (\mathbb{E}[\hat y] - y^*)^2 + \mathbb{V}[\hat y] + \sigma_\text{noise}^2 $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \text{MSE} = \mathbb{E}\!\big[(y - \hat y)^2\big] = (\mathbb{E}[\hat y] - y^*)^2 + \mathbb{V}[\hat y] + \sigma_\text{noise}^2 $$</span>
-            <ul class="formula-legend">
-                <li>Bias² of the mean prediction</li>
-                <li>Variance of the predictions across resampled training sets</li>
-                <li>Irreducible noise — the floor no model can beat</li>
-            </ul>
-        </div>
+Bias² of the mean prediction
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{MSE} \;=\; \text{average of (truth − prediction)}^2 \;=\; \text{bias}^2 \;+\; \text{variance} \;+\; \text{noise}^2 $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Mean squared error is the average of the squared gap between truth and prediction. That average breaks into three pieces that add up: <em>bias²</em> (how far your <em>average</em> prediction sits from the truth — systematic error), <em>variance</em> (how much your predictions wobble across re-fits of the model on fresh data), and <em>noise²</em> (the unavoidable scatter in the labels themselves). The last piece is a floor no model can break through. This is exactly the bias-variance decomposition seen from the metric's side.
-            </p>
-            <ul class="formula-legend">
-                <li><code>MSE</code>average squared error across the data</li>
-                <li><code>bias²</code>squared gap between average prediction and the truth</li>
-                <li><code>variance</code>spread of predictions when you re-train on different samples</li>
-                <li><code>noise²</code>irreducible randomness in the labels — the floor no model can beat</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Why RMSE is unstable in practice.</strong> One outlier can multiply RMSE by 10×. If you can't avoid them, report MAE alongside, or look at quantiles of the squared residual rather than the mean. Robust alternatives include median absolute error and trimmed RMSE.</p>
-        <p><strong>Adjusted R².</strong> Standard R² always rises when you add features (more flexibility, more variance explained). Adjusted R² penalises that: <em>1 − (1 − R²)(n − 1)/(n − p − 1)</em>. Use it when comparing models with different numbers of features.</p>
-        <p><strong>MSLE (mean squared log error).</strong> Apply MSE to <em>log(1 + y)</em>. Symmetric in relative terms, robust to large positive outliers. Useful for skewed targets like prices, counts, or income.</p>
-        <p><strong>Predicting distributions.</strong> Don't just minimise mean error — predict quantiles or full distributions. Pinball loss for quantiles; CRPS (continuous ranked probability score) for full predicted distributions. CRPS reduces to MAE when the prediction is a point mass.</p>
-        <p><strong>Residual diagnostics.</strong> Plot residuals against predictions, against each feature, against time. Patterns there reveal model failures that aggregate metrics hide — heteroskedasticity, missing interactions, time leakage.</p>
-        <p><strong>The "loss vs. metric" mismatch.</strong> Train on MSE if you want to predict means; on MAE if you want medians; on pinball if you want quantiles. Optimising the wrong thing and then evaluating with the right one is a common mistake.</p>
-    </article>
+Variance of the predictions across resampled training sets
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Irreducible noise — the floor no model can beat
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{MSE} \;=\; \text{average of (truth − prediction)}^2 \;=\; \text{bias}^2 \;+\; \text{variance} \;+\; \text{noise}^2 $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Mean squared error is the average of the squared gap between truth and prediction. That average breaks into three pieces that add up: <em>bias²</em> (how far your <em>average</em> prediction sits from the truth — systematic error), <em>variance</em> (how much your predictions wobble across re-fits of the model on fresh data), and <em>noise²</em> (the unavoidable scatter in the labels themselves). The last piece is a floor no model can break through. This is exactly the bias-variance decomposition seen from the metric's side.</p>
+<ul class="formula-legend">
+<li>
+
+<code>MSE</code>average squared error across the data
+
+</li>
+<li>
+
+<code>bias²</code>squared gap between average prediction and the truth
+
+</li>
+<li>
+
+<code>variance</code>spread of predictions when you re-train on different samples
+
+</li>
+<li>
+
+<code>noise²</code>irreducible randomness in the labels — the floor no model can beat
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Why RMSE is unstable in practice.</strong> One outlier can multiply RMSE by 10×. If you can't avoid them, report MAE alongside, or look at quantiles of the squared residual rather than the mean. Robust alternatives include median absolute error and trimmed RMSE.</p>
+<p><strong>Adjusted R².</strong> Standard R² always rises when you add features (more flexibility, more variance explained). Adjusted R² penalises that: <em>1 − (1 − R²)(n − 1)/(n − p − 1)</em>. Use it when comparing models with different numbers of features.</p>
+<p><strong>MSLE (mean squared log error).</strong> Apply MSE to <em>log(1 + y)</em>. Symmetric in relative terms, robust to large positive outliers. Useful for skewed targets like prices, counts, or income.</p>
+<p><strong>Predicting distributions.</strong> Don't just minimise mean error — predict quantiles or full distributions. Pinball loss for quantiles; CRPS (continuous ranked probability score) for full predicted distributions. CRPS reduces to MAE when the prediction is a point mass.</p>
+<p><strong>Residual diagnostics.</strong> Plot residuals against predictions, against each feature, against time. Patterns there reveal model failures that aggregate metrics hide — heteroskedasticity, missing interactions, time leakage.</p>
+<p><strong>The "loss vs. metric" mismatch.</strong> Train on MSE if you want to predict means; on MAE if you want medians; on pinball if you want quantiles. Optimising the wrong thing and then evaluating with the right one is a common mistake.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import numpy as np
 
 # Robust RMSE — trim the 5% worst residuals before averaging
@@ -189,53 +203,72 @@ def crps_gaussian(y, mu, sigma):
     return sigma * (z * (2 * norm.cdf(z) - 1) +
                     2 * norm.pdf(z) - 1 / np.sqrt(np.pi))
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want CRPS, log-score, and proper scoring theory?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want CRPS, log-score, and proper scoring theory?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">CRPS — proper score for distributions</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">CRPS — proper score for distributions</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \text{CRPS}(F, y) = \int_{-\infty}^{\infty} \big(F(z) - \mathbb{1}\{y \leq z\}\big)^2\, dz $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \text{CRPS}(F, y) = \int_{-\infty}^{\infty} \big(F(z) - \mathbb{1}\{y \leq z\}\big)^2\, dz $$</span>
-            <ul class="formula-legend">
-                <li><code>F</code>predicted CDF</li>
-                <li>Reduces to MAE if <em>F</em> is a point mass at the prediction</li>
-                <li>Proper — minimised when <em>F</em> matches the true distribution</li>
-            </ul>
-        </div>
+<code>F</code>predicted CDF
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{CRPS} \;=\; \text{integrated squared gap between the predicted distribution and the observed step function} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> CRPS scores a <em>distributional</em> forecast against the single observed value. Think of the predicted distribution as a smooth S-shaped curve (its CDF, <code>F</code>), and the actual observation as a step function that jumps from 0 to 1 at the observed value. The CRPS is the area between those two curves, squared and added up across the whole number line (that's what the integral <code>∫</code> does). When the predicted distribution collapses to a single point, this reduces to MAE; when it spreads out badly, CRPS punishes both the location and the width.
-            </p>
-            <ul class="formula-legend">
-                <li><code>predicted distribution F</code>your full probabilistic forecast (its CDF)</li>
-                <li><code>observed step</code>step function that jumps from 0 to 1 at the actual observation</li>
-                <li><code>integrated gap</code>area between the two curves, squared and summed across all values</li>
-                <li>Reduces to MAE if the prediction is a point mass; proper — minimised when the prediction matches the truth</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Proper scoring rules for regression.</strong> A scoring rule <em>S(F, y)</em> is "proper" if <em>E<sub>Y∼G</sub> S(F, Y)</em> is minimised at <em>F = G</em>. Log score, CRPS, and energy score are all proper for predictive distributions. MAE and squared error are proper for point predictions targeting the median and mean respectively.</p>
-        <p><strong>Coverage and calibration of intervals.</strong> If a model says "95% confidence", verify that 95% of the actual observations fall in the predicted interval on a held-out set. Empirical coverage below nominal = under-confident; above = over-confident. Conformal prediction gives exact coverage guarantees under exchangeability.</p>
-        <p><strong>Forecast horizons.</strong> For time-series, report errors at multiple horizons separately — error at <em>t+1</em> and <em>t+30</em> can be very different. SMAPE (symmetric MAPE) is the classical forecasting metric; modern competitions (M4, M5) use a weighted combination of multiple metrics.</p>
-        <p><strong>Heteroskedastic targets.</strong> When the noise depends on the input (variance grows with magnitude), uniform metrics can be misleading. Predict and evaluate quantile bands, or use a normalising transformation (log, Box-Cox) before fitting.</p>
-        <p><strong>Forecast skill scores.</strong> Compare model performance to a baseline (climatology, persistence, naive forecast) — the skill score is <em>1 − error/baseline_error</em>. Important in weather, finance, and epidemiology where the dataset's intrinsic difficulty changes over time.</p>
-        <p><strong>Bootstrap CIs for metrics.</strong> Don't just report a single number; bootstrap residuals or resampled test sets to put a confidence interval on RMSE, MAE, or R². Two models with a "10% improvement" can be statistically indistinguishable.</p>
-    </article>
+Reduces to MAE if <em>F</em> is a point mass at the prediction
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+Proper — minimised when <em>F</em> matches the true distribution
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{CRPS} \;=\; \text{integrated squared gap between the predicted distribution and the observed step function} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> CRPS scores a <em>distributional</em> forecast against the single observed value. Think of the predicted distribution as a smooth S-shaped curve (its CDF, <code>F</code>), and the actual observation as a step function that jumps from 0 to 1 at the observed value. The CRPS is the area between those two curves, squared and added up across the whole number line (that's what the integral <code>∫</code> does). When the predicted distribution collapses to a single point, this reduces to MAE; when it spreads out badly, CRPS punishes both the location and the width.</p>
+<ul class="formula-legend">
+<li>
+
+<code>predicted distribution F</code>your full probabilistic forecast (its CDF)
+
+</li>
+<li>
+
+<code>observed step</code>step function that jumps from 0 to 1 at the actual observation
+
+</li>
+<li>
+
+<code>integrated gap</code>area between the two curves, squared and summed across all values
+
+</li>
+<li>
+
+Reduces to MAE if the prediction is a point mass; proper — minimised when the prediction matches the truth
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Proper scoring rules for regression.</strong> A scoring rule <em>S(F, y)</em> is "proper" if <em>E<sub>Y∼G</sub> S(F, Y)</em> is minimised at <em>F = G</em>. Log score, CRPS, and energy score are all proper for predictive distributions. MAE and squared error are proper for point predictions targeting the median and mean respectively.</p>
+<p><strong>Coverage and calibration of intervals.</strong> If a model says "95% confidence", verify that 95% of the actual observations fall in the predicted interval on a held-out set. Empirical coverage below nominal = under-confident; above = over-confident. Conformal prediction gives exact coverage guarantees under exchangeability.</p>
+<p><strong>Forecast horizons.</strong> For time-series, report errors at multiple horizons separately — error at <em>t+1</em> and <em>t+30</em> can be very different. SMAPE (symmetric MAPE) is the classical forecasting metric; modern competitions (M4, M5) use a weighted combination of multiple metrics.</p>
+<p><strong>Heteroskedastic targets.</strong> When the noise depends on the input (variance grows with magnitude), uniform metrics can be misleading. Predict and evaluate quantile bands, or use a normalising transformation (log, Box-Cox) before fitting.</p>
+<p><strong>Forecast skill scores.</strong> Compare model performance to a baseline (climatology, persistence, naive forecast) — the skill score is <em>1 − error/baseline_error</em>. Important in weather, finance, and epidemiology where the dataset's intrinsic difficulty changes over time.</p>
+<p><strong>Bootstrap CIs for metrics.</strong> Don't just report a single number; bootstrap residuals or resampled test sets to put a confidence interval on RMSE, MAE, or R². Two models with a "10% improvement" can be statistically indistinguishable.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import numpy as np
 
 # Bootstrap CI for any regression metric
@@ -252,12 +285,11 @@ def bootstrap_metric(y_true, y_pred, metric, B=1000, alpha=0.05):
 def coverage(y, lower, upper):
     return ((y &gt;= lower) &amp; (y &lt;= upper)).mean()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -268,25 +300,33 @@ def coverage(y, lower, upper):
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics" target="_blank">scikit-learn — Regression Metrics <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Definitions of every regression metric in the library with mathematical formulae and code.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://otexts.com/fpp3/accuracy.html" target="_blank">Hyndman &amp; Athanasopoulos — Forecasting: Principles and Practice <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The reference book for forecast evaluation. Chapter 5 covers point and probabilistic forecast accuracy in depth.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://www.tandfonline.com/doi/abs/10.1198/016214506000001437" target="_blank">Gneiting &amp; Raftery (2007) — Strictly Proper Scoring Rules <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The reference paper on proper scoring rules for both classification and regression. Heavier going but defines the concepts precisely.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/2107.07511" target="_blank">Angelopoulos &amp; Bates — Conformal Prediction Intro <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Distribution-free prediction intervals with finite-sample coverage guarantees — same tutorial linked from the Model Selection page.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics" target="_blank">scikit-learn — Regression Metrics <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Definitions of every regression metric in the library with mathematical formulae and code.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://otexts.com/fpp3/accuracy.html" target="_blank">Hyndman &amp; Athanasopoulos — Forecasting: Principles and Practice <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The reference book for forecast evaluation. Chapter 5 covers point and probabilistic forecast accuracy in depth.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://www.tandfonline.com/doi/abs/10.1198/016214506000001437" target="_blank">Gneiting &amp; Raftery (2007) — Strictly Proper Scoring Rules <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The reference paper on proper scoring rules for both classification and regression. Heavier going but defines the concepts precisely.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/2107.07511" target="_blank">Angelopoulos &amp; Bates — Conformal Prediction Intro <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Distribution-free prediction intervals with finite-sample coverage guarantees — same tutorial linked from the Model Selection page.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

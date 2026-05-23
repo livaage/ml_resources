@@ -53,140 +53,166 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Most of what a model learns is generally useful.</strong> Edges, textures, syntax, word relationships — these aren't specific to your downstream task; they're general structure of images or language. Pre-train a model on a huge corpus, then specialise the last bit to your task with whatever labels you have. You get a head-start equivalent to thousands of labelled examples.</p>
-    </div>
-
-    <div class="viz-embed viz-classic">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Compare three strategies as the labelled set shrinks — from scratch vs frozen-features vs full fine-tune</span>
-        </div>
-        <div class="viz-classic-controls">
-            <button id="viz-tl-step"  type="button">Re-sample</button>
-            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                # labels
-                <input id="viz-tl-n" class="viz-classic-slider" type="range">
-            </label>
-            <span class="viz-classic-badge" id="viz-tl-n-lbl">n = 20</span>
-        </div>
-        <div class="viz-classic-canvas-wrap">
-            <canvas id="viz-tl-canvas"></canvas>
-        </div>
-        <div class="viz-classic-caption" id="viz-tl-caption"></div>
-    </div>
-    <script src="../js/viz/transfer-learning.js"></script>
-
-    <p class="viz-intro">The chart shows test accuracy as a function of labelled-training-set size for three strategies. <strong>From scratch</strong> trains a fresh model on just the labels. <strong>Linear probe</strong> uses a frozen pre-trained encoder, training only a linear head. <strong>Fine-tune</strong> initialises with the pre-trained weights and updates everything. As labels become plentiful the curves converge — but at the low end, transfer learning provides a 10-30 point head-start.</p>
-
-    <article class="tldr-body">
-        <p><strong>Why transfer works.</strong> The first few layers of a CNN are essentially edge detectors regardless of the task. The first few layers of a transformer encode syntactic relationships. These are reusable. The last layers are task-specific. Replace those; keep the rest.</p>
-        <p><strong>Linear probe / feature extraction.</strong> Freeze the encoder. Train only a linear classifier on top. Fast, robust to small datasets, won't overfit. Best when your task is similar to the pre-training task.</p>
-        <p><strong>Fine-tuning.</strong> Initialise with pre-trained weights and update everything (or just the later layers). More flexible, sometimes more accurate, more sensitive to overfitting on small labelled sets.</p>
-        <p><strong>Adapter-based fine-tuning.</strong> Insert small trainable modules into a frozen backbone (LoRA, adapters). Cheap to train, cheap to switch tasks. The dominant fine-tuning recipe for LLMs.</p>
-        <p><strong>Domain adaptation.</strong> Train on labelled source domain; deploy on unlabelled target domain. Use adversarial losses, importance weighting, or feature alignment to bridge the gap. Useful when labels exist for one domain (medical imaging from hospital A) but not another (hospital B).</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>You have a small labelled dataset for your task</li>
-                <li>A pre-trained model exists in your domain (vision, NLP, audio)</li>
-                <li>You can't afford to train from scratch (compute or data)</li>
-                <li>The pre-training task is similar to your downstream task</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Watch out</h3>
-            <ul>
-                <li>Domain mismatch — features from natural images may not transfer to medical X-rays</li>
-                <li>Fine-tuning with too few labels can catastrophically forget useful pre-training</li>
-                <li>Different pre-training objectives → different features → not all encoders transfer equally</li>
-                <li>Beware "leaderboard gains" from pre-training on test-set lookalikes</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Most of what a model learns is generally useful.</strong> Edges, textures, syntax, word relationships — these aren't specific to your downstream task; they're general structure of images or language. Pre-train a model on a huge corpus, then specialise the last bit to your task with whatever labels you have. You get a head-start equivalent to thousands of labelled examples.</p>
+</div>
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">Compare three strategies as the labelled set shrinks — from scratch vs frozen-features vs full fine-tune</span>
+</div>
+<div class="viz-classic-controls">
+<button id="viz-tl-step" type="button">Re-sample</button>
+<label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+# labels
+<input id="viz-tl-n" class="viz-classic-slider" type="range"></input>
+</label>
+<span class="viz-classic-badge" id="viz-tl-n-lbl">n = 20</span>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-tl-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-tl-caption"></div>
+</div>
+<script src="../js/viz/transfer-learning.js"></script>
+<p class="viz-intro">The chart shows test accuracy as a function of labelled-training-set size for three strategies. <strong>From scratch</strong> trains a fresh model on just the labels. <strong>Linear probe</strong> uses a frozen pre-trained encoder, training only a linear head. <strong>Fine-tune</strong> initialises with the pre-trained weights and updates everything. As labels become plentiful the curves converge — but at the low end, transfer learning provides a 10-30 point head-start.</p>
+<article class="tldr-body">
+<p><strong>Why transfer works.</strong> The first few layers of a CNN are essentially edge detectors regardless of the task. The first few layers of a transformer encode syntactic relationships. These are reusable. The last layers are task-specific. Replace those; keep the rest.</p>
+<p><strong>Linear probe / feature extraction.</strong> Freeze the encoder. Train only a linear classifier on top. Fast, robust to small datasets, won't overfit. Best when your task is similar to the pre-training task.</p>
+<p><strong>Fine-tuning.</strong> Initialise with pre-trained weights and update everything (or just the later layers). More flexible, sometimes more accurate, more sensitive to overfitting on small labelled sets.</p>
+<p><strong>Adapter-based fine-tuning.</strong> Insert small trainable modules into a frozen backbone (LoRA, adapters). Cheap to train, cheap to switch tasks. The dominant fine-tuning recipe for LLMs.</p>
+<p><strong>Domain adaptation.</strong> Train on labelled source domain; deploy on unlabelled target domain. Use adversarial losses, importance weighting, or feature alignment to bridge the gap. Useful when labels exist for one domain (medical imaging from hospital A) but not another (hospital B).</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>You have a small labelled dataset for your task</li>
+<li>A pre-trained model exists in your domain (vision, NLP, audio)</li>
+<li>You can't afford to train from scratch (compute or data)</li>
+<li>The pre-training task is similar to your downstream task</li>
+</ul>
+</div>
+<div class="no">
+<h3>Watch out</h3>
+<ul>
+<li>Domain mismatch — features from natural images may not transfer to medical X-rays</li>
+<li>Fine-tuning with too few labels can catastrophically forget useful pre-training</li>
+<li>Different pre-training objectives → different features → not all encoders transfer equally</li>
+<li>Beware "leaderboard gains" from pre-training on test-set lookalikes</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch, torch.nn as nn
 import torchvision.models as models
 
 # Linear probe — freeze backbone, train head
 def linear_probe(num_classes):
-    m = models.resnet50(weights="DEFAULT")
+    m = models.resnet50(weights=&quot;DEFAULT&quot;)
     for p in m.parameters(): p.requires_grad = False
     m.fc = nn.Linear(m.fc.in_features, num_classes)  # only this trains
     return m
 
 # Full fine-tune — train everything, smaller learning rate on the backbone
 def fine_tune(num_classes):
-    m = models.resnet50(weights="DEFAULT")
+    m = models.resnet50(weights=&quot;DEFAULT&quot;)
     m.fc = nn.Linear(m.fc.in_features, num_classes)
     return m
 # Use param groups with different lrs:
 opt = torch.optim.AdamW([
-    {"params": m.fc.parameters(),       "lr": 1e-3},   # new head
-    {"params": [p for n, p in m.named_parameters() if not n.startswith("fc")],
-                                          "lr": 1e-5},  # pre-trained backbone
+    {&quot;params&quot;: m.fc.parameters(),       &quot;lr&quot;: 1e-3},   # new head
+    {&quot;params&quot;: [p for n, p in m.named_parameters() if not n.startswith(&quot;fc&quot;)],
+                                          &quot;lr&quot;: 1e-5},  # pre-trained backbone
 ])
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want LoRA, adapters, prompt tuning, and catastrophic forgetting?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want LoRA, adapters, prompt tuning, and catastrophic forgetting?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">LoRA update</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">LoRA update</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ W_{\text{new}} = W_{\text{pretrained}} + \frac{\alpha}{r} \cdot B A, \quad A \in \mathbb{R}^{r \times d_{\text{in}}}, \; B \in \mathbb{R}^{d_{\text{out}} \times r} $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ W_{\text{new}} = W_{\text{pretrained}} + \frac{\alpha}{r} \cdot B A, \quad A \in \mathbb{R}^{r \times d_{\text{in}}}, \; B \in \mathbb{R}^{d_{\text{out}} \times r} $$</span>
-            <ul class="formula-legend">
-                <li><code>W<sub>pretrained</sub></code>frozen pre-trained weight matrix</li>
-                <li><code>A, B</code>small trainable matrices; <em>A</em> projects down to rank <em>r</em>, <em>B</em> projects back up</li>
-                <li><code>r</code>rank of the update (typically 4–64)</li>
-                <li><code>α</code>scaling factor; the <code>α/r</code> ratio keeps the update magnitude controlled</li>
-                <li><em>r</em> &lt;&lt; <em>d</em> ⇒ ~100× fewer trainable parameters; LoRA adapters are composable</li>
-            </ul>
-        </div>
+<code>Wpretrained</code>frozen pre-trained weight matrix
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{new weights} \;=\; \text{frozen pre-trained weights} \;+\; \tfrac{\alpha}{r} \,\times\, (\text{down-projection} \times \text{up-projection}) $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Keep the original weight matrix <em>frozen</em> — don't touch it. Add a small, trainable update on top, structured as the product of two low-rank matrices: one that projects the input down to a tiny dimension <em>r</em>, and another that projects back up to the original output size. Because <em>r</em> is small (often 8 or 16), this update has roughly 100× fewer parameters than the original weight matrix. The <code>α/r</code> scaling keeps the update from being too big — <code>α</code> is a hyperparameter you tune. At inference you can either keep the LoRA modules separate (and switch them per task) or fold them back into the original weights with no overhead.
-            </p>
-            <ul class="formula-legend">
-                <li><code>frozen pre-trained weights</code>the original matrix from the pre-trained model; never updated</li>
-                <li><code>down-projection</code>small matrix that shrinks the input to a tiny dimension <em>r</em></li>
-                <li><code>up-projection</code>small matrix that brings it back up to the output size</li>
-                <li><code>r</code>rank — how small the bottleneck is; controls parameter count</li>
-                <li><code>α</code>scaling factor; <code>α/r</code> keeps the magnitude of the update sensible</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Parameter-efficient fine-tuning (PEFT).</strong> Don't update all the weights — just a small fraction. <em>Adapters</em> (Houlsby et al. 2019): insert small MLPs after each layer. <em>LoRA</em> (Hu et al. 2021): add low-rank updates to frozen weights. <em>Prefix tuning</em> / <em>prompt tuning</em>: train a small "prompt" embedding while keeping the model frozen. All are cheap to train, cheap to store, easy to switch.</p>
-        <p><strong>Catastrophic forgetting.</strong> Naive fine-tuning destroys useful pre-training. Mitigations: lower learning rate, fewer epochs, freezing earlier layers, regularising weights toward initialisation (EWC), replaying pre-training data.</p>
-        <p><strong>Discriminative fine-tuning.</strong> Different layers, different learning rates. The standard recipe: small lr for early (general) layers; larger lr for later (task-specific) layers. Also called "layer-wise lr decay".</p>
-        <p><strong>Distribution shift in transfer.</strong> The pre-training distribution rarely matches the downstream one exactly. Domain adaptation (adversarial alignment, importance weighting, test-time adaptation) bridges the gap when labels for the target domain are scarce.</p>
-        <p><strong>Foundation models as the new default.</strong> CLIP, GPT-3/4, BERT, ViT, DINOv2. Pre-train once at enormous cost; reuse forever. Fine-tune for cheap. The economics of ML have changed: most teams now start from a foundation model and fine-tune, rarely training from scratch.</p>
-        <p><strong>Zero-shot and few-shot.</strong> Modern foundation models can do many tasks without any task-specific training — prompt them appropriately. Few-shot uses a handful of demonstrations in the prompt (in-context learning). Often beats traditional fine-tuning when labels are very scarce.</p>
-    </article>
+<code>A, B</code>small trainable matrices; <em>A</em> projects down to rank <em>r</em>, <em>B</em> projects back up
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+<code>r</code>rank of the update (typically 4–64)
+
+</li>
+<li>
+
+<code>α</code>scaling factor; the <code>α/r</code> ratio keeps the update magnitude controlled
+
+</li>
+<li>
+
+<em>r</em> &lt;&lt; <em>d</em> ⇒ ~100× fewer trainable parameters; LoRA adapters are composable
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{new weights} \;=\; \text{frozen pre-trained weights} \;+\; \tfrac{\alpha}{r} \,\times\, (\text{down-projection} \times \text{up-projection}) $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Keep the original weight matrix <em>frozen</em> — don't touch it. Add a small, trainable update on top, structured as the product of two low-rank matrices: one that projects the input down to a tiny dimension <em>r</em>, and another that projects back up to the original output size. Because <em>r</em> is small (often 8 or 16), this update has roughly 100× fewer parameters than the original weight matrix. The <code>α/r</code> scaling keeps the update from being too big — <code>α</code> is a hyperparameter you tune. At inference you can either keep the LoRA modules separate (and switch them per task) or fold them back into the original weights with no overhead.</p>
+<ul class="formula-legend">
+<li>
+
+<code>frozen pre-trained weights</code>the original matrix from the pre-trained model; never updated
+
+</li>
+<li>
+
+<code>down-projection</code>small matrix that shrinks the input to a tiny dimension <em>r</em>
+
+</li>
+<li>
+
+<code>up-projection</code>small matrix that brings it back up to the output size
+
+</li>
+<li>
+
+<code>r</code>rank — how small the bottleneck is; controls parameter count
+
+</li>
+<li>
+
+<code>α</code>scaling factor; <code>α/r</code> keeps the magnitude of the update sensible
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Parameter-efficient fine-tuning (PEFT).</strong> Don't update all the weights — just a small fraction. <em>Adapters</em> (Houlsby et al. 2019): insert small MLPs after each layer. <em>LoRA</em> (Hu et al. 2021): add low-rank updates to frozen weights. <em>Prefix tuning</em> / <em>prompt tuning</em>: train a small "prompt" embedding while keeping the model frozen. All are cheap to train, cheap to store, easy to switch.</p>
+<p><strong>Catastrophic forgetting.</strong> Naive fine-tuning destroys useful pre-training. Mitigations: lower learning rate, fewer epochs, freezing earlier layers, regularising weights toward initialisation (EWC), replaying pre-training data.</p>
+<p><strong>Discriminative fine-tuning.</strong> Different layers, different learning rates. The standard recipe: small lr for early (general) layers; larger lr for later (task-specific) layers. Also called "layer-wise lr decay".</p>
+<p><strong>Distribution shift in transfer.</strong> The pre-training distribution rarely matches the downstream one exactly. Domain adaptation (adversarial alignment, importance weighting, test-time adaptation) bridges the gap when labels for the target domain are scarce.</p>
+<p><strong>Foundation models as the new default.</strong> CLIP, GPT-3/4, BERT, ViT, DINOv2. Pre-train once at enormous cost; reuse forever. Fine-tune for cheap. The economics of ML have changed: most teams now start from a foundation model and fine-tune, rarely training from scratch.</p>
+<p><strong>Zero-shot and few-shot.</strong> Modern foundation models can do many tasks without any task-specific training — prompt them appropriately. Few-shot uses a handful of demonstrations in the prompt (in-context learning). Often beats traditional fine-tuning when labels are very scarce.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch.nn as nn
 from peft import LoraConfig, get_peft_model
 
 # LoRA fine-tuning a transformer — only adapter params are trainable
-config = LoraConfig(r=8, lora_alpha=16, target_modules=["q_proj", "v_proj"])
+config = LoraConfig(r=8, lora_alpha=16, target_modules=[&quot;q_proj&quot;, &quot;v_proj&quot;])
 peft_model = get_peft_model(base_model, config)
 peft_model.print_trainable_parameters()
 # trainable params: 1,572,864 || all params: 175,000,000,000 || trainable%: 0.0009
@@ -195,60 +221,91 @@ peft_model.print_trainable_parameters()
 def layer_lrs(model, base_lr=1e-3, decay=0.7):
     groups = []
     for i, layer in enumerate(reversed(list(model.layers))):
-        groups.append({"params": layer.parameters(),
-                       "lr": base_lr * (decay ** i)})
+        groups.append({&quot;params&quot;: layer.parameters(),
+                       &quot;lr&quot;: base_lr * (decay ** i)})
     return groups
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want continual learning, prompt tuning, RLHF, and meta-learning?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want continual learning, prompt tuning, RLHF, and meta-learning?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Elastic Weight Consolidation</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Elastic Weight Consolidation</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathcal{L}_{\text{EWC}} = \mathcal{L}_{\text{new}} + \sum_i \lambda \, F_i \, (\theta_i - \theta^*_i)^2 $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \mathcal{L}_{\text{EWC}} = \mathcal{L}_{\text{new}} + \sum_i \lambda \, F_i \, (\theta_i - \theta^*_i)^2 $$</span>
-            <ul class="formula-legend">
-                <li><code>L<sub>new</sub></code>loss on the new task</li>
-                <li><code>θ*<sub>i</sub></code>pre-trained value of parameter <em>i</em></li>
-                <li><code>F<sub>i</sub></code>Fisher information per parameter — how "important" that parameter was for the old task</li>
-                <li><code>λ</code>regularization strength</li>
-                <li>Penalise moving important pre-trained parameters far from their original values</li>
-            </ul>
-        </div>
+<code>Lnew</code>loss on the new task
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{loss} \;=\; \text{new-task loss} \;+\; \lambda \sum_i (\text{importance}_i) \,\times\, (\text{new param}_i - \text{old param}_i)^2 $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> The total loss has two pieces. The first is the usual training loss on the new task. The second is a penalty: for each parameter, it asks "how far has this parameter moved from its pre-trained value, weighted by how <em>important</em> that parameter was for the old task?" The <code>Σ</code> sums the penalty across every parameter. "Importance" here is the <strong>Fisher information</strong> — large for parameters that mattered most for the old task. <code>λ</code> (lambda) controls how strongly to hold on to the old behaviour. This lets the model learn the new task while preserving the parts of pre-training it most needs to keep.
-            </p>
-            <ul class="formula-legend">
-                <li><code>new-task loss</code>standard supervised loss on the new task's labelled data</li>
-                <li><code>importance</code>Fisher information — how much each parameter mattered for the old task</li>
-                <li><code>new param − old param</code>how far the parameter has moved from its pre-trained value</li>
-                <li><code>λ</code>regularization strength — bigger λ means stronger anti-forgetting pressure</li>
-                <li>Classical antidote to catastrophic forgetting</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Continual / lifelong learning.</strong> Train sequentially on a stream of tasks; don't forget the old ones. Classical methods: EWC, Synaptic Intelligence, MAS — penalise moving important parameters. Modern: rehearsal buffers, progressive networks. Hard in general; trade-offs between plasticity and stability are inescapable.</p>
-        <p><strong>Prompt tuning &amp; prefix tuning.</strong> Keep the base model frozen; learn a small embedding ("soft prompt") prepended to inputs. Lester et al. (2021), Li &amp; Liang (2021). Competitive with full fine-tuning at modest scale; doesn't catch up at the largest scales.</p>
-        <p><strong>In-context learning.</strong> The strangest discovery of LLM-era ML: large enough models can learn from examples in their prompt without any gradient updates. Few-shot prompting is the canonical case; reasoning chains (chain-of-thought) extend it. The mechanism is still actively researched.</p>
-        <p><strong>Multi-task learning.</strong> Train a single model on many tasks simultaneously. Share early layers; specialise heads. Risks: tasks interfere with each other (negative transfer); the gradient of the joint objective is messy. Helped by careful loss weighting (uncertainty weighting, GradNorm).</p>
-        <p><strong>Meta-learning ("learn to learn").</strong> Train on a distribution over tasks; the model learns to adapt quickly to a new task with few examples. MAML (Finn et al. 2017), ProtoNets (Snell et al. 2017), Reptile. Mostly superseded by foundation-model fine-tuning at scale, but still relevant for low-data regimes.</p>
-        <p><strong>RLHF as transfer.</strong> Pre-trained LLMs are "supervised fine-tuned" on instructions, then RLHF-tuned against human preferences. This is transfer learning with multiple objectives and a learned reward. The pre-train → SFT → RLHF pipeline is now standard for assistant-grade models.</p>
-    </article>
+<code>θ*i</code>pre-trained value of parameter <em>i</em>
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+<code>Fi</code>Fisher information per parameter — how "important" that parameter was for the old task
+
+</li>
+<li>
+
+<code>λ</code>regularization strength
+
+</li>
+<li>
+
+Penalise moving important pre-trained parameters far from their original values
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{loss} \;=\; \text{new-task loss} \;+\; \lambda \sum_i (\text{importance}_i) \,\times\, (\text{new param}_i - \text{old param}_i)^2 $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The total loss has two pieces. The first is the usual training loss on the new task. The second is a penalty: for each parameter, it asks "how far has this parameter moved from its pre-trained value, weighted by how <em>important</em> that parameter was for the old task?" The <code>Σ</code> sums the penalty across every parameter. "Importance" here is the <strong>Fisher information</strong> — large for parameters that mattered most for the old task. <code>λ</code> (lambda) controls how strongly to hold on to the old behaviour. This lets the model learn the new task while preserving the parts of pre-training it most needs to keep.</p>
+<ul class="formula-legend">
+<li>
+
+<code>new-task loss</code>standard supervised loss on the new task's labelled data
+
+</li>
+<li>
+
+<code>importance</code>Fisher information — how much each parameter mattered for the old task
+
+</li>
+<li>
+
+<code>new param − old param</code>how far the parameter has moved from its pre-trained value
+
+</li>
+<li>
+
+<code>λ</code>regularization strength — bigger λ means stronger anti-forgetting pressure
+
+</li>
+<li>
+
+Classical antidote to catastrophic forgetting
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Continual / lifelong learning.</strong> Train sequentially on a stream of tasks; don't forget the old ones. Classical methods: EWC, Synaptic Intelligence, MAS — penalise moving important parameters. Modern: rehearsal buffers, progressive networks. Hard in general; trade-offs between plasticity and stability are inescapable.</p>
+<p><strong>Prompt tuning &amp; prefix tuning.</strong> Keep the base model frozen; learn a small embedding ("soft prompt") prepended to inputs. Lester et al. (2021), Li &amp; Liang (2021). Competitive with full fine-tuning at modest scale; doesn't catch up at the largest scales.</p>
+<p><strong>In-context learning.</strong> The strangest discovery of LLM-era ML: large enough models can learn from examples in their prompt without any gradient updates. Few-shot prompting is the canonical case; reasoning chains (chain-of-thought) extend it. The mechanism is still actively researched.</p>
+<p><strong>Multi-task learning.</strong> Train a single model on many tasks simultaneously. Share early layers; specialise heads. Risks: tasks interfere with each other (negative transfer); the gradient of the joint objective is messy. Helped by careful loss weighting (uncertainty weighting, GradNorm).</p>
+<p><strong>Meta-learning ("learn to learn").</strong> Train on a distribution over tasks; the model learns to adapt quickly to a new task with few examples. MAML (Finn et al. 2017), ProtoNets (Snell et al. 2017), Reptile. Mostly superseded by foundation-model fine-tuning at scale, but still relevant for low-data regimes.</p>
+<p><strong>RLHF as transfer.</strong> Pre-trained LLMs are "supervised fine-tuned" on instructions, then RLHF-tuned against human preferences. This is transfer learning with multiple objectives and a learned reward. The pre-train → SFT → RLHF pipeline is now standard for assistant-grade models.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch
 
 # Elastic Weight Consolidation — penalise moving important pre-trained params
@@ -267,12 +324,11 @@ class EWC:
 loss = task_loss + ewc.penalty(model)
 loss.backward()
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -283,25 +339,33 @@ loss.backward()
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://arxiv.org/abs/2106.09685" target="_blank">Hu et al. (2021) — LoRA <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Low-rank adaptation for LLMs. Short, well-written; section 4 is the canonical reference for the architecture.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://github.com/huggingface/peft" target="_blank">HuggingFace PEFT <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The reference parameter-efficient fine-tuning library. LoRA, prefix tuning, IA3, AdaLoRA — all in one place with HF Transformers integration.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://lilianweng.github.io/posts/2022-02-20-active-learning/" target="_blank">Lilian Weng — Learning with not enough data Pt II <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Companion to the SSL piece — covers active learning, transfer learning, and fine-tuning recipes.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/1612.00796" target="_blank">Kirkpatrick et al. (2017) — EWC <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The Elastic Weight Consolidation paper — the canonical continual-learning anti-forgetting method.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://arxiv.org/abs/2106.09685" target="_blank">Hu et al. (2021) — LoRA <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Low-rank adaptation for LLMs. Short, well-written; section 4 is the canonical reference for the architecture.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://github.com/huggingface/peft" target="_blank">HuggingFace PEFT <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The reference parameter-efficient fine-tuning library. LoRA, prefix tuning, IA3, AdaLoRA — all in one place with HF Transformers integration.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://lilianweng.github.io/posts/2022-02-20-active-learning/" target="_blank">Lilian Weng — Learning with not enough data Pt II <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Companion to the SSL piece — covers active learning, transfer learning, and fine-tuning recipes.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/1612.00796" target="_blank">Kirkpatrick et al. (2017) — EWC <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The Elastic Weight Consolidation paper — the canonical continual-learning anti-forgetting method.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

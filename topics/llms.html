@@ -53,213 +53,274 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Train one huge model on huge data with a simple objective; reuse it everywhere.</strong> Next-token prediction on trillions of tokens. The resulting model has absorbed so much structure that you can prompt it to do almost any text task — without retraining. Fine-tune for specific behaviour; RLHF for alignment. The economics of ML changed when this started working.</p>
-    </div>
-
-    <div class="viz-embed viz-classic">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Watch capability emerge with scale — synthetic abilities sweep across model size on a log scale</span>
-        </div>
-        <div class="viz-classic-controls">
-            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                model scale
-                <input id="viz-llm-scale" class="viz-classic-slider" type="range">
-            </label>
-            <span class="viz-classic-badge" id="viz-llm-scale-lbl">10⁹ params</span>
-        </div>
-        <div class="viz-classic-canvas-wrap">
-            <canvas id="viz-llm-canvas"></canvas>
-        </div>
-        <div class="viz-classic-caption" id="viz-llm-caption"></div>
-    </div>
-    <script src="../js/viz/llms.js"></script>
-
-    <p class="viz-intro">Stylised capability curves vs model scale. <strong>Memorisation</strong> and <strong>basic syntax</strong> emerge early. <strong>Arithmetic</strong>, <strong>multi-step reasoning</strong>, and <strong>tool use</strong> emerge much later, often with sharp transitions ("emergent abilities"). These curves are caricatures of real benchmark scaling — but the shape is qualitatively right.</p>
-
-    <article class="tldr-body">
-        <p><strong>The recipe.</strong> Pre-train a decoder-only transformer on ~trillions of tokens. Tokenise with BPE. Train with next-token cross-entropy. Use AdamW, cosine LR schedule, large batch size. Scale parameters, data, and compute together (Chinchilla scaling).</p>
-        <p><strong>Then specialise.</strong> Supervised fine-tune (SFT) on (instruction, response) pairs. Optionally RLHF or DPO with human preference data. Now you have an instruction-following assistant rather than a raw text predictor.</p>
-        <p><strong>In-context learning.</strong> Sufficiently large pre-trained models can do new tasks from a few examples in the prompt — no gradient updates. The mechanism is still actively researched; the practical fact is that prompt design is the dominant way teams adapt LLMs.</p>
-        <p><strong>Retrieval-augmented generation.</strong> Embed a knowledge base; at query time, retrieve relevant chunks; concatenate into the prompt. Cheaper than fine-tuning, factually grounded, updatable. Standard architecture for "chat-with-your-docs" products.</p>
-        <p><strong>Tool use &amp; agents.</strong> LLMs can call external functions — search, code execution, API calls. Loop: prompt → tool call → result → next prompt. Powers everything from web-browsing assistants to coding agents.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>What LLMs do well</h3>
-            <ul>
-                <li>Summarisation, translation, classification, extraction</li>
-                <li>Code generation, refactoring, explanation</li>
-                <li>Open-ended dialogue, drafting, brainstorming</li>
-                <li>Structured outputs (JSON, code, function calls) with the right APIs</li>
-                <li>Few-shot in-context learning on unseen tasks</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Common failure modes</h3>
-            <ul>
-                <li>Hallucination — confident statements that are simply wrong</li>
-                <li>Stale knowledge — train cutoffs mean recent facts may be missing</li>
-                <li>Reasoning gaps — multi-step logic, arithmetic, planning</li>
-                <li>Prompt injection — adversarial inputs can hijack instructions</li>
-                <li>Cost &amp; latency — non-trivial for high-volume real-time use</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Train one huge model on huge data with a simple objective; reuse it everywhere.</strong> Next-token prediction on trillions of tokens. The resulting model has absorbed so much structure that you can prompt it to do almost any text task — without retraining. Fine-tune for specific behaviour; RLHF for alignment. The economics of ML changed when this started working.</p>
+</div>
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">Watch capability emerge with scale — synthetic abilities sweep across model size on a log scale</span>
+</div>
+<div class="viz-classic-controls">
+<label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+model scale
+<input id="viz-llm-scale" class="viz-classic-slider" type="range"></input>
+</label>
+<span class="viz-classic-badge" id="viz-llm-scale-lbl">10⁹ params</span>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-llm-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-llm-caption"></div>
+</div>
+<script src="../js/viz/llms.js"></script>
+<p class="viz-intro">Stylised capability curves vs model scale. <strong>Memorisation</strong> and <strong>basic syntax</strong> emerge early. <strong>Arithmetic</strong>, <strong>multi-step reasoning</strong>, and <strong>tool use</strong> emerge much later, often with sharp transitions ("emergent abilities"). These curves are caricatures of real benchmark scaling — but the shape is qualitatively right.</p>
+<article class="tldr-body">
+<p><strong>The recipe.</strong> Pre-train a decoder-only transformer on ~trillions of tokens. Tokenise with BPE. Train with next-token cross-entropy. Use AdamW, cosine LR schedule, large batch size. Scale parameters, data, and compute together (Chinchilla scaling).</p>
+<p><strong>Then specialise.</strong> Supervised fine-tune (SFT) on (instruction, response) pairs. Optionally RLHF or DPO with human preference data. Now you have an instruction-following assistant rather than a raw text predictor.</p>
+<p><strong>In-context learning.</strong> Sufficiently large pre-trained models can do new tasks from a few examples in the prompt — no gradient updates. The mechanism is still actively researched; the practical fact is that prompt design is the dominant way teams adapt LLMs.</p>
+<p><strong>Retrieval-augmented generation.</strong> Embed a knowledge base; at query time, retrieve relevant chunks; concatenate into the prompt. Cheaper than fine-tuning, factually grounded, updatable. Standard architecture for "chat-with-your-docs" products.</p>
+<p><strong>Tool use &amp; agents.</strong> LLMs can call external functions — search, code execution, API calls. Loop: prompt → tool call → result → next prompt. Powers everything from web-browsing assistants to coding agents.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>What LLMs do well</h3>
+<ul>
+<li>Summarisation, translation, classification, extraction</li>
+<li>Code generation, refactoring, explanation</li>
+<li>Open-ended dialogue, drafting, brainstorming</li>
+<li>Structured outputs (JSON, code, function calls) with the right APIs</li>
+<li>Few-shot in-context learning on unseen tasks</li>
+</ul>
+</div>
+<div class="no">
+<h3>Common failure modes</h3>
+<ul>
+<li>Hallucination — confident statements that are simply wrong</li>
+<li>Stale knowledge — train cutoffs mean recent facts may be missing</li>
+<li>Reasoning gaps — multi-step logic, arithmetic, planning</li>
+<li>Prompt injection — adversarial inputs can hijack instructions</li>
+<li>Cost &amp; latency — non-trivial for high-volume real-time use</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">from anthropic import Anthropic
 
 client = Anthropic()
 
 # Few-shot in-context learning
-prompt = """
+prompt = &quot;&quot;&quot;
 Classify the sentiment of each sentence as POSITIVE, NEGATIVE, or NEUTRAL.
 
-Q: "The movie was breathtaking and emotional."
+Q: &quot;The movie was breathtaking and emotional.&quot;
 A: POSITIVE
 
-Q: "It was okay, nothing special."
+Q: &quot;It was okay, nothing special.&quot;
 A: NEUTRAL
 
-Q: "I want my two hours back."
+Q: &quot;I want my two hours back.&quot;
 A:
-""".strip()
+&quot;&quot;&quot;.strip()
 
 resp = client.messages.create(
-    model="claude-sonnet-4-6",
+    model=&quot;claude-sonnet-4-6&quot;,
     max_tokens=10,
-    messages=[{"role": "user", "content": prompt}],
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
 )
 print(resp.content[0].text)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want scaling laws, RLHF, MoE, &amp; the modern stack?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want scaling laws, RLHF, MoE, &amp; the modern stack?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Chinchilla scaling law</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Chinchilla scaling law</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ L(N, D) = E + \frac{A}{N^\alpha} + \frac{B}{D^\beta} $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ L(N, D) = E + \frac{A}{N^\alpha} + \frac{B}{D^\beta} $$</span>
-            <ul class="formula-legend">
-                <li><code>L(N, D)</code>achievable test loss given model size <em>N</em> and dataset size <em>D</em></li>
-                <li><code>N</code>parameters, <code>D</code> training tokens</li>
-                <li><code>E</code>irreducible-error floor — the lowest possible loss</li>
-                <li><code>A, B, α, β</code>fit constants from empirical sweep</li>
-                <li>Hoffmann et al. (2022): optimal <em>N</em> and <em>D</em> grow together — ~20 tokens per parameter</li>
-            </ul>
-        </div>
+<code>L(N, D)</code>achievable test loss given model size <em>N</em> and dataset size <em>D</em>
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{loss} \;=\; \text{floor} \;+\; \frac{A}{(\text{params})^\alpha} \;+\; \frac{B}{(\text{tokens})^\beta} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> The model's loss has three parts: an irreducible <strong>floor</strong> you can never get below (truly random structure in language), a piece that shrinks as you add more <strong>parameters</strong>, and a piece that shrinks as you train on more <strong>tokens</strong>. The exponents <code>α</code> and <code>β</code> (alpha, beta — fitted constants) are both around 0.3, so doubling params or doubling tokens each cuts the corresponding piece by roughly the same factor. The practical upshot: when you have a fixed compute budget, the loss is lowest when you grow params and tokens <em>together</em> — roughly 20 training tokens per parameter.
-            </p>
-            <ul class="formula-legend">
-                <li><code>loss</code>cross-entropy loss the model achieves on held-out text</li>
-                <li><code>floor</code>the minimum possible loss — irreducible noise in language</li>
-                <li><code>params</code>number of model weights; <code>tokens</code> number of training tokens</li>
-                <li><code>α, β</code>scaling exponents — both ≈ 0.3 in practice</li>
-                <li>Take-away: scale model and data together; ~20 tokens per parameter is the Chinchilla-optimal ratio</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Scaling laws.</strong> Kaplan et al. (2020) showed cross-entropy loss is predictable as a power law in compute, params, and data. Hoffmann et al. (2022) corrected the optimal ratio — for a fixed compute budget, train a smaller model on more data than GPT-3 did. The Chinchilla curve is the rule of thumb most modern frontier models follow.</p>
-        <p><strong>Emergence.</strong> Wei et al. (2022) — some abilities (3-digit arithmetic, chain-of-thought reasoning) appear sharply at specific scales. Schaeffer et al. (2023) — emergence is partly an artefact of the metrics used; smoother curves under different metrics. Both perspectives are true; the practical takeaway is to plot multiple scales when reporting capability.</p>
-        <p><strong>RLHF and alternatives.</strong> Ouyang et al. (2022). Collect human preference pairs over model outputs; train a reward model; optimise the LLM against the reward via PPO. Modern alternatives — DPO (Rafailov et al. 2023), KTO, ORPO — skip the reward model and optimise directly on preferences. Simpler, often comparable.</p>
-        <p><strong>Mixture of Experts.</strong> Instead of every token going through every parameter, route tokens to a few "experts". Sparse activation: 8× more parameters at 1× the compute. Used in Mixtral, Switch Transformer, GShard, GPT-4 (rumoured).</p>
-        <p><strong>Context length.</strong> Vanilla attention is <em>O(n²)</em>. Modern frontier models support 100k–2M token contexts via Flash Attention (kernel-level optimisation), sparse / linear attention, position interpolation (RoPE), and architectural tricks (Mamba, ring attention).</p>
-        <p><strong>Inference optimisation.</strong> Quantisation (4-bit, 8-bit), speculative decoding (draft + verify with a small model), KV-cache, FlashAttention. The difference between a model that's 50ms/token and 5s/token is mostly here.</p>
-    </article>
+<code>N</code>parameters, <code>D</code> training tokens
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+<code>E</code>irreducible-error floor — the lowest possible loss
+
+</li>
+<li>
+
+<code>A, B, α, β</code>fit constants from empirical sweep
+
+</li>
+<li>
+
+Hoffmann et al. (2022): optimal <em>N</em> and <em>D</em> grow together — ~20 tokens per parameter
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{loss} \;=\; \text{floor} \;+\; \frac{A}{(\text{params})^\alpha} \;+\; \frac{B}{(\text{tokens})^\beta} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The model's loss has three parts: an irreducible <strong>floor</strong> you can never get below (truly random structure in language), a piece that shrinks as you add more <strong>parameters</strong>, and a piece that shrinks as you train on more <strong>tokens</strong>. The exponents <code>α</code> and <code>β</code> (alpha, beta — fitted constants) are both around 0.3, so doubling params or doubling tokens each cuts the corresponding piece by roughly the same factor. The practical upshot: when you have a fixed compute budget, the loss is lowest when you grow params and tokens <em>together</em> — roughly 20 training tokens per parameter.</p>
+<ul class="formula-legend">
+<li>
+
+<code>loss</code>cross-entropy loss the model achieves on held-out text
+
+</li>
+<li>
+
+<code>floor</code>the minimum possible loss — irreducible noise in language
+
+</li>
+<li>
+
+<code>params</code>number of model weights; <code>tokens</code> number of training tokens
+
+</li>
+<li>
+
+<code>α, β</code>scaling exponents — both ≈ 0.3 in practice
+
+</li>
+<li>
+
+Take-away: scale model and data together; ~20 tokens per parameter is the Chinchilla-optimal ratio
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Scaling laws.</strong> Kaplan et al. (2020) showed cross-entropy loss is predictable as a power law in compute, params, and data. Hoffmann et al. (2022) corrected the optimal ratio — for a fixed compute budget, train a smaller model on more data than GPT-3 did. The Chinchilla curve is the rule of thumb most modern frontier models follow.</p>
+<p><strong>Emergence.</strong> Wei et al. (2022) — some abilities (3-digit arithmetic, chain-of-thought reasoning) appear sharply at specific scales. Schaeffer et al. (2023) — emergence is partly an artefact of the metrics used; smoother curves under different metrics. Both perspectives are true; the practical takeaway is to plot multiple scales when reporting capability.</p>
+<p><strong>RLHF and alternatives.</strong> Ouyang et al. (2022). Collect human preference pairs over model outputs; train a reward model; optimise the LLM against the reward via PPO. Modern alternatives — DPO (Rafailov et al. 2023), KTO, ORPO — skip the reward model and optimise directly on preferences. Simpler, often comparable.</p>
+<p><strong>Mixture of Experts.</strong> Instead of every token going through every parameter, route tokens to a few "experts". Sparse activation: 8× more parameters at 1× the compute. Used in Mixtral, Switch Transformer, GShard, GPT-4 (rumoured).</p>
+<p><strong>Context length.</strong> Vanilla attention is <em>O(n²)</em>. Modern frontier models support 100k–2M token contexts via Flash Attention (kernel-level optimisation), sparse / linear attention, position interpolation (RoPE), and architectural tricks (Mamba, ring attention).</p>
+<p><strong>Inference optimisation.</strong> Quantisation (4-bit, 8-bit), speculative decoding (draft + verify with a small model), KV-cache, FlashAttention. The difference between a model that's 50ms/token and 5s/token is mostly here.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
 # Load a quantised model — runs on consumer GPU
 model = AutoModelForCausalLM.from_pretrained(
-    "meta-llama/Llama-3-8B-Instruct",
+    &quot;meta-llama/Llama-3-8B-Instruct&quot;,
     torch_dtype=torch.bfloat16,
-    device_map="auto",
+    device_map=&quot;auto&quot;,
     load_in_4bit=True,                   # bitsandbytes 4-bit quantisation
 )
-tok = AutoTokenizer.from_pretrained("meta-llama/Llama-3-8B-Instruct")
+tok = AutoTokenizer.from_pretrained(&quot;meta-llama/Llama-3-8B-Instruct&quot;)
 
 # Chat template
 messages = [
-    {"role": "system", "content": "You are a helpful assistant."},
-    {"role": "user",   "content": "Explain attention to a 10-year-old."},
+    {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a helpful assistant.&quot;},
+    {&quot;role&quot;: &quot;user&quot;,   &quot;content&quot;: &quot;Explain attention to a 10-year-old.&quot;},
 ]
 prompt = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-ids    = tok(prompt, return_tensors="pt").to(model.device)
+ids    = tok(prompt, return_tensors=&quot;pt&quot;).to(model.device)
 out    = model.generate(**ids, max_new_tokens=200, temperature=0.7)
 print(tok.decode(out[0], skip_special_tokens=True))
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want alignment, MoE routing, long context, and agentic systems?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want alignment, MoE routing, long context, and agentic systems?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">DPO objective</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">DPO objective</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathcal{L}_{\text{DPO}} = -\mathbb{E}\!\left[\log \sigma\!\big(\beta \log \tfrac{\pi_\theta(y_w | x)}{\pi_\text{ref}(y_w | x)} - \beta \log \tfrac{\pi_\theta(y_l | x)}{\pi_\text{ref}(y_l | x)}\big)\right] $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \mathcal{L}_{\text{DPO}} = -\mathbb{E}\!\left[\log \sigma\!\big(\beta \log \tfrac{\pi_\theta(y_w | x)}{\pi_\text{ref}(y_w | x)} - \beta \log \tfrac{\pi_\theta(y_l | x)}{\pi_\text{ref}(y_l | x)}\big)\right] $$</span>
-            <ul class="formula-legend">
-                <li><code>x</code>prompt; <code>y<sub>w</sub>, y<sub>l</sub></code> "winning" and "losing" responses from human preference data</li>
-                <li><code>π<sub>θ</sub></code>current policy (the model being trained)</li>
-                <li><code>π<sub>ref</sub></code>frozen reference policy (usually the SFT model)</li>
-                <li><code>σ(·)</code>sigmoid function</li>
-                <li><code>β</code>temperature controlling how aggressively to depart from the reference</li>
-                <li>No separate reward model, no RL — closed-form preference optimisation</li>
-            </ul>
-        </div>
+<code>x</code>prompt; <code>yw, yl</code> "winning" and "losing" responses from human preference data
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{loss} \;=\; -\,\text{avg}\!\left[\log \sigma\!\big(\beta \times \big[\log\tfrac{\text{policy(winner)}}{\text{ref(winner)}} \;-\; \log\tfrac{\text{policy(loser)}}{\text{ref(loser)}}\big]\big)\right] $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> For each human-labelled pair of responses (one preferred, one rejected), the loss pushes the model to put more probability on the <strong>winner</strong> and less on the <strong>loser</strong>, relative to a frozen reference model. The log-ratio <code>log(policy/ref)</code> measures how much each response's probability has shifted away from the reference. The <code>σ</code> (sigmoid) squashes the difference between the two shifts into a probability between 0 and 1; <code>β</code> (beta) controls how strongly to depart from the reference. Maximising <code>log σ(·)</code> is the same as maximising the probability that the model "agrees" with the human ranking — without needing a separate reward model or RL training loop.
-            </p>
-            <ul class="formula-legend">
-                <li><code>winner / loser</code>the preferred and rejected response in a human-labelled pair</li>
-                <li><code>policy</code>the model being trained; <code>ref</code> a frozen copy (usually the SFT model before preferences)</li>
-                <li><code>β</code>temperature — bigger β means more confident departures from the reference</li>
-                <li><code>σ</code>sigmoid — maps a real number to a probability between 0 and 1</li>
-                <li>Simpler and more stable than RLHF for many applications</li>
-            </ul>
-        </div>
-    </div>
+</li>
+<li>
 
-    <article class="tldr-body">
-        <p><strong>Alignment.</strong> Make the model do what users (and developers) want — instructions, safety, honesty, helpfulness. The toolkit: instruction tuning (SFT), preference optimisation (RLHF / DPO), constitutional AI (rule-based reward), red-teaming, system prompts. Active research area; the right combination is task-dependent.</p>
-        <p><strong>Mixture-of-Experts routing.</strong> Each token gets routed to top-<em>k</em> experts (out of <em>N</em>) based on a learned router. Tradeoffs: load balancing (avoid degenerate routing), expert capacity (how many tokens fit per expert), router stability. Switch Transformer (Fedus et al. 2022) and Mixtral demonstrate the recipe at scale.</p>
-        <p><strong>Long context.</strong> Position encoding extensions (RoPE scaling, ALiBi), attention modifications (Flash Attention 2/3, ring attention), state-space models (Mamba). Reading 1M-token context is technically feasible now; whether the model uses it well is another matter ("needle in haystack" evals).</p>
-        <p><strong>Agentic systems.</strong> LLMs as the reasoning core of a multi-step process: plan → call tools → observe → iterate. ReAct, Tree of Thoughts, AutoGPT, BabyAGI. The frontier is making these reliable enough for production — currently a brittle research area but improving fast.</p>
-        <p><strong>Multi-modal LLMs.</strong> Image, audio, video tokens fed into the same model. CLIP-style encoders for input; sometimes separate decoders for output. GPT-4V, Gemini, Claude 3+ all support image input; some support image / audio output.</p>
-        <p><strong>Synthetic data.</strong> Frontier models are increasingly trained on data generated by other LLMs — distillation, self-instruction, synthetic Q-A. Risks: model collapse from training on slop, contamination of benchmarks. Powerful when curated carefully.</p>
-        <p><strong>Watermarking and provenance.</strong> Active research into making model outputs identifiable as machine-generated (statistical fingerprints in the sampling distribution). Important for misinformation, attribution, and benchmark integrity.</p>
-    </article>
+<code>πθ</code>current policy (the model being trained)
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+<li>
+
+<code>πref</code>frozen reference policy (usually the SFT model)
+
+</li>
+<li>
+
+<code>σ(·)</code>sigmoid function
+
+</li>
+<li>
+
+<code>β</code>temperature controlling how aggressively to depart from the reference
+
+</li>
+<li>
+
+No separate reward model, no RL — closed-form preference optimisation
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{loss} \;=\; -\,\text{avg}\!\left[\log \sigma\!\big(\beta \times \big[\log\tfrac{\text{policy(winner)}}{\text{ref(winner)}} \;-\; \log\tfrac{\text{policy(loser)}}{\text{ref(loser)}}\big]\big)\right] $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> For each human-labelled pair of responses (one preferred, one rejected), the loss pushes the model to put more probability on the <strong>winner</strong> and less on the <strong>loser</strong>, relative to a frozen reference model. The log-ratio <code>log(policy/ref)</code> measures how much each response's probability has shifted away from the reference. The <code>σ</code> (sigmoid) squashes the difference between the two shifts into a probability between 0 and 1; <code>β</code> (beta) controls how strongly to depart from the reference. Maximising <code>log σ(·)</code> is the same as maximising the probability that the model "agrees" with the human ranking — without needing a separate reward model or RL training loop.</p>
+<ul class="formula-legend">
+<li>
+
+<code>winner / loser</code>the preferred and rejected response in a human-labelled pair
+
+</li>
+<li>
+
+<code>policy</code>the model being trained; <code>ref</code> a frozen copy (usually the SFT model before preferences)
+
+</li>
+<li>
+
+<code>β</code>temperature — bigger β means more confident departures from the reference
+
+</li>
+<li>
+
+<code>σ</code>sigmoid — maps a real number to a probability between 0 and 1
+
+</li>
+<li>
+
+Simpler and more stable than RLHF for many applications
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Alignment.</strong> Make the model do what users (and developers) want — instructions, safety, honesty, helpfulness. The toolkit: instruction tuning (SFT), preference optimisation (RLHF / DPO), constitutional AI (rule-based reward), red-teaming, system prompts. Active research area; the right combination is task-dependent.</p>
+<p><strong>Mixture-of-Experts routing.</strong> Each token gets routed to top-<em>k</em> experts (out of <em>N</em>) based on a learned router. Tradeoffs: load balancing (avoid degenerate routing), expert capacity (how many tokens fit per expert), router stability. Switch Transformer (Fedus et al. 2022) and Mixtral demonstrate the recipe at scale.</p>
+<p><strong>Long context.</strong> Position encoding extensions (RoPE scaling, ALiBi), attention modifications (Flash Attention 2/3, ring attention), state-space models (Mamba). Reading 1M-token context is technically feasible now; whether the model uses it well is another matter ("needle in haystack" evals).</p>
+<p><strong>Agentic systems.</strong> LLMs as the reasoning core of a multi-step process: plan → call tools → observe → iterate. ReAct, Tree of Thoughts, AutoGPT, BabyAGI. The frontier is making these reliable enough for production — currently a brittle research area but improving fast.</p>
+<p><strong>Multi-modal LLMs.</strong> Image, audio, video tokens fed into the same model. CLIP-style encoders for input; sometimes separate decoders for output. GPT-4V, Gemini, Claude 3+ all support image input; some support image / audio output.</p>
+<p><strong>Synthetic data.</strong> Frontier models are increasingly trained on data generated by other LLMs — distillation, self-instruction, synthetic Q-A. Risks: model collapse from training on slop, contamination of benchmarks. Powerful when curated carefully.</p>
+<p><strong>Watermarking and provenance.</strong> Active research into making model outputs identifiable as machine-generated (statistical fingerprints in the sampling distribution). Important for misinformation, attribution, and benchmark integrity.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">import torch, torch.nn.functional as F
 
 # Direct Preference Optimization (DPO) — preference learning without RL
@@ -271,7 +332,7 @@ def dpo_loss(policy_logp_chosen, policy_logp_rejected,
 
 # Speculative decoding — draft + verify
 def speculative_generate(draft_model, target_model, prompt, n_draft=4):
-    """Draft generates `n_draft` tokens; target verifies them in one pass."""
+    &quot;&quot;&quot;Draft generates `n_draft` tokens; target verifies them in one pass.&quot;&quot;&quot;
     ids = prompt
     while len(ids) &lt; max_length:
         draft = draft_model.generate(ids, max_new_tokens=n_draft)
@@ -280,12 +341,11 @@ def speculative_generate(draft_model, target_model, prompt, n_draft=4):
         ids = verify_and_resample(draft, target_probs)
     return ids
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -296,25 +356,33 @@ def speculative_generate(draft_model, target_model, prompt, n_draft=4):
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://arxiv.org/abs/2203.15556" target="_blank">Hoffmann et al. (2022) — Chinchilla <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The paper that corrected GPT-3's compute optimal scaling. The ~20-tokens-per-parameter rule of thumb. Required reading.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://arxiv.org/abs/2203.02155" target="_blank">Ouyang et al. (2022) — InstructGPT <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The RLHF paper that turned GPT-3 into something users would actually want to talk to.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://arxiv.org/abs/2305.18290" target="_blank">Rafailov et al. (2023) — DPO <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Direct Preference Optimisation — preference learning without RL. Simpler than RLHF; comparable results.</span>
-        </li>
-        <li data-tier="intuition">
-            <a href="https://karpathy.ai/zero-to-hero.html" target="_blank">Karpathy — Zero to Hero <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Karpathy's videos building GPT from scratch. The best hands-on introduction to LLM internals.</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://arxiv.org/abs/2203.15556" target="_blank">Hoffmann et al. (2022) — Chinchilla <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The paper that corrected GPT-3's compute optimal scaling. The ~20-tokens-per-parameter rule of thumb. Required reading.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://arxiv.org/abs/2203.02155" target="_blank">Ouyang et al. (2022) — InstructGPT <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The RLHF paper that turned GPT-3 into something users would actually want to talk to.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/2305.18290" target="_blank">Rafailov et al. (2023) — DPO <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Direct Preference Optimisation — preference learning without RL. Simpler than RLHF; comparable results.</span>
+
+</li>
+<li data-tier="intuition">
+
+<a href="https://karpathy.ai/zero-to-hero.html" target="_blank">Karpathy — Zero to Hero <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Karpathy's videos building GPT from scratch. The best hands-on introduction to LLM internals.</span>
+
+</li>
+</ul>
 </div>
             </aside>
 

@@ -1,0 +1,360 @@
+---
+title: Loss Curve Forensics — ML Resources Hub
+eyebrow_text: ← Engineering · Debugging &amp; Profiling
+eyebrow_href: {{root}}engineering.html
+heading: Loss Curve Forensics
+lead: Reading a loss plot like a doctor reads an X-ray — each pattern points to a specific failure.
+active_nav: engineering
+prev_href: training-debugging.html
+prev_title: Training Debugging
+next_href: profiling.html
+next_title: Profiling
+---
+
+<section class="topic-level active" data-level="intuition" markdown="1">
+
+<div class="key-idea" markdown="1">
+
+<span class="key-idea-label">Key idea</span>
+
+**The shape of your loss curve is a diagnosis.** Spike-then-NaN is exploding gradients. Plateau at the start is gradients not flowing. Smooth decrease then sharp drop is a learning-rate schedule kick. Train loss low but val high is overfitting. Pattern → diagnosis → fix is a much faster loop than guesswork.
+
+</div>
+
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">Click each pattern — see the loss curve and the most likely diagnosis</span>
+</div>
+<div class="viz-classic-controls">
+<button id="viz-lc-healthy" type="button" class="active">Healthy</button>
+<button id="viz-lc-diverge" type="button">Diverges</button>
+<button id="viz-lc-plateau" type="button">Plateaus</button>
+<button id="viz-lc-oscillate" type="button">Oscillates</button>
+<button id="viz-lc-overfit" type="button">Overfits</button>
+<button id="viz-lc-schedule" type="button">Schedule kick</button>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-lc-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-lc-caption"></div>
+</div>
+
+<script src="{{root}}js/viz/loss-curves.js"></script>
+
+Six canonical training pathologies side-by-side with their likely causes. The healthy curve is your target. The other five are common; each has 1–3 typical root causes and a known fix.
+{: .viz-intro }
+
+<article class="tldr-body" markdown="1">
+
+**Healthy curve.** Smooth, monotonic-ish decrease in train loss. Val loss tracks it for a while, may diverge a bit (mild overfitting). Both flatten near the end.
+
+**Divergent.** Loss rises rapidly then NaN. Almost always: learning rate too high, gradient explosion, fp16 underflow, or bad initialisation. Fix: drop lr 10×, clip gradients, try bf16 or fp32.
+
+**Plateau from step 1.** Loss never decreases meaningfully. Gradients aren't flowing — detached graph, frozen layer, wrong optimizer setup. Run a 1-batch overfit: if it fails, you have a loop bug.
+
+**Oscillates.** Loss bounces up and down without converging. Learning rate too high; reduce it. Or batch too small + lr too high — same fix.
+
+**Train ≪ val (overfitting).** Train loss continues to drop but val rises. Need regularization, more data, or earlier stopping.
+
+**Schedule kick.** Smooth curve with a sudden drop at a known step. A learning-rate scheduler moved to a lower lr; the model finally settled. Often a good sign, but check there's not an unintended schedule kicking in.
+
+</article>
+
+<div class="use-cases" markdown="1">
+
+<div class="yes" markdown="1">
+
+### What to log
+
+- Train loss every N batches; val loss per epoch (or every K steps)
+- Gradient norm
+- Learning rate (yes, even though you control it)
+- Activation stats (a sample of layers)
+- System metrics (GPU util, memory)
+
+</div>
+
+<div class="no" markdown="1">
+
+### What loss curves don't tell you
+
+- Whether the model has learned the right thing (run evals!)
+- Subgroup performance (look at per-class metrics)
+- Calibration (low loss doesn't mean calibrated)
+- Generalization to OOD inputs
+
+</div>
+
+</div>
+
+<div class="level-next">
+<span>Want subgroup diagnostics & eval-time forensics?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
+
+</section>
+
+<section class="topic-level" data-level="fundamentals" markdown="1">
+
+<div class="key-idea formula-block" markdown="1">
+
+<span class="key-idea-label">The 4 forensic plots</span>
+
+<div class="notation-standard" markdown="1">
+
+<span class="formula">$$ \text{loss curve}, \;\text{gradient norm}, \;\text{per-class val acc}, \;\text{calibration} $$</span>
+
+<ul class="formula-legend" markdown="1">
+<li markdown="1">
+
+Loss: smooth or not
+
+</li>
+<li markdown="1">
+
+Gradient norm: stable, growing, or vanishing
+
+</li>
+<li markdown="1">
+
+Per-class: catches "great on average, awful on class 7"
+
+</li>
+<li markdown="1">
+
+Calibration: are the probabilities trustworthy?
+
+</li>
+</ul>
+
+</div>
+
+<div class="notation-plain" markdown="1">
+
+<span class="formula">$$ \{\text{loss curve},\; \text{gradient norm},\; \text{per-class val accuracy},\; \text{calibration}\} $$</span>
+
+**In words.** Four plots that, together, expose the vast majority of training pathologies. **Loss curve** shows aggregate health and convergence shape. **Gradient norm** reveals exploding (growing exponentially) or vanishing (decaying toward zero) gradients before they wreck the loss. **Per-class validation accuracy** catches the case where average accuracy looks fine but one class is collapsing. **Calibration** (reliability diagram or expected calibration error) tells you whether predicted probabilities can be trusted as confidences. Put all four on one dashboard and most problems become visible within the first 100 steps.
+{: .formula-narration }
+
+<ul class="formula-legend" markdown="1">
+<li markdown="1">
+
+`loss curve`train and val loss vs step
+
+</li>
+<li markdown="1">
+
+`gradient norm`total L2 norm of gradients per step
+
+</li>
+<li markdown="1">
+
+`per-class val accuracy`one line per class, side-by-side
+
+</li>
+<li markdown="1">
+
+`calibration`reliability diagram or expected calibration error
+
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<article class="tldr-body" markdown="1">
+
+**Gradient norm.** Stable around a few units → healthy. Growing exponentially → explosion. Decaying toward 0 → vanishing. Always log it.
+
+**Per-class metrics.** Average accuracy can hide a class that's at 0% recall. Plot per-class val accuracy over time; a class that's always near zero needs attention (more data, weighted loss, or oversampling).
+
+**Smoothed vs raw.** Raw loss per batch is noisy. Smoothed (EMA, window-mean) is what you compare across runs. Most trackers do this automatically; if not, smooth with α ≈ 0.9.
+
+**Loss spikes.** Common with large batch + adaptive optimizer (Adam). Usually safe to ignore if recovery is quick; investigate if recovery takes a while. Gradient clipping reduces them.
+
+**Warm-up.** Linear lr ramp from 0 to target over the first few hundred steps. Essential for transformers (Adam's bias correction misbehaves at step 1). Without it, you often see a brief spike that the rest of training overcomes — but cleaner with warm-up.
+
+**Train vs val together.** Plot them on the same axes. Train below val and both decreasing — healthy. Train below val and val rising — overfitting; stop or regularise. Train above val (rare but real) — usually a metric bug or different normalisation.
+
+</article>
+
+<div class="code-snippet" markdown="1">
+
+<button class="copy-btn" type="button">Copy</button>
+
+```python
+import wandb
+
+def log_health(step, loss, grad_norm, lr, per_class_acc=None):
+    payload = {"train/loss": loss, "train/grad_norm": grad_norm, "lr": lr}
+    if per_class_acc is not None:
+        for c, acc in enumerate(per_class_acc):
+            payload[f"val/acc_class_{c}"] = acc
+    wandb.log(payload, step=step)
+
+# Quick "early stopping watchdog" — bail if no improvement for K evals
+class EarlyStop:
+    def __init__(self, patience=5, min_delta=0.001):
+        self.best = float("inf"); self.wait = 0
+        self.patience = patience; self.min_delta = min_delta
+    def step(self, val_loss):
+        if val_loss < self.best - self.min_delta:
+            self.best = val_loss; self.wait = 0
+            return False
+        self.wait += 1
+        return self.wait > self.patience
+```
+
+</div>
+
+<div class="level-next">
+<span>Want curvature signs, double descent, & the modern "loss spike" literature?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
+
+</section>
+
+<section class="topic-level" data-level="indepth" markdown="1">
+
+<div class="key-idea formula-block" markdown="1">
+
+<span class="key-idea-label">Adam's bias correction effect</span>
+
+<div class="notation-standard" markdown="1">
+
+<span class="formula">$$ \hat m = \frac{m_t}{1 - \beta_1^t}, \quad \hat v = \frac{v_t}{1 - \beta_2^t} $$</span>
+
+<ul class="formula-legend" markdown="1">
+<li markdown="1">
+
+Near *t = 0*, denominators are tiny → effective step size is huge
+
+</li>
+<li markdown="1">
+
+Why warm-up is essential for transformers + Adam / AdamW
+
+</li>
+</ul>
+
+</div>
+
+<div class="notation-plain" markdown="1">
+
+<span class="formula">$$ \text{bias-corrected momentum} \;=\; \frac{\text{raw momentum at step }t}{1 - (\text{decay rate})^t} $$</span>
+
+**In words.** Adam keeps running averages (called "momentum" `m` and "variance" `v`) of past gradients, weighted by the decay rates `β₁` and `β₂` (both close to 1). Because those averages start at zero, they're biased toward zero in early steps — so Adam divides them by `1 − β^t` to "correct" the bias. The problem: at `t = 1`, that denominator is also tiny, so the corrected estimates are huge and unstable. The effective step size at the start of training is enormous, which is why transformers reliably explode without a learning-rate warm-up. The hats (`m̂`, `v̂`) just mean "bias-corrected version of m and v".
+{: .formula-narration }
+
+<ul class="formula-legend" markdown="1">
+<li markdown="1">
+
+`raw momentum`m<sub>t</sub> — exponential moving average of gradients
+
+</li>
+<li markdown="1">
+
+`decay rate`β₁ for momentum, β₂ for variance — typically 0.9 and 0.999
+
+</li>
+<li markdown="1">
+
+`t`training step (starts at 1)
+
+</li>
+<li markdown="1">
+
+`1 − β^t`correction factor — very small for small t, approaches 1 as t grows
+
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<article class="tldr-body" markdown="1">
+
+**Loss spikes at scale.** LLM training (~1B+ params) often shows occasional sharp loss spikes followed by recovery. Investigated in PaLM 2 / Megatron logs. Sometimes attributed to outlier examples; sometimes to optimiser numerical state. Many shops just blacklist outlier batches and continue.
+
+**Double descent.** In overparameterised models, test loss can rise then fall again as you increase capacity past the interpolation threshold. A loss curve that "should" indicate overfitting can be the descent's start. Modern: just train longer / bigger.
+
+**Grokking.** Small-scale algorithmic tasks (modular arithmetic) — train loss plateaus near zero, val loss takes 100× more steps to catch up. The curve looks like a plateau then a sudden cliff. Nanda et al. 2023 reverse-engineered the mechanism.
+
+**Curvature diagnostics.** Hessian eigenvalues, gradient covariance, Fisher information at the trained parameters. Flat minima → better generalization (sometimes). Tools: PyHessian, BackPACK. Useful for advanced analysis; not routine debugging.
+
+**Catastrophic forgetting traces.** Multi-task or sequential fine-tuning — a task's loss rises after training on a different task. Plot per-task loss to see which tasks are at risk; mitigate with EWC, replay buffers, or lower learning rates.
+
+**Generalization gap.** Train loss − val loss. Stable gap → expected; widening gap → overfitting. Closes at the end of training in well-regularised runs.
+
+**Beyond loss.** Some pathologies don't show in loss but in downstream metrics — calibration drift, subgroup regressions, hallucination rates for LLMs. Make sure those are also tracked.
+
+</article>
+
+<div class="code-snippet" markdown="1">
+
+<button class="copy-btn" type="button">Copy</button>
+
+```python
+import torch
+
+# Largest Hessian eigenvalue via power iteration (Yao et al., PyHessian)
+def top_hessian_eig(loss_fn, params, num_iters=20):
+    v = [torch.randn_like(p) for p in params]
+    for _ in range(num_iters):
+        grads = torch.autograd.grad(
+            loss_fn(), params, create_graph=True
+        )
+        Hv = torch.autograd.grad(
+            sum((g * vi).sum() for g, vi in zip(grads, v)), params,
+        )
+        # Normalise
+        n = torch.sqrt(sum((h * h).sum() for h in Hv))
+        v = [h / n for h in Hv]
+    return n.item()
+```
+
+</div>
+
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
+
+</section>
+
+<!-- TOPIC SIDEBAR -->
+
+<div class="learn-more" markdown="1">
+
+### Where to learn more
+
+<ul markdown="1">
+<li data-tier="fundamentals" markdown="1">
+
+[Karpathy — A Recipe for Training Neural Networks <i class="fas fa-external-link-alt"></i>](https://karpathy.github.io/2019/04/25/recipe/){: target="_blank" }
+<span class="annotation">Same recipe linked elsewhere. The "overfit a tiny batch" section is the heart of the debugging methodology.</span>
+
+</li>
+<li data-tier="fundamentals" markdown="1">
+
+[Lilian Weng — Attention & Transformer notes <i class="fas fa-external-link-alt"></i>](https://lilianweng.github.io/posts/2018-06-24-attention/){: target="_blank" }
+<span class="annotation">Walks through the warm-up requirement and what goes wrong without it. Useful context for transformer-specific debugging.</span>
+
+</li>
+<li data-tier="indepth" markdown="1">
+
+[Power et al. (2022) — Grokking <i class="fas fa-external-link-alt"></i>](https://arxiv.org/abs/2201.02177){: target="_blank" }
+<span class="annotation">The grokking paper. Small toy problems with the "plateau then cliff" curves that reverse-engineered themselves into a mechanistic story.</span>
+
+</li>
+<li data-tier="indepth" markdown="1">
+
+[PyHessian <i class="fas fa-external-link-alt"></i>](https://github.com/amirgholami/PyHessian){: target="_blank" }
+<span class="annotation">Hessian eigenvalue spectrum tools for PyTorch. Useful when you want to understand the local geometry around your trained model.</span>
+
+</li>
+</ul>
+
+</div>

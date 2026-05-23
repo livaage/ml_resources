@@ -53,64 +53,59 @@
                 </div>
 
                 <section class="topic-level active" data-level="intuition">
-    <div class="key-idea">
-        <span class="key-idea-label">Key idea</span>
-        <p><strong>Ask a crowd of decision trees, then take the majority vote.</strong> Each tree alone is shaky and makes its own mistakes, but the trees disagree in different places — so when you average their answers, the errors cancel out and the agreement points to the truth.</p>
-    </div>
-
-    <div class="viz-embed viz-classic">
-        <div class="viz-embed-header">
-            <span class="viz-embed-title">Slide N up — watch the ensemble boundary smooth out compared to the brittle individual trees below</span>
-        </div>
-        <div class="viz-classic-controls">
-            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                Data
-                <select id="viz-rf-data"></select>
-            </label>
-            <label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
-                Trees
-                <input id="viz-rf-n" class="viz-classic-slider" type="range">
-            </label>
-            <select id="viz-rf-depth" aria-label="depth"></select>
-            <button id="viz-rf-reset" type="button">Re-sample</button>
-            <span class="viz-classic-badge" id="viz-rf-n-lbl">N = 20</span>
-        </div>
-        <div class="viz-classic-canvas-wrap">
-            <canvas id="viz-rf-canvas"></canvas>
-        </div>
-        <div class="viz-classic-caption" id="viz-rf-caption"></div>
-    </div>
-    <script src="../js/viz/random-forests.js"></script>
-
-    <p class="viz-intro">Each tree below was trained on a different bootstrap sample of the data with a random feature subset at every split — so they're all biased, all brittle, all wrong in different ways. But the big panel up top is the <em>average</em> of their votes. The wrongness cancels; the agreement reinforces. Slide N from 1 to 80 and watch the boundary go from jagged-and-overconfident to smooth-and-stable.</p>
-
-    <article class="tldr-body">
-        <p>A <strong>decision tree</strong> is a flowchart of yes/no questions ("Is age &gt; 30?" → "Is income &gt; 50k?" → …) that ends in a prediction. It's intuitive, but it's also brittle: small changes in your training data can produce a wildly different tree.</p>
-        <p>A <strong>random forest</strong> builds many such trees, each on a slightly different sample of your data, and lets them vote. It's a bit like asking 100 doctors for a second opinion instead of trusting one — the consensus is more reliable than any individual.</p>
-    </article>
-
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Your data is in rows and columns (a spreadsheet)</li>
-                <li>You want something that "just works" with minimal setup</li>
-                <li>You're not sure where to start</li>
-                <li>You want a reasonable accuracy estimate without extra effort</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>You need to explain why a specific prediction came out a certain way</li>
-                <li>Your data is images, text, or sequences (use neural networks)</li>
-                <li>You need predictions outside the range you trained on</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Ask a crowd of decision trees, then take the majority vote.</strong> Each tree alone is shaky and makes its own mistakes, but the trees disagree in different places — so when you average their answers, the errors cancel out and the agreement points to the truth.</p>
+</div>
+<div class="viz-embed viz-classic">
+<div class="viz-embed-header">
+<span class="viz-embed-title">Slide N up — watch the ensemble boundary smooth out compared to the brittle individual trees below</span>
+</div>
+<div class="viz-classic-controls">
+<label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+Data
+<select id="viz-rf-data"></select>
+</label>
+<label style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.85rem;">
+Trees
+<input id="viz-rf-n" class="viz-classic-slider" type="range"></input>
+</label>
+<select id="viz-rf-depth" aria-label="depth"></select>
+<button id="viz-rf-reset" type="button">Re-sample</button>
+<span class="viz-classic-badge" id="viz-rf-n-lbl">N = 20</span>
+</div>
+<div class="viz-classic-canvas-wrap">
+<canvas id="viz-rf-canvas"></canvas>
+</div>
+<div class="viz-classic-caption" id="viz-rf-caption"></div>
+</div>
+<script src="../js/viz/random-forests.js"></script>
+<p class="viz-intro">Each tree below was trained on a different bootstrap sample of the data with a random feature subset at every split — so they're all biased, all brittle, all wrong in different ways. But the big panel up top is the <em>average</em> of their votes. The wrongness cancels; the agreement reinforces. Slide N from 1 to 80 and watch the boundary go from jagged-and-overconfident to smooth-and-stable.</p>
+<article class="tldr-body">
+<p>A <strong>decision tree</strong> is a flowchart of yes/no questions ("Is age &gt; 30?" → "Is income &gt; 50k?" → …) that ends in a prediction. It's intuitive, but it's also brittle: small changes in your training data can produce a wildly different tree.</p>
+<p>A <strong>random forest</strong> builds many such trees, each on a slightly different sample of your data, and lets them vote. It's a bit like asking 100 doctors for a second opinion instead of trusting one — the consensus is more reliable than any individual.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Your data is in rows and columns (a spreadsheet)</li>
+<li>You want something that "just works" with minimal setup</li>
+<li>You're not sure where to start</li>
+<li>You want a reasonable accuracy estimate without extra effort</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>You need to explain why a specific prediction came out a certain way</li>
+<li>Your data is images, text, or sequences (use neural networks)</li>
+<li>You need predictions outside the range you trained on</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">from sklearn.ensemble import RandomForestClassifier
 
 # Train: just give it labelled data
@@ -120,166 +115,196 @@ model.fit(X_train, y_train)
 # Predict
 predictions = model.predict(X_test)
 accuracy = model.score(X_test, y_test)
-print(f"Accuracy: {accuracy:.2%}")
+print(f&quot;Accuracy: {accuracy:.2%}&quot;)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want to know <em>how</em> it actually works?</span>
-        <button data-go-to="fundamentals" type="button">Switch to Standard →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want to know <em>how</em> it actually works?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="fundamentals">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Key idea</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Key idea</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \hat{y}(x) \;=\; \frac{1}{B} \sum_{b=1}^{B} T_b(x) $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \hat{y}(x) \;=\; \frac{1}{B} \sum_{b=1}^{B} T_b(x) $$</span>
-            <ul class="formula-legend">
-                <li><code>ŷ(x)</code>the forest's prediction for input <em>x</em></li>
-                <li><code>B</code>the number of trees (typically 100–500)</li>
-                <li><code>T<sub>b</sub>(x)</code>the prediction from the <em>b</em>-th tree</li>
-            </ul>
-        </div>
+<code>ŷ(x)</code>the forest's prediction for input <em>x</em>
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{forest prediction} \;=\; \text{average of all tree predictions} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> Ask every tree what it thinks about input <em>x</em>, then take the average of their answers (for classification, that's a majority vote; for regression, a numeric mean). <code>B</code> is how many trees you have — usually a few hundred. Each individual tree <code>T<sub>b</sub></code> was trained on a bootstrap re-sample of the data while only considering a random subset of features at every split, so the trees are deliberately decorrelated. Averaging cancels out their independent errors while preserving the signal they all agree on.
-            </p>
-            <ul class="formula-legend">
-                <li><code>forest prediction</code>the ensemble's final answer at input <em>x</em></li>
-                <li><code>tree predictions</code>each individual tree's vote or value for <em>x</em></li>
-                <li><code>B</code>number of trees in the forest (typically 100–500)</li>
-            </ul>
-        </div>
+</li>
+<li>
 
-        <p style="margin-top:0.75rem">Each tree is trained on a <strong>bootstrap sample</strong> with a <strong>random feature subset</strong> at each split. Both sources of randomness decorrelate the trees so the average cuts variance.</p>
-    </div>
+<code>B</code>the number of trees (typically 100–500)
 
-    <article class="tldr-body">
-        <p>A single decision tree is high-variance — small changes to the training data produce very different trees. Random forests fight this by training many trees on slightly different views of the data, then averaging their predictions.</p>
-        <p>Two knobs do the work. <strong>Bootstrap sampling</strong> means each tree sees a different random sample (with replacement) of the training set. <strong>Feature subsetting</strong> means each split only considers a random subset of features (typically √<em>p</em> for classification, <em>p</em>/3 for regression). Together they ensure the trees disagree in independent ways.</p>
-        <p>Bonus: each bootstrap leaves out about ⅓ of the data per tree. Aggregating the trees that excluded each point gives an <strong>out-of-bag (OOB) estimate</strong> of generalization error — no cross-validation needed.</p>
-    </article>
+</li>
+<li>
 
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>Tabular data with mixed feature types</li>
-                <li>You need a strong baseline with almost no tuning</li>
-                <li>Robustness matters more than the last 2% of accuracy</li>
-                <li>You want a free OOB error estimate</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>Extrapolation outside the training range is required</li>
-                <li>Monotonicity constraints are required</li>
-                <li>You need per-prediction interpretability</li>
-                <li>High-signal tabular — gradient boosting usually wins</li>
-            </ul>
-        </div>
-    </div>
+<code>Tb(x)</code>the prediction from the <em>b</em>-th tree
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{forest prediction} \;=\; \text{average of all tree predictions} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Ask every tree what it thinks about input <em>x</em>, then take the average of their answers (for classification, that's a majority vote; for regression, a numeric mean). <code>B</code> is how many trees you have — usually a few hundred. Each individual tree <code>Tb</code> was trained on a bootstrap re-sample of the data while only considering a random subset of features at every split, so the trees are deliberately decorrelated. Averaging cancels out their independent errors while preserving the signal they all agree on.</p>
+<ul class="formula-legend">
+<li>
+
+<code>forest prediction</code>the ensemble's final answer at input <em>x</em>
+
+</li>
+<li>
+
+<code>tree predictions</code>each individual tree's vote or value for <em>x</em>
+
+</li>
+<li>
+
+<code>B</code>number of trees in the forest (typically 100–500)
+
+</li>
+</ul>
+</div>
+<p>Each tree is trained on a <strong>bootstrap sample</strong> with a <strong>random feature subset</strong> at each split. Both sources of randomness decorrelate the trees so the average cuts variance.</p>
+</div>
+<article class="tldr-body">
+<p>A single decision tree is high-variance — small changes to the training data produce very different trees. Random forests fight this by training many trees on slightly different views of the data, then averaging their predictions.</p>
+<p>Two knobs do the work. <strong>Bootstrap sampling</strong> means each tree sees a different random sample (with replacement) of the training set. <strong>Feature subsetting</strong> means each split only considers a random subset of features (typically √<em>p</em> for classification, <em>p</em>/3 for regression). Together they ensure the trees disagree in independent ways.</p>
+<p>Bonus: each bootstrap leaves out about ⅓ of the data per tree. Aggregating the trees that excluded each point gives an <strong>out-of-bag (OOB) estimate</strong> of generalization error — no cross-validation needed.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>Tabular data with mixed feature types</li>
+<li>You need a strong baseline with almost no tuning</li>
+<li>Robustness matters more than the last 2% of accuracy</li>
+<li>You want a free OOB error estimate</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>Extrapolation outside the training range is required</li>
+<li>Monotonicity constraints are required</li>
+<li>You need per-prediction interpretability</li>
+<li>High-signal tabular — gradient boosting usually wins</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">from sklearn.ensemble import RandomForestClassifier
 
 clf = RandomForestClassifier(
     n_estimators=200,
-    max_features="sqrt",   # √p features considered per split
+    max_features=&quot;sqrt&quot;,   # √p features considered per split
     oob_score=True,        # free generalization estimate
     n_jobs=-1,
     random_state=0,
 )
 clf.fit(X_train, y_train)
 
-print(f"OOB accuracy: {clf.oob_score_:.3f}")
+print(f&quot;OOB accuracy: {clf.oob_score_:.3f}&quot;)
 for name, imp in sorted(
     zip(X_train.columns, clf.feature_importances_),
     key=lambda x: -x[1],
 )[:5]:
-    print(f"  {name:20s} {imp:.3f}")
+    print(f&quot;  {name:20s} {imp:.3f}&quot;)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Want the bias-variance derivation and honest diagnostics?</span>
-        <button data-go-to="indepth" type="button">Switch to In-depth →</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Want the bias-variance derivation and honest diagnostics?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
 </section>
-
-
 <section class="topic-level" data-level="indepth">
-    <div class="key-idea formula-block">
-        <span class="key-idea-label">Variance reduction</span>
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Variance reduction</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathrm{Var}(\hat{y}) \;=\; \rho\,\sigma^2 \;+\; \frac{1-\rho}{B}\,\sigma^2 $$</span></p>
+<ul class="formula-legend">
+<li>
 
-        <div class="notation-standard">
-            <span class="formula">$$ \mathrm{Var}(\hat{y}) \;=\; \rho\,\sigma^2 \;+\; \frac{1-\rho}{B}\,\sigma^2 $$</span>
-            <ul class="formula-legend">
-                <li><code>σ²</code>variance of an individual tree's prediction</li>
-                <li><code>ρ</code>pairwise correlation between trees on the same input</li>
-                <li><code>B</code>number of trees</li>
-            </ul>
-        </div>
+<code>σ²</code>variance of an individual tree's prediction
 
-        <div class="notation-plain">
-            <span class="formula">$$ \text{forest variance} \;=\; \text{correlation} \times \text{tree variance} \;+\; \frac{1 - \text{correlation}}{\text{number of trees}} \times \text{tree variance} $$</span>
-            <p class="formula-narration">
-                <strong>In words.</strong> The variance of the averaged forecast splits into two pieces. The first is <code>correlation</code> (called <code>ρ</code>, rho — a number between 0 and 1 measuring how similarly trees vote on the same input) times the variance of a single tree. The second piece shrinks with the number of trees in the denominator — so adding more trees only reduces the second piece, while the first piece is a hard floor you can't escape no matter how many trees you grow. The whole point of feature subsetting is to push correlation <code>ρ</code> closer to zero so that floor is lower.
-            </p>
-            <ul class="formula-legend">
-                <li><code>forest variance</code>spread of the ensemble's prediction at a fixed input across re-fits</li>
-                <li><code>tree variance</code>spread of a single tree's prediction at the same input</li>
-                <li><code>correlation</code>how similarly any two trees vote on the same input — lower is better</li>
-                <li><code>number of trees</code>more trees only shrink the second term; the first sets the floor</li>
-            </ul>
-        </div>
+</li>
+<li>
 
-        <p style="margin-top:0.75rem">As <em>B</em> → ∞ the second term vanishes — variance is floored at <code>ρσ²</code>. The whole game is to <strong>drive ρ down</strong> via per-split feature subsets without making each tree too weak (which inflates σ²).</p>
-    </div>
+<code>ρ</code>pairwise correlation between trees on the same input
 
-    <article class="tldr-body">
-        <p>Random forests are bagging applied to trees, with one twist: at each split, only a random subset of <em>m</em> features (out of <em>p</em>) is considered. This injects an extra source of decorrelation beyond bootstrap sampling alone, addressing the fact that standard bagging produces highly correlated trees whenever a few features dominate the splits.</p>
-        <p>The <code>max_features</code> hyperparameter trades off correlation (low <em>m</em> → low ρ) against individual tree strength (low <em>m</em> → higher σ²). Empirical defaults — √<em>p</em> for classification, <em>p</em>/3 for regression — work remarkably well across domains.</p>
-        <p><strong>Out-of-bag error.</strong> Each bootstrap omits a fraction (1 − 1/N)<sup>N</sup> → e<sup>−1</sup> ≈ 36.8% of points. Averaging predictions from trees that excluded each point gives an estimate of generalization error that is asymptotically equivalent to leave-one-out CV, at no extra training cost.</p>
-        <p><strong>Feature importance.</strong> Impurity-based importance (<code>feature_importances_</code>) is biased toward high-cardinality features. Prefer <code>permutation_importance</code> on a held-out set for honest estimates.</p>
-    </article>
+</li>
+<li>
 
-    <div class="use-cases">
-        <div class="yes">
-            <h3>Reach for it when</h3>
-            <ul>
-                <li>You want a robust baseline before investing in boosting</li>
-                <li>You need uncertainty estimates (via per-tree predictions)</li>
-                <li>OOB is desirable (small datasets, expensive CV)</li>
-                <li>The signal is heterogeneous — feature interactions vary across regimes</li>
-            </ul>
-        </div>
-        <div class="no">
-            <h3>Skip it when</h3>
-            <ul>
-                <li>You need calibrated probabilities without post-hoc calibration</li>
-                <li>Memory is tight (forests are heavyweight at inference)</li>
-                <li>Smooth function approximation matters (forests are piecewise-constant)</li>
-                <li>The variable of interest is monotone in inputs and you need that respected</li>
-            </ul>
-        </div>
-    </div>
+<code>B</code>number of trees
 
-    <div class="code-snippet">
-        <button class="copy-btn" type="button">Copy</button>
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{forest variance} \;=\; \text{correlation} \times \text{tree variance} \;+\; \frac{1 - \text{correlation}}{\text{number of trees}} \times \text{tree variance} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The variance of the averaged forecast splits into two pieces. The first is <code>correlation</code> (called <code>ρ</code>, rho — a number between 0 and 1 measuring how similarly trees vote on the same input) times the variance of a single tree. The second piece shrinks with the number of trees in the denominator — so adding more trees only reduces the second piece, while the first piece is a hard floor you can't escape no matter how many trees you grow. The whole point of feature subsetting is to push correlation <code>ρ</code> closer to zero so that floor is lower.</p>
+<ul class="formula-legend">
+<li>
+
+<code>forest variance</code>spread of the ensemble's prediction at a fixed input across re-fits
+
+</li>
+<li>
+
+<code>tree variance</code>spread of a single tree's prediction at the same input
+
+</li>
+<li>
+
+<code>correlation</code>how similarly any two trees vote on the same input — lower is better
+
+</li>
+<li>
+
+<code>number of trees</code>more trees only shrink the second term; the first sets the floor
+
+</li>
+</ul>
+</div>
+<p>As <em>B</em> → ∞ the second term vanishes — variance is floored at <code>ρσ²</code>. The whole game is to <strong>drive ρ down</strong> via per-split feature subsets without making each tree too weak (which inflates σ²).</p>
+</div>
+<article class="tldr-body">
+<p>Random forests are bagging applied to trees, with one twist: at each split, only a random subset of <em>m</em> features (out of <em>p</em>) is considered. This injects an extra source of decorrelation beyond bootstrap sampling alone, addressing the fact that standard bagging produces highly correlated trees whenever a few features dominate the splits.</p>
+<p>The <code>max_features</code> hyperparameter trades off correlation (low <em>m</em> → low ρ) against individual tree strength (low <em>m</em> → higher σ²). Empirical defaults — √<em>p</em> for classification, <em>p</em>/3 for regression — work remarkably well across domains.</p>
+<p><strong>Out-of-bag error.</strong> Each bootstrap omits a fraction (1 − 1/N)<sup>N</sup> → e<sup>−1</sup> ≈ 36.8% of points. Averaging predictions from trees that excluded each point gives an estimate of generalization error that is asymptotically equivalent to leave-one-out CV, at no extra training cost.</p>
+<p><strong>Feature importance.</strong> Impurity-based importance (<code>feature_importances_</code>) is biased toward high-cardinality features. Prefer <code>permutation_importance</code> on a held-out set for honest estimates.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for it when</h3>
+<ul>
+<li>You want a robust baseline before investing in boosting</li>
+<li>You need uncertainty estimates (via per-tree predictions)</li>
+<li>OOB is desirable (small datasets, expensive CV)</li>
+<li>The signal is heterogeneous — feature interactions vary across regimes</li>
+</ul>
+</div>
+<div class="no">
+<h3>Skip it when</h3>
+<ul>
+<li>You need calibrated probabilities without post-hoc calibration</li>
+<li>Memory is tight (forests are heavyweight at inference)</li>
+<li>Smooth function approximation matters (forests are piecewise-constant)</li>
+<li>The variable of interest is monotone in inputs and you need that respected</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
 <pre><code class="language-python">from sklearn.ensemble import RandomForestClassifier
 from sklearn.inspection import permutation_importance
 
 clf = RandomForestClassifier(
     n_estimators=500,
-    max_features="sqrt",
+    max_features=&quot;sqrt&quot;,
     min_samples_leaf=1,
     oob_score=True,
     bootstrap=True,
@@ -293,16 +318,15 @@ perm = permutation_importance(
 )
 ranked = sorted(zip(X_train.columns, perm.importances_mean), key=lambda x: -x[1])
 
-print(f"OOB: {clf.oob_score_:.3f}   Test: {clf.score(X_test, y_test):.3f}")
+print(f&quot;OOB: {clf.oob_score_:.3f}   Test: {clf.score(X_test, y_test):.3f}&quot;)
 for name, imp in ranked[:10]:
-    print(f"  {name:20s} {imp:+.4f}")
+    print(f&quot;  {name:20s} {imp:+.4f}&quot;)
 </code></pre>
-    </div>
-
-    <div class="level-next">
-        <span>Too dense?</span>
-        <button data-go-to="fundamentals" type="button">← Back to Standard</button>
-    </div>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
 </section>
 
                 <nav class="topic-nav">
@@ -323,25 +347,33 @@ for name, imp in ranked[:10]:
 
             <aside class="topic-sidebar">
                 <div class="learn-more">
-    <h3>Where to learn more</h3>
-    <ul>
-        <li data-tier="fundamentals">
-            <a href="https://scikit-learn.org/stable/modules/ensemble.html#random-forests" target="_blank">scikit-learn user guide <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Practical reference for hyperparameters — what each one does and how to set it.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://www.stat.berkeley.edu/~breiman/randomforest2001.pdf" target="_blank">Breiman (2001) <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">The original paper. 30 pages, surprisingly readable. The clearest explanation of <em>why</em> RFs work.</span>
-        </li>
-        <li data-tier="indepth">
-            <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">ESL, chapter 15 <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Full theoretical treatment with the bias–variance derivation. Read after Breiman.</span>
-        </li>
-        <li data-tier="fundamentals">
-            <a href="https://en.wikipedia.org/wiki/Random_forest" target="_blank">Wikipedia <i class="fas fa-external-link-alt"></i></a>
-            <span class="annotation">Solid quick reference with pointers to extensions (Extra Trees, isolation forests).</span>
-        </li>
-    </ul>
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="fundamentals">
+
+<a href="https://scikit-learn.org/stable/modules/ensemble.html#random-forests" target="_blank">scikit-learn user guide <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Practical reference for hyperparameters — what each one does and how to set it.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://www.stat.berkeley.edu/~breiman/randomforest2001.pdf" target="_blank">Breiman (2001) <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The original paper. 30 pages, surprisingly readable. The clearest explanation of <em>why</em> RFs work.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://hastie.su.domains/ElemStatLearn/" target="_blank">ESL, chapter 15 <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Full theoretical treatment with the bias–variance derivation. Read after Breiman.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://en.wikipedia.org/wiki/Random_forest" target="_blank">Wikipedia <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Solid quick reference with pointers to extensions (Extra Trees, isolation forests).</span>
+
+</li>
+</ul>
 </div>
             </aside>
 
