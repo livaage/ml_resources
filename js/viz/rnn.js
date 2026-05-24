@@ -1,8 +1,21 @@
 /* Interactive RNN recurrence viz.
- * A sequence unrolled across timesteps. At each step the same RNN cell takes
- * the current token + previous hidden state and produces a new hidden state.
- * Click any step to inspect it. The "Vanishing gradient" demo shows why
- * long-range dependencies are hard for vanilla RNNs. */
+ *
+ * Three things the previous version hid that students must see:
+ *
+ *  1. Text → numbers — strings become token IDs, IDs become embedding
+ *     vectors (rows of a learned matrix E). The "input" to the recurrence
+ *     is a vector, not a word.
+ *
+ *  2. The SAME weight matrices apply at every timestep. We draw a "shared
+ *     weights" panel (E, W_x, W_h, b) ONCE in the middle of the figure
+ *     and connect it via dashed lines to every cell in the unrolled chain
+ *     below. That sharing is what makes the RNN an RNN.
+ *
+ *  3. The cell computes a specific formula:
+ *        h_t = tanh(W_x · x_t  +  W_h · h_{t-1}  +  b)
+ *     Each arrow into a cell is colour-coded by which weight matrix it
+ *     uses (W_x = indigo for inputs, W_h = orange for recurrence).
+ */
 
 (function () {
     const canvas    = document.getElementById('viz-rnn-canvas');
@@ -12,101 +25,130 @@
     const formulaEl = document.getElementById('viz-rnn-formula');
     if (!canvas) return;
 
-    // ----- Sequences to choose from -----
+    // ---------------- Vocabulary + sequences ----------------
+    // Small toy vocab so the embedding lookup is concrete: each word maps to
+    // an integer id, and each id maps to a row of the embedding matrix E.
+    const VOCAB = [
+        'the','a','I','it','this','was',                             // 0..5
+        'quick','brown','fox','jumps','over',                        // 6..10
+        'really','enjoyed','loved','liked','hated',                  // 11..15
+        'movie','book','cat','dog','sunset',                         // 16..20
+        'big','small','old','new','warm','cold',                     // 21..26
+    ];
+    const ID_OF = Object.fromEntries(VOCAB.map((w, i) => [w, i]));
+
     const SEQUENCES = {
-        'The quick brown fox jumps':       ['The', 'quick', 'brown', 'fox', 'jumps'],
+        'The quick brown fox jumps':       ['the', 'quick', 'brown', 'fox', 'jumps'],
         'I really enjoyed it':             ['I', 'really', 'enjoyed', 'it'],
-        'long sequence (vanishing demo)':  ['The', 'cat', 'that', 'I', 'saw', 'yesterday', 'was', 'big'],
+        'I really loved this movie':       ['I', 'really', 'loved', 'this', 'movie'],
+        'long sequence (vanishing demo)':  ['the','cat','was','old','and','warm','it','liked','sunset','this','movie'],
     };
-    let tokens = SEQUENCES['The quick brown fox jumps'];
-
-    // ----- Hidden-state dimensions -----
-    const H_DIM = 6;     // dimensionality of hidden state vector
-
-    // ----- Cell choice: vanilla RNN vs (simplified) LSTM-like -----
-    let cellKind = 'vanilla';   // or 'lstm'
-
-    // ----- Hand-crafted weights so the hidden state evolves visibly -----
-    // We hash each token to a deterministic input vector and apply a recurrence.
-    function hashToken(tok) {
-        // Stable per-token vector (not random per page-load)
-        let h = 2166136261;
-        for (const ch of tok) {
-            h ^= ch.charCodeAt(0);
-            h = (h * 16777619) >>> 0;
+    // Some sequences include words not yet in the vocab — extend at load.
+    for (const seq of Object.values(SEQUENCES)) {
+        for (const w of seq) {
+            if (!(w in ID_OF)) { ID_OF[w] = VOCAB.length; VOCAB.push(w); }
         }
-        const v = new Float32Array(H_DIM);
-        for (let i = 0; i < H_DIM; i++) {
-            h = (h * 1103515245 + 12345) >>> 0;
-            v[i] = ((h & 0xffff) / 0xffff - 0.5) * 1.6;
+    }
+    const V = VOCAB.length;
+    const D = 4;          // embedding dimension
+    const H = 6;          // hidden dimension
+
+    let tokens   = SEQUENCES['The quick brown fox jumps'];
+    let cellKind = 'vanilla';
+
+    // ---------------- Deterministic weight matrices ----------------
+    function seededRand(seed) {
+        // Mulberry32 PRNG, seeded — same values every page load.
+        let a = seed | 0;
+        return () => {
+            a |= 0; a = (a + 0x6d2b79f5) | 0;
+            let t = a;
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return (((t ^ (t >>> 14)) >>> 0) & 0xffffffff) / 4294967296 - 0.5;
+        };
+    }
+
+    function makeMatrix(rows, cols, seed, scale = 1.0) {
+        const r = seededRand(seed);
+        const M = [];
+        for (let i = 0; i < rows; i++) {
+            const row = new Float32Array(cols);
+            for (let j = 0; j < cols; j++) row[j] = r() * 2 * scale;
+            M.push(row);
         }
+        return M;
+    }
+
+    function makeVector(n, seed, scale = 1.0) {
+        const r = seededRand(seed);
+        const v = new Float32Array(n);
+        for (let i = 0; i < n; i++) v[i] = r() * 2 * scale;
         return v;
     }
 
-    // Recurrence weight matrix W_h (H_DIM × H_DIM). Spectral-radius ≈ 0.9 for vanilla
-    // (so vanishing demo is visible); approaching 1.0 for LSTM-like.
-    function buildWh(decay) {
-        const W = [];
-        let seed = 12345;
-        const rand = () => {
-            seed = (seed * 1103515245 + 12345) >>> 0;
-            return ((seed & 0xffff) / 0xffff - 0.5);
-        };
-        for (let i = 0; i < H_DIM; i++) {
-            const row = new Float32Array(H_DIM);
-            for (let j = 0; j < H_DIM; j++) row[j] = rand();
-            W.push(row);
-        }
-        // Normalise rows for stability, then scale by `decay`
-        for (let i = 0; i < H_DIM; i++) {
+    // E: V × D, W_x: D × H, b: H. W_h depends on cellKind.
+    // Scales chosen so the hidden states span [-1, 1] without saturating —
+    // makes the per-step evolution actually visible in the bar charts.
+    const E   = makeMatrix(V, D, 7, 0.6);
+    const W_x = makeMatrix(D, H, 11, 0.35);
+    const b   = makeVector(H, 17, 0.1);
+
+    function makeW_h(kind) {
+        // Spectral-radius hack: random matrix, normalise rows, scale by decay.
+        const decay = (kind === 'lstm') ? 0.97 : 0.65;
+        const M = makeMatrix(H, H, 23);
+        for (let i = 0; i < H; i++) {
             let n = 0;
-            for (let j = 0; j < H_DIM; j++) n += W[i][j] * W[i][j];
+            for (let j = 0; j < H; j++) n += M[i][j] * M[i][j];
             n = Math.sqrt(n) + 1e-9;
-            for (let j = 0; j < H_DIM; j++) W[i][j] = (W[i][j] / n) * decay;
+            for (let j = 0; j < H; j++) M[i][j] = (M[i][j] / n) * decay;
         }
-        return W;
+        return M;
     }
+    let W_h = makeW_h(cellKind);
 
-    // Recurrence: h_t = tanh(W_h · h_{t-1} + W_x · x_t + b)
-    // We just use W_x = I and b = 0 for transparency.
-    function runRecurrence(seq) {
-        const decay = (cellKind === 'lstm') ? 0.97 : 0.65;
-        const W_h = buildWh(decay);
-        const states = [];
-        let h = new Float32Array(H_DIM);   // h_0 = 0
-        states.push(h.slice());
+    // ---------------- Forward pass ----------------
+    // Returns { ids, xs, prez, hs } — same length T arrays plus h_0 in hs[0].
+    function forward(seq) {
+        const ids = seq.map(w => ID_OF[w] ?? 0);
+        const xs   = ids.map(id => Float32Array.from(E[id]));
+        const prez = [];   // pre-tanh values
+        const hs   = [new Float32Array(H)];  // h_0 = 0
         for (let t = 0; t < seq.length; t++) {
-            const x = hashToken(seq[t]);
-            const next = new Float32Array(H_DIM);
-            for (let i = 0; i < H_DIM; i++) {
-                let s = x[i];
-                for (let j = 0; j < H_DIM; j++) s += W_h[i][j] * h[j];
-                next[i] = Math.tanh(s);
+            const x = xs[t];
+            const hPrev = hs[hs.length - 1];
+            const z = new Float32Array(H);
+            for (let i = 0; i < H; i++) {
+                let s = b[i];
+                for (let j = 0; j < D; j++) s += W_x[j][i] * x[j];
+                for (let j = 0; j < H; j++) s += W_h[i][j] * hPrev[j];
+                z[i] = s;
             }
-            h = next;
-            states.push(h.slice());
+            prez.push(z);
+            const h = new Float32Array(H);
+            for (let i = 0; i < H; i++) h[i] = Math.tanh(z[i]);
+            hs.push(h);
         }
-        return states;   // length T+1 (includes h_0)
+        return { ids, xs, prez, hs };
     }
+    let result = forward(tokens);
 
-    let states = runRecurrence(tokens);
-    let activeT = 1;          // which timestep is highlighted (1-indexed; 0 is h_0)
+    // ---------------- Canvas state ----------------
+    let activeT = 1;      // 1-indexed timestep (h_0 = step 0, h_1 = step 1, ...)
     let playing = true;
     let lastStep = 0;
-    const STEP_MS = 900;
+    const STEP_MS = 1100;
 
-    // ----- Canvas sizing -----
     let ctx;
-    let W = 0, H = 0;
+    let cssW = 0, cssH = 0;
 
     function resize() {
-        const rect = canvas.getBoundingClientRect();
+        const rect = canvas.parentElement.getBoundingClientRect();
         const dpr  = window.devicePixelRatio || 1;
-        const cssW = Math.max(420, Math.round(rect.width));
-        // Height scales with sequence length (more cells need more vertical room)
-        const cssH = Math.round(Math.min(420, Math.max(280, cssW * 0.38)));
-        W = cssW;
-        H = cssH;
+        cssW = Math.max(560, Math.round(rect.width - 8));
+        cssH = 580;
+        canvas.style.width  = cssW + 'px';
         canvas.style.height = cssH + 'px';
         canvas.width  = cssW * dpr;
         canvas.height = cssH * dpr;
@@ -115,208 +157,61 @@
         draw();
     }
 
-    // ----- Layout -----
-    function stepGeometry() {
-        const T   = tokens.length;
-        const pad = 16;
-        const colW = (W - 2 * pad) / T;
-        const rows = {
-            token:  { y: 24,  h: 32 },
-            cell:   { y: 80,  h: 56 },
-            hidden: { y: 168, h: H - 168 - 28 },
-        };
-        return { pad, colW, rows };
+    // ---------------- Colour helpers ----------------
+    const POS = [79, 70, 229];      // indigo
+    const NEG = [234, 121, 89];     // orange
+    function cellColour(v, maxAbs, alphaBase = 0.18) {
+        const t = Math.min(1, Math.abs(v) / (maxAbs + 1e-9));
+        const c = v >= 0 ? POS : NEG;
+        return `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alphaBase + 0.65 * t})`;
+    }
+    const W_X_COLOUR = 'rgba(79, 70, 229, 0.85)';      // indigo for W_x arrows
+    const W_H_COLOUR = 'rgba(234, 121, 89, 0.85)';     // orange for W_h arrows
+
+    function drawText(x, y, text, opts = {}) {
+        ctx.fillStyle = opts.color || '#1a1a1a';
+        ctx.font = (opts.bold ? '600 ' : '')
+                 + (opts.size || 11) + 'px '
+                 + (opts.family || '"Inter", system-ui, sans-serif');
+        ctx.textAlign = opts.align || 'left';
+        ctx.textBaseline = opts.baseline || 'alphabetic';
+        ctx.fillText(text, x, y);
     }
 
-    // ----- Drawing -----
-    function draw() {
-        if (!ctx) return;
-        ctx.clearRect(0, 0, W, H);
-        ctx.fillStyle = '#fbfaf7';
-        ctx.fillRect(0, 0, W, H);
-
-        const geo = stepGeometry();
-        const T   = tokens.length;
-
-        // Section labels
-        ctx.fillStyle = '#9a9a9a';
-        ctx.font      = '600 10px "Inter", system-ui, sans-serif';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillText('INPUT',        geo.pad, 6);
-        ctx.fillText('RNN CELL',     geo.pad, 64);
-        ctx.fillText('HIDDEN STATE', geo.pad, 152);
-
-        // Horizontal hidden-state arrows (between timesteps)
-        for (let t = 0; t < T - 1; t++) {
-            const x1 = geo.pad + geo.colW * t + geo.colW * 0.78;
-            const x2 = geo.pad + geo.colW * (t + 1) + geo.colW * 0.22;
-            const y  = geo.rows.cell.y + geo.rows.cell.h / 2;
-            const accent = (t + 1 === activeT) ? '#ea7959' : 'rgba(79, 70, 229, 0.35)';
-            ctx.strokeStyle = accent;
-            ctx.lineWidth = (t + 1 === activeT) ? 2 : 1.5;
-            ctx.beginPath();
-            ctx.moveTo(x1, y);
-            ctx.lineTo(x2 - 6, y);
-            ctx.stroke();
-            // Arrowhead
-            ctx.fillStyle = accent;
-            ctx.beginPath();
-            ctx.moveTo(x2 - 6, y - 4);
-            ctx.lineTo(x2,     y);
-            ctx.lineTo(x2 - 6, y + 4);
-            ctx.closePath();
-            ctx.fill();
-        }
-
-        // Each timestep column
-        for (let t = 0; t < T; t++) {
-            const cx = geo.pad + geo.colW * t + geo.colW / 2;
-            const isActive = (t + 1 === activeT);
-
-            // Token box (top)
-            drawTokenBox(cx, geo.rows.token.y, tokens[t], isActive);
-
-            // Vertical arrow into cell
-            arrowDown(cx, geo.rows.token.y + geo.rows.token.h + 2, geo.rows.cell.y - 4, isActive);
-
-            // RNN cell (rounded box, gradient on active)
-            drawRnnCell(cx, geo.rows.cell.y, geo.rows.cell.h, isActive, t + 1);
-
-            // Vertical arrow into hidden state
-            arrowDown(cx, geo.rows.cell.y + geo.rows.cell.h + 2, geo.rows.hidden.y - 4, isActive);
-
-            // Hidden state bars
-            drawHiddenState(cx, geo.rows.hidden.y, geo.rows.hidden.h, states[t + 1], isActive);
-
-            // Subscript label below
-            ctx.fillStyle = isActive ? '#ea7959' : '#5f5f5f';
-            ctx.font      = isActive
-                ? '600 11px "Inter", system-ui, sans-serif'
-                : '11px "Inter", system-ui, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            ctx.fillText(`h${sub(t + 1)}`, cx, H - 24);
-        }
-
-        updateFormula();
+    function drawSectionLabel(x, y, text) {
+        drawText(x, y, text, { color: '#9a9a9a', size: 9, bold: true });
     }
 
-    function sub(n) {
-        const map = ['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'];
-        return String(n).split('').map(c => map[+c] ?? c).join('');
-    }
-
-    function drawTokenBox(cx, y, text, active) {
-        const w = 64, h = 28;
-        ctx.fillStyle   = active ? '#4f46e5' : '#ffffff';
-        ctx.strokeStyle = active ? '#3730a3' : '#d6d3ca';
-        ctx.lineWidth   = 1.25;
-        roundedRect(ctx, cx - w / 2, y, w, h, 6);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = active ? '#ffffff' : '#1a1a1a';
-        ctx.font      = '600 12px "Inter", system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(text, cx, y + h / 2 + 1);
-    }
-
-    function drawRnnCell(cx, y, h, active, idx) {
-        const w = 70;
-        // Soft glow on active
-        if (active) {
-            ctx.fillStyle = 'rgba(234, 121, 89, 0.18)';
-            roundedRect(ctx, cx - w / 2 - 3, y - 3, w + 6, h + 6, 10);
-            ctx.fill();
-        }
-        // Main body
-        const grd = ctx.createLinearGradient(0, y, 0, y + h);
-        if (active) {
-            grd.addColorStop(0, '#fff3eb');
-            grd.addColorStop(1, '#fde0d2');
-        } else {
-            grd.addColorStop(0, '#ffffff');
-            grd.addColorStop(1, '#f5f3ee');
-        }
-        ctx.fillStyle = grd;
-        ctx.strokeStyle = active ? '#ea7959' : '#d6d3ca';
-        ctx.lineWidth = active ? 2 : 1.25;
-        roundedRect(ctx, cx - w / 2, y, w, h, 8);
-        ctx.fill();
-        ctx.stroke();
-
-        // Cell label
-        ctx.fillStyle = active ? '#8a3a1f' : '#5f5f5f';
-        ctx.font      = '600 11px "Inter", system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText(cellKind === 'lstm' ? 'LSTM' : 'RNN', cx, y + 8);
-        ctx.fillStyle = active ? '#1a1a1a' : '#9a9a9a';
-        ctx.font      = '10px "JetBrains Mono", monospace';
-        ctx.fillText(`t=${idx}`, cx, y + 24);
-        // Tiny "same weights" hint on first cell
-        if (idx === 1) {
-            ctx.fillStyle = '#9a9a9a';
-            ctx.font      = 'italic 9px "Inter", system-ui, sans-serif';
-            ctx.fillText('same weights ▸', cx, y + 40);
-        }
-    }
-
-    function arrowDown(cx, y1, y2, active) {
-        const accent = active ? '#ea7959' : '#c8c4b8';
-        ctx.strokeStyle = accent;
-        ctx.lineWidth = active ? 1.5 : 1;
-        ctx.beginPath();
-        ctx.moveTo(cx, y1);
-        ctx.lineTo(cx, y2 - 6);
-        ctx.stroke();
-        ctx.fillStyle = accent;
-        ctx.beginPath();
-        ctx.moveTo(cx - 4, y2 - 6);
-        ctx.lineTo(cx,     y2);
-        ctx.lineTo(cx + 4, y2 - 6);
-        ctx.closePath();
-        ctx.fill();
-    }
-
-    function drawHiddenState(cx, y, h, vec, active) {
-        const total = H_DIM;
-        const padX = 4;
-        const cellW = Math.min(10, (70 - padX * 2) / total);
-        const bx = cx - (cellW * total) / 2;
-        // Background frame
-        if (active) {
-            ctx.fillStyle = 'rgba(79, 70, 229, 0.08)';
-            roundedRect(ctx, bx - 4, y - 4, cellW * total + 8, h + 8, 6);
-            ctx.fill();
-        }
-        // Each dimension as a vertical bar (centred at zero)
-        const midY = y + h / 2;
-        for (let i = 0; i < total; i++) {
-            const v = vec[i];
-            const barH = Math.abs(v) * (h / 2 - 4);
-            const x = bx + i * cellW;
-            if (v >= 0) {
-                ctx.fillStyle = active ? `rgba(79, 70, 229, ${0.6 + 0.4 * v})`
-                                       : `rgba(79, 70, 229, ${0.25 + 0.25 * v})`;
-                ctx.fillRect(x + 1, midY - barH, cellW - 2, barH);
-            } else {
-                ctx.fillStyle = active ? `rgba(234, 121, 89, ${0.6 + 0.4 * (-v)})`
-                                       : `rgba(234, 121, 89, ${0.25 + 0.25 * (-v)})`;
-                ctx.fillRect(x + 1, midY, cellW - 2, barH);
+    function drawHeatmap(x, y, mat, rows, cols, cellW, cellH, maxAbs) {
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                const v = mat[i][j];
+                ctx.fillStyle = cellColour(v, maxAbs);
+                ctx.fillRect(x + j * cellW, y + i * cellH, cellW, cellH);
             }
         }
-        // Zero line
-        ctx.strokeStyle = 'rgba(0,0,0,0.10)';
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
         ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(bx, midY);
-        ctx.lineTo(bx + cellW * total, midY);
-        ctx.stroke();
+        ctx.strokeRect(x + 0.5, y + 0.5, cols * cellW - 1, rows * cellH - 1);
     }
 
-    function roundedRect(ctx, x, y, w, h, r) {
+    function drawVector(x, y, vec, cellW, cellH, maxAbs, horizontal = true) {
+        const n = vec.length;
+        for (let i = 0; i < n; i++) {
+            const v = vec[i];
+            ctx.fillStyle = cellColour(v, maxAbs);
+            const cx = horizontal ? x + i * cellW : x;
+            const cy = horizontal ? y : y + i * cellH;
+            ctx.fillRect(cx, cy, cellW, cellH);
+        }
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 0.5, y + 0.5,
+            horizontal ? n * cellW - 1 : cellW - 1,
+            horizontal ? cellH - 1 : n * cellH - 1);
+    }
+
+    function roundedRect(x, y, w, h, r) {
         ctx.beginPath();
         ctx.moveTo(x + r, y);
         ctx.arcTo(x + w, y,     x + w, y + h, r);
@@ -326,7 +221,346 @@
         ctx.closePath();
     }
 
-    // ----- Formula display -----
+    function arrow(x1, y1, x2, y2, color, dashed = false, lw = 1.5) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lw;
+        ctx.setLineDash(dashed ? [4, 4] : []);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // Arrowhead at (x2, y2)
+        const ang = Math.atan2(y2 - y1, x2 - x1);
+        const ah = 5;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ah * Math.cos(ang - 0.4), y2 - ah * Math.sin(ang - 0.4));
+        ctx.lineTo(x2 - ah * Math.cos(ang + 0.4), y2 - ah * Math.sin(ang + 0.4));
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function sub(n) {
+        const map = ['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'];
+        return String(n).split('').map(c => map[+c] ?? c).join('');
+    }
+
+    // ---------------- Layout constants ----------------
+    // Three vertical bands; each band knows its own y-extent. Computed in draw()
+    // since they depend on token count.
+
+    function draw() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, cssW, cssH);
+        ctx.fillStyle = '#fbfaf7';
+        ctx.fillRect(0, 0, cssW, cssH);
+
+        const T = tokens.length;
+        const padL = 18, padR = 18;
+
+        // ---- Band 1: tokenisation strip (y = 0..115) ----
+        const tokY = 16;       // section label
+        const txtY = 32;       // "Text: ..." line
+        const tokenBoxY = 52;
+        const idBoxY    = 86;
+
+        drawSectionLabel(padL, tokY, 'TEXT → NUMBERS');
+
+        // The whole input string as a single highlighted strip
+        const fullText = '"' + tokens.join(' ') + '"';
+        drawText(padL, txtY + 9, fullText,
+                 { color: '#1a1a1a', size: 12, bold: false });
+
+        // Token boxes evenly spaced under the text — each step gets one column
+        const colW   = (cssW - padL - padR) / T;
+        const colXs  = Array.from({ length: T }, (_, t) => padL + colW * (t + 0.5));
+        const tokenW = Math.min(80, colW - 6);
+        const tokenH = 26;
+        const idH    = 18;
+
+        for (let t = 0; t < T; t++) {
+            const cx = colXs[t];
+            const isActive = (t + 1 === activeT);
+            // Token box
+            ctx.fillStyle   = isActive ? 'rgba(79, 70, 229, 0.85)' : '#ffffff';
+            ctx.strokeStyle = isActive ? '#3730a3' : '#d6d3ca';
+            ctx.lineWidth = 1.2;
+            roundedRect(cx - tokenW / 2, tokenBoxY, tokenW, tokenH, 5);
+            ctx.fill(); ctx.stroke();
+            drawText(cx, tokenBoxY + 17, tokens[t], {
+                color: isActive ? '#ffffff' : '#1a1a1a',
+                size: 12, bold: true, align: 'center'
+            });
+            // ID box below
+            const id = result.ids[t];
+            ctx.fillStyle   = isActive ? '#fff3eb' : '#f5f3ee';
+            ctx.strokeStyle = isActive ? '#ea7959' : '#d6d3ca';
+            roundedRect(cx - 28, idBoxY, 56, idH, 4);
+            ctx.fill(); ctx.stroke();
+            drawText(cx, idBoxY + 13, `id ${id}`, {
+                color: isActive ? '#8a3a1f' : '#5f5f5f',
+                size: 10, family: '"JetBrains Mono", monospace',
+                align: 'center', bold: true
+            });
+        }
+
+        // ---- Band 2: shared weights panel (y = 120..260) ----
+        const swY = 124;
+        drawSectionLabel(padL, swY, 'SHARED WEIGHTS — the same matrices apply at every timestep');
+
+        const panelY = swY + 12;
+        const panelH = 130;
+        // Outline a soft card so the panel reads as one unit
+        ctx.fillStyle = 'rgba(79, 70, 229, 0.04)';
+        roundedRect(padL, panelY, cssW - padL - padR, panelH, 8);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(79, 70, 229, 0.20)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Layout matrices horizontally inside the panel
+        const xCursor = { x: padL + 16 };
+        const matY    = panelY + 30;
+
+        function drawMatrixWithLabel(label, mat, rows, cols, cellW, cellH, sublabel) {
+            // Label above
+            drawText(xCursor.x, panelY + 22, label,
+                     { color: '#1a1a1a', size: 11, bold: true,
+                       family: '"JetBrains Mono", monospace' });
+            // Matrix
+            let maxAbs = 0;
+            for (let i = 0; i < rows; i++)
+                for (let j = 0; j < cols; j++)
+                    if (Math.abs(mat[i][j]) > maxAbs) maxAbs = Math.abs(mat[i][j]);
+            drawHeatmap(xCursor.x, matY, mat, rows, cols, cellW, cellH, maxAbs);
+            // Sublabel
+            drawText(xCursor.x, matY + rows * cellH + 14, sublabel,
+                     { color: '#9a9a9a', size: 9 });
+            xCursor.x += Math.max(cols * cellW, ctx.measureText(label).width,
+                                  ctx.measureText(sublabel).width) + 32;
+        }
+
+        drawMatrixWithLabel('E', E, V, D, 7, 4, `embeddings · ${V}×${D}`);
+        drawMatrixWithLabel('W_x', W_x, D, H, 11, 11, `inputs · ${D}×${H}`);
+        drawMatrixWithLabel('W_h', W_h, H, H, 11, 11, `recurrent · ${H}×${H}`);
+        // bias as a row vector
+        drawText(xCursor.x, panelY + 22, 'b',
+                 { color: '#1a1a1a', size: 11, bold: true,
+                   family: '"JetBrains Mono", monospace' });
+        let bMax = 0;
+        for (let i = 0; i < H; i++) if (Math.abs(b[i]) > bMax) bMax = Math.abs(b[i]);
+        drawVector(xCursor.x, matY, b, 11, 11, bMax, false);
+        drawText(xCursor.x, matY + H * 11 + 14, `bias · ${H}`,
+                 { color: '#9a9a9a', size: 9 });
+
+        // Caption on the right — what does "shared" mean?
+        const captionX = cssW - padR - 4;
+        const captionLines = [
+            'These four matrices are',
+            'the WHOLE network.',
+            'Same numbers used at',
+            'every step below.',
+        ];
+        captionLines.forEach((line, i) => {
+            drawText(captionX, panelY + 28 + i * 14, line,
+                     { color: '#5f5f5f', size: 10, align: 'right' });
+        });
+
+        // ---- Band 3: unrolled chain (y = 280..560) ----
+        const unrollLabelY = 280;
+        drawSectionLabel(padL, unrollLabelY, 'UNROLLED RNN — h_t = tanh(W_x · x_t  +  W_h · h_{t-1}  +  b)');
+
+        const xtRowY    = 300;     // embedding (x_t) row
+        const cellRowY  = 350;     // RNN cell row
+        const hRowY     = 422;     // hidden state (h_t) row
+        const labelRowY = 494;     // label below h
+        const cellSize  = Math.min(24, colW - 16);  // size of each x_t and h_t vector cell
+
+        // Connection lines from the shared weights panel down to each cell.
+        // Two dashed bundles: indigo (for W_x → input arrows) and orange
+        // (for W_h → recurrent arrows). Drives home "same weights everywhere".
+        const panelBottom = panelY + panelH;
+        for (let t = 0; t < T; t++) {
+            const cx = colXs[t];
+            const isActive = (t + 1 === activeT);
+            // W_x → input arrow line (indigo)
+            ctx.strokeStyle = isActive ? 'rgba(79, 70, 229, 0.45)' : 'rgba(79, 70, 229, 0.22)';
+            ctx.setLineDash([3, 4]);
+            ctx.lineWidth = isActive ? 1.4 : 1;
+            ctx.beginPath();
+            ctx.moveTo(cx - 4, panelBottom + 2);
+            ctx.lineTo(cx - 4, xtRowY - 4);
+            ctx.stroke();
+            // W_h → cell line (orange)
+            ctx.strokeStyle = isActive ? 'rgba(234, 121, 89, 0.45)' : 'rgba(234, 121, 89, 0.22)';
+            ctx.lineWidth = isActive ? 1.4 : 1;
+            ctx.beginPath();
+            ctx.moveTo(cx + 4, panelBottom + 2);
+            ctx.lineTo(cx + 4, cellRowY + 4);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        // "↓ used here, here, here..." callout to the right of the panel
+        drawText(cssW - padR - 4, panelBottom + 14,
+                 '↓ ↓ ↓ same weights, every step',
+                 { color: '#5f5f5f', size: 10, bold: true, align: 'right' });
+
+        // h_0 marker on the far left of the chain (a small "h0 = 0" box)
+        const h0X = padL + 10;
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#9a9a9a';
+        ctx.lineWidth = 1;
+        roundedRect(h0X, cellRowY + 6, 36, 32, 5);
+        ctx.fill(); ctx.stroke();
+        drawText(h0X + 18, cellRowY + 21, 'h₀', {
+            color: '#5f5f5f', size: 11, bold: true, align: 'center'
+        });
+        drawText(h0X + 18, cellRowY + 33, '= 0', {
+            color: '#9a9a9a', size: 9, align: 'center'
+        });
+
+        // Per-timestep stuff
+        for (let t = 0; t < T; t++) {
+            const cx = colXs[t];
+            const isActive = (t + 1 === activeT);
+
+            // x_t embedding row — pulled from E[id_t]
+            const x = result.xs[t];
+            let xMax = 0;
+            for (let i = 0; i < D; i++) if (Math.abs(x[i]) > xMax) xMax = Math.abs(x[i]);
+            drawVector(cx - (D * cellSize) / 2, xtRowY, x, cellSize, cellSize,
+                       xMax || 1);
+            // Highlight the active x_t
+            if (isActive) {
+                ctx.strokeStyle = '#3730a3';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(cx - (D * cellSize) / 2 + 0.5,
+                               xtRowY + 0.5,
+                               D * cellSize - 1, cellSize - 1);
+            }
+            drawText(cx + (D * cellSize) / 2 + 6, xtRowY + cellSize / 2 + 4,
+                     `x${sub(t + 1)}`, {
+                color: '#1a1a1a', size: 11, bold: true,
+                family: '"JetBrains Mono", monospace'
+            });
+
+            // Arrow from x_t down into cell — coloured by W_x (indigo)
+            arrow(cx, xtRowY + cellSize + 2,
+                  cx, cellRowY - 2,
+                  W_X_COLOUR, false, isActive ? 2 : 1.5);
+            // Label on the input arrow ("W_x")
+            if (t === 0) {
+                drawText(cx + 8, (xtRowY + cellSize + cellRowY) / 2 + 3,
+                         '× W_x', {
+                    color: W_X_COLOUR.slice(0, -5) + '1)',
+                    size: 10, bold: true,
+                    family: '"JetBrains Mono", monospace'
+                });
+            }
+
+            // The cell — a rounded box showing the formula
+            const cellW = colW - 16;
+            const cellH = 56;
+            const cellX = cx - cellW / 2;
+            if (isActive) {
+                ctx.fillStyle = 'rgba(234, 121, 89, 0.18)';
+                roundedRect(cellX - 3, cellRowY - 3, cellW + 6, cellH + 6, 9);
+                ctx.fill();
+            }
+            const grd = ctx.createLinearGradient(0, cellRowY, 0, cellRowY + cellH);
+            if (isActive) {
+                grd.addColorStop(0, '#fff3eb');
+                grd.addColorStop(1, '#fde0d2');
+            } else {
+                grd.addColorStop(0, '#ffffff');
+                grd.addColorStop(1, '#f5f3ee');
+            }
+            ctx.fillStyle = grd;
+            ctx.strokeStyle = isActive ? '#ea7959' : '#d6d3ca';
+            ctx.lineWidth = isActive ? 2 : 1.2;
+            roundedRect(cellX, cellRowY, cellW, cellH, 7);
+            ctx.fill(); ctx.stroke();
+
+            // Cell contents — the formula, scaled down
+            drawText(cx, cellRowY + 18, cellKind === 'lstm' ? 'LSTM cell' : 'RNN cell', {
+                color: isActive ? '#8a3a1f' : '#5f5f5f',
+                size: 10, bold: true, align: 'center'
+            });
+            drawText(cx, cellRowY + 34, 'tanh(W_x·x + W_h·h + b)', {
+                color: isActive ? '#1a1a1a' : '#9a9a9a',
+                size: 9, family: '"JetBrains Mono", monospace',
+                align: 'center'
+            });
+            drawText(cx, cellRowY + 48, `t = ${t + 1}`, {
+                color: isActive ? '#1a1a1a' : '#9a9a9a',
+                size: 9, family: '"JetBrains Mono", monospace',
+                align: 'center'
+            });
+
+            // Arrow from cell down to h_t row — neutral colour (it's just the output)
+            arrow(cx, cellRowY + cellH + 2,
+                  cx, hRowY - 2,
+                  isActive ? 'rgba(0, 0, 0, 0.55)' : 'rgba(0, 0, 0, 0.25)',
+                  false, isActive ? 2 : 1.5);
+
+            // h_t hidden state vector
+            const h = result.hs[t + 1];
+            drawVector(cx - (H * cellSize) / 2 / 1.2, hRowY,
+                       h,
+                       cellSize / 1.2, cellSize, 1.0);
+            if (isActive) {
+                ctx.strokeStyle = '#3730a3';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(cx - (H * cellSize) / 2 / 1.2 + 0.5,
+                               hRowY + 0.5,
+                               H * cellSize / 1.2 - 1, cellSize - 1);
+            }
+            drawText(cx, labelRowY, `h${sub(t + 1)}`, {
+                color: isActive ? '#ea7959' : '#5f5f5f',
+                size: 11, bold: isActive, align: 'center'
+            });
+        }
+
+        // Horizontal recurrent arrows between cells — coloured by W_h (orange)
+        // Start at h_0 box (or previous cell) and go to next cell.
+        for (let t = 0; t < T; t++) {
+            const isActive = (t + 1 === activeT);
+            const cx = colXs[t];
+            const cellX1 = cx - (colW - 16) / 2;
+            const x1 = (t === 0) ? h0X + 36
+                     : colXs[t - 1] + (colW - 16) / 2;
+            const x2 = cellX1;
+            const y  = cellRowY + 56 / 2;
+            arrow(x1 + 2, y, x2 - 2, y, W_H_COLOUR, false, isActive ? 2 : 1.5);
+        }
+        // "× W_h" label on the first recurrent arrow
+        {
+            const cellX1 = colXs[0] - (colW - 16) / 2;
+            const x1 = h0X + 36;
+            const midX = (x1 + cellX1) / 2;
+            const y  = cellRowY + 56 / 2;
+            drawText(midX, y - 6, '× W_h', {
+                color: W_H_COLOUR.slice(0, -5) + '1)',
+                size: 10, bold: true,
+                family: '"JetBrains Mono", monospace',
+                align: 'center'
+            });
+        }
+
+        // Legend at the bottom — colour key for the two arrow families
+        const legY = labelRowY + 24;
+        drawText(padL, legY, '──', { color: W_X_COLOUR, bold: true, size: 12 });
+        drawText(padL + 22, legY, 'inputs go through W_x', { color: '#1a1a1a', size: 10 });
+        drawText(padL + 200, legY, '──', { color: W_H_COLOUR, bold: true, size: 12 });
+        drawText(padL + 222, legY, 'recurrence goes through W_h', { color: '#1a1a1a', size: 10 });
+
+        // Update the formula readout
+        updateFormula();
+    }
+
+    // ---------------- Formula readout (below the canvas) ----------------
     function updateFormula() {
         if (!formulaEl) return;
         const t = activeT;
@@ -334,30 +568,31 @@
             formulaEl.innerHTML = '<span class="lbl">Initial state</span>h₀ = 0';
             return;
         }
-        const tok    = tokens[t - 1];
-        const fmtVec = v => Array.from(v).map(x => x.toFixed(2)).join(', ');
-        const prev   = `h${sub(t - 1)}`;
-        const next   = `h${sub(t)}`;
+        const tok = tokens[t - 1];
+        const id  = result.ids[t - 1];
+        const xv  = Array.from(result.xs[t - 1]).map(v => v.toFixed(2)).join(', ');
+        const hv  = Array.from(result.hs[t]).map(v => v.toFixed(2)).join(', ');
         formulaEl.innerHTML = `
             <span class="lbl">Step ${t}</span>
-            ${next} = tanh(W<sub>h</sub>·${prev} + W<sub>x</sub>·"${tok}" + b) =
-            <span class="sum">[${fmtVec(states[t])}]</span>
+            "${tok}" → id ${id} → x${sub(t)} = E[${id}] = [${xv}]
+            &nbsp;⇒&nbsp;
+            h${sub(t)} = tanh(W<sub>x</sub>·x${sub(t)} + W<sub>h</sub>·h${sub(t - 1)} + b)
+            = <span class="sum">[${hv}]</span>
         `;
     }
 
-    // ----- Interactions -----
-    function colAt(x) {
-        const geo = stepGeometry();
-        const i = Math.floor((x - geo.pad) / geo.colW);
-        return (i >= 0 && i < tokens.length) ? i + 1 : -1;
-    }
+    // ---------------- Interactions ----------------
     canvas.addEventListener('click', (e) => {
         const rect = canvas.getBoundingClientRect();
-        const col  = colAt(e.clientX - rect.left);
-        if (col > 0) {
+        const x = e.clientX - rect.left;
+        const T = tokens.length;
+        const padL = 18, padR = 18;
+        const colW = (cssW - padL - padR) / T;
+        const col = Math.floor((x - padL) / colW);
+        if (col >= 0 && col < T) {
             playing = false;
             updatePlayBtn();
-            activeT = col;
+            activeT = col + 1;
             draw();
         }
     });
@@ -372,11 +607,12 @@
         seqSelect.value = 'The quick brown fox jumps';
         seqSelect.addEventListener('change', () => {
             tokens = SEQUENCES[seqSelect.value];
-            states = runRecurrence(tokens);
+            result = forward(tokens);
             activeT = 1;
-            resize();
+            draw();
         });
     }
+
     if (cellSelect) {
         cellSelect.innerHTML = `
             <option value="vanilla">Vanilla RNN</option>
@@ -384,10 +620,12 @@
         `;
         cellSelect.addEventListener('change', () => {
             cellKind = cellSelect.value;
-            states = runRecurrence(tokens);
+            W_h = makeW_h(cellKind);
+            result = forward(tokens);
             draw();
         });
     }
+
     if (playBtn) {
         playBtn.addEventListener('click', () => {
             playing = !playing;

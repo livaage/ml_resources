@@ -22,7 +22,7 @@ next_title: Transformers
     <div class="viz-task-banner">
         <span class="viz-task-label">Task</span>
         <span class="viz-task-text">
-            Step through a sequence one token at a time. The cell on the right is the <strong>hidden state</strong> — the network's memory. Watch how it shifts as each new input arrives, and how the early signal fades on a <em>Vanilla RNN</em> + long sequence (the classic vanishing-gradient story). Switch the cell to <em>LSTM-like</em> and the memory survives much further.
+            Watch text turn into numbers (tokenise → vocab id → embedding) then flow through an RNN one step at a time. The middle panel shows the <strong>four shared weight matrices</strong> (E, W_x, W_h, b) — the entire network. The same matrices are applied at every timestep below: indigo arrows go through W_x, orange arrows through W_h. Try a long sequence on a <em>Vanilla RNN</em> and watch the early signal fade; switch to <em>LSTM-like</em> and memory survives much further.
         </span>
     </div>
     <div class="viz-embed-header">
@@ -343,11 +343,13 @@ for sequence in long_sequences:
 
 <div class="fig-explainer" data-fig="rnn" markdown="1">
 
-### Reading the unrolled RNN
+### Reading the figure
 
-Each column is the **same cell**, applied at a different timestep — the "same weights" label on the first cell is the whole point. The horizontal arrow between columns is the **hidden state** being passed forward; the vertical arrow into each cell is the input token at that step.
+**Top — text → numbers.** Each word in the input string becomes a token, then a vocabulary id (an integer), then a vector by looking up row `id` of the **embedding matrix E**. That vector is the actual input the network sees at each step — strings never enter the linear algebra.
 
-Click any timestep to inspect its hidden-state vector. Try the *long sequence* with a *Vanilla RNN* and watch the early hidden state decay to noise by the last step — that's the vanishing-gradient problem in pictures. Switch the cell to *LSTM-like* and the signal carries through, because the cell state has an additive update path that survives long backprop chains.
+**Middle — shared weights.** Four matrices make up the entire network: `E` (embeddings), `W_x` (input weights), `W_h` (recurrent weights), `b` (bias). These same four matrices are applied at *every* timestep below. That weight-sharing is what makes an RNN an RNN — and what lets it process sequences of any length without growing the parameter count.
+
+**Bottom — unrolled in time.** Each column is the same cell applied at a different step. Indigo arrows go through `W_x` (input projection); orange arrows go through `W_h` (recurrent projection). The cell formula is `h_t = tanh(W_x · x_t + W_h · h_{t-1} + b)`. Click any column to inspect its concrete numbers, or try the *long sequence* with a *Vanilla RNN* and watch the early signal decay — that's the vanishing-gradient problem in pictures.
 
 </div>
 
