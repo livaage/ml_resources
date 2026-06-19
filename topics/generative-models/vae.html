@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variational Autoencoders (VAE) — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="active">Theory</a>
+            <a href="../../engineering.html" class="">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../theory.html" class="eyebrow">← Theory · Generative Models</a>
+                    <h1>Variational Autoencoders</h1>
+                    <p class="lead">PPCA with the linear decoder swapped for a neural network — and an encoder that learns to approximate the now-intractable posterior.</p>
+                </header>
+
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Take the PPCA recipe and bend the line.</strong> <a href="pca.html">PCA &amp; Probabilistic PCA</a> generates data by drawing a code <em>z</em> from a unit Gaussian and pushing it through a <em>straight line</em> <em>Wz + μ</em>, plus noise. A VAE keeps that exact skeleton — <em>sample a code, decode it</em> — but replaces the straight line with a <strong>neural network</strong> so the data manifold can curve. The price: the tidy closed-form posterior PPCA enjoyed is now intractable, so a second network — the <strong>encoder</strong> — learns to approximate it. Train both by maximising the ELBO, a lower bound on the same <em>log p(x)</em> PPCA computes exactly.</p>
+</div>
+<article class="tldr-body">
+<p>PPCA was the "hydrogen atom": linear, Gaussian, solvable by hand. But a straight line can only ever produce one ellipsoidal blob. Faces, digits, audio live on <em>curved</em> manifolds. The VAE is the smallest possible upgrade that lets the manifold bend — and it earns its name from how it copes with the fallout.</p>
+<p><strong>The three pieces.</strong> An <strong>encoder</strong> <em>q(z|x)</em> reads a datapoint and outputs a <em>distribution</em> over codes — a mean and a spread — rather than a single point. A <strong>latent code</strong> <em>z</em> is sampled from that distribution. A <strong>decoder</strong> <em>p(x|z)</em> — now a neural net, not a matrix — maps the code back up to data space. Encoder and decoder are trained jointly so that codes round-trip back to their inputs.</p>
+<p><strong>Why a distribution, not a point?</strong> This is the whole trick. A plain <a href="../neural-networks/autoencoder.html">autoencoder</a> squeezes each input to a single point, and the gaps between those points decode to garbage — there's no way to <em>sample</em>. By forcing the encoder to emit a fuzzy cloud and pulling every cloud toward one shared unit-Gaussian prior, the VAE fills the latent space in. Afterwards you can draw any <em>z ~ N(0, I)</em>, decode it, and get something plausible. That's exactly the PPCA generative story, now with a curved decoder.</p>
+<p><strong>The reparameterisation trick, in words.</strong> You can't backpropagate through "draw a random sample". So instead of sampling <em>z</em> directly, you sample a fixed bit of noise <em>ε</em> from a standard Gaussian and <em>build</em> the code as <code>z = mean + spread × ε</code>. The randomness now lives in <em>ε</em>, which has no parameters, while gradients flow cleanly through the mean and spread the encoder produced. Same samples, differentiable path.</p>
+<p><strong>Fast but blurry.</strong> Generation is a <em>single forward pass</em> through the decoder — far faster than a <a href="gan.html">GAN</a>'s adversarial dance or <a href="diffusion.html">diffusion</a>'s long denoising chain. The catch is softness: the Gaussian likelihood rewards a blurry average over plausible outputs rather than committing to one crisp one. VAEs trade sharpness for speed, a stable likelihood objective, and a navigable latent space.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for a VAE when</h3>
+<ul>
+<li>You want PPCA's probabilistic latent-variable story but the data manifold is <em>curved</em></li>
+<li>A fast, single-pass generator matters and you can tolerate some blur</li>
+<li>You need a smooth, navigable latent space — interpolation, attribute arithmetic</li>
+<li>You want a learned compressor to feed a downstream model (latent diffusion, autoregressive tokens)</li>
+</ul>
+</div>
+<div class="no">
+<h3>It breaks down when</h3>
+<ul>
+<li>Razor-sharp samples are the goal — the Gaussian likelihood blurs (use a <a href="gan.html">GAN</a> or <a href="diffusion.html">diffusion</a>)</li>
+<li>The data really is Gaussian — then plain <a href="pca.html">PPCA</a> is exact and far cheaper</li>
+<li>You need <em>exact</em> likelihoods — the ELBO is only a lower bound</li>
+<li>A strong decoder ignores the latent entirely (posterior collapse — see In-depth)</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch, torch.nn as nn
+
+# A VAE is PPCA with a *neural* decoder and a *learned* encoder.
+# Sample a code from N(0, I), decode it -&gt; a new datapoint (one forward pass).
+@torch.no_grad()
+def sample_vae(decoder, n, d_latent):
+    z = torch.randn(n, d_latent)   # 1. draw codes from the unit-Gaussian prior
+    return decoder(z)              # 2. decode with a NEURAL NET (not a matrix)
+
+# Compare to PPCA: there the decoder was just `z @ W.T + mu`.
+# Make `decoder` linear and a VAE collapses straight back to PPCA.
+</code></pre>
+</div>
+<div class="level-next">
+<span>Want the ELBO, the reparameterisation trick spelled out, and the PPCA bridge?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
+</section>
+<section class="topic-level" data-level="fundamentals">
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">The training objective (ELBO)</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathcal{L}(\theta, \phi; x) = \underbrace{\mathbb{E}_{q_\phi(z\mid x)}\!\big[\log p_\theta(x \mid z)\big]}_{\text{reconstruction}} \;-\; \underbrace{D_{\mathrm{KL}}\!\big(q_\phi(z \mid x) \,\big\|\, p(z)\big)}_{\text{regulariser}} $$</span></p>
+<ul class="formula-legend">
+<li>
+
+<em>q<sub>φ</sub>(z|x)</em> — the <strong>encoder</strong>, outputting a Gaussian <em>N(μ<sub>φ</sub>(x), σ<sub>φ</sub>²(x))</em> over codes
+
+</li>
+<li>
+
+<em>p<sub>θ</sub>(x|z)</em> — the <strong>decoder</strong> network; the likelihood of reconstructing <em>x</em> from <em>z</em>
+
+</li>
+<li>
+
+<em>p(z) = N(0, I)</em> — the same unit-Gaussian prior PPCA used
+
+</li>
+<li>
+
+Maximise <em>ℒ</em>: it is a lower bound on <em>log p(x)</em> (derived in the In-depth tier)
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{ELBO} = \underbrace{\text{how well codes reconstruct the input}}_{\text{reconstruction}} \;-\; \underbrace{\text{how far the encoder drifts from the prior}}_{\text{regulariser}} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The objective pits two pressures against each other. The <strong>reconstruction</strong> term rewards round-tripping: sample a <code>code</code> from the encoder's cloud given <code>x</code>, decode it, and check how close the result is to the original <code>x</code>. Left alone, that pressure would scatter codes anywhere convenient — leaving holes you can't sample from. So the <strong>regulariser</strong>, a KL divergence, penalises every per-input cloud for drifting away from the shared <code>prior</code> (a plain unit Gaussian). The balance packs all the codes into one smooth Gaussian-shaped region, so that after training you can draw a fresh code from the prior and the decoder knows what to do with it. Maximising the whole expression — the <strong>ELBO</strong>, or Evidence Lower BOund — provably pushes up the model's true log-likelihood.</p>
+<ul class="formula-legend">
+<li>
+
+<code>reconstruction</code>expected log-likelihood of decoding the input back from its own code
+
+</li>
+<li>
+
+<code>regulariser</code>KL distance from the encoder's per-input cloud to the unit-Gaussian prior
+
+</li>
+<li>
+
+<code>code</code>the latent <em>z</em>, sampled from the encoder's distribution — fewer dims than the data
+
+</li>
+<li>
+
+<code>prior</code><em>N(0, I)</em> — the round cloud you sample from at generation time
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>The reparameterisation trick.</strong> The encoder emits a mean <em>μ</em> and a (log-)variance, so the spread <em>σ</em>. You need a sample <em>z ~ N(μ, σ²)</em>, but sampling isn't differentiable. The fix is to factor the randomness out: draw <em>ε ~ N(0, I)</em> and set</p>
+<p>$$ z = \mu + \sigma \odot \varepsilon. $$</p>
+<p>Now <em>z</em> is a deterministic, differentiable function of <em>μ</em> and <em>σ</em>; the only stochastic input <em>ε</em> carries no parameters, so gradients flow back into the encoder. Without this trick the VAE simply couldn't be trained by backprop.</p>
+<p><strong>The KL term is closed-form.</strong> Because both <em>q<sub>φ</sub>(z|x)</em> and the prior are Gaussian, the regulariser has an exact formula — no sampling needed: $D_{\mathrm{KL}} = -\tfrac12 \sum_j \big(1 + \log\sigma_j^2 - \mu_j^2 - \sigma_j^2\big)$. It is minimised when <em>μ → 0</em> and <em>σ → 1</em>, i.e. when each code-cloud matches the standard normal. That is precisely the pull that makes the latent space samplable.</p>
+<p><strong>Why this gives PPCA back.</strong> PPCA's posterior <em>p(z|x)</em> was Gaussian and known in closed form because the decoder was linear. The VAE's <em>q<sub>φ</sub></em> is the <em>amortised</em> stand-in for that posterior — one network that infers codes for any input. Make the encoder and decoder linear with a Gaussian output and the ELBO becomes tight: the VAE reduces exactly to <a href="pca.html">PPCA</a>. Everything new is the cost of letting the decoder curve.</p>
+<p><strong>Pick the reconstruction loss by data type.</strong> MSE for continuous pixels or audio (a Gaussian output noise model — the direct heir of PPCA's <em>σ²I</em>); per-pixel binary cross-entropy for <code>[0,1]</code> Bernoulli outputs (the original paper's MNIST choice); ordinary cross-entropy for discrete tokens.</p>
+<p><strong>β-VAE and disentanglement.</strong> Scale the KL term by a factor <em>β</em>: <em>ℒ = E[log p(x|z)] − β·KL</em>. With <em>β &gt; 1</em> the prior pressure rises and each latent axis is nudged to carry one independent factor of variation (pose, lighting, identity) — "disentanglement". It's an inductive bias, not a guarantee. The <a href="../neural-networks/autoencoder.html">Autoencoders &amp; VAEs</a> page covers the regularised variants in depth.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch, torch.nn as nn
+import torch.nn.functional as F
+
+class VAE(nn.Module):
+    def __init__(self, d_in=784, d_latent=32):
+        super().__init__()
+        self.enc       = nn.Sequential(nn.Linear(d_in, 256), nn.ReLU())
+        self.fc_mu     = nn.Linear(256, d_latent)   # encoder mean
+        self.fc_logvar = nn.Linear(256, d_latent)   # encoder log-variance
+        self.dec       = nn.Sequential(nn.Linear(d_latent, 256), nn.ReLU(),
+                                       nn.Linear(256, d_in))  # NEURAL decoder
+
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5 * logvar)
+        return mu + std * torch.randn_like(std)      # z = mu + sigma * eps
+
+    def forward(self, x):
+        h = self.enc(x)
+        mu, logvar = self.fc_mu(h), self.fc_logvar(h)
+        z = self.reparameterize(mu, logvar)
+        return self.dec(z), mu, logvar
+
+def elbo_loss(x_hat, x, mu, logvar):
+    rec = F.mse_loss(x_hat, x, reduction=&quot;sum&quot;)           # reconstruction term
+    kl  = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum()  # KL to N(0, I)
+    return rec + kl    # minimise (rec + kl)  ==  maximise the ELBO
+</code></pre>
+</div>
+<div class="level-next">
+<span>Want the ELBO derived as a bound, posterior collapse, VQ-VAE, and the exact PPCA limit?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
+</section>
+<section class="topic-level" data-level="indepth">
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">ELBO as a lower bound on log p(x)</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \log p(x) = \underbrace{\mathbb{E}_{q_\phi(z\mid x)}\!\big[\log p_\theta(x \mid z)\big] - D_{\mathrm{KL}}\!\big(q_\phi(z\mid x)\,\|\,p(z)\big)}_{\text{ELBO}} \;+\; \underbrace{D_{\mathrm{KL}}\!\big(q_\phi(z\mid x)\,\|\,p_\theta(z\mid x)\big)}_{\ge\,0\ \text{— the gap}} $$</span></p>
+<ul class="formula-legend">
+<li>
+
+The same <em>log p(x)</em> PPCA evaluates in closed form — here it is intractable
+
+</li>
+<li>
+
+It splits <em>exactly</em> into the ELBO plus the KL from <em>q<sub>φ</sub></em> to the <strong>true</strong> posterior
+
+</li>
+<li>
+
+That KL is <em>≥ 0</em>, so the ELBO is a genuine lower bound; the gap shuts as <em>q<sub>φ</sub> → p<sub>θ</sub>(z|x)</em>
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \log p(\text{data}) = \underbrace{\text{ELBO}}_{\text{what we maximise}} \;+\; \underbrace{\text{distance from encoder to the TRUE posterior}}_{\ge\,0\ \text{— invisible gap}} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> This identity is what makes VAE training principled. The quantity you actually care about — <code>log p(data)</code>, how well the model explains the data, the very thing <a href="pca.html">PPCA</a> computes by hand — splits <em>exactly</em> into two pieces: the <strong>ELBO</strong> you can optimise, plus the KL distance from the encoder's guess to the <em>true</em> posterior (the perfect distribution over codes given the data). Because a KL distance is never negative, the ELBO can only ever sit <em>below</em> <code>log p(data)</code>, so maximising it is safe. And it does double duty: pushing the ELBO up both fits the data better and squeezes the encoder closer to the true posterior. The true posterior is exactly the object PPCA had in closed form and the curved decoder destroyed — so here we never compute the gap; we just optimise the bound.</p>
+<ul class="formula-legend">
+<li>
+
+<code>log p(data)</code>the marginal likelihood — intractable here, exact for PPCA
+
+</li>
+<li>
+
+<code>ELBO</code>the bound we maximise: reconstruction minus KL-to-prior
+
+</li>
+<li>
+
+<code>true posterior</code><em>p<sub>θ</sub>(z|x)</em> — what the encoder approximates; closed-form only when the decoder is linear
+
+</li>
+<li>
+
+<code>invisible gap</code>the KL between encoder and true posterior — never computed, only bounded
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Linear networks ⇒ PPCA, exactly.</strong> Strip the non-linearities: let the encoder and decoder be affine maps and the decoder's output noise be isotropic Gaussian. Then <em>q<sub>φ</sub>(z|x)</em> can represent the true Gaussian posterior, the invisible gap above closes to zero, the bound becomes tight, and the ELBO is maximised by precisely the <a href="pca.html">PPCA</a> solution — <em>W</em> spanning the top principal subspace. The VAE is, quite literally, PPCA with the linear maps replaced by neural networks and the now-unreachable posterior amortised into an encoder. That is the spine of this whole arc.</p>
+<p><strong>Blurriness is the Gaussian likelihood.</strong> An MSE reconstruction loss assumes the decoder output is the mean of a Gaussian. When several sharp outputs are all plausible for one code, the likelihood-maximising choice is their <em>average</em> — and an average of crisp images is a blurry one. This is intrinsic to the maximum-likelihood objective, not a bug; it's exactly the trade the next page, <a href="gan.html">GANs</a>, refuses to make — abandoning likelihood for a critic that punishes blur directly.</p>
+<p><strong>Posterior collapse.</strong> Give the decoder enough power (say an autoregressive PixelCNN) and it can model the data <em>without</em> the code. The encoder then takes the free lunch: it sets <em>q<sub>φ</sub>(z|x) = p(z)</em>, driving the KL term to zero and leaving the latent carrying no information. Standard fixes: <strong>KL annealing</strong> (ramp the KL weight up from zero), <strong>free bits</strong> (don't penalise KL below a per-dimension floor), or deliberately weakening the decoder.</p>
+<p><strong>VQ-VAE — discrete latents.</strong> Replace the Gaussian code with the nearest vector in a learned <strong>codebook</strong>: the encoder emits a continuous vector, you snap it to the closest entry, the decoder reconstructs from that. The discrete bottleneck sidesteps posterior collapse and produces <em>tokens</em>, which is why VQ-VAE is the image/audio tokeniser feeding autoregressive transformers (DALL·E v1, Parti) and most multi-modal LLMs.</p>
+<p><strong>Latent diffusion — the VAE as compressor.</strong> The dominant production role for VAEs today is <em>not</em> generating directly. Stable Diffusion (Rombach et al., 2022) trains a VAE to compress images to a small latent grid, then runs a <a href="diffusion.html">diffusion</a> model in <em>that</em> space rather than over pixels. The VAE handles dull perceptual compression; diffusion handles the hard semantic generation — and the VAE's blurry single-pass decoder becomes a feature, not a flaw. This links the arc forward: the next-but-one page is diffusion, and a VAE is what sits underneath it.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch, torch.nn as nn
+import torch.nn.functional as F
+
+# Posterior-collapse defences: KL annealing + free bits
+def vae_loss_robust(x_hat, x, mu, logvar, beta=1.0, free_bits=0.05):
+    rec = F.mse_loss(x_hat, x, reduction=&quot;sum&quot;)
+    # KL per latent dim, floored so we don't punish small but useful codes
+    kl_per_dim = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp())
+    kl = (kl_per_dim - free_bits).clamp(min=0).sum()
+    return rec + beta * kl
+
+def kl_anneal(step, warmup=5000):
+    return min(1.0, step / warmup)   # ramp beta 0 -&gt; 1 over warmup steps
+
+# The PPCA limit: a *linear* VAE. With these affine maps and a Gaussian
+# output, maximising the ELBO recovers Probabilistic PCA exactly.
+class LinearVAE(nn.Module):
+    def __init__(self, d_in, d_latent):
+        super().__init__()
+        self.fc_mu     = nn.Linear(d_in, d_latent)      # linear encoder
+        self.fc_logvar = nn.Linear(d_in, d_latent)
+        self.dec       = nn.Linear(d_latent, d_in)      # linear decoder == W z + mu
+</code></pre>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="pca.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">PCA & Probabilistic PCA</span>
+                        </span>
+                    </a>
+                    <a href="gan.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Generative Adversarial Networks</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="intuition">
+
+<a href="../neural-networks/autoencoder.html">Autoencoders &amp; VAEs, the deep view</a>
+<span class="annotation">Our own neural-networks page — the architectural and training detail this page deliberately skips, with an interactive encode/decode viz and the regularised-AE family.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://arxiv.org/abs/1312.6114" target="_blank">Kingma &amp; Welling (2013) — Auto-Encoding Variational Bayes <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The original VAE paper. Introduces the ELBO objective and the reparameterisation trick — short, foundational, and still the clearest first read.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://lilianweng.github.io/posts/2018-08-12-vae/" target="_blank">Lilian Weng — From Autoencoder to Beta-VAE <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">One tour through AE, denoising AE, VAE, and β-VAE with worked math. The best single source for cementing the reconstruction-plus-KL picture.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/1906.02691" target="_blank">Kingma &amp; Welling (2019) — An Introduction to Variational Autoencoders <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The authors' modern monograph. Read §2 with PPCA in mind — the linear-Gaussian special case is the perfect anchor for amortised inference and the bound.</span>
+
+</li>
+</ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

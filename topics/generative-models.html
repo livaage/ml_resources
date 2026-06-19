@@ -131,6 +131,16 @@ logits = model(x[:, :-1])
 loss   = F.cross_entropy(logits.flatten(end_dim=-2), x[:, 1:].flatten())
 </code></pre>
 </div>
+<div class="key-idea">
+<p><span class="key-idea-label">Methods in this section</span></p>
+<p>Work through them as one arc — each keeps the "sample a latent code, decode it" skeleton and changes one thing:</p>
+<ul>
+<li><a href="generative-models/pca.html"><strong>PCA &amp; Probabilistic PCA</strong></a> — the linear-Gaussian blueprint. A straight-line decoder; everything in closed form.</li>
+<li><a href="generative-models/vae.html"><strong>Variational Autoencoders</strong></a> — swap the line for a neural net; approximate the posterior with an encoder; train the ELBO.</li>
+<li><a href="generative-models/gan.html"><strong>Generative Adversarial Networks</strong></a> — drop the likelihood entirely; train the decoder to fool a critic. Sharp samples, finicky training.</li>
+<li><a href="generative-models/diffusion.html"><strong>Diffusion Models</strong></a> — make the decoder a long denoising chain. Best quality, slow sampling, the current state of the art.</li>
+</ul>
+</div>
 <div class="level-next">
 <span>Want EBMs, score-based models, and conditional generation?</span>
 <button data-go-to="fundamentals" type="button">Switch to Standard →</button>

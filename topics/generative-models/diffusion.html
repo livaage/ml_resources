@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diffusion Models — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="active">Theory</a>
+            <a href="../../engineering.html" class="">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../theory.html" class="eyebrow">← Theory · Generative Models</a>
+                    <h1>Diffusion Models</h1>
+                    <p class="lead">The one-shot decoder becomes a long denoising chain — start from noise, refine step by step. The current state of the art, at the cost of slow sampling.</p>
+                </header>
+
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Stop trying to leap from noise to data in one bound — take a thousand small steps instead.</strong> Every model so far decodes a latent in <em>one</em> shot: PPCA with a matrix, the <a href="vae.html">VAE</a> with one neural pass, the <a href="gan.html">GAN</a> with one generator pass. Diffusion keeps the same "noise → data" idea but <strong>unrolls the decoder into a long chain</strong>. Take a clean datapoint and slowly drown it in Gaussian noise until nothing is left; then train a network to undo <em>one</em> step of that corruption. To generate, start from pure noise and run the denoiser over and over. Each step is a tiny, easy, learnable nudge — and the chain composes into the sharpest samples in the section.</p>
+</div>
+<article class="tldr-body">
+<p>Where the <a href="gan.html">GAN</a> bet everything on a single generator pass and paid for it with unstable training and dropped modes, diffusion makes a different trade. It keeps the sample <em>quality</em> a GAN gets, regains <em>stability</em> (no adversary — just a regression) and <em>mode coverage</em> (it never stops covering the whole distribution), and pays the bill in one currency: <strong>sampling steps</strong>. One forward pass becomes tens to thousands.</p>
+<p><strong>The forward process — controlled destruction.</strong> Take a real datapoint <em>x₀</em> and add a little Gaussian noise. Then a little more. After enough steps the signal is gone and you're left with pure static — a sample from a plain Gaussian. This direction has <em>no learnable parameters</em>; it's fixed math you completely control. That's the secret to the whole thing: you only ever learn to invert a process you already understand perfectly.</p>
+<p><strong>The reverse process — what the network learns.</strong> Given a noisy datapoint and its noise level, predict the noise that was mixed in, and subtract a small slice of it to get a slightly cleaner datapoint. Run that loop from pure noise and the chain of small denoising steps walks you from the Gaussian back to the data manifold. The model never has to make the impossible jump in one go — only the easy local correction.</p>
+<p><strong>Why iterative beats one-shot.</strong> A GAN's generator must map a random vector straight onto a photorealistic image; that's a brutal function to learn, which is why GANs are finicky. Diffusion breaks the impossible jump into a thousand questions the model <em>can</em> answer — "this is slightly too noisy, clean it up a touch". The objective is plain mean-squared error on the noise: no minimax, no critic, no equilibrium to balance.</p>
+<p><strong>The catch.</strong> That chain is the price. Generating a sample means running the network once <em>per step</em> — 10s to 1000s of forward passes versus a GAN's single one. Most of the field's recent work (DDIM, distillation, consistency models, flow matching) is about making the chain shorter without losing quality. For the deep architectural and scheduler detail, see <a href="../neural-networks/diffusion.html">Diffusion Models, in depth</a>.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>Reach for diffusion when</h3>
+<ul>
+<li>You want the best sample quality available — it's the current default for images, audio, and video</li>
+<li>Mode coverage matters: you need the model to represent the <em>whole</em> distribution, not a few sharp modes</li>
+<li>You want stable, likelihood-style training with no adversary to balance</li>
+<li>Sample diversity and quality matter more than per-sample latency</li>
+</ul>
+</div>
+<div class="no">
+<h3>It breaks down when</h3>
+<ul>
+<li>You need strict real-time inference — even distilled diffusion trails a single-pass <a href="gan.html">GAN</a></li>
+<li>You need exact likelihoods — diffusion gives a variational bound, not exact log-density</li>
+<li>The data is tiny and you have no pretrained backbone — diffusion needs scale</li>
+<li>Both training <em>and</em> inference compute are tightly constrained — both phases are expensive</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch
+
+# The forward process: corrupt a clean datapoint in ONE shot.
+# No learning here — this is the fixed math the model will later invert.
+def forward_noise(x0, t, alphas_cumprod):
+    a_bar = alphas_cumprod[t].view(-1, 1, 1, 1)   # signal left at step t
+    eps   = torch.randn_like(x0)                   # the noise we add
+    x_t   = a_bar.sqrt() * x0 + (1 - a_bar).sqrt() * eps
+    return x_t, eps                                # the model's job: recover eps
+</code></pre>
+</div>
+<div class="level-next">
+<span>Want the noise-prediction loss, the closed-form forward process, and the sampling loop?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
+</section>
+<section class="topic-level" data-level="fundamentals">
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">The DDPM objective</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \mathcal{L} = \mathbb{E}_{x_0,\, t,\, \varepsilon}\,\Big\lVert\, \varepsilon - \varepsilon_\theta\big(\sqrt{\bar\alpha_t}\,x_0 + \sqrt{1-\bar\alpha_t}\,\varepsilon,\; t\big)\,\Big\rVert^2, \qquad \varepsilon \sim \mathcal{N}(0, I) $$</span></p>
+<ul class="formula-legend">
+<li>
+
+The whole training signal: predict the noise <em>ε</em> that was added at a random step <em>t</em>
+
+</li>
+<li>
+
+The input <em>√(ᾱ<sub>t</sub>) x₀ + √(1−ᾱ<sub>t</sub>) ε</em> is the closed-form forward sample <em>x<sub>t</sub></em> — drawable in one shot
+
+</li>
+<li>
+
+<em>ᾱ<sub>t</sub></em> is the cumulative noise schedule: fraction of signal left at step <em>t</em>, falling from ≈1 to ≈0
+
+</li>
+<li>
+
+Pure regression — no adversary, no partition function, no intractable integral
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{loss} = \text{average squared error between the real noise and the model's guess of that noise} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Pick a clean datapoint, pick a random <code>step</code> <em>t</em>, and draw some <code>noise</code> <em>ε</em>. Blend them with the fixed schedule to make a noisy version <code>x_t</code> — that's the forward process in one shot, controlled by <em>ᾱ<sub>t</sub></em> (alpha-bar), which starts near 1 (mostly signal) and ends near 0 (mostly noise). Hand <code>x_t</code> and the step <em>t</em> to the model and ask it one thing: <em>which noise did I add?</em> The loss is just the squared difference between the real <code>noise</code> and the model's <code>guess</code>. That's it — the cleanest objective in deep learning. Because every training example is "denoise this by a bit", there is no two-player game to balance and nothing to collapse, which is exactly the stability the <a href="gan.html">GAN</a> lacked.</p>
+<ul class="formula-legend">
+<li>
+
+<code>step</code>the random timestep <em>t</em>, sampled uniformly — the model trains on every noise level at once
+
+</li>
+<li>
+
+<code>noise</code>the true Gaussian noise <em>ε</em> mixed into the clean datapoint
+
+</li>
+<li>
+
+<code>x_t</code>the noisy datapoint <em>√(ᾱ<sub>t</sub>) x₀ + √(1−ᾱ<sub>t</sub>) ε</em> — computed in a single line, no chain needed
+
+</li>
+<li>
+
+<code>guess</code>the network's prediction <em>ε<sub>θ</sub>(x<sub>t</sub>, t)</em> — recovering the noise <em>is</em> recovering the cleaner image
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>The forward process has a closed form.</strong> Adding noise step by step is Markov, but because each step is Gaussian the <em>composition</em> is too: you can jump straight to step <em>t</em> with <em>q(x<sub>t</sub> | x₀) = 𝒩(√(ᾱ<sub>t</sub>) x₀, (1−ᾱ<sub>t</sub>) I)</em>. No loop is needed to make a training example — sample <em>t</em>, sample <em>ε</em>, blend. This is why training is cheap even though sampling is not.</p>
+<p><strong>Predict the noise, not the mean.</strong> The reverse step <em>p<sub>θ</sub>(x<sub>t−1</sub> | x<sub>t</sub>)</em> is itself a Gaussian whose mean the network sets. Rather than predict that mean directly, you reparameterise to predict the added noise <em>ε</em> and recover the mean algebraically. ε-prediction has uniform variance across timesteps and gives the simple MSE loss above; it's what most implementations use (some use the related "v-parameterisation" for extra stability at the extremes).</p>
+<p><strong>Sampling is the long chain.</strong> Start from <em>x<sub>T</sub> ~ 𝒩(0, I)</em> — pure noise — and step down: predict the noise, subtract a slice, optionally add a little fresh noise, repeat to <em>x₀</em>. This is the unrolled decoder. The GAN did this in one pass; diffusion does it in 10s–1000s, which is exactly the quality-for-speed trade.</p>
+<p><strong>It's secretly score matching.</strong> Predicting the noise <em>ε</em> is equivalent (up to a known scaling) to estimating the <em>score</em> — the gradient <em>∇<sub>x</sub> log p<sub>t</sub>(x)</em> of the noisy data density. So the noise-prediction network is a score estimator at every noise level, which is the bridge to the continuous-time view in the next tier. See the section <a href="../generative-models.html">overview</a> for the score-matching objective.</p>
+<p><strong>Conditioning via classifier-free guidance.</strong> To steer generation (text, class), train the same model with the condition sometimes dropped to a "null" token. At sampling time, run it both ways and extrapolate from the unconditional prediction toward the conditional one, scaled by a guidance weight — the <code>guidance_scale</code> knob. The <a href="../generative-models.html">overview</a> covers the mechanics; here it's enough to know one regression model handles both.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch
+import torch.nn.functional as F
+
+# DDPM training loss — the entire objective in five lines.
+def diffusion_loss(model, x0, alphas_cumprod):
+    B = x0.size(0)
+    T = alphas_cumprod.size(0)
+    t = torch.randint(0, T, (B,), device=x0.device)   # random step per example
+    eps = torch.randn_like(x0)                          # the noise to recover
+
+    # Closed-form forward sample: no chain needed at training time
+    a_bar = alphas_cumprod[t].view(-1, 1, 1, 1)
+    x_t   = a_bar.sqrt() * x0 + (1 - a_bar).sqrt() * eps
+
+    # Predict the noise; loss is plain MSE — no adversary, no balancing act
+    return F.mse_loss(model(x_t, t), eps)
+</code></pre>
+</div>
+<div class="level-next">
+<span>Want the score connection, latent diffusion, and how the chain gets shortened?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
+</section>
+<section class="topic-level" data-level="indepth">
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Noise prediction is the score</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \nabla_{x_t} \log p_t(x_t) \;=\; -\,\frac{\varepsilon_\theta(x_t, t)}{\sqrt{1-\bar\alpha_t}}, \qquad dx = \big[\, f(x,t) - g(t)^2\, \nabla_x \log p_t(x)\,\big]\,dt + g(t)\,d\bar W $$</span></p>
+<ul class="formula-legend">
+<li>
+
+The trained noise-predictor <em>ε<sub>θ</sub></em> <strong>is</strong> the score (up to the schedule factor <em>√(1−ᾱ<sub>t</sub>)</em>)
+
+</li>
+<li>
+
+Sampling = integrating the reverse-time SDE, which needs only the score
+
+</li>
+<li>
+
+DDPM is one discretisation; the deterministic "probability-flow ODE" shares its marginals
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{score}(x, t) \;=\; -\,\frac{\text{predicted noise}}{\sqrt{1-\bar\alpha_t}}, \qquad \text{sampling} = \text{follow the score downhill from noise to data} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> The <code>score</code> is the gradient of log-density — a vector field pointing toward where data is more likely. The headline: the noise your network predicts <em>is</em> the score, just rescaled. Predicting noise and estimating the score are the same task in two costumes. Once you have the score at every noise level, sampling is "follow it back to the data": let time flow continuously and integrate the reverse-time stochastic differential equation, which uses a built-in <code>drift</code>, the squared <code>noise-strength</code> times the <code>score</code>, and a controlled random kick (<code>d̅W</code>). Start from pure Gaussian noise, integrate backwards, and out comes a sample. DDPM is just one way of chopping that continuous reverse flow into discrete steps.</p>
+<ul class="formula-legend">
+<li>
+
+<code>score</code>∇<sub>x</sub> log p<sub>t</sub>(x) — gradient of log-density at noise level <em>t</em>, pointing uphill in probability
+
+</li>
+<li>
+
+<code>predicted noise</code>the network output <em>ε<sub>θ</sub>(x<sub>t</sub>, t)</em> — the same object you trained with plain MSE
+
+</li>
+<li>
+
+<code>drift / noise-strength</code><em>f(x, t)</em> and <em>g(t)</em> — the forward SDE's deterministic pull and noise scale
+
+</li>
+<li>
+
+<code>d̅W</code>reverse-time Wiener increment — formal name for "a small Gaussian random kick" each step
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Latent diffusion closes the arc.</strong> Pixels are wasteful — most of a 512×512 image is perceptual redundancy. So first train a <a href="vae.html">VAE</a> to compress images into a small latent grid, then run the whole diffusion chain <em>in that latent space</em>, decoding once at the end. This is exactly Stable Diffusion (Rombach et al., 2022), and it's why a few-GB checkpoint runs on a consumer GPU. Note what just happened: the VAE we met as a standalone generator returns here as the <strong>compressor</strong>, with diffusion as the decoder over its latent codes — the <a href="vae.html">VAE</a> page's one-shot decoder and this page's iterative chain working in tandem.</p>
+<p><strong>Shortening the chain — DDIM.</strong> The original DDPM sampler is stochastic and wants ~1000 steps. DDIM (Song et al., 2021) re-derives the <em>same</em> trained model as a deterministic process — same noise vector always yields the same sample — and matches 1000-step quality in ~50. ODE solvers (DPM-Solver, UniPC) push it to 10–20.</p>
+<p><strong>Shortening it further — distillation and consistency models.</strong> Distillation trains a student to take bigger jumps than its teacher. Consistency models (Song et al., 2023) go all the way: train a network to map <em>any</em> point on a probability-flow ODE trajectory directly to its endpoint, giving 1–4 step generation at quality close to the full chain. This is how modern generators became fast enough to feel interactive.</p>
+<p><strong>The frontier — flow matching / rectified flow.</strong> Instead of defining noise via an SDE and learning the score, flow matching (Lipman et al., 2023) and rectified flow (Liu et al., 2023) learn the <em>velocity field</em> of an ODE that transports noise to data along a near-straight path. Training is even simpler than DDPM, sampling needs fewer steps, and Stable Diffusion 3 and Flux already use it — it has largely replaced score matching as the default formulation.</p>
+<p><strong>The honest trade-off, three ways.</strong> On <em>sample quality</em>: diffusion ≥ GAN &gt; VAE (the VAE's one-pass decoder blurs; diffusion's chain sharpens). On <em>sampling speed</em>: VAE ≈ GAN (one pass) &gt;&gt; diffusion (the chain — unless distilled). On <em>mode coverage</em>: diffusion &gt; VAE &gt; GAN (the GAN's adversary drops modes; diffusion's likelihood-style objective covers the whole distribution). On <em>training stability</em>: diffusion ≈ VAE &gt; GAN (no minimax to balance). Diffusion's one weakness is the column it created: inference latency.</p>
+<p><strong>The whole arc, one skeleton.</strong> Every model in this section is <em>sample a latent, decode it</em>. PPCA decodes with a line; the <a href="vae.html">VAE</a> with one neural pass; the <a href="gan.html">GAN</a> with one generator pass; diffusion unrolls the decoder into a long denoising chain. Same idea the <a href="pca.html">PCA</a> page opened with — <em>latent code → decoder → data</em> — stretched from a single matrix multiply to a thousand learnable steps. That's the section.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch
+
+# DDPM sampling loop — the unrolled decoder: pure noise -&gt; data, step by step.
+@torch.no_grad()
+def ddpm_sample(model, shape, betas, alphas, alphas_cumprod, device=&quot;cuda&quot;):
+    x = torch.randn(shape, device=device)                  # start from pure noise
+    T = betas.size(0)
+    for t in reversed(range(T)):                           # the long chain
+        tb    = torch.full((shape[0],), t, device=device, dtype=torch.long)
+        a     = alphas[t]
+        a_bar = alphas_cumprod[t]
+
+        eps  = model(x, tb)                                # predicted noise (= score)
+        mean = (x - betas[t] / (1 - a_bar).sqrt() * eps) / a.sqrt()
+
+        if t &gt; 0:                                          # inject fresh noise except last step
+            x = mean + betas[t].sqrt() * torch.randn_like(x)
+        else:
+            x = mean
+    return x                                               # a fresh sample
+</code></pre>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="gan.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Generative Adversarial Networks</span>
+                        </span>
+                    </a>
+                    
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="intuition">
+
+<a href="../neural-networks/diffusion.html">Diffusion Models, in depth</a>
+<span class="annotation">Our own neural-networks page — the architecture, noise schedules, samplers, and ControlNet detail this page links out to, with an interactive forward/reverse viz.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://arxiv.org/abs/2006.11239" target="_blank">Ho et al. (2020) — Denoising Diffusion Probabilistic Models <i class="fas fa-external-link-alt"></i></a>
+
+<span class="annotation">The paper that made diffusion competitive. Derives the simple noise-prediction loss and the U-Net recipe everyone copied.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/" target="_blank">Lilian Weng — What are Diffusion Models? <i class="fas fa-external-link-alt"></i></a>
+
+<span class="annotation">The clearest unified treatment of DDPM, the noise schedule, score matching, and the SDE view, with all the algebra worked through.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/2112.10752" target="_blank">Rombach et al. (2022) — Latent Diffusion (Stable Diffusion) <i class="fas fa-external-link-alt"></i></a>
+
+<span class="annotation">Diffusion in a VAE's latent space — the paper that closes this section's loop, putting the VAE back to work as the compressor.</span>
+
+</li>
+</ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

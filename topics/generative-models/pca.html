@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCA as a Generative Model — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="active">Theory</a>
+            <a href="../../engineering.html" class="">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../theory.html" class="eyebrow">← Theory · Generative Models</a>
+                    <h1>PCA & Probabilistic PCA</h1>
+                    <p class="lead">The simplest generative model — a linear-Gaussian latent variable. The blueprint every model in this section generalises.</p>
+                </header>
+
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Generate data by drawing a low-dimensional code, then mapping it up with a straight line plus noise.</strong> Pick a latent point <em>z</em> from a standard Gaussian blob, stretch and rotate it through a matrix <em>W</em>, shift it, and sprinkle on a little isotropic noise — out comes a sample that looks like your data. That single recipe, <em>x = Wz + μ + ε</em>, <strong>is</strong> Probabilistic PCA. Everything else in this section keeps the recipe and replaces the straight line with something more expressive.</p>
+</div>
+<article class="tldr-body">
+<p>You already met PCA as a <a href="../dimensionality-reduction/pca.html">dimensionality-reduction</a> tool: find the directions of greatest variance, project onto them. That's the <em>encoder</em> half of the story. Here we turn it around and ask the generative question: <strong>what process could have <em>produced</em> this data?</strong></p>
+<p><strong>The generative view.</strong> Imagine each data point started life as a handful of latent numbers <em>z</em> — a compact "code". A linear map <em>W</em> expands that code into the high-dimensional space, we add the mean <em>μ</em>, and reality adds a bit of measurement noise. Run that forward and you've <em>sampled</em> a new datapoint. Learn <em>W</em> and the noise level from data and you've fit a generative model.</p>
+<p><strong>Why start here.</strong> PCA is the "hydrogen atom" of generative modelling — the one case where everything is linear and Gaussian, so every quantity has a closed form. There's no adversary, no sampling loop, no intractable integral. Once you see generation as <em>latent code → decoder → data</em>, the <a href="vae.html">VAE</a> is just "make the decoder a neural net", the <a href="gan.html">GAN</a> is "drop the likelihood and train a critic", and <a href="diffusion.html">diffusion</a> is "make the decoder a long denoising chain".</p>
+<p><strong>The catch.</strong> A straight line can only produce ellipsoidal Gaussian blobs. Real data lives on curved, multi-modal manifolds — faces, audio, language. The rest of this section is the story of replacing that line with curves while keeping the same "sample a latent, decode it" skeleton.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>The generative framing helps when</h3>
+<ul>
+<li>You want a probabilistic model with a real likelihood (model selection, anomaly scores)</li>
+<li>Data is roughly Gaussian / ellipsoidal — PPCA is the <em>right</em> model, not just a baseline</li>
+<li>You need to handle missing values (the latent model imputes them naturally)</li>
+<li>You want to understand VAEs — PPCA is the exact special case to anchor on</li>
+</ul>
+</div>
+<div class="no">
+<h3>It breaks down when</h3>
+<ul>
+<li>Data is multi-modal or lives on a curved manifold (a line can't bend)</li>
+<li>You need sharp, realistic samples — Gaussian noise blurs everything</li>
+<li>The interesting structure is non-linear (use a <a href="vae.html">VAE</a> or <a href="diffusion.html">diffusion</a>)</li>
+<li>You only want the projection, not a generative story — then plain <a href="../dimensionality-reduction/pca.html">PCA</a> is simpler</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import numpy as np
+
+# Probabilistic PCA as a *generator*: sample latent -&gt; decode -&gt; add noise
+# (W, mu, sigma learned from data; here we just sample from a fitted model)
+def sample_ppca(W, mu, sigma, n):
+    k = W.shape[1]                      # latent dimension
+    z = np.random.randn(n, k)           # 1. draw codes from N(0, I)
+    x = z @ W.T + mu                    # 2. decode with the linear map
+    x += sigma * np.random.randn(*x.shape)   # 3. add isotropic noise
+    return x
+
+# Fitting is just PCA: top-k eigenvectors of the covariance give W,
+# and the *leftover* variance becomes the noise level sigma^2.
+</code></pre>
+</div>
+<div class="level-next">
+<span>Want the actual likelihood, the EM fit, and the exact VAE connection?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
+</section>
+<section class="topic-level" data-level="fundamentals">
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">The PPCA model</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ z \sim \mathcal{N}(0, I), \qquad x \mid z \sim \mathcal{N}(Wz + \mu,\; \sigma^2 I) $$</span></p>
+<ul class="formula-legend">
+<li>
+
+Latent prior is a unit Gaussian — a featureless blob of codes
+
+</li>
+<li>
+
+Decoder <em>Wz + μ</em> is <strong>linear</strong>; noise is isotropic with a single scale <em>σ²</em>
+
+</li>
+<li>
+
+Marginal likelihood is closed-form: <em>x ~ N(μ, WWᵀ + σ²I)</em>
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \text{code} \sim \text{unit Gaussian}, \qquad \text{data} = \text{decoder}(\text{code}) + \text{noise} $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Two steps. First, draw a low-dimensional <code>code</code> <em>z</em> from a plain unit Gaussian — no structure, just a round cloud of points centred at zero. Second, push that code through a <code>decoder</code> that here is just a matrix multiply plus a shift (<code>Wz + μ</code>), then add a dab of round <code>noise</code> of size <em>σ</em>. Because both steps are Gaussian and the map is linear, the data you generate is itself exactly Gaussian, with covariance <code>WWᵀ + σ²I</code> — the part <code>WWᵀ</code> is the structured spread the model captured, and <code>σ²I</code> is the leftover wiggle it couldn't be bothered to explain. That clean formula is the whole reason PPCA is solvable by hand.</p>
+<ul class="formula-legend">
+<li>
+
+<code>code</code>the latent vector <em>z</em>, drawn from N(0, I) — usually far fewer dims than the data
+
+</li>
+<li>
+
+<code>decoder</code>the linear map <em>Wz + μ</em>; <em>W</em>'s columns are the directions the code stretches along
+
+</li>
+<li>
+
+<code>noise</code>isotropic Gaussian of scale <em>σ</em> — the same in every direction
+
+</li>
+<li>
+
+<code>WWᵀ + σ²I</code>the resulting data covariance — structure plus uniform leftover variance
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>PCA falls out of the limit.</strong> As the noise <em>σ² → 0</em>, the maximum-likelihood <em>W</em> spans exactly the top-<em>k</em> principal subspace — the same eigenvectors classical <a href="../dimensionality-reduction/pca.html">PCA</a> gives you. So PCA is PPCA with the noise turned off. Keeping <em>σ²</em> finite is what buys you a proper probability density.</p>
+<p><strong>You get a real likelihood.</strong> Because <em>x ~ N(μ, WWᵀ + σ²I)</em>, you can evaluate <em>log p(x)</em> for any point. That powers things classical PCA can't do: principled model selection (how many components?), anomaly detection (low likelihood = outlier), and comparing fits across datasets.</p>
+<p><strong>Posterior over codes.</strong> Given a datapoint, the posterior <em>p(z | x)</em> is again Gaussian — a closed-form encoder. This is exactly the object a <a href="vae.html">VAE</a> has to <em>approximate</em> with a neural network because its decoder is non-linear and the integral stops being tractable.</p>
+<p><strong>Fit by EM (or eigen-decomposition).</strong> Tipping &amp; Bishop (1999) gave both: a direct solution via the data covariance's eigenvectors, and an EM algorithm that scales better and handles missing data — E-step infers codes, M-step updates <em>W</em> and <em>σ²</em>.</p>
+<p><strong>Factor analysis is the cousin.</strong> Allow the noise to differ per feature (a diagonal <em>Ψ</em> instead of <em>σ²I</em>) and you get factor analysis. PPCA is the special case where every feature shares one noise level.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import numpy as np
+from sklearn.decomposition import PCA
+
+# scikit-learn's PCA exposes the PPCA likelihood directly.
+pca = PCA(n_components=10).fit(X)        # X: (n_samples, n_features)
+
+# score() returns the average log-likelihood under the Gaussian PPCA model
+print(&quot;avg log-likelihood:&quot;, pca.score(X))
+
+# The estimated isotropic noise variance sigma^2 (mean of discarded eigenvalues)
+print(&quot;noise variance:&quot;, pca.noise_variance_)
+
+# Likelihood-based model selection: which k generalises best?
+for k in [2, 5, 10, 20]:
+    ll = PCA(n_components=k).fit(X_train).score(X_val)
+    print(f&quot;k={k:2d}  val log-likelihood={ll:.2f}&quot;)
+</code></pre>
+</div>
+<div class="level-next">
+<span>Want the marginal-likelihood derivation, the rotation ambiguity, and where the line breaks?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
+</section>
+<section class="topic-level" data-level="indepth">
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Marginal likelihood</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ p(x) = \int p(x \mid z)\, p(z)\, dz = \mathcal{N}\!\big(x \;\big|\; \mu,\; C\big), \qquad C = WW^\top + \sigma^2 I $$</span></p>
+<ul class="formula-legend">
+<li>
+
+Integrating out <em>z</em> is tractable because everything is Gaussian — a rare luxury
+
+</li>
+<li>
+
+The MLE for <em>W</em> is <em>U<sub>k</sub>(Λ<sub>k</sub> − σ²I)<sup>½</sup>R</em> — top eigenvectors, scaled, times any rotation <em>R</em>
+
+</li>
+<li>
+
+The free rotation <em>R</em> is why PPCA axes aren't individually identified
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ p(\text{data}) = \text{average over all codes of } p(\text{data} \mid \text{code}) = \text{one big Gaussian with covariance } WW^\top + \sigma^2 I $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> To score a datapoint without knowing its code, you average the decoder's output probability over <em>every</em> possible code, weighted by the prior — that's the integral. For the <a href="vae.html">VAE</a> this integral is hopeless and must be bounded by the ELBO; for PPCA it collapses to a single Gaussian because a Gaussian pushed through a linear map and blurred by Gaussian noise stays Gaussian. The covariance <code>WWᵀ + σ²I</code> says it all: structure captured by the decoder plus uniform leftover noise. The price of linearity is the catch in the next paragraph — the solution is only pinned down up to an arbitrary rotation of the latent axes.</p>
+<ul class="formula-legend">
+<li>
+
+<code>average over all codes</code>marginalising the latent <em>z</em> against its prior — the integral
+
+</li>
+<li>
+
+<code>one big Gaussian</code>the result stays Gaussian only because the decoder is linear
+
+</li>
+<li>
+
+<code>rotation R</code>you can spin the latent axes freely without changing <em>p(x)</em> — they aren't unique
+
+</li>
+<li>
+
+<code>σ²</code>recovered as the average of the eigenvalues you <em>didn't</em> keep
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>The exact bridge to VAEs.</strong> A VAE is PPCA with two upgrades: (1) the decoder <em>Wz + μ</em> becomes a neural network <em>f<sub>θ</sub>(z)</em>, so the data manifold can curve; (2) the now-intractable posterior <em>p(z | x)</em> is approximated by an encoder network <em>q<sub>φ</sub>(z | x)</em>. Train by maximising the ELBO — a lower bound on the same <em>log p(x)</em> PPCA computes exactly. Set the networks to be linear and the ELBO becomes tight: you recover PPCA. See the <a href="vae.html">VAE</a> page for the full derivation. This is <em>the</em> reason this section opens with PCA.</p>
+<p><strong>Rotation ambiguity.</strong> Because <em>C = WWᵀ + σ²I</em> is unchanged if you replace <em>W</em> with <em>WR</em> for any orthogonal <em>R</em>, the latent axes aren't individually identifiable — only the subspace is. This is harmless for density modelling but means PPCA components aren't "interpretable" the way people sometimes hope. (Factor-analysis rotations like varimax exploit exactly this freedom.)</p>
+<p><strong>Why a line is not enough.</strong> PPCA can only ever produce one ellipsoidal blob. Two well-separated clusters? A spiral? A ring (like the viz on the <a href="../generative-models.html">overview</a> page)? A single Gaussian smears straight across the gap. The fix is non-linearity — and that's the entire motivation for the neural decoders in the rest of the section. A <em>mixture</em> of PPCAs patches multi-modality cheaply; a VAE handles curvature directly.</p>
+<p><strong>Missing data, for free.</strong> Because it's a proper latent-variable model, PPCA handles partially-observed inputs by marginalising the missing entries in the E-step — a genuinely useful capability classical PCA lacks.</p>
+<p><strong>Cost.</strong> Closed-form via SVD is <em>O(nd·min(n,d))</em>; EM is <em>O(ndk)</em> per iteration and shines when <em>k ≪ d</em> or data is missing. Both are trivial next to training any neural generative model — the reason PPCA is still the first thing to try when the data might actually be Gaussian.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import numpy as np
+
+# EM for PPCA — the algorithm a VAE generalises when the decoder goes non-linear.
+def ppca_em(X, k, iters=100):
+    n, d = X.shape
+    mu = X.mean(0)
+    Xc = X - mu
+    W = np.random.randn(d, k)
+    sigma2 = 1.0
+    for _ in range(iters):
+        # E-step: posterior over codes  q(z|x) = N(M^-1 W^T xc, sigma2 M^-1)
+        M = W.T @ W + sigma2 * np.eye(k)
+        Minv = np.linalg.inv(M)
+        Ez = Xc @ W @ Minv                         # expected codes
+        Ezz = n * sigma2 * Minv + Ez.T @ Ez        # expected outer products
+        # M-step: re-fit the linear decoder and the noise level
+        W = (Xc.T @ Ez) @ np.linalg.inv(Ezz)
+        sigma2 = (np.sum(Xc**2)
+                  - 2*np.sum(Ez @ W.T * Xc)
+                  + np.trace(Ezz @ (W.T @ W))) / (n * d)
+    return W, mu, sigma2
+</code></pre>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="../generative-models.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Generative Models</span>
+                        </span>
+                    </a>
+                    <a href="vae.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Variational Autoencoders</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="intuition">
+
+<a href="../dimensionality-reduction/pca.html">PCA, the deeper view <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Our own dimensionality-reduction page — the encoder/projection side of the same model, with the interactive variance viz.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://www.microsoft.com/en-us/research/publication/probabilistic-principal-component-analysis/" target="_blank">Tipping &amp; Bishop (1999) — Probabilistic Principal Component Analysis <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The original PPCA paper. Derives the maximum-likelihood solution and the EM algorithm — short and very readable.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://www.microsoft.com/en-us/research/people/cmbishop/prml-book/" target="_blank">Bishop — Pattern Recognition and Machine Learning, Ch. 12 <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Continuous latent-variable models done properly: PPCA, factor analysis, and the EM machinery that VAEs inherit.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/1906.02691" target="_blank">Kingma &amp; Welling (2019) — An Introduction to Variational Autoencoders <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">Read §2 with PPCA in mind — the linear-Gaussian special case is the perfect anchor before the neural generalisation in the next page.</span>
+
+</li>
+</ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative Adversarial Networks (GAN) — ML Resources Hub</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        .main-content { margin-top: 80px; }
+    </style>
+    <script data-goatcounter="https://YOUR_USERNAME.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">ML Resources Hub</div>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="../../theory.html" class="active">Theory</a>
+            <a href="../../engineering.html" class="">Engineering</a>
+            <a href="../../resources.html" class="">Resources</a>
+        </div>
+        <div class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="topic-layout">
+
+            <div class="topic-main">
+                <header class="page-header">
+                    <a href="../../theory.html" class="eyebrow">← Theory · Generative Models</a>
+                    <h1>Generative Adversarial Networks</h1>
+                    <p class="lead">Throw away the likelihood. Keep the latent-to-data decoder, but train it to fool a critic instead of to reconstruct — sharp samples, finicky training.</p>
+                </header>
+
+                <div class="tier-controls">
+                    <div class="level-tabs" role="tablist" aria-label="Tier">
+                        <button class="level-tab active" data-level="intuition" type="button">Intuition</button>
+                        <button class="level-tab" data-level="fundamentals" type="button">Fundamentals</button>
+                        <button class="level-tab" data-level="indepth" type="button">In-depth</button>
+                    </div>
+                    <div class="notation-toggle" role="group" aria-label="Notation density">
+                        <span>Mode</span>
+                        <div class="seg">
+                            <button data-notation="plain" type="button" title="Same maths, spelled out — no university-level symbols.">Plain</button>
+                            <button data-notation="standard" class="active" type="button" title="Conventional mathematical notation.">Math</button>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="topic-level active" data-level="intuition">
+<div class="key-idea">
+<p><span class="key-idea-label">Key idea</span></p>
+<p><strong>Keep the decoder; throw away the likelihood.</strong> PPCA and the <a href="vae.html">VAE</a> both kept the same skeleton — <em>sample a latent code, push it through a decoder, get data</em> — and trained that decoder to maximise (a bound on) the likelihood of the real data. A GAN keeps the very same skeleton: a <em>generator</em> still maps a noise vector <em>z</em> to a sample <em>G(z)</em>. What it throws out is the likelihood objective. Instead of asking "how probable is the real data under my model?", it trains a second network — a <em>discriminator</em> — to tell real samples from generated ones, and trains the generator to fool it. The latent→decoder skeleton survives; the <strong>training signal</strong> is what changes.</p>
+</div>
+<article class="tldr-body">
+<p>The <a href="vae.html">VAE</a> optimises a lower bound on <em>log p(x)</em> and pays a tax for it: its reconstruction term is (usually) a Gaussian likelihood, which means "be close to the real pixel on average". When several plausible outputs exist, averaging them is the safe bet — and the average of many sharp faces is a blurry face. Every likelihood-based decoder in this section inherits some version of that blur. A GAN makes a radical move to escape it: <strong>abandon likelihood entirely.</strong></p>
+<p><strong>The counterfeiter and the detective.</strong> Picture a counterfeiter (the generator) printing fake banknotes from scratch, and a detective (the discriminator) trying to spot them. The detective gets better at noticing tells; the counterfeiter gets better at hiding them. Run that arms race long enough and the fakes become indistinguishable from the real thing. There is no "compare pixel to pixel" anywhere in this loop — the loss function <em>is</em> a learned network that notices whatever is currently wrong. That's why GAN samples are sharp where VAE samples are soft: nothing rewards hedging.</p>
+<p><strong>No encoder, no likelihood.</strong> Notice what's gone. There is no encoder mapping data back to codes (the basic GAN doesn't need one), and crucially there is no <em>p(x)</em> — you cannot ask a trained GAN "how likely is this image?" or score a held-out point. That's a real loss. Likelihood is what powered PPCA's model selection and anomaly detection; a GAN gives none of it. To know whether a GAN is any good you have to <em>look at samples</em> and fall back on proxy metrics like <a href="#">FID</a> (Fréchet Inception Distance), which compares the statistics of generated and real samples in a feature space.</p>
+<p><strong>The price of sharpness.</strong> Two networks chasing each other is a <em>minimax game</em>, not a descent on a fixed loss — and that makes training famously unstable. The signature failure is <strong>mode collapse</strong>: the generator discovers one output (or a few) that reliably fools the current discriminator and pours all its mass there, ignoring the rest of the data distribution. There's no term anywhere that rewards diversity. Sharp but narrow is a GAN's characteristic failure; blurry but complete is a VAE's. For the full architectural and training-stability story see <a href="../neural-networks/gan.html">GANs, in depth</a>.</p>
+</article>
+<div class="use-cases">
+<div class="yes">
+<h3>The adversarial framing helps when</h3>
+<ul>
+<li>Sample <em>sharpness</em> matters more than likelihood — faces, textures, art</li>
+<li>You need single-pass sampling: one forward through <em>G</em>, no iterative loop</li>
+<li>You want a smooth, navigable latent space to <em>edit</em> in (StyleGAN-style)</li>
+<li>Image-to-image translation, super-resolution, or distilling a slow model</li>
+</ul>
+</div>
+<div class="no">
+<h3>It breaks down when</h3>
+<ul>
+<li>You need a likelihood — model selection, anomaly scores, density estimation</li>
+<li>Full mode coverage is critical — GANs drop modes; use <a href="diffusion.html">diffusion</a></li>
+<li>You want forgiving, stable training without convergence drama</li>
+<li>Best-in-class fresh image quality — <a href="diffusion.html">diffusion</a> has largely won that</li>
+</ul>
+</div>
+</div>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch.nn as nn
+
+# Same latent-&gt;decoder skeleton as PPCA/VAE — the generator IS the decoder.
+class Generator(nn.Module):
+    def __init__(self, z_dim=100, img_dim=784):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(z_dim, 256), nn.ReLU(),
+            nn.Linear(256, img_dim), nn.Tanh(),   # noise z -&gt; data
+        )
+    def forward(self, z): return self.net(z)
+
+# The new piece: a learned loss. D scores &quot;how real does this look?&quot;
+class Discriminator(nn.Module):
+    def __init__(self, img_dim=784):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(img_dim, 256), nn.LeakyReLU(0.2),
+            nn.Linear(256, 1), nn.Sigmoid(),
+        )
+    def forward(self, x): return self.net(x)
+</code></pre>
+</div>
+<div class="level-next">
+<span>Want the minimax objective, why it's really a divergence, and where the instability comes from?</span>
+<button data-go-to="fundamentals" type="button">Switch to Standard →</button>
+</div>
+</section>
+<section class="topic-level" data-level="fundamentals">
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">The minimax game</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ \min_G \max_D \;\; \mathbb{E}_{x \sim p_{\text{data}}}[\log D(x)] \;+\; \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))] $$</span></p>
+<ul class="formula-legend">
+<li>
+
+<em>D(x)</em> is the discriminator's estimated probability that <em>x</em> is real
+
+</li>
+<li>
+
+<em>D</em> <strong>maximises</strong>: push <em>D(x)</em>→1 on reals, <em>D(G(z))</em>→0 on fakes
+
+</li>
+<li>
+
+<em>G</em> <strong>minimises</strong>: push <em>D(G(z))</em>→1 — make fakes look real
+
+</li>
+<li>
+
+No <em>p(x)</em> anywhere — the objective is a <em>game</em>, not a likelihood
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ \min_G \max_D \;\; \text{avg over real}[\log D(\text{real})] \;+\; \text{avg over fakes}[\log(1 - D(\text{decode}(\text{noise})))] $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Two players share one scoreboard. The <strong>discriminator</strong> <code>D</code> reads a sample and outputs a number between 0 and 1 — "how likely is this real?". It wants to score reals near 1 and fakes near 0, and <em>maximising</em> the expression does exactly that (both terms grow when D is right). The <strong>generator</strong> <code>G</code> is the old decoder: it turns <code>noise</code> into a fake and tries to <em>minimise</em> the same expression, which means driving <code>D(decode(noise))</code> toward 1 — fooling D. <code>avg</code> (the <code>𝔼</code>) just means "average over many samples". Notice there is no reconstruction term and no <code>p(data)</code>: the only learning signal is whether D can be fooled. At the ideal equilibrium G's samples are indistinguishable from real data and D is reduced to a coin flip.</p>
+<ul class="formula-legend">
+<li>
+
+<code>decode(noise)</code>the generator <em>G(z)</em> — the same latent→data map PPCA and the VAE had
+
+</li>
+<li>
+
+<code>D</code>the learned loss: a network that scores realism instead of a fixed formula
+
+</li>
+<li>
+
+<code>max</code> then <code>min</code>a two-player game, not a single descent — the root of the instability
+
+</li>
+<li>
+
+<code>coin flip</code>at the optimum <em>D(x) = ½</em> everywhere: it can no longer tell real from fake
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>The non-saturating fix.</strong> Train by alternating: one gradient step up on <em>D</em>, one step down on <em>G</em>, repeat. There's a snag — early on, fakes are obviously fake, so <code>D(G(z))≈0</code>, <code>log(1 − D(G(z)))≈0</code>, and its gradient <em>vanishes</em> exactly when the generator most needs to learn. The standard repair is the <strong>non-saturating loss</strong>: have <em>G</em> maximise <code>log D(G(z))</code> (equivalently minimise <code>−log D(G(z))</code>) instead. Same fixed point, strong gradient when D is winning. Every modern GAN uses this — it's in the code below.</p>
+<p><strong>What the game is secretly optimising.</strong> Hold <em>G</em> fixed and solve for the best <em>D</em>. The optimum is the density ratio <em>D*(x) = p<sub>data</sub>(x) / (p<sub>data</sub>(x) + p<sub>g</sub>(x))</em>. Substitute it back and the generator's objective becomes the <strong>Jensen–Shannon divergence</strong> between the real and generated distributions (up to a constant). So a GAN <em>is</em> doing distribution matching — just not by maximising likelihood. This is the bridge back to the rest of the section: PPCA and the VAE minimise (a bound on) the <em>forward</em> KL to the data; the GAN minimises a symmetric JS divergence <em>estimated by a network</em> rather than computed in closed form.</p>
+<p><strong>Why JS is fragile.</strong> When the real and generated distributions barely overlap — which is the norm early in training, when fakes are noise — the JS divergence is locally flat, so the generator gets near-zero gradient. That's the formal reason vanilla GANs stall, and the motivation for the Wasserstein objective in the next tier.</p>
+<p><strong>Mode collapse.</strong> Because <em>G</em> is graded sample-by-sample (does <em>this</em> fake fool D?) and never on the diversity of its <em>distribution</em>, it can win by emitting one perfect output. It collapses onto a mode; D learns to flag everything else as fake, which only reinforces the collapse. Nothing in the minimax loss pushes back. The standard countermeasures — minibatch discrimination, unrolled GANs, and especially the Wasserstein loss — all add weak diversity pressure; the <a href="../neural-networks/gan.html">deep GAN page</a> catalogues the practical training tricks (TTUR, spectral norm, label smoothing, EMA of weights).</p>
+<p><strong>Conditioning and evaluation.</strong> Feed a label or embedding <em>y</em> to both networks and you get a <strong>conditional GAN</strong>: <code>G(z, y)</code> makes class-conditional samples, <code>D(x, y)</code> judges them in context — the basis of pix2pix and class-conditional image models. And because there's no likelihood to report, GANs are scored by proxies: <strong>FID</strong> compares Inception-feature statistics of real vs generated samples (lower is better, the de facto standard), <strong>IS</strong> (Inception Score) rewards recognisability plus diversity, and precision/recall metrics split "are samples realistic?" from "do they cover the data?".</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch
+import torch.nn.functional as F
+
+# One GAN training step with the non-saturating generator loss.
+def train_step(real_x, G, D, g_opt, d_opt, z_dim=100):
+    B = real_x.size(0)
+
+    # --- Train D: maximise log D(real) + log(1 - D(fake)) ---
+    z      = torch.randn(B, z_dim, device=real_x.device)
+    fake_x = G(z).detach()                    # detach: no grad to G here
+    d_loss = F.binary_cross_entropy(D(real_x), torch.ones(B, 1)) \
+           + F.binary_cross_entropy(D(fake_x), torch.zeros(B, 1))
+    d_opt.zero_grad(); d_loss.backward(); d_opt.step()
+
+    # --- Train G: minimise -log D(G(z))  (non-saturating) ---
+    z      = torch.randn(B, z_dim, device=real_x.device)
+    g_loss = F.binary_cross_entropy(D(G(z)), torch.ones(B, 1))   # target=1: &quot;look real&quot;
+    g_opt.zero_grad(); g_loss.backward(); g_opt.step()
+
+    return d_loss.item(), g_loss.item()
+</code></pre>
+</div>
+<div class="level-next">
+<span>Want the Wasserstein objective, why it stabilises training, and where GANs stand against diffusion?</span>
+<button data-go-to="indepth" type="button">Switch to In-depth →</button>
+</div>
+</section>
+<section class="topic-level" data-level="indepth">
+<div class="key-idea formula-block">
+<p><span class="key-idea-label">Wasserstein GAN objective</span></p>
+<div class="notation-standard">
+<p><span class="formula">$$ W(p_r, p_g) = \sup_{\lVert f \rVert_L \le 1} \;\; \mathbb{E}_{x \sim p_r}[f(x)] \;-\; \mathbb{E}_{z \sim p_z}[f(G(z))] $$</span></p>
+<ul class="formula-legend">
+<li>
+
+<em>W</em> is the <strong>Wasserstein-1</strong> (earth-mover) distance between real <em>p<sub>r</sub></em> and generated <em>p<sub>g</sub></em>
+
+</li>
+<li>
+
+<em>f</em> is the <strong>critic</strong> — replaces the discriminator; outputs a raw score, no sigmoid
+
+</li>
+<li>
+
+‖f‖<sub>L</sub> ≤ 1: <em>f</em> must be <strong>1-Lipschitz</strong> (its slope is capped at 1)
+
+</li>
+<li>
+
+Gradient stays meaningful even when <em>p<sub>r</sub></em> and <em>p<sub>g</sub></em> don't overlap
+
+</li>
+</ul>
+</div>
+<div class="notation-plain">
+<p><span class="formula">$$ W = \max_{f \,\text{(bounded slope)}} \;\; \text{avg over real}[\,f(\text{real})\,] \;-\; \text{avg over fake}[\,f(\text{decode}(\text{noise}))\,] $$</span></p>
+<p class="formula-narration"><strong>In words.</strong> Drop the log and the sigmoid. The discriminator becomes a <strong>critic</strong> <code>f</code> that outputs a raw realness score and is asked to push scores <em>up</em> on real samples and <em>down</em> on fakes; the gap between the two averages estimates the <strong>earth-mover distance</strong> — informally, <em>"how much probability mass would you have to haul, and how far, to turn the generated distribution into the real one"</em>. The one crucial leash is that <code>f</code> must be <strong>1-Lipschitz</strong>: its output can't change faster than its input, so its slope is capped. That cap is exactly what keeps the gradient alive when reals and fakes don't yet overlap — it replaces the flat-and-useless JS gradient of the vanilla GAN with a smooth, always-informative one.</p>
+<ul class="formula-legend">
+<li>
+
+<code>critic f</code>like the discriminator but unbounded — it ranks realness instead of classifying
+
+</li>
+<li>
+
+<code>earth-mover</code>cost of the cheapest plan to reshape one distribution into the other
+
+</li>
+<li>
+
+<code>bounded slope</code>the 1-Lipschitz constraint — enforced by gradient penalty or spectral norm
+
+</li>
+<li>
+
+<code>always-informative</code>Wasserstein gradients don't vanish on disjoint supports, unlike JS
+
+</li>
+</ul>
+</div>
+</div>
+<article class="tldr-body">
+<p><strong>Why WGAN stabilises training.</strong> The vanilla objective minimises Jensen–Shannon divergence, which goes flat — zero gradient — whenever real and fake distributions are disjoint, exactly the situation at the start of training. The Wasserstein distance varies smoothly even then, so the critic always hands the generator a usable direction to move. Empirically this removes much of the convergence drama: loss curves become meaningful (the critic's score <em>correlates</em> with sample quality), and mode collapse eases because the critic measures a <em>distributional</em> distance rather than per-sample realness.</p>
+<p><strong>Enforcing the Lipschitz constraint.</strong> The whole trick rests on keeping <em>f</em> 1-Lipschitz, and there are three generations of how. Original WGAN used crude <strong>weight clipping</strong>. <strong>WGAN-GP</strong> (<a href="https://arxiv.org/abs/1704.00028">Gulrajani et al., 2017</a>) added a <strong>gradient penalty</strong> — penalise the critic when the norm of its gradient at points interpolated between real and fake samples drifts away from 1 (sketched in the code). <strong>Spectral normalisation</strong> (<a href="https://arxiv.org/abs/1802.05957">Miyato et al., 2018</a>) caps each weight matrix's largest singular value — one line in PyTorch and the modern default. The <a href="../neural-networks/gan.html">deep GAN page</a> covers these alongside the rest of the stability toolkit.</p>
+<p><strong>What GANs are uniquely good at: latent-space editing.</strong> StyleGAN-class generators (<a href="https://arxiv.org/abs/1912.04958">Karras et al.</a>) feed a learned <em>style</em> code in at every layer and produce a latent space that is strikingly <strong>disentangled</strong> — single directions correspond to interpretable changes (age, pose, smile) with identity held fixed. Because a GAN is a single fast map <em>z → x</em>, you can walk that latent space and watch a face morph smoothly. This kind of clean, real-time semantic editing is something likelihood models and even diffusion still don't match as cleanly.</p>
+<p><strong>The honest comparison with diffusion.</strong> For unconditional and text-to-image quality and for <em>mode coverage</em>, <a href="diffusion.html">diffusion models</a> have largely overtaken GANs: they train stably, cover the full distribution, and hit the highest sample quality. What GANs keep is <strong>speed</strong> — a GAN samples in a <em>single forward pass</em>, while diffusion needs tens to hundreds of denoising steps. That one number drives a lot: real-time filters, on-device generation, and the wave of <em>diffusion-distilled</em> GANs (ADD, SDXL-Turbo) that train a one-step generator adversarially against a slow diffusion teacher to reclaim the speed.</p>
+<p><strong>Where this points next.</strong> The <a href="diffusion.html">diffusion</a> page is the resolution of the tension this page set up. It keeps the high sample quality that made GANs exciting, but recovers what GANs gave away — stable training, full mode coverage, and a genuine likelihood interpretation — by replacing the single adversarial leap with a long, gentle chain of denoising steps. The cost is precisely the speed GANs still own. That speed/quality trade-off is the through-line of the whole section; see the <a href="../generative-models.html">overview</a> for the four families side by side.</p>
+</article>
+<div class="code-snippet">
+<p><button class="copy-btn" type="button">Copy</button></p>
+<pre><code class="language-python">import torch
+
+# WGAN-GP critic loss: maximise the Wasserstein gap, enforce 1-Lipschitz via gradient penalty.
+def wgan_gp_critic_loss(real_x, fake_x, critic, lambda_gp=10.0):
+    # Wasserstein gap: critic scores reals high, fakes low (no sigmoid, no log).
+    d_real = critic(real_x).mean()
+    d_fake = critic(fake_x).mean()
+    w_loss = d_fake - d_real                         # minimise -&gt; maximise (real - fake)
+
+    # Gradient penalty: push ||grad critic|| toward 1 at random interpolations.
+    eps   = torch.rand(real_x.size(0), 1, 1, 1, device=real_x.device)
+    x_hat = (eps * real_x + (1 - eps) * fake_x).requires_grad_(True)
+    grad  = torch.autograd.grad(critic(x_hat).sum(), x_hat, create_graph=True)[0]
+    gp    = ((grad.flatten(1).norm(2, dim=1) - 1.0) ** 2).mean()
+
+    return w_loss + lambda_gp * gp                   # generator loss is just -critic(G(z)).mean()
+</code></pre>
+</div>
+<div class="level-next">
+<span>Too dense?</span>
+<button data-go-to="fundamentals" type="button">← Back to Standard</button>
+</div>
+</section>
+
+                <nav class="topic-nav">
+                    <a href="vae.html" class="prev">
+                        <span>
+                            <span class="topic-nav-label">Previous</span>
+                            <span class="topic-nav-title">Variational Autoencoders</span>
+                        </span>
+                    </a>
+                    <a href="diffusion.html" class="next">
+                        <span>
+                            <span class="topic-nav-label">Next</span>
+                            <span class="topic-nav-title">Diffusion Models</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <aside class="topic-sidebar">
+                <div class="learn-more">
+<h3>Where to learn more</h3>
+<ul>
+<li data-tier="intuition">
+
+<a href="../neural-networks/gan.html">GANs, in depth</a>
+<span class="annotation">Our own deep GAN page — architecture (DCGAN, StyleGAN), the full stability toolkit, and an interactive 2-D GAN you can train live to watch mode collapse happen.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://arxiv.org/abs/1406.2661" target="_blank">Goodfellow et al. (2014) — Generative Adversarial Nets <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The original paper, and surprisingly readable. Sections 2–4 derive the minimax game, the optimal discriminator, and the Jensen–Shannon-divergence interpretation used above.</span>
+
+</li>
+<li data-tier="fundamentals">
+
+<a href="https://lilianweng.github.io/posts/2017-08-20-gan/" target="_blank">Lilian Weng — From GAN to WGAN <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The best single blog tour: walks from vanilla GAN through the JS-divergence problem to WGAN and WGAN-GP, with the math behind every step.</span>
+
+</li>
+<li data-tier="indepth">
+
+<a href="https://arxiv.org/abs/1701.07875" target="_blank">Arjovsky et al. (2017) — Wasserstein GAN <i class="fas fa-external-link-alt"></i></a>
+<span class="annotation">The paper that diagnosed why JS-divergence gradients vanish and replaced them with the earth-mover distance. The clearest source for the In-depth formula on this page.</span>
+
+</li>
+</ul>
+</div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 ML Resources Hub. <a href="../../credits.html" style="color: inherit; opacity: 0.75; text-decoration: none; border-bottom: 1px dotted currentColor;">Credits</a></p>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$',  right: '$',  display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                throwOnError: false
+            });"></script>
+    <script src="../../js/topic-page.js"></script>
+</body>
+</html>
